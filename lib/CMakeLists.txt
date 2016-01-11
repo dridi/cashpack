@@ -27,6 +27,8 @@ add_library(
 	SHARED
 	hpack.c)
 
+add_dependencies(hpack gen)
+
 set_target_properties(
 	hpack
 	PROPERTIES

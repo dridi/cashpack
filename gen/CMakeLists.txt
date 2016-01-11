@@ -22,25 +22,14 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
+add_custom_target(gen)
 
-project(
-	cashpack
-	VERSION		0.1
-	LANGUAGES	C)
+macro(gen_tbl CMD HDR)
+	set(OUT ${CMAKE_CURRENT_BINARY_DIR}/${HDR}.h)
+	add_executable(${CMD} ${CMD}.c)
+	add_custom_target(${HDR} COMMAND ${CMD} >${OUT})
+	add_dependencies(gen ${HDR})
+endmacro(gen_tbl)
 
-set(PROJECT_LIB_ABI	0)
-set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
-
-set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
-
-set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
-set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
-
-include_directories(
-	"${CMAKE_SOURCE_DIR}/inc"
-	"${CMAKE_BINARY_DIR}/gen")
-
-add_subdirectory(inc)
-add_subdirectory(gen)
-add_subdirectory(lib)
+gen_tbl(hphidx hpack_huf_idx)
+gen_tbl(hphtbl hpack_huf_tbl)
