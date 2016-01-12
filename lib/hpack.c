@@ -102,7 +102,10 @@ hpack_decode_indexed(HPACK_CTX)
 	if (HPI_decode(ctx, HPACK_PFX_INDEXED, &idx) != 0)
 		return (-1);
 
-	INCOMPL(ctx);
+	if (HPT_decode(ctx, idx) != 0)
+		return (-1);
+
+	return (0);
 }
 
 static int

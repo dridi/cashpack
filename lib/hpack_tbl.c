@@ -24,63 +24,55 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * HPACK Indexing Tables (RFC 7541 Section 2.3)
  */
 
-/**********************************************************************
- * Data Structures
- */
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-enum hpack_type_e {
-	HPACK_INDEXED	= 0x80, /* Section 6.1 */
-	HPACK_DYNAMIC	= 0x40, /* Section 6.2.1 */
-	HPACK_LITERAL	= 0x00, /* Section 6.2.2 */
-	HPACK_NEVER	= 0x10, /* Section 6.2.3 */
-	HPACK_UPDATE	= 0x20, /* Section 6.3 */
-};
+#include "hpack.h"
+#include "hpack_priv.h"
 
-struct hpt_field {
-	char		*nam;
-	uint8_t		*val;
-	uint16_t	nam_sz;
-	uint16_t	val_sz;
-};
+#define HPT_STATIC_MAX 61
 
-struct hpack {
-	uint32_t	magic;
-#define ENCODER_MAGIC	0x8ab1fb4c
-#define DECODER_MAGIC	0xab0e3218
-	size_t		max;
-};
-
-struct hpack_ctx {
-	enum hpack_res_e	res;
-	struct hpack		*hp;
-	const uint8_t		*buf;
-	size_t			len;
-	hpack_decoded_f		*cb;
-	void			*priv;
+const struct hpt_field hpt_static[] = {
+#define HPS(n, v)				\
+	{					\
+		.nam = n,			\
+		.val = (uint8_t*)v,		\
+		.nam_sz = sizeof(n) - 1,	\
+		.val_sz = sizeof(v) - 1,	\
+	},
+#include "tbl/hpack_static.h"
+#undef HPS
 };
 
 /**********************************************************************
- * Utility Macros
  */
 
-#define HPACK_CTX	struct hpack_ctx *ctx
+static int
+hpt_decode_static(HPACK_CTX, size_t idx)
+{
+	const struct hpt_field *hf;
 
-#define EXPECT(ctx, err, cond)				\
-	do {						\
-		if (!(cond)) {				\
-			(ctx)->res = HPACK_RES_##err;	\
-			return (-1);			\
-		}					\
-	} while (0)
+	hf = &hpt_static[idx-1];
 
-#define INCOMPL(ctx)	EXPECT(ctx, DEV, 0)
+	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, idx);
+	ctx->cb(ctx->priv, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+	ctx->cb(ctx->priv, HPACK_EVT_VALUE, hf->val, hf->val_sz);
 
-/**********************************************************************
- * Function Signatures
- */
+	return (0);
+}
 
-int HPI_decode(HPACK_CTX, size_t, uint16_t *);
+int
+HPT_decode(HPACK_CTX, size_t idx)
+{
 
-int HPT_decode(HPACK_CTX, size_t);
+	EXPECT(ctx, IDX, idx != 0);
+	if (idx <= HPT_STATIC_MAX)
+		return hpt_decode_static(ctx, idx);
+
+	INCOMPL(ctx);
+}

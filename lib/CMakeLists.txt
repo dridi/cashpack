@@ -26,7 +26,8 @@ add_library(
 	hpack
 	SHARED
 	hpack.c
-	hpack_int.c)
+	hpack_int.c
+	hpack_tbl.c)
 
 add_dependencies(hpack gen)
 
