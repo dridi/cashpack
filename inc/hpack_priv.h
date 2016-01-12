@@ -24,59 +24,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * HPACK: Header Compression for HTTP/2 (RFC 7541)
  */
 
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-
-#include "hpack.h"
-#include "hpack_priv.h"
-
-/**********************************************************************
- */
-
-static struct hpack *
-hpack_new(uint32_t magic, size_t max)
-{
-	struct hpack *hp;
-
-	hp = calloc(1, sizeof *hp);
-	if (hp == NULL)
-		return (NULL);
-
-	hp->magic = magic;
-	hp->max = max;
-	return (hp);
-}
-
-struct hpack *
-HPACK_encoder(size_t max)
-{
-
-	return (hpack_new(ENCODER_MAGIC, max));
-}
-
-struct hpack *
-HPACK_decoder(size_t max)
-{
-
-	return (hpack_new(DECODER_MAGIC, max));
-}
-
-void
-HPACK_free(struct hpack **hpp)
-{
-	struct hpack *hp;
-
-	assert(hpp != NULL);
-	hp = *hpp;
-	if (hp == NULL)
-		return;
-
-	*hpp = NULL;
-	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC);
-	free(hp);
-}
+struct hpack {
+	uint32_t	magic;
+#define ENCODER_MAGIC	0x8ab1fb4c
+#define DECODER_MAGIC	0xab0e3218
+	size_t		max;
+};

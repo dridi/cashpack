@@ -35,3 +35,7 @@ enum hpack_res_e {
 	HPACK_RES_OK	=  0,
 	HPACK_RES_ARG	= -1,
 };
+
+struct hpack * HPACK_encoder(size_t);
+struct hpack * HPACK_decoder(size_t);
+void HPACK_free(struct hpack **);
