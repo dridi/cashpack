@@ -25,34 +25,53 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * HPACK: Header Compression for HTTP/2 (RFC 7541)
+ * HPACK Integer representation (RFC 7541 Section 5.1)
+ *
+ * The implementation uses 16-bit unsigned values because 255 (2^8 - 1) octets
+ * would have been too little for literal header values (mostly for URLs and
+ * cookies) and 65535 (2^16 - 1) octets (65KB!!) seem overkill enough.
  */
 
-struct hpack;
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-enum hpack_res_e {
-	HPACK_RES_DEV	=  1,
-	HPACK_RES_OK	=  0,
-	HPACK_RES_ARG	= -1,
-	HPACK_RES_BUF	= -2,
-	HPACK_RES_INT	= -3,
-};
+#include "hpack.h"
+#include "hpack_priv.h"
 
-enum hpack_evt_e {
-	HPACK_EVT_FIELD	= 0,
-	HPACK_EVT_NEVER	= 1,
-	HPACK_EVT_INDEX	= 2,
-	HPACK_EVT_NAME	= 3,
-	HPACK_EVT_VALUE	= 4,
-	HPACK_EVT_DATA	= 5,
-	HPACK_EVT_TABLE	= 6,
-};
+int
+HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
+{
+	uint16_t v, n;
+	uint8_t b, m, mask;
 
-typedef void hpack_decoded_f(void *, enum hpack_evt_e, const void *, size_t);
+	assert(pfx >= 4 && pfx <= 7);
+	assert(val != NULL);
 
-struct hpack * HPACK_encoder(size_t);
-struct hpack * HPACK_decoder(size_t);
-void HPACK_free(struct hpack **);
+	EXPECT(ctx, BUF, ctx->len > 0);
+	mask = (1 << pfx) - 1;
+	v = *ctx->buf & mask;
+	ctx->buf++;
+	ctx->len--;
 
-enum hpack_res_e HPACK_decode(struct hpack *, const void *, size_t,
-    hpack_decoded_f cb, void *priv);
+	if (v < mask) {
+		*val = v;
+		return (0);
+	}
+
+	m = 0;
+
+	do {
+		EXPECT(ctx, BUF, ctx->len > 0);
+		b = *ctx->buf;
+		n = v + (b & 0x7f) * (1 << m);
+		EXPECT(ctx, INT, v <= n);
+		v = n;
+		m += 7;
+		ctx->buf++;
+		ctx->len--;
+	} while (b & 0x80);
+
+	*val = v;
+	return (0);
+}

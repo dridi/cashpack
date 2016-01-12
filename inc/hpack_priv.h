@@ -61,3 +61,5 @@ struct hpack_ctx {
 	} while (0)
 
 #define INCOMPL(ctx)	EXPECT(ctx, DEV, 0)
+
+int HPI_decode(HPACK_CTX, size_t, uint16_t *);

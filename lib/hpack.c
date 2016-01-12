@@ -97,6 +97,10 @@ HPACK_free(struct hpack **hpp)
 static int
 hpack_decode_indexed(HPACK_CTX)
 {
+	uint16_t idx;
+
+	if (HPI_decode(ctx, HPACK_PFX_INDEXED, &idx) != 0)
+		return (-1);
 
 	INCOMPL(ctx);
 }
