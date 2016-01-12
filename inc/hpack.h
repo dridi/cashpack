@@ -36,6 +36,21 @@ enum hpack_res_e {
 	HPACK_RES_ARG	= -1,
 };
 
+enum hpack_evt_e {
+	HPACK_EVT_FIELD	= 0,
+	HPACK_EVT_NEVER	= 1,
+	HPACK_EVT_INDEX	= 2,
+	HPACK_EVT_NAME	= 3,
+	HPACK_EVT_VALUE	= 4,
+	HPACK_EVT_DATA	= 5,
+	HPACK_EVT_TABLE	= 6,
+};
+
+typedef void hpack_decoded_f(void *, enum hpack_evt_e, const void *, size_t);
+
 struct hpack * HPACK_encoder(size_t);
 struct hpack * HPACK_decoder(size_t);
 void HPACK_free(struct hpack **);
+
+enum hpack_res_e HPACK_decode(struct hpack *, const void *, size_t,
+    hpack_decoded_f cb, void *priv);

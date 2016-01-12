@@ -35,6 +35,15 @@
 #include "hpack.h"
 #include "hpack_priv.h"
 
+enum hpack_pfx_e {
+	HPACK_PFX_STRING	= 7,
+	HPACK_PFX_INDEXED	= 7,
+	HPACK_PFX_DYNAMIC	= 6,
+	HPACK_PFX_LITERAL	= 4,
+	HPACK_PFX_NEVER		= 4,
+	HPACK_PFX_UPDATE	= 5,
+};
+
 /**********************************************************************
  */
 
@@ -79,4 +88,82 @@ HPACK_free(struct hpack **hpp)
 	*hpp = NULL;
 	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC);
 	free(hp);
+}
+
+/**********************************************************************
+ * Decoder
+ */
+
+static int
+hpack_decode_indexed(HPACK_CTX)
+{
+
+	INCOMPL(ctx);
+}
+
+static int
+hpack_decode_dynamic(HPACK_CTX)
+{
+
+	INCOMPL(ctx);
+}
+
+static int
+hpack_decode_literal(HPACK_CTX)
+{
+
+	INCOMPL(ctx);
+}
+
+static int
+hpack_decode_never(HPACK_CTX)
+{
+
+	INCOMPL(ctx);
+}
+
+static int
+hpack_decode_update(HPACK_CTX)
+{
+
+	INCOMPL(ctx);
+}
+
+enum hpack_res_e
+HPACK_decode(struct hpack *hp, const void *buf, size_t len,
+    hpack_decoded_f cb, void *priv)
+{
+	struct hpack_ctx ctx;
+	int retval;
+
+	if (hp == NULL || hp->magic != DECODER_MAGIC || buf == NULL ||
+	    len == 0 || cb == NULL)
+		return (HPACK_RES_ARG);
+
+	ctx.res = HPACK_RES_OK;
+	ctx.hp = hp;
+	ctx.buf = buf;
+	ctx.len = len;
+	ctx.cb = cb;
+	ctx.priv = priv;
+
+	while (ctx.len > 0) {
+#define HPACK_DECODE(l, U, or) 					\
+		if ((*ctx.buf & HPACK_##U) == HPACK_##U)	\
+			retval = hpack_decode_##l(&ctx); 	\
+		or
+		HPACK_DECODE(indexed, INDEXED, else)
+		HPACK_DECODE(dynamic, DYNAMIC, else)
+		HPACK_DECODE(update,  UPDATE,  else)
+		HPACK_DECODE(never,   NEVER,   else)
+		HPACK_DECODE(literal, LITERAL, /* out of bits */)
+#undef HPACK_DECODE
+		if (retval != 0) {
+			assert(ctx.res != HPACK_RES_OK);
+			return (ctx.res);
+		}
+	}
+
+	assert(ctx.res == HPACK_RES_OK);
+	return (ctx.res);
 }
