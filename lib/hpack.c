@@ -99,13 +99,8 @@ hpack_decode_indexed(HPACK_CTX)
 {
 	uint16_t idx;
 
-	if (HPI_decode(ctx, HPACK_PFX_INDEXED, &idx) != 0)
-		return (-1);
-
-	if (HPT_decode(ctx, idx) != 0)
-		return (-1);
-
-	return (0);
+	CALL(HPI_decode, ctx, HPACK_PFX_INDEXED, &idx);
+	return (HPT_decode(ctx, idx));
 }
 
 static int

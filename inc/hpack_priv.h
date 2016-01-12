@@ -67,6 +67,12 @@ struct hpack_ctx {
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 
+#define CALL(func, ...)				\
+	do {					\
+		if ((func)(__VA_ARGS__) != 0)	\
+			return (-1);		\
+	} while (0)
+
 #define EXPECT(ctx, err, cond)				\
 	do {						\
 		if (!(cond)) {				\
