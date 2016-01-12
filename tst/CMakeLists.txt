@@ -22,26 +22,16 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
+message("-- Check for working hexdump-binary conversions")
 
-project(
-	cashpack
-	VERSION		0.1
-	LANGUAGES	C)
+execute_process(
+	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/hexcheck
+	RESULT_VARIABLE	HEXCHECK_RESULT
+	ERROR_VARIABLE	HEXCHECK_ERROR)
 
-set(PROJECT_LIB_ABI	0)
-set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
-
-set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
-
-set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
-set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
-
-include_directories(
-	"${CMAKE_SOURCE_DIR}/inc"
-	"${CMAKE_BINARY_DIR}/gen")
-
-add_subdirectory(inc)
-add_subdirectory(gen)
-add_subdirectory(lib)
-add_subdirectory(tst)
+if(${HEXCHECK_RESULT} EQUAL 0)
+	message("-- Check for working hexdump-binary conversions - works")
+else()
+	message("-- Check for working hexdump-binary conversions - broken")
+	message("   The test suite cannot be run:\n${HEXCHECK_ERROR}")
+endif()

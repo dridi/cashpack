@@ -22,26 +22,27 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
+set -e
+set -o pipefail
 
-project(
-	cashpack
-	VERSION		0.1
-	LANGUAGES	C)
+TEST_DIR="$(dirname "$0")"
+TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
 
-set(PROJECT_LIB_ABI	0)
-set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
+trap "rm -fr $TEST_TMP" EXIT
 
-set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
+cmd_check() {
+	for cmd
+	do
+		type "$cmd" >/dev/null
+	done
+}
 
-set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
-set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
+hex_decode() {
+	cut -d '|' -f 1 |
+	xxd -r -p
+}
 
-include_directories(
-	"${CMAKE_SOURCE_DIR}/inc"
-	"${CMAKE_BINARY_DIR}/gen")
-
-add_subdirectory(inc)
-add_subdirectory(gen)
-add_subdirectory(lib)
-add_subdirectory(tst)
+hex_encode() {
+	hexdump -v -f "$TEST_DIR/rfcfmt" |
+	sed -e 's/[ ]*$//'
+}

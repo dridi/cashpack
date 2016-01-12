@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 # Copyright (c) 2016 Dridi Boukelmoune
 # All rights reserved.
 #
@@ -21,27 +23,29 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
+#
+# Check that hexdumps from RFC 7541 Appendix C can be used as-is in the test
+# suite by performing back-and-forth decoding and encoding of one of the HPACK
+# messages.
 
-cmake_minimum_required(VERSION 3.0)
+. "$(dirname "$0")"/common.sh
 
-project(
-	cashpack
-	VERSION		0.1
-	LANGUAGES	C)
+cmd_check hexdump xxd
 
-set(PROJECT_LIB_ABI	0)
-set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
+rfcdmp="$TEST_TMP/rfcdmp"
+hexdmp="$TEST_TMP/hexdmp"
 
-set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
+cat >"$rfcdmp" <<EOF
+88c1 611d 4d6f 6e2c 2032 3120 4f63 7420 | ..a.Mon, 21 Oct
+3230 3133 2032 303a 3133 3a32 3220 474d | 2013 20:13:22 GM
+54c0 5a04 677a 6970 7738 666f 6f3d 4153 | T.Z.gzipw8foo=AS
+444a 4b48 514b 425a 584f 5157 454f 5049 | DJKHQKBZXOQWEOPI
+5541 5851 5745 4f49 553b 206d 6178 2d61 | UAXQWEOIU; max-a
+6765 3d33 3630 303b 2076 6572 7369 6f6e | ge=3600; version
+3d31                                    | =1
+EOF
 
-set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
-set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
+hex_decode <"$rfcdmp" |
+hex_encode >"$hexdmp"
 
-include_directories(
-	"${CMAKE_SOURCE_DIR}/inc"
-	"${CMAKE_BINARY_DIR}/gen")
-
-add_subdirectory(inc)
-add_subdirectory(gen)
-add_subdirectory(lib)
-add_subdirectory(tst)
+diff -u "$rfcdmp" "$hexdmp" >&2
