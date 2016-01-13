@@ -95,22 +95,40 @@ HPACK_free(struct hpack **hpp)
  */
 
 static int
-hpack_decode_field(HPACK_CTX, uint16_t idx)
+hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 {
 	uint16_t len;
+	uint8_t huf;
+
+	huf = *ctx->buf & HPACK_HUFFMAN;
+	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
+
+	if (huf) {
+		EXPECT(ctx, LEN, len > 0);
+		EXPECT(ctx, BUF, ctx->len >= len);
+		ctx->cb(ctx->priv, evt, NULL, len);
+		INCOMPL(ctx);
+	}
+	else {
+		EXPECT(ctx, BUF, ctx->len >= len);
+		ctx->cb(ctx->priv, evt, ctx->buf, len);
+		ctx->buf += len;
+		ctx->len -= len;
+	}
+
+	return (0);
+}
+
+static int
+hpack_decode_field(HPACK_CTX, uint16_t idx)
+{
 
 	if (idx == 0)
-		INCOMPL(ctx);
+		CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
 	else
 		CALL(HPT_decode_name, ctx, idx);
 
-	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
-	EXPECT(ctx, BUF, ctx->len >= len);
-	ctx->cb(ctx->priv, HPACK_EVT_VALUE, ctx->buf, len);
-	ctx->buf += len;
-	ctx->len -= len;
-
-	return (0);
+	return (hpack_decode_string(ctx, HPACK_EVT_VALUE));
 }
 
 static int
@@ -143,8 +161,13 @@ hpack_decode_literal(HPACK_CTX)
 static int
 hpack_decode_never(HPACK_CTX)
 {
+	uint16_t idx;
 
-	INCOMPL(ctx);
+	CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
+	EXPECT(ctx, IDX, idx == 0);
+	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, 0);
+	ctx->cb(ctx->priv, HPACK_EVT_NEVER, NULL, 0);
+	return (hpack_decode_field(ctx, idx));
 }
 
 static int

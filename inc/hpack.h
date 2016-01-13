@@ -37,6 +37,7 @@ enum hpack_res_e {
 	HPACK_RES_BUF	= -2,
 	HPACK_RES_INT	= -3,
 	HPACK_RES_IDX	= -4,
+	HPACK_RES_LEN	= -5,
 };
 
 enum hpack_evt_e {

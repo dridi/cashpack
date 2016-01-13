@@ -38,6 +38,11 @@ enum hpack_type_e {
 	HPACK_UPDATE	= 0x20, /* Section 6.3 */
 };
 
+enum hpack_encoding_e { /* Section 5.2 */
+	HPACK_HUFFMAN	= 0x80,
+	HPACK_RAW	= 0x00,
+};
+
 struct hpt_field {
 	char		*nam;
 	uint8_t		*val;
