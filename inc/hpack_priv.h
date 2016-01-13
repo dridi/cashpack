@@ -90,3 +90,4 @@ struct hpack_ctx {
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
 
 int HPT_decode(HPACK_CTX, size_t);
+int HPT_decode_name(HPACK_CTX, size_t);

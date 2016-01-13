@@ -95,6 +95,25 @@ HPACK_free(struct hpack **hpp)
  */
 
 static int
+hpack_decode_field(HPACK_CTX, uint16_t idx)
+{
+	uint16_t len;
+
+	if (idx == 0)
+		INCOMPL(ctx);
+	else
+		CALL(HPT_decode_name, ctx, idx);
+
+	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
+	EXPECT(ctx, BUF, ctx->len >= len);
+	ctx->cb(ctx->priv, HPACK_EVT_VALUE, ctx->buf, len);
+	ctx->buf += len;
+	ctx->len -= len;
+
+	return (0);
+}
+
+static int
 hpack_decode_indexed(HPACK_CTX)
 {
 	uint16_t idx;
@@ -114,8 +133,11 @@ hpack_decode_dynamic(HPACK_CTX)
 static int
 hpack_decode_literal(HPACK_CTX)
 {
+	uint16_t idx;
 
-	INCOMPL(ctx);
+	CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &idx);
+	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, 0);
+	return (hpack_decode_field(ctx, idx));
 }
 
 static int

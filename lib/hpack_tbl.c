@@ -53,12 +53,25 @@ const struct hpt_field hpt_static[] = {
  */
 
 static int
-hpt_decode_static(HPACK_CTX, size_t idx)
+hpt_search(HPACK_CTX, size_t idx, const struct hpt_field **hfp)
+{
+
+	if (idx <= HPT_STATIC_MAX) {
+		*hfp = &hpt_static[idx - 1];
+		return (0);
+	}
+
+	INCOMPL(ctx);
+}
+
+int
+HPT_decode(HPACK_CTX, size_t idx)
 {
 	const struct hpt_field *hf;
 
-	hf = &hpt_static[idx-1];
-
+	assert(idx != 0);
+	CALL(hpt_search, ctx, idx, &hf);
+	EXPECT(ctx, IDX, hf != NULL);
 	ctx->cb(ctx->priv, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
 	ctx->cb(ctx->priv, HPACK_EVT_VALUE, hf->val, hf->val_sz);
 
@@ -66,12 +79,14 @@ hpt_decode_static(HPACK_CTX, size_t idx)
 }
 
 int
-HPT_decode(HPACK_CTX, size_t idx)
+HPT_decode_name(HPACK_CTX, size_t idx)
 {
+	const struct hpt_field *hf;
 
-	EXPECT(ctx, IDX, idx != 0);
-	if (idx <= HPT_STATIC_MAX)
-		return hpt_decode_static(ctx, idx);
+	assert(idx != 0);
+	CALL(hpt_search, ctx, idx, &hf);
+	EXPECT(ctx, IDX, hf != NULL);
+	ctx->cb(ctx->priv, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
 
-	INCOMPL(ctx);
+	return (0);
 }
