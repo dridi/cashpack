@@ -46,3 +46,16 @@ hex_encode() {
 	hexdump -v -f "$TEST_DIR/rfcfmt" |
 	sed -e 's/[ ]*$//'
 }
+
+mk_input() {
+	cat >"$TEST_TMP/input"
+}
+
+hdecode() {
+	cat >"$TEST_TMP/expected"
+
+	hex_decode <"$TEST_TMP/input" >"$TEST_TMP/bindump"
+	./hdecode "$TEST_TMP/bindump" >"$TEST_TMP/output"
+
+	diff -u "$TEST_TMP/expected" "$TEST_TMP/output" >&2
+}

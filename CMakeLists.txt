@@ -29,6 +29,8 @@ project(
 	VERSION		0.1
 	LANGUAGES	C)
 
+enable_testing()
+
 set(PROJECT_LIB_ABI	0)
 set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
 

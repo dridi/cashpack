@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 # Copyright (c) 2016 Dridi Boukelmoune
 # All rights reserved.
 #
@@ -22,32 +24,16 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+. "$(dirname "$0")"/common.sh
 
-macro(tst_cmd CMD)
-	add_executable(${CMD} ${CMD}.c)
-	target_link_libraries(${CMD} hpack)
-	add_dependencies(check ${CMD})
-endmacro(tst_cmd)
+mk_input <<EOF
+82                                      | .
+EOF
 
-macro(tst_add TST)
-	add_test(${TST} ${CMAKE_CURRENT_SOURCE_DIR}/${TST})
-endmacro(tst_add)
+hdecode <<EOF
+Decoded header list:
 
-tst_cmd(hdecode)
+:method: GET
 
-message("-- Check for working hexdump-binary conversions")
-
-execute_process(
-	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/hexcheck
-	RESULT_VARIABLE	HEXCHECK_RESULT
-	ERROR_VARIABLE	HEXCHECK_ERROR)
-
-if(${HEXCHECK_RESULT} EQUAL 0)
-	message("-- Check for working hexdump-binary conversions - works")
-
-	tst_add(rfc7541_c_2_4)
-else()
-	message("-- Check for working hexdump-binary conversions - broken")
-	message("   The test suite cannot be run:\n${HEXCHECK_ERROR}")
-endif()
+Dynamic table (after decoding): empty.
+EOF

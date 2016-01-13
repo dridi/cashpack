@@ -100,6 +100,7 @@ hpack_decode_indexed(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_INDEXED, &idx);
+	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, idx);
 	return (HPT_decode(ctx, idx));
 }
 
