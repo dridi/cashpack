@@ -124,9 +124,14 @@ main(int argc, char **argv)
 	void *buf;
 	int fd;
 
-	assert(argc == 2);
+	/* ignore the command name */
+	argc--;
+	argv++;
 
-	fd = open(argv[1], O_RDONLY);
+	/* exactly one file name is expected */
+	assert(argc == 1);
+
+	fd = open(*argv, O_RDONLY);
 	assert(fd > STDERR_FILENO);
 
 	assert(fstat(fd, &st) == 0);
