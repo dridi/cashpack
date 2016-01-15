@@ -48,11 +48,11 @@ hex_encode() {
 }
 
 mk_input() {
-	cat >"$TEST_TMP/input"
+	sed -e '/^#/d' >"$TEST_TMP/input"
 }
 
 hdecode() {
-	cat >"$TEST_TMP/expected"
+	sed -e '/^#/d' >"$TEST_TMP/expected"
 
 	hex_decode <"$TEST_TMP/input" >"$TEST_TMP/bindump"
 	./hdecode $@ "$TEST_TMP/bindump" >"$TEST_TMP/output"
