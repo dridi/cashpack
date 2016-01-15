@@ -148,7 +148,6 @@ hpack_decode_dynamic(HPACK_CTX)
 	struct hpack_ctx tbl_ctx;
 	struct hpt_priv priv;
 	uint16_t idx;
-	int retval;
 
 	memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
@@ -159,24 +158,24 @@ hpack_decode_dynamic(HPACK_CTX)
 	tbl_ctx.cb = HPT_insert;
 	tbl_ctx.priv = &priv;
 
-	if (ctx->hp->cnt > 0)
-		INCOMPL();
-
 	CALLBACK(&tbl_ctx, HPACK_EVT_FIELD, NULL, sizeof(struct hpt_entry));
-	retval = hpack_decode_field(&tbl_ctx, idx);
-	if (retval != 0) {
+	if (hpack_decode_field(&tbl_ctx, idx) != 0) {
 		assert(tbl_ctx.res != HPACK_RES_OK);
 		ctx->res = tbl_ctx.res;
-	}
-	else {
-		assert(tbl_ctx.res == HPACK_RES_OK);
-		ctx->buf = tbl_ctx.buf;
-		ctx->len = tbl_ctx.len;
-		if (priv.len <= ctx->hp->lim)
-			ctx->hp->cnt++;
+		return (-1);
 	}
 
-	return (retval);
+	assert(tbl_ctx.res == HPACK_RES_OK);
+	ctx->buf = tbl_ctx.buf;
+	ctx->len = tbl_ctx.len;
+
+	if (priv.len <= ctx->hp->lim)
+		ctx->hp->cnt++;
+
+	if (ctx->hp->cnt > 1)
+		INCOMPL();
+
+	return (0);
 }
 
 static int
