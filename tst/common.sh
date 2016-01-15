@@ -55,7 +55,7 @@ hdecode() {
 	cat >"$TEST_TMP/expected"
 
 	hex_decode <"$TEST_TMP/input" >"$TEST_TMP/bindump"
-	./hdecode "$TEST_TMP/bindump" >"$TEST_TMP/output"
+	./hdecode $@ "$TEST_TMP/bindump" >"$TEST_TMP/output"
 
 	diff -u "$TEST_TMP/expected" "$TEST_TMP/output" >&2
 }

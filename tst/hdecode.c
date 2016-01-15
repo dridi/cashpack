@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -122,11 +123,22 @@ main(int argc, char **argv)
 	struct hpack *hp;
 	struct stat st;
 	void *buf;
-	int fd;
+	int fd, tbl_sz;
+
+	tbl_sz = 0;
 
 	/* ignore the command name */
 	argc--;
 	argv++;
+
+	/* handle options */
+	if (!strcmp("-t", *argv)) {
+		assert(argc > 2);
+		tbl_sz = atoi(argv[1]);
+		assert(tbl_sz > 0);
+		argc -= 2;
+		argv += 2;
+	}
 
 	/* exactly one file name is expected */
 	assert(argc == 1);
@@ -139,9 +151,9 @@ main(int argc, char **argv)
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != NULL);
 
-	hp = HPACK_decoder(55);
+	hp = HPACK_decoder(tbl_sz);
 	assert(hp != NULL);
-	hp->lim = 55; /* XXX: what is the initial limit? */
+	hp->lim = tbl_sz; /* XXX: what is the initial limit? */
 
 	OUT("Decoded header list:\n");
 

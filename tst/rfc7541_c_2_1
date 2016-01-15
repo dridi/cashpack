@@ -31,7 +31,7 @@ mk_input <<EOF
 746f 6d2d 6865 6164 6572                | tom-header
 EOF
 
-hdecode <<EOF
+hdecode -t 55 <<EOF
 Decoded header list:
 
 custom-key: custom-header
