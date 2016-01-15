@@ -55,6 +55,7 @@ struct hpack {
 #define ENCODER_MAGIC	0x8ab1fb4c
 #define DECODER_MAGIC	0xab0e3218
 	size_t		max;
+	size_t		cnt;
 };
 
 struct hpack_ctx {
@@ -87,6 +88,11 @@ struct hpack_ctx {
 	} while (0)
 
 #define INCOMPL(ctx)	EXPECT(ctx, DEV, 0)
+
+#define WRONG(str)		\
+	do {			\
+		assert(!str);	\
+	} while (0)
 
 /**********************************************************************
  * Function Signatures

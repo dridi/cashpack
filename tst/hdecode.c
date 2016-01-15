@@ -27,6 +27,7 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,6 +38,7 @@
 #include <fcntl.h>
 
 #include "hpack.h"
+#include "hpack_priv.h"
 
 #define WRT(buf, len)				\
 	do {					\
@@ -105,7 +107,13 @@ main(int argc, char **argv)
 	assert(res != HPACK_RES_DEV);
 	assert(res == HPACK_RES_OK);
 
-	OUT("\n\nDynamic table (after decoding): empty.\n");
+	OUT("\n\nDynamic table (after decoding):");
+	if (hp->cnt == 0)
+		OUT(" empty.\n");
+	else {
+		OUT("\n");
+		WRONG("Incomplete code");
+	}
 
 	HPACK_free(&hp);
 
