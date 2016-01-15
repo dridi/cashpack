@@ -48,8 +48,6 @@
 
 #define OUT(str)	WRT(str, sizeof(str) - 1)
 
-#define PTR(he, off) (void *)((uintptr_t)(he) + sizeof *(he) + (off))
-
 void
 print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
@@ -83,31 +81,35 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 void
-print_entries(const struct hpack *hp)
+print_entries(struct hpack *hp)
 {
-	const struct hpt_entry *he;
+	struct hpack_ctx ctx;
+	struct hpt_field hf;
 	char buf[sizeof "\n[  1] (s =  55) "];
-	size_t i, l, off;
+	size_t i, retval, l, s;
 
-	i = hp->cnt;
-	he = hp->tbl;
-	off = 0;
+	memset(&ctx, 0, sizeof ctx);
+	ctx.hp = hp;
 
-	do {
-		assert(he->pre_sz == off);
-		assert(he->nam_sz > 0);
-		assert(he->val_sz > 0);
-		off = sizeof *he + he->nam_sz + he->val_sz;
+	for (i = 1; i <= hp->cnt; i++) {
+		memset(&hf, 0, sizeof hf);
+		retval = HPT_search(&ctx, i + HPT_STATIC_MAX, &hf);
 
-		l = snprintf(buf, sizeof buf, "\n[%3lu] (s = %3lu) ", i, off);
+		assert(retval == 0);
+		assert(hf.nam_sz > 0);
+		assert(hf.val_sz > 0);
+		assert(hf.nam != NULL);
+		assert(hf.val != NULL);
+
+		s = 32 + hf.nam_sz + hf.val_sz;
+		l = snprintf(buf, sizeof buf, "\n[%3lu] (s = %3lu) ", i, s);
 		assert(l + 1 == sizeof  buf);
 		WRT(buf, sizeof(buf) - 1);
 
-		WRT(PTR(he, 0), he->nam_sz);
+		WRT(hf.nam, hf.nam_sz);
 		OUT(": ");
-		WRT(PTR(he, he->nam_sz), he->val_sz);
-		i--;
-	} while (i > 0);
+		WRT(hf.val, hf.val_sz);
+	}
 
 	OUT("\n      Table size: ");
 	l = snprintf(buf, sizeof buf, "%3lu", hp->len);

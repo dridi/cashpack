@@ -36,7 +36,8 @@
 #include "hpack.h"
 #include "hpack_priv.h"
 
-#define HPT_STATIC_MAX 61
+#define JUMP(he, off)	(void *)((uintptr_t)(he) + sizeof *(he) + (off))
+#define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
 const struct hpt_field hpt_static[] = {
 #define HPS(n, v)				\
@@ -114,29 +115,54 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 /**********************************************************************
  */
 
-static int
-hpt_search(HPACK_CTX, size_t idx, const struct hpt_field **hfp)
+int
+HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 {
+	const struct hpack *hp;
+	const struct hpt_entry *he;
+	size_t off;
 
 	if (idx <= HPT_STATIC_MAX) {
-		*hfp = &hpt_static[idx - 1];
+		memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
 		return (0);
 	}
 
-	(void)ctx;
-	INCOMPL();
+	hp = ctx->hp;
+	idx -= HPT_STATIC_MAX;
+	EXPECT(ctx, IDX, idx <= hp->cnt);
+	off = 0;
+	he = hp->tbl;
+
+	while (1) {
+		assert(DIFF(hp->tbl, he) < hp->len);
+		assert(he->pre_sz == off);
+		assert(he->nam_sz > 0);
+		assert(he->val_sz > 0);
+		off = sizeof *he + he->nam_sz + he->val_sz;
+		if (--idx == 0)
+			break;
+		he = JUMP(he, he->nam_sz + he->val_sz);
+	}
+
+	hf->nam_sz = he->nam_sz;
+	hf->val_sz = he->val_sz;
+	hf->nam = JUMP(he, 0);
+	hf->val = JUMP(he, he->nam_sz);
+	return (0);
 }
 
 int
 HPT_decode(HPACK_CTX, size_t idx)
 {
-	const struct hpt_field *hf;
+	struct hpt_field hf;
 
 	assert(idx != 0);
-	CALL(hpt_search, ctx, idx, &hf);
-	EXPECT(ctx, IDX, hf != NULL);
-	CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
-	CALLBACK(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);
+	memset(&hf, 0, sizeof hf);
+	CALL(HPT_search, ctx, idx, &hf);
+	EXPECT(ctx, IDX, hf.nam != NULL);
+	EXPECT(ctx, IDX, hf.val != NULL);
+	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
+	CALLBACK(ctx, HPACK_EVT_VALUE, hf.val, hf.val_sz);
 
 	return (0);
 }
@@ -144,12 +170,13 @@ HPT_decode(HPACK_CTX, size_t idx)
 int
 HPT_decode_name(HPACK_CTX, size_t idx)
 {
-	const struct hpt_field *hf;
+	struct hpt_field hf;
 
 	assert(idx != 0);
-	CALL(hpt_search, ctx, idx, &hf);
-	EXPECT(ctx, IDX, hf != NULL);
-	CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+	memset(&hf, 0, sizeof hf);
+	CALL(HPT_search, ctx, idx, &hf);
+	EXPECT(ctx, IDX, hf.nam != NULL);
+	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 
 	return (0);
 }
