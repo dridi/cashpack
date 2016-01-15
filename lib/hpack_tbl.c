@@ -37,6 +37,7 @@
 #include "hpack.h"
 #include "hpack_priv.h"
 
+#define MOVE(he, off)	(void *)((uintptr_t)(he) + (off))
 #define JUMP(he, off)	(void *)((uintptr_t)(he) + sizeof *(he) + (off))
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
@@ -110,7 +111,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;
-	uintptr_t off;
+	ptrdiff_t off;
 
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_INDEX);
@@ -118,8 +119,6 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 
 	priv2 = priv;
 	hp = priv2->ctx->hp;
-
-	/* XXX: eviction */
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
@@ -137,10 +136,20 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 
 	off = (uintptr_t)hp->tbl + priv2->len;
 	priv2->len += len;
-	hp->len += len;
-	if (priv2->len > hp->lim) {
-		hp->len = 0;
+
+	if (hp->cnt > 0 && hp->len + priv2->len > hp->lim) /* XXX: eviction */
+		INCOMPL();
+
+	if (priv2->len > hp->lim) { /* new field does not even fit alone */
+		assert(hp->len == 0);
+		assert(hp->cnt == 0);
 		return;
+	}
+
+	if (hp->cnt > 0 && len > 0) {
+		memmove(MOVE(priv2->he, len), priv2->he, hp->len);
+		priv2->he = MOVE(priv2->he, len);
+		priv2->he->pre_sz += len;
 	}
 
 	switch (evt) {

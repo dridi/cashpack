@@ -61,6 +61,7 @@ struct hpt_entry {
 
 struct hpt_priv {
 	struct hpack_ctx	*ctx;
+	struct hpt_entry	*he;
 	size_t			len;
 };
 

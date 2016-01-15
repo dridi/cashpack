@@ -145,12 +145,16 @@ hpack_decode_indexed(HPACK_CTX)
 static int
 hpack_decode_dynamic(HPACK_CTX)
 {
+	struct hpack *hp;
 	struct hpack_ctx tbl_ctx;
 	struct hpt_priv priv;
 	uint16_t idx;
 
+	hp = ctx->hp;
+
 	memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
+	priv.he = hp->tbl;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
 
@@ -169,11 +173,15 @@ hpack_decode_dynamic(HPACK_CTX)
 	ctx->buf = tbl_ctx.buf;
 	ctx->len = tbl_ctx.len;
 
-	if (priv.len <= ctx->hp->lim)
-		ctx->hp->cnt++;
-
-	if (ctx->hp->cnt > 1)
-		INCOMPL();
+	if (priv.len <= hp->lim) {
+		hp->len += priv.len;
+		if (++ctx->hp->cnt > 1)
+			assert(priv.he->pre_sz = priv.len);
+	}
+	else {
+		assert(hp->len == 0);
+		assert(hp->cnt == 0);
+	}
 
 	return (0);
 }

@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 # Copyright (c) 2016 Dridi Boukelmoune
 # All rights reserved.
 #
@@ -22,39 +24,29 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+. "$(dirname "$0")"/common.sh
 
-macro(tst_cmd CMD)
-	add_executable(${CMD} ${CMD}.c)
-	target_link_libraries(${CMD} hpack)
-	add_dependencies(check ${CMD})
-endmacro(tst_cmd)
+mk_input <<EOF
+4803 3330 3258 0770 7269 7661 7465 611d | H.302X.privatea.
+4d6f 6e2c 2032 3120 4f63 7420 3230 3133 | Mon, 21 Oct 2013
+2032 303a 3133 3a32 3120 474d 546e 1768 |  20:13:21 GMTn.h
+7474 7073 3a2f 2f77 7777 2e65 7861 6d70 | ttps://www.examp
+6c65 2e63 6f6d                          | le.com
+EOF
 
-macro(tst_add TST)
-	add_test(${TST} ${CMAKE_CURRENT_SOURCE_DIR}/${TST})
-endmacro(tst_add)
+hdecode -t 256 <<EOF
+Decoded header list:
 
-tst_cmd(hdecode)
+:status: 302
+cache-control: private
+date: Mon, 21 Oct 2013 20:13:21 GMT
+location: https://www.example.com
 
-message("-- Check for working hexdump-binary conversions")
+Dynamic table (after decoding):
 
-execute_process(
-	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/hexcheck
-	RESULT_VARIABLE	HEXCHECK_RESULT
-	ERROR_VARIABLE	HEXCHECK_ERROR)
-
-if(${HEXCHECK_RESULT} EQUAL 0)
-	message("-- Check for working hexdump-binary conversions - works")
-
-	tst_add(rfc7541_c_2_1)
-	tst_add(rfc7541_c_2_2)
-	tst_add(rfc7541_c_2_3)
-	tst_add(rfc7541_c_2_4)
-	tst_add(rfc7541_c_3_1)
-	tst_add(rfc7541_c_3_2)
-	tst_add(rfc7541_c_3_3)
-	tst_add(rfc7541_c_5_1)
-else()
-	message("-- Check for working hexdump-binary conversions - broken")
-	message("   The test suite cannot be run:\n${HEXCHECK_ERROR}")
-endif()
+[  1] (s =  63) location: https://www.example.com
+[  2] (s =  65) date: Mon, 21 Oct 2013 20:13:21 GMT
+[  3] (s =  52) cache-control: private
+[  4] (s =  42) :status: 302
+      Table size: 222
+EOF
