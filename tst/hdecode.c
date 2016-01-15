@@ -158,7 +158,6 @@ main(int argc, char **argv)
 	OUT("Decoded header list:\n");
 
 	res = HPACK_decode(hp, buf, st.st_size, print_headers, NULL);
-	assert(res != HPACK_RES_DEV);
 	assert(res == HPACK_RES_OK);
 
 	OUT("\n\nDynamic table (after decoding):");

@@ -31,7 +31,6 @@
 struct hpack;
 
 enum hpack_res_e {
-	HPACK_RES_DEV	=  1,
 	HPACK_RES_OK	=  0,
 	HPACK_RES_ARG	= -1,
 	HPACK_RES_BUF	= -2,

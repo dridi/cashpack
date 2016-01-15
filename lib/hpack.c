@@ -108,7 +108,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 		EXPECT(ctx, LEN, len > 0);
 		EXPECT(ctx, BUF, ctx->len >= len);
 		CALLBACK(ctx, evt, NULL, len);
-		INCOMPL(ctx);
+		INCOMPL();
 	}
 	else {
 		EXPECT(ctx, BUF, ctx->len >= len);
@@ -160,7 +160,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	tbl_ctx.priv = &priv;
 
 	if (ctx->hp->cnt > 0)
-		INCOMPL(ctx);
+		INCOMPL();
 
 	CALLBACK(&tbl_ctx, HPACK_EVT_FIELD, NULL, sizeof(struct hpt_entry));
 	retval = hpack_decode_field(&tbl_ctx, idx);
@@ -205,7 +205,8 @@ static int
 hpack_decode_update(HPACK_CTX)
 {
 
-	INCOMPL(ctx);
+	(void)ctx;
+	INCOMPL();
 }
 
 enum hpack_res_e

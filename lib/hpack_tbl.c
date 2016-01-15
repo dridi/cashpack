@@ -102,7 +102,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		hp->tbl[0].val_sz += len;
 		break;
 	case HPACK_EVT_DATA:
-		WRONG("Incomplete code");
+		INCOMPL();
 		break;
 	default:
 		WRONG("Unexpected event");
@@ -123,7 +123,8 @@ hpt_search(HPACK_CTX, size_t idx, const struct hpt_field **hfp)
 		return (0);
 	}
 
-	INCOMPL(ctx);
+	(void)ctx;
+	INCOMPL();
 }
 
 int
