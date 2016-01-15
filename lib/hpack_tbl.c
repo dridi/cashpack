@@ -29,6 +29,7 @@
  */
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +53,56 @@ const struct hpt_field hpt_static[] = {
 };
 
 /**********************************************************************
+ * Tables lookups
+ */
+
+static struct hpt_entry *
+hpt_dynamic(struct hpack *hp, struct hpt_entry *tbl, size_t idx)
+{
+	struct hpt_entry *he;
+	ptrdiff_t off;
+
+	he = tbl;
+	off = 0;
+
+	assert(idx > 0);
+	assert(idx <= hp->cnt);
+
+	while (1) {
+		assert(DIFF(tbl, he) < hp->len);
+		assert(he->pre_sz == off);
+		assert(he->nam_sz > 0);
+		assert(he->val_sz > 0);
+		if (--idx == 0)
+			return (he);
+		off = sizeof *he + he->nam_sz + he->val_sz;
+		he = JUMP(he, he->nam_sz + he->val_sz);
+	}
+}
+
+int
+HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
+{
+	const struct hpt_entry *he;
+
+	if (idx <= HPT_STATIC_MAX) {
+		memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
+		return (0);
+	}
+
+	idx -= HPT_STATIC_MAX;
+	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
+
+	he = hpt_dynamic(ctx->hp, ctx->hp->tbl, idx);
+	hf->nam_sz = he->nam_sz;
+	hf->val_sz = he->val_sz;
+	hf->nam = JUMP(he, 0);
+	hf->val = JUMP(he, he->nam_sz);
+	return (0);
+}
+
+/**********************************************************************
+ * Insert
  */
 
 void
@@ -113,43 +164,8 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 /**********************************************************************
+ * Decode
  */
-
-int
-HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
-{
-	const struct hpack *hp;
-	const struct hpt_entry *he;
-	size_t off;
-
-	if (idx <= HPT_STATIC_MAX) {
-		memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
-		return (0);
-	}
-
-	hp = ctx->hp;
-	idx -= HPT_STATIC_MAX;
-	EXPECT(ctx, IDX, idx <= hp->cnt);
-	off = 0;
-	he = hp->tbl;
-
-	while (1) {
-		assert(DIFF(hp->tbl, he) < hp->len);
-		assert(he->pre_sz == off);
-		assert(he->nam_sz > 0);
-		assert(he->val_sz > 0);
-		off = sizeof *he + he->nam_sz + he->val_sz;
-		if (--idx == 0)
-			break;
-		he = JUMP(he, he->nam_sz + he->val_sz);
-	}
-
-	hf->nam_sz = he->nam_sz;
-	hf->val_sz = he->val_sz;
-	hf->nam = JUMP(he, 0);
-	hf->val = JUMP(he, he->nam_sz);
-	return (0);
-}
 
 int
 HPT_decode(HPACK_CTX, size_t idx)
