@@ -106,12 +106,12 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	if (huf) {
 		EXPECT(ctx, LEN, len > 0);
 		EXPECT(ctx, BUF, ctx->len >= len);
-		ctx->cb(ctx->priv, evt, NULL, len);
+		CALLBACK(ctx, evt, NULL, len);
 		INCOMPL(ctx);
 	}
 	else {
 		EXPECT(ctx, BUF, ctx->len >= len);
-		ctx->cb(ctx->priv, evt, ctx->buf, len);
+		CALLBACK(ctx, evt, ctx->buf, len);
 		ctx->buf += len;
 		ctx->len -= len;
 	}
@@ -137,7 +137,7 @@ hpack_decode_indexed(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_INDEXED, &idx);
-	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, idx);
+	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, idx);
 	return (HPT_decode(ctx, idx));
 }
 
@@ -154,7 +154,7 @@ hpack_decode_literal(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &idx);
-	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, 0);
+	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	return (hpack_decode_field(ctx, idx));
 }
 
@@ -165,8 +165,8 @@ hpack_decode_never(HPACK_CTX)
 
 	CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
 	EXPECT(ctx, IDX, idx == 0);
-	ctx->cb(ctx->priv, HPACK_EVT_FIELD, NULL, 0);
-	ctx->cb(ctx->priv, HPACK_EVT_NEVER, NULL, 0);
+	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
 	return (hpack_decode_field(ctx, idx));
 }
 

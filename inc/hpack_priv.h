@@ -79,6 +79,11 @@ struct hpack_ctx {
 			return (-1);		\
 	} while (0)
 
+#define CALLBACK(ctx, ...)				\
+	do {						\
+		(ctx)->cb((ctx)->priv, __VA_ARGS__);	\
+	} while (0)
+
 #define EXPECT(ctx, err, cond)				\
 	do {						\
 		if (!(cond)) {				\

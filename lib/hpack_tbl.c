@@ -72,8 +72,8 @@ HPT_decode(HPACK_CTX, size_t idx)
 	assert(idx != 0);
 	CALL(hpt_search, ctx, idx, &hf);
 	EXPECT(ctx, IDX, hf != NULL);
-	ctx->cb(ctx->priv, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
-	ctx->cb(ctx->priv, HPACK_EVT_VALUE, hf->val, hf->val_sz);
+	CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+	CALLBACK(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);
 
 	return (0);
 }
@@ -86,7 +86,7 @@ HPT_decode_name(HPACK_CTX, size_t idx)
 	assert(idx != 0);
 	CALL(hpt_search, ctx, idx, &hf);
 	EXPECT(ctx, IDX, hf != NULL);
-	ctx->cb(ctx->priv, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+	CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
 
 	return (0);
 }
