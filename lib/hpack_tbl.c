@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hpack.h"
 #include "hpack_priv.h"
@@ -48,6 +49,67 @@ const struct hpt_field hpt_static[] = {
 #include "tbl/hpack_static.h"
 #undef HPS
 };
+
+/**********************************************************************
+ */
+
+void
+HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+{
+	struct hpt_priv *priv2;
+	struct hpack *hp;
+	uintptr_t off;
+
+	assert(evt != HPACK_EVT_NEVER);
+	assert(evt != HPACK_EVT_INDEX);
+	assert(evt != HPACK_EVT_TABLE);
+
+	priv2 = priv;
+	hp = priv2->ctx->hp;
+
+	/* XXX: eviction */
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		assert(len == 32); /* entry overhead, see Section 4.1 */
+		CALLBACK(priv2->ctx, evt, NULL, 0);
+		break;
+	case HPACK_EVT_NAME:
+	case HPACK_EVT_VALUE:
+	case HPACK_EVT_DATA:
+		CALLBACK(priv2->ctx, evt, buf, len);
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
+
+	off = (uintptr_t)hp->tbl + priv2->len;
+	priv2->len += len;
+	hp->len += len;
+	if (priv2->len > hp->lim) {
+		hp->len = 0;
+		return;
+	}
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		memset(hp->tbl, 0, sizeof *hp->tbl);
+		return;
+	case HPACK_EVT_NAME:
+		hp->tbl[0].nam_sz += len;
+		break;
+	case HPACK_EVT_VALUE:
+		hp->tbl[0].val_sz += len;
+		break;
+	case HPACK_EVT_DATA:
+		WRONG("Incomplete code");
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
+
+	memcpy((void *)off, buf, len);
+}
 
 /**********************************************************************
  */

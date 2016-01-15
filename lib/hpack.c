@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hpack.h"
 #include "hpack_priv.h"
@@ -144,8 +145,38 @@ hpack_decode_indexed(HPACK_CTX)
 static int
 hpack_decode_dynamic(HPACK_CTX)
 {
+	struct hpack_ctx tbl_ctx;
+	struct hpt_priv priv;
+	uint16_t idx;
+	int retval;
 
-	INCOMPL(ctx);
+	memset(&priv, 0, sizeof priv);
+	priv.ctx = ctx;
+
+	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
+
+	memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
+	tbl_ctx.cb = HPT_insert;
+	tbl_ctx.priv = &priv;
+
+	if (ctx->hp->cnt > 0)
+		INCOMPL(ctx);
+
+	CALLBACK(&tbl_ctx, HPACK_EVT_FIELD, NULL, sizeof(struct hpt_entry));
+	retval = hpack_decode_field(&tbl_ctx, idx);
+	if (retval != 0) {
+		assert(tbl_ctx.res != HPACK_RES_OK);
+		ctx->res = tbl_ctx.res;
+	}
+	else {
+		assert(tbl_ctx.res == HPACK_RES_OK);
+		ctx->buf = tbl_ctx.buf;
+		ctx->len = tbl_ctx.len;
+		if (priv.len <= ctx->hp->lim)
+			ctx->hp->cnt++;
+	}
+
+	return (retval);
 }
 
 static int

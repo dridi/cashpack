@@ -47,6 +47,8 @@
 
 #define OUT(str)	WRT(str, sizeof(str) - 1)
 
+#define PTR(he, off) (void *)((uintptr_t)(he) + sizeof *(he) + (off))
+
 void
 print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
@@ -79,6 +81,40 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	}
 }
 
+void
+print_entries(const struct hpack *hp)
+{
+	const struct hpt_entry *he;
+	char buf[sizeof "\n[  1] (s =  55) "];
+	size_t i, l, off;
+
+	i = hp->cnt;
+	he = hp->tbl;
+	off = 0;
+
+	do {
+		assert(he->pre_sz == off);
+		assert(he->nam_sz > 0);
+		assert(he->val_sz > 0);
+		off = sizeof *he + he->nam_sz + he->val_sz;
+
+		l = snprintf(buf, sizeof buf, "\n[%3lu] (s = %3lu) ", i, off);
+		assert(l + 1 == sizeof  buf);
+		WRT(buf, sizeof(buf) - 1);
+
+		WRT(PTR(he, 0), he->nam_sz);
+		OUT(": ");
+		WRT(PTR(he, he->nam_sz), he->val_sz);
+		i--;
+	} while (i > 0);
+
+	OUT("\n      Table size: ");
+	l = snprintf(buf, sizeof buf, "%3lu", hp->len);
+	assert(l == 3);
+	WRT(buf, l);
+	OUT("\n");
+}
+
 int
 main(int argc, char **argv)
 {
@@ -98,8 +134,9 @@ main(int argc, char **argv)
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != NULL);
 
-	hp = HPACK_decoder(0);
+	hp = HPACK_decoder(55);
 	assert(hp != NULL);
+	hp->lim = 55; /* XXX: what is the initial limit? */
 
 	OUT("Decoded header list:\n");
 
@@ -108,11 +145,16 @@ main(int argc, char **argv)
 	assert(res == HPACK_RES_OK);
 
 	OUT("\n\nDynamic table (after decoding):");
-	if (hp->cnt == 0)
+	if (hp->cnt == 0) {
 		OUT(" empty.\n");
+		assert(hp->len == 0);
+	}
 	else {
 		OUT("\n");
-		WRONG("Incomplete code");
+		assert(hp->len > 0);
+		assert(hp->len <= hp->lim);
+		assert(hp->lim <= hp->max);
+		print_entries(hp);
 	}
 
 	HPACK_free(&hp);

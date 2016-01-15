@@ -50,12 +50,27 @@ struct hpt_field {
 	uint16_t	val_sz;
 };
 
+struct hpt_entry {
+	uint16_t	pre_sz;
+	uint16_t	nam_sz;
+	uint16_t	val_sz;
+	uint16_t	pad[13];
+};
+
+struct hpt_priv {
+	struct hpack_ctx	*ctx;
+	size_t			len;
+};
+
 struct hpack {
-	uint32_t	magic;
-#define ENCODER_MAGIC	0x8ab1fb4c
-#define DECODER_MAGIC	0xab0e3218
-	size_t		max;
-	size_t		cnt;
+	uint32_t		magic;
+#define ENCODER_MAGIC		0x8ab1fb4c
+#define DECODER_MAGIC		0xab0e3218
+	size_t			max;
+	size_t			lim;
+	size_t			len;
+	size_t			cnt;
+	struct hpt_entry	tbl[0];
 };
 
 struct hpack_ctx {
@@ -105,5 +120,6 @@ struct hpack_ctx {
 
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
 
+hpack_decoded_f HPT_insert;
 int HPT_decode(HPACK_CTX, size_t);
 int HPT_decode_name(HPACK_CTX, size_t);
