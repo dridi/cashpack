@@ -52,7 +52,7 @@ hpack_new(uint32_t magic, size_t max)
 {
 	struct hpack *hp;
 
-	hp = calloc(1, sizeof *hp);
+	hp = calloc(1, sizeof *hp + max);
 	if (hp == NULL)
 		return (NULL);
 
