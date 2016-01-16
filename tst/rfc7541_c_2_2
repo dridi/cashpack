@@ -26,14 +26,14 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 040c 2f73 616d 706c 652f 7061 7468      | ../sample/path
 EOF
 
-hdecode <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 :path: /sample/path
-
-Dynamic table (after decoding): empty.
 EOF
+
+mk_tbl </dev/null
+
+tst_decode

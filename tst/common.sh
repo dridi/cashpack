@@ -47,15 +47,52 @@ hex_encode() {
 	sed -e 's/[ ]*$//'
 }
 
-mk_input() {
-	sed -e '/^#/d' >"$TEST_TMP/input"
+rm_comments() {
+	sed -e '/^#/d'
 }
 
-hdecode() {
-	sed -e '/^#/d' >"$TEST_TMP/expected"
+rm_blanks() {
+	sed -e '/^$/d'
+}
 
-	hex_decode <"$TEST_TMP/input" >"$TEST_TMP/bindump"
-	./hdecode $@ "$TEST_TMP/bindump" >"$TEST_TMP/output"
+mk_hex() {
+	rm_comments >"$TEST_TMP/hex"
+}
 
-	diff -u "$TEST_TMP/expected" "$TEST_TMP/output" >&2
+mk_msg() {
+	rm_comments | rm_blanks >"$TEST_TMP/msg"
+	echo >> "$TEST_TMP/msg"
+}
+
+mk_tbl() {
+	msg="Dynamic Table (after decoding):"
+	cat >"$TEST_TMP/tbl_tmp"
+
+	if [ -s "$TEST_TMP/tbl_tmp" ]
+	then
+		printf "%s\n\n" "$msg" |
+		cat - "$TEST_TMP/tbl_tmp" >"$TEST_TMP/tbl"
+	else
+		printf >"$TEST_TMP/tbl" "%s empty.\n" "$msg"
+	fi
+
+	rm  "$TEST_TMP/tbl_tmp"
+}
+
+mk_enc() {
+	false # XXX: create the encoding sequence
+}
+
+tst_decode() {
+	hex_decode  <"$TEST_TMP/hex" >"$TEST_TMP/bin"
+	./hdecode $@ "$TEST_TMP/bin" >"$TEST_TMP/dec"
+
+	printf "Decoded header list:\n\n"    >"$TEST_TMP/tst"
+	cat "$TEST_TMP/msg" "$TEST_TMP/tbl" >>"$TEST_TMP/tst"
+
+	diff -u "$TEST_TMP/tst" "$TEST_TMP/dec"
+}
+
+tst_encode() {
+	false # XXX: check the encoding process
 }

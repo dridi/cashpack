@@ -26,18 +26,18 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 400a 6375 7374 6f6d 2d6b 6579 0d63 7573 | @.custom-key.cus
 746f 6d2d 6865 6164 6572                | tom-header
 EOF
 
-hdecode -t 55 <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 custom-key: custom-header
+EOF
 
-Dynamic table (after decoding):
-
+mk_tbl <<EOF
 [  1] (s =  55) custom-key: custom-header
       Table size:  55
 EOF
+
+tst_decode -t 55

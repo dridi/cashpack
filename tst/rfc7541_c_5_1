@@ -26,7 +26,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 4803 3330 3258 0770 7269 7661 7465 611d | H.302X.privatea.
 4d6f 6e2c 2032 3120 4f63 7420 3230 3133 | Mon, 21 Oct 2013
 2032 303a 3133 3a32 3120 474d 546e 1768 |  20:13:21 GMTn.h
@@ -34,19 +34,19 @@ mk_input <<EOF
 6c65 2e63 6f6d                          | le.com
 EOF
 
-hdecode -t 256 <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 :status: 302
 cache-control: private
 date: Mon, 21 Oct 2013 20:13:21 GMT
 location: https://www.example.com
+EOF
 
-Dynamic table (after decoding):
-
+mk_tbl <<EOF
 [  1] (s =  63) location: https://www.example.com
 [  2] (s =  65) date: Mon, 21 Oct 2013 20:13:21 GMT
 [  3] (s =  52) cache-control: private
 [  4] (s =  42) :status: 302
       Table size: 222
 EOF
+
+tst_decode -t 256

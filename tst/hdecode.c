@@ -162,7 +162,7 @@ main(int argc, char **argv)
 	res = HPACK_decode(hp, buf, st.st_size, print_headers, NULL);
 	assert(res == HPACK_RES_OK);
 
-	OUT("\n\nDynamic table (after decoding):");
+	OUT("\n\nDynamic Table (after decoding):");
 	if (hp->cnt == 0) {
 		OUT(" empty.\n");
 		assert(hp->len == 0);

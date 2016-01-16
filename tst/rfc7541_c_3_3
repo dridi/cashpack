@@ -26,7 +26,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 # Appendix C.3.1.  First Request
 8286 8441 0f77 7777 2e65 7861 6d70 6c65 | ...A.www.example
 2e63 6f6d                               | .com
@@ -39,31 +39,33 @@ mk_input <<EOF
 0c63 7573 746f 6d2d 7661 6c75 65        | .custom-value
 EOF
 
-hdecode -t 164 <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 # Appendix C.3.1.  First Request
 :method: GET
 :scheme: http
 :path: /
 :authority: www.example.com
+
 # Appendix C.3.2.  Second Request
 :method: GET
 :scheme: http
 :path: /
 :authority: www.example.com
 cache-control: no-cache
+
 # Appendix C.3.3.  Third Request
 :method: GET
 :scheme: https
 :path: /index.html
 :authority: www.example.com
 custom-key: custom-value
+EOF
 
-Dynamic table (after decoding):
-
+mk_tbl <<EOF
 [  1] (s =  54) custom-key: custom-value
 [  2] (s =  53) cache-control: no-cache
 [  3] (s =  57) :authority: www.example.com
       Table size: 164
 EOF
+
+tst_decode -t 164

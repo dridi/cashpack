@@ -26,21 +26,21 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 8286 8441 0f77 7777 2e65 7861 6d70 6c65 | ...A.www.example
 2e63 6f6d                               | .com
 EOF
 
-hdecode -t 57 <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 :method: GET
 :scheme: http
 :path: /
 :authority: www.example.com
+EOF
 
-Dynamic table (after decoding):
-
+mk_tbl <<EOF
 [  1] (s =  57) :authority: www.example.com
       Table size:  57
 EOF
+
+tst_decode -t 57

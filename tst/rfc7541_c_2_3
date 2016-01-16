@@ -26,15 +26,15 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_input <<EOF
+mk_hex <<EOF
 1008 7061 7373 776f 7264 0673 6563 7265 | ..password.secre
 74                                      | t
 EOF
 
-hdecode <<EOF
-Decoded header list:
-
+mk_msg <<EOF
 password: secret
-
-Dynamic table (after decoding): empty.
 EOF
+
+mk_tbl </dev/null
+
+tst_decode
