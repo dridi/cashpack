@@ -64,7 +64,7 @@ hpt_dynamic(struct hpack *hp, struct hpt_entry *tbl, size_t idx)
 	ptrdiff_t off;
 
 	he = tbl;
-	off = 0;
+	off = tbl->pre_sz;
 
 	assert(idx > 0);
 	assert(idx <= hp->cnt);
@@ -103,6 +103,37 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 }
 
 /**********************************************************************
+ * Resize
+ */
+
+void
+HPT_adjust(struct hpack *hp, struct hpt_entry *tbl, size_t len)
+{
+	struct hpt_entry *he;
+	size_t sz;
+
+	if (hp->cnt == 0)
+		return;
+
+	if (tbl == NULL)
+		tbl = hp->tbl;
+	he = hpt_dynamic(hp, tbl, hp->cnt);
+
+	while (hp->cnt > 0 && len > hp->lim) {
+		sz = sizeof *he + he->nam_sz + he->val_sz;
+		len -= sz;
+		hp->len -= sz;
+		hp->cnt--;
+		he = MOVE(he, -he->pre_sz);
+	}
+
+	if (hp->cnt == 0)
+		assert(hp->len == 0);
+	else
+		assert(hp->len > 0);
+}
+
+/**********************************************************************
  * Insert
  */
 
@@ -137,8 +168,8 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	off = (uintptr_t)hp->tbl + priv2->len;
 	priv2->len += len;
 
-	if (hp->cnt > 0 && hp->len + priv2->len > hp->lim) /* XXX: eviction */
-		INCOMPL();
+	/* eviction needed? */
+	HPT_adjust(hp, priv2->he, hp->len + priv2->len);
 
 	if (priv2->len > hp->lim) { /* new field does not even fit alone */
 		assert(hp->len == 0);
