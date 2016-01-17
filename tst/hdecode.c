@@ -179,5 +179,11 @@ main(int argc, char **argv)
 
 	HPACK_free(&hp);
 
+	retval = munmap(buf, st.st_size);
+	assert(retval == 0);
+
+	retval = close(fd);
+	assert(retval == 0);
+
 	return (0);
 }

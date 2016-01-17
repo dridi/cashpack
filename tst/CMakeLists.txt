@@ -32,6 +32,7 @@ endmacro(tst_cmd)
 
 macro(tst_add TST)
 	add_test(${TST} ${CMAKE_CURRENT_SOURCE_DIR}/${TST})
+	set_property(TEST ${TST} PROPERTY ENVIRONMENT "MEMCHECK=${MEMCHECK}")
 endmacro(tst_add)
 
 tst_cmd(hdecode)

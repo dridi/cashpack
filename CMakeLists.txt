@@ -56,6 +56,18 @@ if(COVERAGE)
 	endif()
 endif ()
 
+if(MEMCHECK)
+	message(STATUS "Detecting valgrind program")
+
+	find_program(VALGRIND valgrind)
+	if(NOT EXISTS ${VALGRIND})
+		message(STATUS "Detecting valgring program - missing")
+		set(MEMCHECK OFF)
+	else()
+		message(STATUS "Detecting valgring program - done")
+	endif()
+endif()
+
 set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
 set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
 

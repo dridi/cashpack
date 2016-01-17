@@ -25,10 +25,33 @@
 set -e
 set -o pipefail
 
+TEST_NAM="$(basename "$0")"
 TEST_DIR="$(dirname "$0")"
 TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
 
 trap "rm -fr $TEST_TMP" EXIT
+
+MEMCHECK_CMD="valgrind		\
+	--tool=memcheck		\
+	--leak-check=yes	\
+	--show-reachable=yes	\
+	--track-fds=yes		\
+	--error-exitcode=99	\
+	--log-file=memcheck-${TEST_NAM}-%p.log"
+
+[ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log
+
+memcheck() {
+	if [ "$MEMCHECK" = ON ]
+	then
+		local rc=0
+		$MEMCHECK_CMD "$@" || rc=$?
+		[ $rc -eq 99 ] && echo >&2 memcheck: "$@"
+		return $rc
+	else
+		"$@"
+	fi
+}
 
 cmd_check() {
 	for cmd
@@ -85,7 +108,7 @@ mk_enc() {
 
 tst_decode() {
 	hex_decode  <"$TEST_TMP/hex" >"$TEST_TMP/bin"
-	./hdecode $@ "$TEST_TMP/bin" >"$TEST_TMP/dec"
+	memcheck ./hdecode $@ "$TEST_TMP/bin" >"$TEST_TMP/dec"
 
 	printf "Decoded header list:\n\n"    >"$TEST_TMP/tst"
 	cat "$TEST_TMP/msg" "$TEST_TMP/tbl" >>"$TEST_TMP/tst"
