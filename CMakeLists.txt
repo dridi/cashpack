@@ -31,10 +31,30 @@ project(
 
 enable_testing()
 
+option(COVERAGE "Enable lcov support" OFF)
+
 set(PROJECT_LIB_ABI	0)
 set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
 
 set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
+
+if(COVERAGE)
+	message(STATUS "Detecting lcov program")
+
+	find_program(LCOV lcov)
+	find_program(GENHTML genhtml)
+	if(NOT EXISTS ${LCOV})
+		message(STATUS "Detecting lcov program - missing lcov")
+		set(COVERAGE OFF)
+	elseif(NOT EXISTS ${GENHTML})
+		message(STATUS "Detecting lcov program - missing genhtml")
+		set(COVERAGE OFF)
+	else()
+		message(STATUS "Detecting lcov program - done")
+		set(GCOV_FLAGS		"--coverage -DNDEBUG -Wno-unused")
+		set(CMAKE_C_FLAGS	"${CMAKE_C_FLAGS} ${GCOV_FLAGS}")
+	endif()
+endif ()
 
 set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
 set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")

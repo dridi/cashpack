@@ -36,7 +36,7 @@ endmacro(tst_add)
 
 tst_cmd(hdecode)
 
-message("-- Check for working hexdump-binary conversions")
+message(STATUS "Check for working hexdumps")
 
 execute_process(
 	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/hexcheck
@@ -44,7 +44,7 @@ execute_process(
 	ERROR_VARIABLE	HEXCHECK_ERROR)
 
 if(${HEXCHECK_RESULT} EQUAL 0)
-	message("-- Check for working hexdump-binary conversions - works")
+	message(STATUS "Check for working hexdumps - works")
 
 	tst_add(rfc7541_c_2_1)
 	tst_add(rfc7541_c_2_2)
@@ -63,6 +63,24 @@ if(${HEXCHECK_RESULT} EQUAL 0)
 	tst_add(rfc7541_c_6_2)
 	tst_add(rfc7541_c_6_3)
 else()
-	message("-- Check for working hexdump-binary conversions - broken")
-	message("   The test suite cannot be run:\n${HEXCHECK_ERROR}")
+	message(STATUS	"Check for working hexdumps - broken")
+	message(WARNING	"The test suite can't be run:\n${HEXCHECK_ERROR}")
 endif()
+
+if(COVERAGE)
+	message(STATUS "Enabling lcov support")
+
+	add_custom_target(lcov-init COMMAND ${LCOV} -z -d .)
+	add_custom_target(
+		lcov
+		COMMAND ${LCOV} -c -o tst.info -d .
+		COMMAND ${LCOV} -c -o lib.info -d ../lib
+		COMMAND ${LCOV} -a tst.info -a lib.info -o raw.info
+		COMMAND ${LCOV} -r raw.info '/usr/*' -o cashpack.info
+		COMMAND ${GENHTML} -o lcov cashpack.info)
+
+	add_dependencies(check lcov-init)
+	add_dependencies(lcov check)
+
+	message(STATUS "Enabling lcov support - done")
+endif ()

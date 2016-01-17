@@ -77,8 +77,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		WRT(buf, len);
 		break;
 	default:
-		fprintf(stderr, "Unknwon event: %d\n", evt);
-		abort();
+		WRONG("Unknwon event");
 	}
 }
 
@@ -127,7 +126,7 @@ main(int argc, char **argv)
 	struct hpack *hp;
 	struct stat st;
 	void *buf;
-	int fd, tbl_sz;
+	int fd, retval, tbl_sz;
 
 	tbl_sz = 0;
 
@@ -150,7 +149,8 @@ main(int argc, char **argv)
 	fd = open(*argv, O_RDONLY);
 	assert(fd > STDERR_FILENO);
 
-	assert(fstat(fd, &st) == 0);
+	retval = fstat(fd, &st);
+	assert(retval == 0);
 
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != NULL);

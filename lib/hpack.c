@@ -213,6 +213,7 @@ hpack_decode_update(HPACK_CTX)
 
 	(void)ctx;
 	INCOMPL();
+	return (-1);
 }
 
 enum hpack_res_e
