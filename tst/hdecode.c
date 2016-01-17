@@ -63,13 +63,15 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		assert(buf == NULL);
 		assert(len == 0);
 		break;
-	case HPACK_EVT_NAME:
-		assert(buf != NULL);
-		assert(len > 0);
-		WRT(buf, len);
-		OUT(": ");
-		break;
 	case HPACK_EVT_VALUE:
+		OUT(": ");
+		/* fall through */
+	case HPACK_EVT_NAME:
+		assert(len > 0);
+		if (buf != NULL)
+			WRT(buf, len);
+		break;
+	case HPACK_EVT_DATA:
 		assert(buf != NULL);
 		assert(len > 0);
 		WRT(buf, len);

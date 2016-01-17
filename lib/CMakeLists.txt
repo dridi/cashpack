@@ -26,6 +26,7 @@ add_library(
 	hpack
 	SHARED
 	hpack.c
+	hpack_huf.c
 	hpack_int.c
 	hpack_tbl.c)
 

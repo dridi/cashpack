@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 # Copyright (c) 2016 Dridi Boukelmoune
 # All rights reserved.
 #
@@ -22,47 +24,39 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+. "$(dirname "$0")"/common.sh
 
-macro(tst_cmd CMD)
-	add_executable(${CMD} ${CMD}.c)
-	target_link_libraries(${CMD} hpack)
-	add_dependencies(check ${CMD})
-endmacro(tst_cmd)
+mk_hex <<EOF
+# C.6.1.  First Response
+4882 6402 5885 aec3 771a 4b61 96d0 7abe | H.d.X...w.Ka..z.
+9410 54d4 44a8 2005 9504 0b81 66e0 82a6 | ..T.D. .....f...
+2d1b ff6e 919d 29ad 1718 63c7 8f0b 97c8 | -..n..)...c.....
+e9ae 82ae 43d3                          | ....C.
 
-macro(tst_add TST)
-	add_test(${TST} ${CMAKE_CURRENT_SOURCE_DIR}/${TST})
-endmacro(tst_add)
+# C.6.2.  Second Response
+4883 640e ffc1 c0bf                     | H.d.....
+EOF
 
-tst_cmd(hdecode)
+mk_msg <<EOF
+# C.6.1.  First Response
+:status: 302
+cache-control: private
+date: Mon, 21 Oct 2013 20:13:21 GMT
+location: https://www.example.com
 
-message("-- Check for working hexdump-binary conversions")
+# C.6.2.  Second Response
+:status: 307
+cache-control: private
+date: Mon, 21 Oct 2013 20:13:21 GMT
+location: https://www.example.com
+EOF
 
-execute_process(
-	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/hexcheck
-	RESULT_VARIABLE	HEXCHECK_RESULT
-	ERROR_VARIABLE	HEXCHECK_ERROR)
+mk_tbl <<EOF
+[  1] (s =  42) :status: 307
+[  2] (s =  63) location: https://www.example.com
+[  3] (s =  65) date: Mon, 21 Oct 2013 20:13:21 GMT
+[  4] (s =  52) cache-control: private
+      Table size: 222
+EOF
 
-if(${HEXCHECK_RESULT} EQUAL 0)
-	message("-- Check for working hexdump-binary conversions - works")
-
-	tst_add(rfc7541_c_2_1)
-	tst_add(rfc7541_c_2_2)
-	tst_add(rfc7541_c_2_3)
-	tst_add(rfc7541_c_2_4)
-	tst_add(rfc7541_c_3_1)
-	tst_add(rfc7541_c_3_2)
-	tst_add(rfc7541_c_3_3)
-	tst_add(rfc7541_c_4_1)
-	tst_add(rfc7541_c_4_2)
-	tst_add(rfc7541_c_4_3)
-	tst_add(rfc7541_c_5_1)
-	tst_add(rfc7541_c_5_2)
-	tst_add(rfc7541_c_5_3)
-	tst_add(rfc7541_c_6_1)
-	tst_add(rfc7541_c_6_2)
-	tst_add(rfc7541_c_6_3)
-else()
-	message("-- Check for working hexdump-binary conversions - broken")
-	message("   The test suite cannot be run:\n${HEXCHECK_ERROR}")
-endif()
+tst_decode -t 256

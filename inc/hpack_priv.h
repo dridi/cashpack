@@ -63,6 +63,7 @@ struct hpt_priv {
 	struct hpack_ctx	*ctx;
 	struct hpt_entry	*he;
 	size_t			len;
+	unsigned		nam;
 };
 
 struct hpack {
@@ -122,6 +123,8 @@ struct hpack_ctx {
  */
 
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
+
+int HPH_decode(HPACK_CTX, size_t);
 
 hpack_decoded_f HPT_insert;
 void HPT_adjust(struct hpack *, struct hpt_entry *, size_t);

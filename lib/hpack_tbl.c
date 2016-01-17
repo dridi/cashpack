@@ -142,6 +142,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;
+	unsigned add;
 	ptrdiff_t off;
 
 	assert(evt != HPACK_EVT_NEVER);
@@ -153,6 +154,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
+		assert(buf == NULL);
 		assert(len == 32); /* entry overhead, see Section 4.1 */
 		CALLBACK(priv2->ctx, evt, NULL, 0);
 		break;
@@ -166,10 +168,12 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	}
 
 	off = (uintptr_t)hp->tbl + priv2->len;
-	priv2->len += len;
-
-	/* eviction needed? */
-	HPT_adjust(hp, priv2->he, hp->len + priv2->len);
+	add = (evt == HPACK_EVT_FIELD || buf != NULL);
+	if (add) {
+		priv2->len += len;
+		/* eviction needed? */
+		HPT_adjust(hp, priv2->he, hp->len + priv2->len);
+	}
 
 	if (priv2->len > hp->lim) { /* new field does not even fit alone */
 		assert(hp->len == 0);
@@ -177,7 +181,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		return;
 	}
 
-	if (hp->cnt > 0 && len > 0) {
+	if (hp->cnt > 0 && len > 0 && add) {
 		memmove(MOVE(priv2->he, len), priv2->he, hp->len);
 		priv2->he = MOVE(priv2->he, len);
 		priv2->he->pre_sz += len;
@@ -188,19 +192,29 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		memset(hp->tbl, 0, sizeof *hp->tbl);
 		return;
 	case HPACK_EVT_NAME:
-		hp->tbl[0].nam_sz += len;
+		priv2->nam = 1;
+		if (buf != NULL)
+			hp->tbl[0].nam_sz += len;
 		break;
 	case HPACK_EVT_VALUE:
-		hp->tbl[0].val_sz += len;
+		priv2->nam = 0;
+		if (buf != NULL)
+			hp->tbl[0].val_sz += len;
 		break;
 	case HPACK_EVT_DATA:
-		INCOMPL();
+		assert(buf != NULL);
+		assert(len > 0);
+		if (priv2->nam)
+			hp->tbl[0].nam_sz += len;
+		else
+			hp->tbl[0].val_sz += len;
 		break;
 	default:
 		WRONG("Unexpected event");
 	}
 
-	memcpy((void *)off, buf, len);
+	if (buf != NULL)
+		memcpy((void *)off, buf, len);
 }
 
 /**********************************************************************
