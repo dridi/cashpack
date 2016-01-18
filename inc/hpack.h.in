@@ -31,23 +31,15 @@
 struct hpack;
 
 enum hpack_res_e {
-	HPACK_RES_OK	=  0,
-	HPACK_RES_ARG	= -1,
-	HPACK_RES_BUF	= -2,
-	HPACK_RES_INT	= -3,
-	HPACK_RES_IDX	= -4,
-	HPACK_RES_LEN	= -5,
-	HPACK_RES_HUF	= -6,
+#define HPR(r, v, d)	HPACK_RES_##r	= v,
+#include "tbl/hpack_tbl.h"
+#undef HPR
 };
 
 enum hpack_evt_e {
-	HPACK_EVT_FIELD	= 0,
-	HPACK_EVT_NEVER	= 1,
-	HPACK_EVT_INDEX	= 2,
-	HPACK_EVT_NAME	= 3,
-	HPACK_EVT_VALUE	= 4,
-	HPACK_EVT_DATA	= 5,
-	HPACK_EVT_TABLE	= 6,
+#define HPE(e, v, d)	HPACK_EVT_##e	= v,
+#include "tbl/hpack_tbl.h"
+#undef HPR
 };
 
 typedef void hpack_decoded_f(void *, enum hpack_evt_e, const void *, size_t);

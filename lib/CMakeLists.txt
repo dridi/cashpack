@@ -30,7 +30,7 @@ add_library(
 	hpack_int.c
 	hpack_tbl.c)
 
-add_dependencies(hpack gen)
+add_dependencies(hpack hpack.h gen)
 
 set_target_properties(
 	hpack

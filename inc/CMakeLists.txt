@@ -22,6 +22,21 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
+message(STATUS "Detecting astyle program")
+find_program(ASTYLE astyle)
+if(NOT EXISTS ${ASTYLE})
+	message(STATUS "Detecting astyle program - missing")
+	set(ASTYLE "true")
+else()
+	message(STATUS "Detecting astyle program - done")
+endif()
+
+add_custom_target(
+	hpack.h
+	COMMAND	cpp ${CMAKE_CURRENT_SOURCE_DIR}/hpack.h.in >hpack.h
+	COMMAND	sed -i "/^#/d" hpack.h
+	COMMAND	${ASTYLE} -t   hpack.h)
+
 install (
-	FILES		hpack.h
+	FILES		${CMAKE_CURRENT_BINARY_DIR}/hpack.h
 	DESTINATION	${INCLUDE_INSTALL_DIR})

@@ -73,6 +73,7 @@ set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/inc"
+	"${CMAKE_BINARY_DIR}/inc"
 	"${CMAKE_BINARY_DIR}/gen")
 
 add_subdirectory(inc)
