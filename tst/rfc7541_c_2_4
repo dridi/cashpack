@@ -37,3 +37,11 @@ EOF
 mk_tbl </dev/null
 
 tst_decode
+
+# Do the decoding again, with a bindump
+
+mk_bin <<EOF
+10000010 | 0x82
+EOF
+
+tst_decode

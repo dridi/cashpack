@@ -82,6 +82,16 @@ mk_hex() {
 	rm_comments >"$TEST_TMP/hex"
 }
 
+mk_bin() {
+	cut -d '|' -f 1 |
+	while read bin
+	do
+		# XXX: is this portable?
+		printf "%02x" $((2#$bin))
+	done |
+	mk_hex
+}
+
 mk_msg() {
 	rm_comments | rm_blanks >"$TEST_TMP/msg"
 	echo >> "$TEST_TMP/msg"
