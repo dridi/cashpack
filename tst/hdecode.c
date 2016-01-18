@@ -49,6 +49,15 @@
 #define OUT(str)	WRT(str, sizeof(str) - 1)
 
 void
+print_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+{
+	assert(priv == NULL);
+	(void)evt;
+	(void)buf;
+	(void)len;
+}
+
+void
 print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 
@@ -122,19 +131,35 @@ print_entries(struct hpack *hp)
 int
 main(int argc, char **argv)
 {
-	enum hpack_res_e res;
+	enum hpack_res_e res, exp;
+	hpack_decoded_f *cb;
 	struct hpack *hp;
 	struct stat st;
 	void *buf;
 	int fd, retval, tbl_sz;
 
 	tbl_sz = 0;
+	exp = HPACK_RES_OK;
+	cb = print_headers;
 
 	/* ignore the command name */
 	argc--;
 	argv++;
 
 	/* handle options */
+	if (!strcmp("-r", *argv)) {
+		assert(argc > 2);
+#define HPR(val, cod, txt)			\
+		if (!strcmp(argv[1], #val))	\
+			exp = HPACK_RES_##val;
+#include "tbl/hpack_tbl.h"
+#undef HPR
+		assert(exp != HPACK_RES_OK);
+		cb = print_nothing;
+		argc -= 2;
+		argv += 2;
+	}
+
 	if (!strcmp("-t", *argv)) {
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
@@ -161,8 +186,12 @@ main(int argc, char **argv)
 
 	OUT("Decoded header list:\n");
 
-	res = HPACK_decode(hp, buf, st.st_size, print_headers, NULL);
-	assert(res == HPACK_RES_OK);
+	res = HPACK_decode(hp, buf, st.st_size, cb, NULL);
+#define HPR(val, cod, txt)		\
+	if (exp == HPACK_RES_##val)	\
+		assert(res == HPACK_RES_##val);
+#include "tbl/hpack_tbl.h"
+#undef HPR
 
 	OUT("\n\nDynamic Table (after decoding):");
 	if (hp->cnt == 0) {
