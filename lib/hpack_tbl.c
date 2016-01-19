@@ -71,6 +71,7 @@ hpt_dynamic(struct hpack *hp, struct hpt_entry *tbl, size_t idx)
 
 	while (1) {
 		assert(DIFF(tbl, he) < hp->len);
+		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->pre_sz == off);
 		assert(he->nam_sz > 0);
 		assert(he->val_sz > 0);
@@ -120,6 +121,9 @@ HPT_adjust(struct hpack *hp, struct hpt_entry *tbl, size_t len)
 	he = hpt_dynamic(hp, tbl, hp->cnt);
 
 	while (hp->cnt > 0 && len > hp->lim) {
+		assert(he->magic == HPT_ENTRY_MAGIC);
+		assert(he->nam_sz > 0);
+		assert(he->val_sz > 0);
 		sz = sizeof *he + he->nam_sz + he->val_sz;
 		len -= sz;
 		hp->len -= sz;
@@ -190,6 +194,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	switch (evt) {
 	case HPACK_EVT_FIELD:
 		memset(hp->tbl, 0, sizeof *hp->tbl);
+		hp->tbl->magic = HPT_ENTRY_MAGIC;
 		return;
 	case HPACK_EVT_NAME:
 		priv2->nam = 1;
