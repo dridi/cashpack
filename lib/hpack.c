@@ -210,10 +210,13 @@ hpack_decode_never(HPACK_CTX)
 static int
 hpack_decode_update(HPACK_CTX)
 {
+	uint16_t sz;
 
-	(void)ctx;
-	INCOMPL();
-	return (-1);
+	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
+	EXPECT(ctx, LEN, sz <= ctx->hp->max);
+	ctx->hp->lim = sz;
+	HPT_adjust(ctx->hp, NULL, ctx->hp->len);
+	return (0);
 }
 
 enum hpack_res_e
