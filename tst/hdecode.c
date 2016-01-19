@@ -48,6 +48,13 @@
 
 #define OUT(str)	WRT(str, sizeof(str) - 1)
 
+struct tst_ctx {
+	size_t	cnt;
+	size_t	len;
+	char	buf[8];
+	size_t	sz;
+};
+
 void
 print_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
@@ -91,41 +98,39 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 void
-print_entries(struct hpack *hp)
+print_entries(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
-	struct hpack_ctx ctx;
-	struct hpt_field hf;
-	char buf[sizeof "\n[  1] (s =  55) "];
-	size_t i, retval, l, s;
+	struct tst_ctx *ctx;
+	char str[sizeof "\n[  1] (s =  55) "];
+	int  l;
 
-	memset(&ctx, 0, sizeof ctx);
-	ctx.hp = hp;
+	assert(priv != NULL);
+	ctx = priv;
+	if (ctx->cnt == 0)
+		OUT("\n");
 
-	for (i = 1; i <= hp->cnt; i++) {
-		memset(&hf, 0, sizeof hf);
-		retval = HPT_search(&ctx, i + HPT_STATIC_MAX, &hf);
-
-		assert(retval == 0);
-		assert(hf.nam_sz > 0);
-		assert(hf.val_sz > 0);
-		assert(hf.nam != NULL);
-		assert(hf.val != NULL);
-
-		s = 32 + hf.nam_sz + hf.val_sz;
-		l = snprintf(buf, sizeof buf, "\n[%3lu] (s = %3lu) ", i, s);
-		assert(l + 1 == sizeof  buf);
-		WRT(buf, sizeof(buf) - 1);
-
-		WRT(hf.nam, hf.nam_sz);
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		assert(buf == NULL);
+		assert(len > 0);
+		ctx->cnt++;
+		ctx->len += len;
+		l = snprintf(str, sizeof str, "\n[%3lu] (s = %3lu) ",
+		    ctx->cnt, len);
+		assert(l + 1 == sizeof  str);
+		WRT(str, sizeof(str) - 1);
+		break;
+	case HPACK_EVT_VALUE:
 		OUT(": ");
-		WRT(hf.val, hf.val_sz);
+		/* fall through */
+	case HPACK_EVT_NAME:
+		assert(buf != NULL);
+		assert(len > 0);
+		WRT(buf, len);
+		break;
+	default:
+		WRONG("Unexpected event");
 	}
-
-	OUT("\n      Table size: ");
-	l = snprintf(buf, sizeof buf, "%3lu", hp->len);
-	assert(l == 3);
-	WRT(buf, l);
-	OUT("\n");
 }
 
 int
@@ -135,6 +140,7 @@ main(int argc, char **argv)
 	hpack_decoded_f *cb;
 	struct hpack *hp;
 	struct stat st;
+	struct tst_ctx ctx;
 	void *buf;
 	int fd, retval, tbl_sz;
 
@@ -194,16 +200,18 @@ main(int argc, char **argv)
 #undef HPR
 
 	OUT("\n\nDynamic Table (after decoding):");
-	if (hp->cnt == 0) {
+	ctx.cnt = 0;
+	ctx.len = 0;
+	HPACK_foreach(hp, print_entries, &ctx);
+	if (ctx.cnt == 0) {
+		assert(ctx.len == 0);
 		OUT(" empty.\n");
-		assert(hp->len == 0);
 	}
 	else {
-		OUT("\n");
-		assert(hp->len > 0);
-		assert(hp->len <= hp->lim);
-		assert(hp->lim <= hp->max);
-		print_entries(hp);
+		assert(ctx.len > 0);
+		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3lu\n", ctx.len);
+		OUT("\n      Table size: ");
+		WRT(ctx.buf, ctx.sz);
 	}
 
 	HPACK_free(&hp);

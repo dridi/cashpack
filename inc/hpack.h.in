@@ -47,6 +47,7 @@ typedef void hpack_decoded_f(void *, enum hpack_evt_e, const void *, size_t);
 struct hpack * HPACK_encoder(size_t);
 struct hpack * HPACK_decoder(size_t);
 void HPACK_free(struct hpack **);
+int HPACK_foreach(struct hpack *, hpack_decoded_f, void *);
 
 enum hpack_res_e HPACK_decode(struct hpack *, const void *, size_t,
     hpack_decoded_f cb, void *priv);

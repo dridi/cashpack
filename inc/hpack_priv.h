@@ -131,5 +131,6 @@ int HPH_decode(HPACK_CTX, size_t);
 hpack_decoded_f HPT_insert;
 void HPT_adjust(struct hpack *, struct hpt_entry *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
+void HPT_foreach(HPACK_CTX);
 int  HPT_decode(HPACK_CTX, size_t);
 int  HPT_decode_name(HPACK_CTX, size_t);

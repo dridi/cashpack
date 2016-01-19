@@ -103,6 +103,31 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	return (0);
 }
 
+void
+HPT_foreach(HPACK_CTX)
+{
+	const struct hpt_entry *he, *tbl;
+	ptrdiff_t off;
+	size_t i;
+
+	off = 0;
+	tbl = ctx->hp->tbl;
+	he = tbl;
+	for (i = 0; i < ctx->hp->cnt; i++) {
+		assert(DIFF(tbl, he) < ctx->hp->len);
+		assert(he->magic == HPT_ENTRY_MAGIC);
+		assert(he->pre_sz == off);
+		assert(he->nam_sz > 0);
+		assert(he->val_sz > 0);
+		off = sizeof *he + he->nam_sz + he->val_sz;
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
+		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), he->nam_sz);
+		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, he->nam_sz),
+		    he->val_sz);
+		he = JUMP(he, he->nam_sz + he->val_sz);
+	}
+}
+
 /**********************************************************************
  * Resize
  */

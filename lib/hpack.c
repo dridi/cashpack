@@ -91,6 +91,25 @@ HPACK_free(struct hpack **hpp)
 	free(hp);
 }
 
+int
+HPACK_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
+{
+	struct hpack_ctx ctx;
+
+	if (hp == NULL || cb == NULL)
+		return (-1);
+	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
+		return (-1);
+
+	memset(&ctx, 0, sizeof ctx);
+	ctx.hp = hp;
+	ctx.cb = cb;
+	ctx.priv = priv;
+
+	HPT_foreach(&ctx);
+	return (0);
+}
+
 /**********************************************************************
  * Decoder
  */
