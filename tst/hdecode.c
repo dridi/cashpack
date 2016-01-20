@@ -93,7 +93,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		WRT(buf, len);
 		break;
 	default:
-		WRONG("Unknwon event");
+		WRONG("Unknown event");
 	}
 }
 
