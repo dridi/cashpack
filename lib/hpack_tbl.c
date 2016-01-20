@@ -35,6 +35,7 @@
 #include <string.h>
 
 #include "hpack.h"
+#include "hpack_assert.h"
 #include "hpack_priv.h"
 
 #define MOVE(he, off)	(void *)((uintptr_t)(he) + (off))

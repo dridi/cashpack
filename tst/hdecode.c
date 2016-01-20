@@ -39,7 +39,7 @@
 #include <fcntl.h>
 
 #include "hpack.h"
-#include "hpack_priv.h"
+#include "hpack_assert.h"
 
 #define WRT(buf, len)				\
 	do {					\

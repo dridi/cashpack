@@ -113,13 +113,6 @@ struct hpack_ctx {
 		}					\
 	} while (0)
 
-#define WRONG(str)		\
-	do {			\
-		assert(!str);	\
-	} while (0)
-
-#define INCOMPL()	WRONG("Incomplete code")
-
 /**********************************************************************
  * Function Signatures
  */
