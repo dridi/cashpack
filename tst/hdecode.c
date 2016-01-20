@@ -144,7 +144,7 @@ main(int argc, char **argv)
 	void *buf;
 	int fd, retval, tbl_sz;
 
-	tbl_sz = 0;
+	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
 	cb = print_headers;
 
@@ -188,7 +188,6 @@ main(int argc, char **argv)
 
 	hp = HPACK_decoder(tbl_sz);
 	assert(hp != NULL);
-	hp->lim = tbl_sz; /* XXX: what is the initial limit? */
 
 	OUT("Decoded header list:\n");
 

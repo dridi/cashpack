@@ -43,4 +43,4 @@ mk_tbl <<EOF
       Table size:  57
 EOF
 
-tst_decode -t 57
+tst_decode

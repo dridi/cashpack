@@ -59,6 +59,7 @@ hpack_new(uint32_t magic, size_t max)
 
 	hp->magic = magic;
 	hp->max = max;
+	hp->lim = max;
 	return (hp);
 }
 

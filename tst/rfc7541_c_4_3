@@ -68,4 +68,4 @@ mk_tbl <<EOF
       Table size: 164
 EOF
 
-tst_decode -t 164
+tst_decode
