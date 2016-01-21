@@ -185,7 +185,7 @@ main(int argc, char **argv)
 	assert(retval == 0);
 
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	assert(buf != NULL);
+	assert(buf != MAP_FAILED);
 
 	hp = HPACK_decoder(tbl_sz);
 	assert(hp != NULL);
