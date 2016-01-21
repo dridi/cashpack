@@ -58,6 +58,7 @@ struct tst_ctx {
 void
 print_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
+
 	assert(priv == NULL);
 	(void)evt;
 	(void)buf;

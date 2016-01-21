@@ -46,7 +46,8 @@ HPH_decode(HPACK_CTX, size_t len)
 {
 	const struct hph_entry *he;
 	uint64_t bits;
-	uint16_t cod, blen;
+	uint32_t cod;
+	uint16_t blen;
 	uint8_t buf[256];
 	unsigned eos, l;
 
@@ -60,7 +61,7 @@ HPH_decode(HPACK_CTX, size_t len)
 		cod = UINT16_MAX;
 		eos = 1;
 
-		while (he->nxt > 0 || blen > 0) {
+		while (he != hph_tbl) {
 			if (blen < he->len) {
 				if (len == 0)
 					break;
@@ -75,7 +76,6 @@ HPH_decode(HPACK_CTX, size_t len)
 				eos = 0;
 				break;
 			}
-			assert(he->nxt > 0);
 			he = &hph_tbl[he->nxt];
 		}
 

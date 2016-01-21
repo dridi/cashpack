@@ -260,8 +260,8 @@ HPT_decode(HPACK_CTX, size_t idx)
 	assert(idx != 0);
 	memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
-	EXPECT(ctx, IDX, hf.nam != NULL);
-	EXPECT(ctx, IDX, hf.val != NULL);
+	assert(hf.nam != NULL);
+	assert(hf.val != NULL);
 	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 	CALLBACK(ctx, HPACK_EVT_VALUE, hf.val, hf.val_sz);
 
@@ -276,7 +276,7 @@ HPT_decode_name(HPACK_CTX, size_t idx)
 	assert(idx != 0);
 	memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
-	EXPECT(ctx, IDX, hf.nam != NULL);
+	assert(hf.nam != NULL);
 	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 
 	return (0);
