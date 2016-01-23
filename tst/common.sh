@@ -60,16 +60,6 @@ cmd_check() {
 	done
 }
 
-hex_decode() {
-	cut -d '|' -f 1 |
-	xxd -r -p
-}
-
-hex_encode() {
-	hexdump -v -f "$TEST_DIR/rfcfmt" |
-	sed -e 's/[ ]*$//'
-}
-
 rm_comments() {
 	sed -e '/^#/d'
 }
@@ -117,7 +107,7 @@ mk_enc() {
 }
 
 tst_decode() {
-	hex_decode  <"$TEST_TMP/hex" >"$TEST_TMP/bin"
+	"$TEST_DIR/hex_decode"  <"$TEST_TMP/hex" >"$TEST_TMP/bin"
 	memcheck ./hdecode $@ "$TEST_TMP/bin" >"$TEST_TMP/dec"
 
 	printf "Decoded header list:\n\n"    >"$TEST_TMP/tst"

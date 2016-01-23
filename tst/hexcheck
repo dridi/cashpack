@@ -45,7 +45,7 @@ cat >"$rfcdmp" <<EOF
 3d31                                    | =1
 EOF
 
-hex_decode <"$rfcdmp" |
-hex_encode >"$hexdmp"
+"$TEST_DIR/hex_decode" <"$rfcdmp" |
+"$TEST_DIR/hex_encode" >"$hexdmp"
 
 diff -u "$rfcdmp" "$hexdmp" >&2

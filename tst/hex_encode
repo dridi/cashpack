@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Written by Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+#
+# This file is in the public domain.
+
+set -e
+set -u
+
+FMT_TMP="$(mktemp)"
+
+trap "rm -f $FMT_TMP" EXIT
+
+fmt_print() {
+	n=$1
+	while [ $n -gt 0 ]
+	do
+		printf %s "$2"
+		[ $n -gt 1 ] && printf %s "$3"
+		n=$((n-1))
+	done
+	printf '\n'
+}
+
+# Generate a hexdump format matching the one used in RFC 7541
+(
+	fmt_print 8 '2/1 "%02x"' ' " " '
+	fmt_print 1 '" | "'
+	fmt_print 1 '16/1 "%_p" "\n"'
+) >"$FMT_TMP"
+
+# Encode raw binary into a hexdump suited for the test suite
+hexdump -v -f "$FMT_TMP" |
+sed -e 's/[ ]*$//'
