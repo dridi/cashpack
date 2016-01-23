@@ -23,7 +23,6 @@
 # SUCH DAMAGE.
 
 set -e
-set -o pipefail
 
 TEST_NAM="$(basename "$0")"
 TEST_DIR="$(dirname "$0")"
@@ -77,7 +76,8 @@ mk_bin() {
 	while read bin
 	do
 		# XXX: is this portable?
-		printf "%02x" $((2#$bin))
+		dec="$(echo "obase=10;ibase=2;$bin" | bc)"
+		printf %02x "$dec"
 	done |
 	mk_hex
 }
