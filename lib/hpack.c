@@ -29,6 +29,7 @@
  */
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,6 +175,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
+	priv.nam = 1;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
 
@@ -191,6 +193,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	assert(tbl_ctx.res == HPACK_RES_OK);
 	ctx->buf = tbl_ctx.buf;
 	ctx->len = tbl_ctx.len;
+	hp->off = 0;
 
 	if (priv.len <= hp->lim) {
 		hp->len += priv.len;
@@ -235,7 +238,7 @@ hpack_decode_update(HPACK_CTX)
 	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
 	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	ctx->hp->lim = sz;
-	HPT_adjust(ctx->hp, NULL, ctx->hp->len);
+	HPT_adjust(ctx->hp, ctx->hp->len);
 	return (0);
 }
 

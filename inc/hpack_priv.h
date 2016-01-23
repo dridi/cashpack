@@ -64,8 +64,10 @@ struct hpt_entry {
 struct hpt_priv {
 	struct hpack_ctx	*ctx;
 	struct hpt_entry	*he;
+	void			*wrt;
 	size_t			len;
 	unsigned		nam;
+	unsigned		ins;
 };
 
 struct hpack {
@@ -76,6 +78,7 @@ struct hpack {
 	size_t			lim;
 	size_t			len;
 	size_t			cnt;
+	ptrdiff_t		off;
 	struct hpt_entry	tbl[0];
 };
 
@@ -122,7 +125,7 @@ int HPI_decode(HPACK_CTX, size_t, uint16_t *);
 int HPH_decode(HPACK_CTX, size_t);
 
 hpack_decoded_f HPT_insert;
-void HPT_adjust(struct hpack *, struct hpt_entry *, size_t);
+void HPT_adjust(struct hpack *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX);
 int  HPT_decode(HPACK_CTX, size_t);

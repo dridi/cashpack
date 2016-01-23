@@ -59,19 +59,18 @@ const struct hpt_field hpt_static[] = {
  */
 
 static struct hpt_entry *
-hpt_dynamic(struct hpack *hp, struct hpt_entry *tbl, size_t idx)
+hpt_dynamic(struct hpack *hp, size_t idx)
 {
 	struct hpt_entry *he;
 	ptrdiff_t off;
 
-	he = tbl;
-	off = tbl->pre_sz;
+	he = MOVE(hp->tbl, hp->off);
+	off = he->pre_sz;
 
 	assert(idx > 0);
 	assert(idx <= hp->cnt);
 
 	while (1) {
-		assert(DIFF(tbl, he) < hp->len);
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->pre_sz == off);
 		assert(he->nam_sz > 0);
@@ -96,7 +95,7 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	idx -= HPT_STATIC_MAX;
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
-	he = hpt_dynamic(ctx->hp, ctx->hp->tbl, idx);
+	he = hpt_dynamic(ctx->hp, idx);
 	hf->nam_sz = he->nam_sz;
 	hf->val_sz = he->val_sz;
 	hf->nam = JUMP(he, 0);
@@ -134,7 +133,7 @@ HPT_foreach(HPACK_CTX)
  */
 
 void
-HPT_adjust(struct hpack *hp, struct hpt_entry *tbl, size_t len)
+HPT_adjust(struct hpack *hp, size_t len)
 {
 	struct hpt_entry *he;
 	size_t sz;
@@ -142,9 +141,7 @@ HPT_adjust(struct hpack *hp, struct hpt_entry *tbl, size_t len)
 	if (hp->cnt == 0)
 		return;
 
-	if (tbl == NULL)
-		tbl = hp->tbl;
-	he = hpt_dynamic(hp, tbl, hp->cnt);
+	he = hpt_dynamic(hp, hp->cnt);
 
 	while (hp->cnt > 0 && len > hp->lim) {
 		assert(he->magic == HPT_ENTRY_MAGIC);
@@ -167,13 +164,100 @@ HPT_adjust(struct hpack *hp, struct hpt_entry *tbl, size_t len)
  * Insert
  */
 
+unsigned
+hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const void *buf, size_t len)
+{
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		assert(buf == NULL);
+		assert(len == 32); /* entry overhead, see Section 4.1 */
+		CALLBACK(ctx, evt, NULL, 0);
+		return (1);
+	case HPACK_EVT_DATA:
+		assert(buf != NULL);
+		/* fall through */
+	case HPACK_EVT_NAME:
+	case HPACK_EVT_VALUE:
+		CALLBACK(ctx, evt, buf, len);
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
+
+	return (buf != NULL);
+}
+
+unsigned
+hpt_evict(struct hpt_priv *priv, size_t len)
+{
+	struct hpack *hp;
+
+	hp = priv->ctx->hp;
+	if (priv->ins) {
+		priv->len += len;
+		HPT_adjust(hp, hp->len + priv->len);
+	}
+
+	/* does the new field even fit alone? */
+	return (priv->len > hp->lim);
+}
+
+void
+hpt_move(struct hpt_priv *priv, size_t len)
+{
+	struct hpack *hp;
+
+	hp = priv->ctx->hp;
+	priv->wrt = MOVE(hp->tbl, priv->len - len);
+
+	if (hp->cnt == 0 || len == 0 || !priv->ins)
+		return;
+
+	hp->off += len;
+	priv->he->pre_sz += len;
+	priv->he = MOVE(priv->he, len);
+	memmove(priv->he, priv->wrt, hp->len);
+}
+
+void
+hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const void *buf,
+    size_t len)
+{
+	struct hpack *hp;
+
+	hp = priv->ctx->hp;
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		memset(hp->tbl, 0, sizeof *hp->tbl);
+		hp->tbl->magic = HPT_ENTRY_MAGIC;
+		break;
+	case HPACK_EVT_VALUE:
+		priv->nam = 0;
+		/* fall through */
+	case HPACK_EVT_NAME:
+	case HPACK_EVT_DATA:
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
+
+	if (buf == NULL)
+		return;
+
+	if (priv->nam)
+		hp->tbl->nam_sz += len;
+	else
+		hp->tbl->val_sz += len;
+	memcpy(priv->wrt, buf, len);
+}
+
 void
 HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;
-	unsigned add;
-	ptrdiff_t off;
 
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_INDEX);
@@ -182,70 +266,16 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	priv2 = priv;
 	hp = priv2->ctx->hp;
 
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
-		assert(len == 32); /* entry overhead, see Section 4.1 */
-		CALLBACK(priv2->ctx, evt, NULL, 0);
-		break;
-	case HPACK_EVT_NAME:
-	case HPACK_EVT_VALUE:
-	case HPACK_EVT_DATA:
-		CALLBACK(priv2->ctx, evt, buf, len);
-		break;
-	default:
-		WRONG("Unexpected event");
-	}
+	priv2->ins = hpt_notify(priv2->ctx, evt, buf, len);
 
-	off = (uintptr_t)hp->tbl + priv2->len;
-	add = (evt == HPACK_EVT_FIELD || buf != NULL);
-	if (add) {
-		priv2->len += len;
-		/* eviction needed? */
-		HPT_adjust(hp, priv2->he, hp->len + priv2->len);
-	}
-
-	if (priv2->len > hp->lim) { /* new field does not even fit alone */
+	if (hpt_evict(priv2, len)) {
 		assert(hp->len == 0);
 		assert(hp->cnt == 0);
 		return;
 	}
 
-	if (hp->cnt > 0 && len > 0 && add) {
-		memmove(MOVE(priv2->he, len), priv2->he, hp->len);
-		priv2->he = MOVE(priv2->he, len);
-		priv2->he->pre_sz += len;
-	}
-
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		memset(hp->tbl, 0, sizeof *hp->tbl);
-		hp->tbl->magic = HPT_ENTRY_MAGIC;
-		return;
-	case HPACK_EVT_NAME:
-		priv2->nam = 1;
-		if (buf != NULL)
-			hp->tbl[0].nam_sz += len;
-		break;
-	case HPACK_EVT_VALUE:
-		priv2->nam = 0;
-		if (buf != NULL)
-			hp->tbl[0].val_sz += len;
-		break;
-	case HPACK_EVT_DATA:
-		assert(buf != NULL);
-		assert(len > 0);
-		if (priv2->nam)
-			hp->tbl[0].nam_sz += len;
-		else
-			hp->tbl[0].val_sz += len;
-		break;
-	default:
-		WRONG("Unexpected event");
-	}
-
-	if (buf != NULL)
-		memcpy((void *)off, buf, len);
+	hpt_move(priv2, len);
+	hpt_copy(priv2, evt, buf, len);
 }
 
 /**********************************************************************
