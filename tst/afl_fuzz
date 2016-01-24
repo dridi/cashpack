@@ -6,7 +6,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-# Error: assert
+# Error: assert (empty name inserted in the table)
 
 mk_hex <<EOF
 4803 3330 3258 0770 7269 7661 7465 611d | H.302X.privatea.
@@ -22,9 +22,10 @@ mk_hex <<EOF
 3d33 3630 303b 2076 6572 7369 6f6e 3d31 | =3600; version=1
 EOF
 
-hdecode # XXX: it should fail once validation is in place
+# XXX: it should fail once validation is in place
+hdecode
 
-# Error: timeout (infinite loop)
+# Error: timeout (infinite loop in the Huffman decoder)
 
 mk_hex <<'EOF'
 00ff 2d68 7474 0000 007f fe95 ff00 0000 | ..-htt..........
