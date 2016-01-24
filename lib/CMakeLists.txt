@@ -28,7 +28,8 @@ add_library(
 	hpack.c
 	hpack_huf.c
 	hpack_int.c
-	hpack_tbl.c)
+	hpack_tbl.c
+	hpack_val.c)
 
 add_dependencies(hpack hpack.h gen)
 

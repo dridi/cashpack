@@ -29,6 +29,7 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -43,18 +44,19 @@
  */
 
 int
-HPH_decode(HPACK_CTX, size_t len)
+HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
 {
 	const struct hph_entry *he;
 	uint64_t bits;
 	uint32_t cod;
 	uint16_t blen;
 	uint8_t buf[256];
-	unsigned eos, l;
+	unsigned eos, l, first;
 
 	bits = 0;
 	blen = 0;
 	l = 0;
+	first = 1;
 
 	while (len > 0 || blen > 0) {
 		he = &hph_tbl[9]; /* the last 5-bit code */
@@ -89,8 +91,10 @@ HPH_decode(HPACK_CTX, size_t len)
 		assert(l < sizeof buf);
 		buf[l] = he->chr;
 		if (++l == sizeof buf) {
+			CALL(val, ctx, (char *)buf, l, first);
 			CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 			l = 0;
+			first = 0;
 		}
 
 		assert(blen >= he->len);
@@ -112,8 +116,10 @@ HPH_decode(HPACK_CTX, size_t len)
 		assert(blen == 0);
 	}
 
-	if (l > 0)
+	if (l > 0) {
+		CALL(val, ctx, (char *)buf, l, first);
 		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
+	}
 
 	return (0);
 }

@@ -91,6 +91,8 @@ struct hpack_ctx {
 	void			*priv;
 };
 
+typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
+
 /**********************************************************************
  * Utility Macros
  */
@@ -122,7 +124,10 @@ struct hpack_ctx {
 
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
 
-int HPH_decode(HPACK_CTX, size_t);
+int HPH_decode(HPACK_CTX, hpack_validate_f, size_t);
+
+hpack_validate_f HPV_token;
+hpack_validate_f HPV_value;
 
 hpack_decoded_f HPT_insert;
 void HPT_adjust(struct hpack *, size_t);

@@ -70,6 +70,7 @@ It can be verified by looking at the shared object:
    memcpy
    memmove
    realloc
+   strchr
 
 5. No system calls
 

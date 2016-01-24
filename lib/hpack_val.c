@@ -24,25 +24,59 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * Header field grammar validation (RFC 7230 Section 3.2)
  */
 
-#ifdef HPR
-HPR(OK,   0, "Success")
-HPR(ARG, -1, "Wrong argument")
-HPR(BUF, -2, "Buffer overflow")
-HPR(INT, -3, "Integer overflow")
-HPR(IDX, -4, "Invalid index")
-HPR(LEN, -5, "Invalid length")
-HPR(HUF, -6, "Invalid Huffman code")
-HPR(CHR, -7, "Invalid character")
-#endif
+#include <assert.h>
+#include <ctype.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef HPE
-HPE(FIELD, 0, "New field")
-HPE(NEVER, 1, "Field is never indexed")
-HPE(INDEX, 2, "Field was indexed")
-HPE(NAME,  3, "New name string")
-HPE(VALUE, 4, "New Value string")
-HPE(DATA,  5, "String data")
-HPE(TABLE, 6, "Table update")
-#endif
+#include "hpack.h"
+#include "hpack_priv.h"
+
+#define IS_VCHAR(c)		isgraph(c)
+#define IS_OBS_TEXT(c)		((uint8_t)c & 0x80)
+#define IS_FIELD_VCHAR(c)	(IS_VCHAR(c) || IS_OBS_TEXT(c))
+#define IS_FIELD_VALUE(c)	(c == ' ' || c == '\t' || IS_FIELD_VCHAR(c))
+
+int
+HPV_value(HPACK_CTX, const char *str, size_t len, unsigned first)
+{
+
+	assert(str != NULL);
+	while (len > 0) {
+		EXPECT(ctx, CHR, IS_FIELD_VALUE(*str));
+		str++;
+		len--;
+	}
+	(void)first;
+	return (0);
+}
+
+int
+HPV_token(HPACK_CTX, const char *str, size_t len, unsigned first)
+{
+
+	assert(str != NULL);
+	assert(len > 0);
+
+	/* RFC 7540 Section 8.1.2.1.  Pseudo-Header Fields */
+	if (*str == ':') {
+		EXPECT(ctx, CHR, first);
+		str++;
+		len--;
+	}
+
+	while (len > 0) {
+		EXPECT(ctx, CHR, IS_VCHAR(*str) &&
+		    strchr("()<>@,;:\\\"/[]?={} ", *str) == NULL);
+		str++;
+		len--;
+	}
+
+	return (0);
+}

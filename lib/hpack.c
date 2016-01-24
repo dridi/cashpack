@@ -29,12 +29,14 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "hpack.h"
+#include "hpack_assert.h"
 #include "hpack_priv.h"
 
 enum hpack_pfx_e {
@@ -121,18 +123,30 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 {
 	uint16_t len;
 	uint8_t huf;
+	hpack_validate_f *val;
 
 	huf = *ctx->buf & HPACK_HUFFMAN;
 	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
 	EXPECT(ctx, BUF, ctx->len >= len);
-	if (evt == HPACK_EVT_NAME)
+
+	switch (evt) {
+	case HPACK_EVT_NAME:
 		EXPECT(ctx, LEN, len > 0);
+		val = HPV_token;
+		break;
+	case HPACK_EVT_VALUE:
+		val = HPV_value;;
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
 
 	if (huf) {
 		CALLBACK(ctx, evt, NULL, len);
-		CALL(HPH_decode, ctx, len);
+		CALL(HPH_decode, ctx, val, len);
 	}
 	else {
+		CALL(val, ctx, (char *)ctx->buf, len, 1);
 		CALLBACK(ctx, evt, ctx->buf, len);
 		ctx->buf += len;
 		ctx->len -= len;
