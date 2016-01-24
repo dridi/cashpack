@@ -52,7 +52,6 @@ HPH_decode(HPACK_CTX, size_t len)
 	uint8_t buf[256];
 	unsigned eos, l;
 
-	assert(len > 0);
 	bits = 0;
 	blen = 0;
 	l = 0;

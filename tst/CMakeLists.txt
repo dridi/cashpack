@@ -66,6 +66,7 @@ if(${HEXCHECK_RESULT} EQUAL 0)
 	tst_add(rfc7541_c_6_3)
 
 	# additional coverage
+	tst_add(hpack_cov)
 	tst_add(hpack_huf)
 	tst_add(hpack_int)
 	tst_add(hpack_tbl)

@@ -74,7 +74,6 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->pre_sz == off);
 		assert(he->nam_sz > 0);
-		assert(he->val_sz > 0);
 		if (--idx == 0)
 			return (he);
 		off = sizeof *he + he->nam_sz + he->val_sz;
@@ -118,7 +117,6 @@ HPT_foreach(HPACK_CTX)
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->pre_sz == off);
 		assert(he->nam_sz > 0);
-		assert(he->val_sz > 0);
 		off = sizeof *he + he->nam_sz + he->val_sz;
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
 		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), he->nam_sz);
@@ -146,7 +144,6 @@ HPT_adjust(struct hpack *hp, size_t len)
 	while (hp->cnt > 0 && len > hp->lim) {
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->nam_sz > 0);
-		assert(he->val_sz > 0);
 		sz = sizeof *he + he->nam_sz + he->val_sz;
 		len -= sz;
 		hp->len -= sz;

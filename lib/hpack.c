@@ -125,9 +125,10 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	huf = *ctx->buf & HPACK_HUFFMAN;
 	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
 	EXPECT(ctx, BUF, ctx->len >= len);
+	if (evt == HPACK_EVT_NAME)
+		EXPECT(ctx, LEN, len > 0);
 
 	if (huf) {
-		EXPECT(ctx, LEN, len > 0);
 		CALLBACK(ctx, evt, NULL, len);
 		CALL(HPH_decode, ctx, len);
 	}

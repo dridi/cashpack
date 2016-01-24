@@ -84,7 +84,6 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		OUT(": ");
 		/* fall through */
 	case HPACK_EVT_NAME:
-		assert(len > 0);
 		if (buf != NULL)
 			WRT(buf, len);
 		break;
@@ -126,7 +125,6 @@ print_entries(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 		/* fall through */
 	case HPACK_EVT_NAME:
 		assert(buf != NULL);
-		assert(len > 0);
 		WRT(buf, len);
 		break;
 	default:
