@@ -161,7 +161,7 @@ HPT_adjust(struct hpack *hp, size_t len)
  * Insert
  */
 
-unsigned
+static unsigned
 hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 
@@ -185,7 +185,7 @@ hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const void *buf, size_t len)
 	return (buf != NULL);
 }
 
-unsigned
+static unsigned
 hpt_evict(struct hpt_priv *priv, size_t len)
 {
 	struct hpack *hp;
@@ -200,7 +200,7 @@ hpt_evict(struct hpt_priv *priv, size_t len)
 	return (priv->len > hp->lim);
 }
 
-void
+static void
 hpt_move(struct hpt_priv *priv, size_t len)
 {
 	struct hpack *hp;
@@ -217,7 +217,7 @@ hpt_move(struct hpt_priv *priv, size_t len)
 	memmove(priv->he, priv->wrt, hp->len);
 }
 
-void
+static void
 hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const void *buf,
     size_t len)
 {
