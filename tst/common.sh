@@ -33,7 +33,7 @@ trap "rm -fr $TEST_TMP" EXIT
 
 MEMCHECK_CMD="valgrind		\
 	--tool=memcheck		\
-	--leak-check=yes	\
+	--leak-check=full	\
 	--show-reachable=yes	\
 	--track-fds=yes		\
 	--error-exitcode=99	\
@@ -43,7 +43,7 @@ set |
 grep ^MEMCHECK= >/dev/null ||
 MEMCHECK=OFF
 
-[ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log
+[ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log*
 
 memcheck() {
 	if [ "$MEMCHECK" = ON ]
