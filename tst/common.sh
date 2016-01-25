@@ -23,6 +23,7 @@
 # SUCH DAMAGE.
 
 set -e
+set -u
 
 TEST_NAM="$(basename "$0")"
 TEST_DIR="$(dirname "$0")"
@@ -37,6 +38,10 @@ MEMCHECK_CMD="valgrind		\
 	--track-fds=yes		\
 	--error-exitcode=99	\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
+
+set |
+grep ^MEMCHECK= >/dev/null ||
+MEMCHECK=OFF
 
 [ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log
 
