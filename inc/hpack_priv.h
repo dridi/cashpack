@@ -47,7 +47,7 @@ enum hpack_encoding_e { /* Section 5.2 */
 
 struct hpt_field {
 	char		*nam;
-	uint8_t		*val;
+	char		*val;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
 };

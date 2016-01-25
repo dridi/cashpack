@@ -70,7 +70,7 @@ main(int argc, const char **argv)
 	OUT("struct hph_entry {");
 	OUT("\tuint32_t\tcod;");
 	OUT("\tuint16_t\tlen;");
-	OUT("\tuint8_t\t\tchr;");
+	OUT("\tchar\t\tchr;");
 	OUT("\tuint8_t\t\tnxt;");
 	OUT("};");
 	OUT("");

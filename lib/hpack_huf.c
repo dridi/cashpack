@@ -50,7 +50,7 @@ HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
 	uint64_t bits;
 	uint32_t cod;
 	uint16_t blen;
-	uint8_t buf[256];
+	char buf[256];
 	unsigned eos, l, first;
 
 	bits = 0;

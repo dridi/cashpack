@@ -147,7 +147,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	}
 	else {
 		CALL(val, ctx, (char *)ctx->buf, len, 1);
-		CALLBACK(ctx, evt, ctx->buf, len);
+		CALLBACK(ctx, evt, (char *)ctx->buf, len);
 		ctx->buf += len;
 		ctx->len -= len;
 	}

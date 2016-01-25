@@ -46,7 +46,7 @@ const struct hpt_field hpt_static[] = {
 #define HPS(n, v)				\
 	{					\
 		.nam = n,			\
-		.val = (uint8_t*)v,		\
+		.val = v,			\
 		.nam_sz = sizeof(n) - 1,	\
 		.val_sz = sizeof(v) - 1,	\
 	},
@@ -162,7 +162,7 @@ HPT_adjust(struct hpack *hp, size_t len)
  */
 
 static unsigned
-hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const void *buf, size_t len)
+hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	switch (evt) {
@@ -218,7 +218,7 @@ hpt_move(struct hpt_priv *priv, size_t len)
 }
 
 static void
-hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const void *buf,
+hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
     size_t len)
 {
 	struct hpack *hp;
@@ -251,7 +251,7 @@ hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const void *buf,
 }
 
 void
-HPT_insert(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;

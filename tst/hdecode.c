@@ -56,7 +56,7 @@ struct tst_ctx {
 };
 
 void
-print_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
@@ -66,7 +66,7 @@ print_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 void
-print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
@@ -98,7 +98,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 void
-print_entries(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct tst_ctx *ctx;
 	char str[sizeof "\n[  1] (s =  55) "];
