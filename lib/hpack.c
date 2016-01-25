@@ -129,17 +129,12 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
 	EXPECT(ctx, BUF, ctx->len >= len);
 
-	switch (evt) {
-	case HPACK_EVT_NAME:
+	if (evt == HPACK_EVT_NAME) {
 		EXPECT(ctx, LEN, len > 0);
 		val = HPV_token;
-		break;
-	case HPACK_EVT_VALUE:
-		val = HPV_value;;
-		break;
-	default:
-		WRONG("Unexpected event");
 	}
+	else
+		val = HPV_value;
 
 	if (huf) {
 		CALLBACK(ctx, evt, NULL, len);
@@ -190,15 +185,14 @@ hpack_decode_dynamic(HPACK_CTX)
 	memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
-	priv.nam = 1;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
+	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 
 	memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
 	tbl_ctx.cb = HPT_insert;
 	tbl_ctx.priv = &priv;
 
-	CALLBACK(&tbl_ctx, HPACK_EVT_FIELD, NULL, sizeof(struct hpt_entry));
 	if (hpack_decode_field(&tbl_ctx, idx) != 0) {
 		assert(tbl_ctx.res != HPACK_RES_OK);
 		ctx->res = tbl_ctx.res;

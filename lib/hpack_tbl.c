@@ -162,92 +162,81 @@ HPT_adjust(struct hpack *hp, size_t len)
  */
 
 static unsigned
-hpt_notify(HPACK_CTX, enum hpack_evt_e evt, const char *buf, size_t len)
-{
-
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
-		assert(len == 32); /* entry overhead, see Section 4.1 */
-		CALLBACK(ctx, evt, NULL, 0);
-		return (1);
-	case HPACK_EVT_DATA:
-		assert(buf != NULL);
-		/* fall through */
-	case HPACK_EVT_NAME:
-	case HPACK_EVT_VALUE:
-		CALLBACK(ctx, evt, buf, len);
-		break;
-	default:
-		WRONG("Unexpected event");
-	}
-
-	return (buf != NULL);
-}
-
-static unsigned
-hpt_evict(struct hpt_priv *priv, size_t len)
-{
-	struct hpack *hp;
-
-	hp = priv->ctx->hp;
-	if (priv->ins) {
-		priv->len += len;
-		HPT_adjust(hp, hp->len + priv->len);
-	}
-
-	/* does the new field even fit alone? */
-	return (priv->len > hp->lim);
-}
-
-static void
-hpt_move(struct hpt_priv *priv, size_t len)
-{
-	struct hpack *hp;
-
-	hp = priv->ctx->hp;
-	priv->wrt = MOVE(hp->tbl, priv->len - len);
-
-	if (hp->cnt == 0 || len == 0 || !priv->ins)
-		return;
-
-	hp->off += len;
-	priv->he->pre_sz += len;
-	priv->he = MOVE(priv->he, len);
-	memmove(priv->he, priv->wrt, hp->len);
-}
-
-static void
-hpt_copy(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
+hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
     size_t len)
 {
 	struct hpack *hp;
 
-	hp = priv->ctx->hp;
-
 	switch (evt) {
-	case HPACK_EVT_FIELD:
-		memset(hp->tbl, 0, sizeof *hp->tbl);
-		hp->tbl->magic = HPT_ENTRY_MAGIC;
+	case HPACK_EVT_NAME:
+		assert(len > 0);
+
+		hp = priv->ctx->hp;
+		assert(priv->he == hp->tbl);
+		assert(priv->he->pre_sz == 0);
+		assert(hp->off == 0);
+
+		/* entry overhead, see section 4.1 */
+		priv->he->pre_sz = 32;
+		priv->len = 32;
+		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
 		priv->nam = 0;
-		/* fall through */
-	case HPACK_EVT_NAME:
+		break;
 	case HPACK_EVT_DATA:
+		assert(buf != NULL);
+		assert(len > 0);
 		break;
 	default:
 		WRONG("Unexpected event");
 	}
 
-	if (buf == NULL)
-		return;
+	CALLBACK(priv->ctx, evt, buf, len);
 
-	if (priv->nam)
-		hp->tbl->nam_sz += len;
-	else
-		hp->tbl->val_sz += len;
-	memcpy(priv->wrt, buf, len);
+	/* is there anything to copy in the table? */
+	return (evt == HPACK_EVT_NAME || (buf != NULL && len > 0));
+}
+
+static unsigned
+hpt_evict(struct hpt_priv *priv, const char *buf, size_t len)
+{
+	struct hpack *hp;
+
+	hp = priv->ctx->hp;
+	if (buf != NULL)
+		priv->len += len;
+	HPT_adjust(hp, hp->len + priv->len);
+
+	/* does the new field even fit alone? */
+	if (priv->len > hp->lim) {
+		assert(hp->len == 0);
+		assert(hp->cnt == 0);
+		return (0);
+	}
+	return (1);
+}
+
+static void
+hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
+{
+	struct hpack *hp;
+	void *tmp;
+
+	hp = priv->ctx->hp;
+
+	if (hp->cnt > 0) {
+		assert(priv->he->magic == HPT_ENTRY_MAGIC);
+		tmp = priv->he;
+		hp->off = priv->len;
+		priv->he->pre_sz = priv->len;
+		priv->he = MOVE(hp->tbl, priv->he->pre_sz);
+		memmove(priv->he, tmp, hp->len);
+		assert(priv->he->magic == HPT_ENTRY_MAGIC);
+	}
+
+	if (buf != NULL)
+		memcpy(priv->wrt, buf, len);
 }
 
 void
@@ -263,16 +252,31 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	priv2 = priv;
 	hp = priv2->ctx->hp;
 
-	priv2->ins = hpt_notify(priv2->ctx, evt, buf, len);
-
-	if (hpt_evict(priv2, len)) {
-		assert(hp->len == 0);
-		assert(hp->cnt == 0);
+	if (!hpt_notify(priv2, evt, buf, len) || !hpt_evict(priv2, buf, len))
 		return;
+
+	priv2->wrt = evt == HPACK_EVT_NAME ?
+	    JUMP(hp->tbl, 0) :
+	    MOVE(hp->tbl, priv2->len - len);
+
+	hpt_copy(priv2, buf, len);
+
+	if (evt == HPACK_EVT_NAME) {
+		if (hp->cnt > 0) {
+			assert(priv2->he != hp->tbl);
+			assert(priv2->he->pre_sz > 0);
+		}
+		memset(hp->tbl, 0, sizeof *hp->tbl);
+		hp->tbl->magic = HPT_ENTRY_MAGIC;
 	}
 
-	hpt_move(priv2, len);
-	hpt_copy(priv2, evt, buf, len);
+	if (buf == NULL)
+		return;
+
+	if (priv2->nam)
+		hp->tbl->nam_sz += len;
+	else
+		hp->tbl->val_sz += len;
 }
 
 /**********************************************************************
