@@ -152,7 +152,7 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
-	if (!strcmp("-r", *argv)) {
+	if (argc > 0 && !strcmp("-r", *argv)) {
 		assert(argc > 2);
 #define HPR(val, cod, txt)			\
 		if (!strcmp(argv[1], #val))	\
@@ -165,7 +165,7 @@ main(int argc, char **argv)
 		argv += 2;
 	}
 
-	if (!strcmp("-t", *argv)) {
+	if (argc > 0 && !strcmp("-t", *argv)) {
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
@@ -174,7 +174,21 @@ main(int argc, char **argv)
 	}
 
 	/* exactly one file name is expected */
-	assert(argc == 1);
+	if (argc != 1) {
+		fprintf(stderr, "Usage: hdecode [-r <expected result>] "
+		    "[-t <table size>] <dump file>\n\n"
+		    "The file contains a dump of HPACK octets.\n"
+		    "Default table size: 4096\n"
+		    "Possible results:\n");
+
+#define HPR(val, cod, txt)		\
+		if (strcmp("OK", #val))	\
+			fprintf(stderr, "  %s: %s\n", #val, txt);
+#include "tbl/hpack_tbl.h"
+#undef HPR
+
+		return (EXIT_FAILURE);
+	}
 
 	fd = open(*argv, O_RDONLY);
 	assert(fd > STDERR_FILENO);
@@ -191,11 +205,6 @@ main(int argc, char **argv)
 	OUT("Decoded header list:\n");
 
 	res = HPACK_decode(hp, buf, st.st_size, cb, NULL);
-#define HPR(val, cod, txt)		\
-	if (exp == HPACK_RES_##val)	\
-		assert(res == HPACK_RES_##val);
-#include "tbl/hpack_tbl.h"
-#undef HPR
 
 	OUT("\n\nDynamic Table (after decoding):");
 	ctx.cnt = 0;
@@ -220,5 +229,5 @@ main(int argc, char **argv)
 	retval = close(fd);
 	assert(retval == 0);
 
-	return (0);
+	return (res != exp);
 }
