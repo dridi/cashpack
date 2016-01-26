@@ -258,6 +258,9 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		assert(priv->he->magic == HPT_ENTRY_MAGIC);
 	}
 
+	if (hpt_overlap(hp, buf, len))
+		buf += priv->len;
+
 	if (buf != NULL)
 		memcpy(priv->wrt, buf, len);
 }
