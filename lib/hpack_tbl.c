@@ -217,6 +217,29 @@ hpt_evict(struct hpt_priv *priv, const char *buf, size_t len)
 	return (1);
 }
 
+static unsigned
+hpt_overlap(const struct hpack *hp, const char *buf, size_t len)
+{
+	uintptr_t bgn, end, pos;
+
+	if (buf == NULL)
+		return (0);
+
+	bgn = (uintptr_t)hp->tbl;
+	pos = (uintptr_t)buf;
+	end = bgn + hp->len;
+
+	if (pos >= bgn && pos < end) {
+		pos += len;
+		assert(pos >= bgn && pos < end);
+		return (1);
+	}
+
+	pos += len;
+	assert(pos < bgn || pos >= end);
+	return (0);
+}
+
 static void
 hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 {
@@ -244,6 +267,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;
+	unsigned ovl;
 
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_INDEX);
@@ -252,6 +276,12 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	priv2 = priv;
 	hp = priv2->ctx->hp;
 
+	ovl = hpt_overlap(hp, buf, len);
+	if (ovl) {
+		assert(evt == HPACK_EVT_NAME);
+		assert(hp->cnt > 0);
+	}
+
 	if (!hpt_notify(priv2, evt, buf, len) || !hpt_evict(priv2, buf, len))
 		return;
 
@@ -259,7 +289,10 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	    JUMP(hp->tbl, 0) :
 	    MOVE(hp->tbl, priv2->len - len);
 
-	hpt_copy(priv2, buf, len);
+	if (ovl && !hpt_overlap(hp, buf, len))
+		INCOMPL(); /* XXX: insert evicted indexed name */
+	else
+		hpt_copy(priv2, buf, len);
 
 	if (evt == HPACK_EVT_NAME) {
 		if (hp->cnt > 0) {
