@@ -87,7 +87,7 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	const struct hpt_entry *he;
 
 	if (idx <= HPT_STATIC_MAX) {
-		memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
+		(void)memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
 		return (0);
 	}
 
@@ -257,7 +257,7 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		hp->off = priv->len;
 		priv->he->pre_sz = priv->len;
 		priv->he = MOVE(hp->tbl, priv->he->pre_sz);
-		memmove(priv->he, tmp, hp->len);
+		(void)memmove(priv->he, tmp, hp->len);
 		assert(priv->he->magic == HPT_ENTRY_MAGIC);
 	}
 
@@ -305,7 +305,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 			assert(priv2->he != hp->tbl);
 			assert(priv2->he->pre_sz > 0);
 		}
-		memset(hp->tbl, 0, sizeof *hp->tbl);
+		(void)memset(hp->tbl, 0, sizeof *hp->tbl);
 		hp->tbl->magic = HPT_ENTRY_MAGIC;
 	}
 
@@ -328,7 +328,7 @@ HPT_decode(HPACK_CTX, size_t idx)
 	struct hpt_field hf;
 
 	assert(idx != 0);
-	memset(&hf, 0, sizeof hf);
+	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
 	assert(hf.nam != NULL);
 	assert(hf.val != NULL);
@@ -344,7 +344,7 @@ HPT_decode_name(HPACK_CTX, size_t idx)
 	struct hpt_field hf;
 
 	assert(idx != 0);
-	memset(&hf, 0, sizeof hf);
+	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
 	assert(hf.nam != NULL);
 	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);

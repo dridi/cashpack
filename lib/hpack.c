@@ -68,7 +68,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	if (hp == NULL)
 		return (NULL);
 
-	memset(hp, 0, sizeof *hp + max);
+	(void)memset(hp, 0, sizeof *hp + max);
 	hp->magic = magic;
 	hp->alloc = ha;
 	hp->max = max;
@@ -116,7 +116,7 @@ HPACK_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (-1);
 
-	memset(&ctx, 0, sizeof ctx);
+	(void)memset(&ctx, 0, sizeof ctx);
 	ctx.hp = hp;
 	ctx.cb = cb;
 	ctx.priv = priv;
@@ -193,14 +193,14 @@ hpack_decode_dynamic(HPACK_CTX)
 
 	hp = ctx->hp;
 
-	memset(&priv, 0, sizeof priv);
+	(void)memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
 	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 
-	memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
+	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
 	tbl_ctx.cb = HPT_insert;
 	tbl_ctx.priv = &priv;
 
