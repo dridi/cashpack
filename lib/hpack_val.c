@@ -29,7 +29,6 @@
  */
 
 #include <assert.h>
-#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -38,7 +37,7 @@
 #include "hpack.h"
 #include "hpack_priv.h"
 
-#define IS_VCHAR(c)		isgraph(c)
+#define IS_VCHAR(c)		((uint8_t)c > 0x20 && (uint8_t)c < 0x7f)
 #define IS_OBS_TEXT(c)		((uint8_t)c & 0x80)
 #define IS_FIELD_VCHAR(c)	(IS_VCHAR(c) || IS_OBS_TEXT(c))
 #define IS_FIELD_VALUE(c)	(c == ' ' || c == '\t' || IS_FIELD_VCHAR(c))
