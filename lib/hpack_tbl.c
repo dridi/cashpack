@@ -265,7 +265,7 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		buf += priv->len;
 
 	if (buf != NULL)
-		memcpy(priv->wrt, buf, len);
+		(void)memcpy(priv->wrt, buf, len);
 }
 
 void
