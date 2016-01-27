@@ -31,7 +31,8 @@ project(
 
 enable_testing()
 
-option(COVERAGE "Enable lcov support" OFF)
+option(COVERAGE "Enable lcov support"		OFF)
+option(MEMCHECK "Enable valgrind support"	OFF)
 
 set(PROJECT_LIB_ABI	0)
 set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
