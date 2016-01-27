@@ -73,6 +73,7 @@ struct hpack {
 	uint32_t		magic;
 #define ENCODER_MAGIC		0x8ab1fb4c
 #define DECODER_MAGIC		0xab0e3218
+#define DEFUNCT_MAGIC		0xdffadae9
 	size_t			max;
 	size_t			lim;
 	size_t			len;

@@ -91,7 +91,8 @@ HPACK_free(struct hpack **hpp)
 		return;
 
 	*hpp = NULL;
-	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC);
+	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
+	    hp->magic == DEFUNCT_MAGIC);
 	free(hp);
 }
 
@@ -282,6 +283,7 @@ HPACK_decode(struct hpack *hp, const void *buf, size_t len,
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx.res != HPACK_RES_OK);
+			hp->magic = DEFUNCT_MAGIC;
 			return (ctx.res);
 		}
 	}
