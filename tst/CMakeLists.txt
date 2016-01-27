@@ -87,7 +87,7 @@ if(COVERAGE)
 		COMMAND ${LCOV} -c -o tst.info -d .
 		COMMAND ${LCOV} -c -o lib.info -d ../lib
 		COMMAND ${LCOV} -a tst.info -a lib.info -o raw.info
-		COMMAND ${LCOV} -r raw.info '/usr/*' -o cashpack.info
+		COMMAND ${LCOV} -r raw.info '/usr/*' 'inc/*' -o cashpack.info
 		COMMAND ${GENHTML} -o lcov cashpack.info)
 
 	add_dependencies(check lcov-init)
