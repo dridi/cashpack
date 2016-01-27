@@ -65,10 +65,11 @@ It can be verified by looking at the shared object:
 
    $ nm -D -u libhpack.so |       # list dynamic undefined symbols
    > awk '/^ +U [^_]/ {print $2}' # print non-weak public names
-   calloc
    free
+   malloc
    memcpy
    memmove
+   memset
    realloc
    strchr
 
