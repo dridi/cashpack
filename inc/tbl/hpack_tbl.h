@@ -44,5 +44,6 @@ HPE(INDEX, 2, "Field was indexed")
 HPE(NAME,  3, "New name string")
 HPE(VALUE, 4, "New Value string")
 HPE(DATA,  5, "String data")
-HPE(TABLE, 6, "Table update")
+HPE(EVICT, 6, "A field was evicted")
+HPE(TABLE, 7, "Table update")
 #endif

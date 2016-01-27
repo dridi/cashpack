@@ -260,7 +260,7 @@ hpack_decode_update(HPACK_CTX)
 	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
 	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	ctx->hp->lim = sz;
-	HPT_adjust(ctx->hp, ctx->hp->len);
+	HPT_adjust(ctx, ctx->hp->len);
 	return (0);
 }
 

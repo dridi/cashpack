@@ -78,6 +78,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 		break;
 	case HPACK_EVT_INDEX:
 	case HPACK_EVT_NEVER:
+	case HPACK_EVT_EVICT:
 		assert(buf == NULL);
 		assert(len == 0);
 		break;

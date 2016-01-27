@@ -131,11 +131,13 @@ HPT_foreach(HPACK_CTX)
  */
 
 void
-HPT_adjust(struct hpack *hp, size_t len)
+HPT_adjust(struct hpack_ctx *ctx, size_t len)
 {
+	struct hpack *hp;
 	struct hpt_entry *he;
 	size_t sz;
 
+	hp = ctx->hp;
 	if (hp->cnt == 0)
 		return;
 
@@ -149,6 +151,7 @@ HPT_adjust(struct hpack *hp, size_t len)
 		hp->len -= sz;
 		hp->cnt--;
 		he = MOVE(he, -he->pre_sz);
+		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, 0);
 	}
 
 	if (hp->cnt == 0)
@@ -206,7 +209,7 @@ hpt_evict(struct hpt_priv *priv, const char *buf, size_t len)
 	hp = priv->ctx->hp;
 	if (buf != NULL)
 		priv->len += len;
-	HPT_adjust(hp, hp->len + priv->len);
+	HPT_adjust(priv->ctx, hp->len + priv->len);
 
 	/* does the new field even fit alone? */
 	if (priv->len > hp->lim) {
