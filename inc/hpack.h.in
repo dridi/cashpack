@@ -42,11 +42,24 @@ enum hpack_evt_e {
 #undef HPR
 };
 
+typedef void * hpack_malloc_f(size_t);
+typedef void * hpack_realloc_f(void *, size_t);
+typedef void   hpack_free_f(void *);
+
+struct hpack_alloc {
+	hpack_malloc_f	*malloc;
+	hpack_realloc_f	*realloc;
+	hpack_free_f	*free;
+};
+
+extern const struct hpack_alloc *hpack_default_alloc;
+
 typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
 
-struct hpack * HPACK_encoder(size_t);
-struct hpack * HPACK_decoder(size_t);
+struct hpack * HPACK_encoder(size_t, const struct hpack_alloc *);
+struct hpack * HPACK_decoder(size_t, const struct hpack_alloc *);
 void HPACK_free(struct hpack **);
+
 int HPACK_foreach(struct hpack *, hpack_decoded_f, void *);
 
 enum hpack_res_e HPACK_decode(struct hpack *, const void *, size_t,

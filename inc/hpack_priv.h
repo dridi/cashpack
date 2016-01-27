@@ -70,16 +70,17 @@ struct hpt_priv {
 };
 
 struct hpack {
-	uint32_t		magic;
-#define ENCODER_MAGIC		0x8ab1fb4c
-#define DECODER_MAGIC		0xab0e3218
-#define DEFUNCT_MAGIC		0xdffadae9
-	size_t			max;
-	size_t			lim;
-	size_t			len;
-	size_t			cnt;
-	ptrdiff_t		off;
-	struct hpt_entry	tbl[0];
+	uint32_t			magic;
+#define ENCODER_MAGIC			0x8ab1fb4c
+#define DECODER_MAGIC			0xab0e3218
+#define DEFUNCT_MAGIC			0xdffadae9
+	const struct hpack_alloc	*alloc;
+	size_t				max;
+	size_t				lim;
+	size_t				len;
+	size_t				cnt;
+	ptrdiff_t			off;
+	struct hpt_entry		tbl[0];
 };
 
 struct hpack_ctx {

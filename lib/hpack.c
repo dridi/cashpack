@@ -48,36 +48,46 @@ enum hpack_pfx_e {
 	HPACK_PFX_UPDATE	= 5,
 };
 
+const struct hpack_alloc hpack_libc_alloc = { malloc, realloc, free };
+
+const struct hpack_alloc *hpack_default_alloc = &hpack_libc_alloc;
+
 /**********************************************************************
  */
 
 static struct hpack *
-hpack_new(uint32_t magic, size_t max)
+hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
 
-	hp = calloc(1, sizeof *hp + max);
+	if (ha == NULL || ha->malloc == NULL || ha->realloc == NULL ||
+	    ha->free == NULL)
+		return (NULL);
+
+	hp = ha->malloc(sizeof *hp + max);
 	if (hp == NULL)
 		return (NULL);
 
+	memset(hp, 0, sizeof *hp + max);
 	hp->magic = magic;
+	hp->alloc = ha;
 	hp->max = max;
 	hp->lim = max;
 	return (hp);
 }
 
 struct hpack *
-HPACK_encoder(size_t max)
+HPACK_encoder(size_t max, const struct hpack_alloc *ha)
 {
 
-	return (hpack_new(ENCODER_MAGIC, max));
+	return (hpack_new(ENCODER_MAGIC, max, ha));
 }
 
 struct hpack *
-HPACK_decoder(size_t max)
+HPACK_decoder(size_t max, const struct hpack_alloc *ha)
 {
 
-	return (hpack_new(DECODER_MAGIC, max));
+	return (hpack_new(DECODER_MAGIC, max, ha));
 }
 
 void
@@ -93,7 +103,7 @@ HPACK_free(struct hpack **hpp)
 	*hpp = NULL;
 	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
 	    hp->magic == DEFUNCT_MAGIC);
-	free(hp);
+	hp->alloc->free(hp);
 }
 
 int

@@ -199,7 +199,7 @@ main(int argc, char **argv)
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
 
-	hp = HPACK_decoder(tbl_sz);
+	hp = HPACK_decoder(tbl_sz, hpack_default_alloc);
 	assert(hp != NULL);
 
 	OUT("Decoded header list:\n");
