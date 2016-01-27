@@ -31,7 +31,7 @@ add_library(
 	hpack_tbl.c
 	hpack_val.c)
 
-add_dependencies(hpack hpack.h gen)
+add_dependencies(hpack gen hdr)
 
 set_target_properties(
 	hpack

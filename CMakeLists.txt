@@ -54,7 +54,7 @@ if(COVERAGE)
 		set(GCOV_FLAGS		"--coverage -DNDEBUG -Wno-unused")
 		set(CMAKE_C_FLAGS	"${CMAKE_C_FLAGS} ${GCOV_FLAGS}")
 	endif()
-endif ()
+endif()
 
 if(MEMCHECK)
 	message(STATUS "Detecting valgrind program")

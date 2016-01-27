@@ -31,11 +31,14 @@ else()
 	message(STATUS "Detecting astyle program - done")
 endif()
 
-add_custom_target(
-	hpack.h
-	COMMAND	cpp ${CMAKE_CURRENT_SOURCE_DIR}/hpack.h.in >hpack.h
-	COMMAND	sed -i "/^#/d" hpack.h
-	COMMAND	${ASTYLE} -t   hpack.h)
+add_custom_target(hdr DEPENDS hpack.h)
+
+add_custom_command(
+	OUTPUT	hpack.h
+	COMMAND	sh -c "cpp ${CMAKE_CURRENT_SOURCE_DIR}/hpack.h.in >hpack.h"
+	COMMAND	sed -i "/^#/d"  hpack.h
+	COMMAND	${ASTYLE} -q -t hpack.h
+	DEPENDS	hpack.h.in)
 
 install (
 	FILES		${CMAKE_CURRENT_BINARY_DIR}/hpack.h

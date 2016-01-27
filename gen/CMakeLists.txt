@@ -22,14 +22,18 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-add_custom_target(gen)
-
 macro(gen_tbl CMD HDR)
-	set(OUT ${CMAKE_CURRENT_BINARY_DIR}/${HDR}.h)
 	add_executable(${CMD} ${CMD}.c)
-	add_custom_target(${HDR} COMMAND ${CMD} >${OUT})
-	add_dependencies(gen ${HDR})
+	add_custom_command(
+		OUTPUT	${HDR}
+		COMMAND	sh -c "./${CMD} >${HDR}"
+		DEPENDS	${CMD})
 endmacro(gen_tbl)
 
-gen_tbl(hphidx hpack_huf_idx)
-gen_tbl(hphtbl hpack_huf_tbl)
+add_custom_target(
+	gen
+	DEPENDS hpack_huf_idx.h
+	DEPENDS hpack_huf_tbl.h)
+
+gen_tbl(hphidx hpack_huf_idx.h)
+gen_tbl(hphtbl hpack_huf_tbl.h)
