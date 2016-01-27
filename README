@@ -48,7 +48,7 @@ An HPACK instance requires a single allocation, and it is possible to plug
 your own allocator. An update of the dynamic table size will require a
 single reallocation too.
 
-By default cashpack relies on calloc(3), realloc(3) and free(3).
+By default cashpack relies on malloc(3), realloc(3) and free(3).
 
 3. Zero-copy in the library code
 
@@ -76,7 +76,8 @@ It can be verified by looking at the shared object:
 5. No system calls
 
 Again on the assumption that decoded HPACK frames are always complete,
-there is no need to make system calls in order to fetch data.
+there is no need to make system calls in the decoding code path for tasks
+such as fetching data.
 
 6. No locking
 
