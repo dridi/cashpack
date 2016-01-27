@@ -71,8 +71,11 @@ HPV_token(HPACK_CTX, const char *str, size_t len, unsigned first)
 	}
 
 	while (len > 0) {
+		/* RFC 7230 Section 3.2.6.  Field Value Components */
 		EXPECT(ctx, CHR, IS_VCHAR(*str) &&
 		    strchr("()<>@,;:\\\"/[]?={} ", *str) == NULL);
+		/* RFC 7540 Section 8.1.2.  HTTP Header Fields */
+		EXPECT(ctx, CHR, *str < 'A' || *str > 'Z');
 		str++;
 		len--;
 	}
