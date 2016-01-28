@@ -31,6 +31,7 @@ project(
 
 enable_testing()
 
+option(MANPAGES "Generate manual pages"		ON)
 option(COVERAGE "Enable lcov support"		OFF)
 option(MEMCHECK "Enable valgrind support"	OFF)
 
@@ -38,6 +39,18 @@ set(PROJECT_LIB_ABI	0)
 set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
 
 set(CMAKE_C_FLAGS "${PROJECT_C_FLAGS} ${CMAKE_C_FLAGS}")
+
+if(MANPAGES)
+	message(STATUS "Detecting rst2man program")
+
+	find_program(RST2MAN NAMES rst2man rst2man.py)
+	if(NOT EXISTS ${RST2MAN})
+		message(STATUS "Detecting rst2man program - missing")
+		set(MANPAGES OFF)
+	else()
+		message(STATUS "Detecting rst2man program - done")
+	endif()
+endif()
 
 if(COVERAGE)
 	message(STATUS "Detecting lcov program")
@@ -71,6 +84,7 @@ endif()
 
 set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")
 set(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install the header.")
+set(MAN_INSTALL_DIR share/man CACHE PATH "Where to install the manual.")
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/inc"
@@ -80,4 +94,5 @@ include_directories(
 add_subdirectory(inc)
 add_subdirectory(gen)
 add_subdirectory(lib)
+add_subdirectory(man)
 add_subdirectory(tst)

@@ -12,7 +12,8 @@ How to use
 cashpack relies on CMake for building, and a range of tools for testing and
 code coverage. The basic usage is as follows:
 
-   $ cmake [-DCOVERAGE=ON|OFF] [-DMEMCHECK=ON|OFF] path/to/cashpack
+   $ cmake [-DCOVERAGE=ON|OFF] [-DMEMCHECK=ON|OFF] \
+   > [-DMANPAGES=ON|OFF] path/to/cashpack
    $ make check
 
 The first command will reveal the missing bits, and the second the potential
