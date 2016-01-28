@@ -22,13 +22,16 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-message(STATUS "Detecting astyle program")
-find_program(ASTYLE astyle)
-if(NOT EXISTS ${ASTYLE})
-	message(STATUS "Detecting astyle program - missing")
-	set(ASTYLE "true")
+message(STATUS "Detecting uncrustify program")
+find_program(UNCRUSTIFY uncrustify)
+if(NOT EXISTS ${UNCRUSTIFY})
+	message(STATUS "Detecting uncrustify program - missing")
+	set(UNCRUSTIFY "true")
+	set(UNCRUSTIFY_OPTS "")
 else()
-	message(STATUS "Detecting astyle program - done")
+	set(UNCRUSTIFY_CFG  "${CMAKE_SOURCE_DIR}/inc/uncrustify.cfg")
+	set(UNCRUSTIFY_OPTS -c ${UNCRUSTIFY_CFG} -q -l C --no-backup)
+	message(STATUS "Detecting uncrustify program - done")
 endif()
 
 add_custom_target(hdr DEPENDS hpack.h)
@@ -36,8 +39,8 @@ add_custom_target(hdr DEPENDS hpack.h)
 add_custom_command(
 	OUTPUT	hpack.h
 	COMMAND	sh -c "cpp ${CMAKE_CURRENT_SOURCE_DIR}/hpack.h.in >hpack.h"
-	COMMAND	sed -i "/^#/d"  hpack.h
-	COMMAND	${ASTYLE} -q -t hpack.h
+	COMMAND	sed -i "/^#/d" hpack.h
+	COMMAND ${UNCRUSTIFY} ${UNCRUSTIFY_OPTS} hpack.h
 	DEPENDS	hpack.h.in)
 
 install (
