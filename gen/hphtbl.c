@@ -65,7 +65,7 @@ main(int argc, const char **argv)
 	int i, j;
 
 	GEN_HDR();
-	GEN("#define HPH_TBL_LEN %hu", TBL_LEN);
+	GEN("#define HPH_TBL_LEN %d", TBL_LEN);
 	OUT("");
 	OUT("struct hph_entry {");
 	OUT("\tuint32_t\tcod;");

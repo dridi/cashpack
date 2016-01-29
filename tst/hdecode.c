@@ -41,9 +41,12 @@
 #include "hpack.h"
 #include "hpack_assert.h"
 
-#define WRT(buf, len)				\
-	do {					\
-		write(STDOUT_FILENO, buf, len);	\
+#define WRT(buf, len)							\
+	do {								\
+		if (write(STDOUT_FILENO, buf, len) != (ssize_t)len) {	\
+			perror("write");				\
+			exit(EXIT_FAILURE);				\
+		}							\
 	} while (0)
 
 #define OUT(str)	WRT(str, sizeof(str) - 1)

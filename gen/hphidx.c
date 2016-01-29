@@ -50,7 +50,7 @@ main(int argc, const char **argv)
 	OUT("static const uint16_t hph_idx[] = {");
 	for (i = 0; i < TBL_LEN; i++) {
 		for (c = 0; tbl[c] != i; c++);
-		GEN("\t%hu,", c);
+		GEN("\t%hhu,", c);
 	}
 	OUT("};");
 
