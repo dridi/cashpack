@@ -9,10 +9,11 @@ addons:
     - cmake
     - python-docutils
     - valgrind
-sudo: false
+install:
+  - wget -qO- https://www.cmake.org/files/v3.0/cmake-3.0.2-Linux-x86_64.tar.gz | tar xvz
 script:
   - set -e
   - mkdir build
   - cd build
-  - cmake -DMEMCHECK=ON ..
+  - ./cmake-3.0.2-Linux-x86_64/bin/cmake -DMEMCHECK=ON ..
   - make check
