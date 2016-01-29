@@ -44,7 +44,12 @@ execute_process(
 	RESULT_VARIABLE	HEXCHECK_RESULT
 	ERROR_VARIABLE	HEXCHECK_ERROR)
 
-if(${HEXCHECK_RESULT} EQUAL 0)
+execute_process(
+	COMMAND		${CMAKE_CURRENT_SOURCE_DIR}/bincheck
+	RESULT_VARIABLE	BINCHECK_RESULT
+	ERROR_VARIABLE	BINCHECK_ERROR)
+
+if(${HEXCHECK_RESULT} EQUAL 0 AND ${BINCHECK_RESULT} EQUAL 0)
 	message(STATUS "Check for working hexdumps - works")
 
 	# RFC examples
@@ -75,7 +80,11 @@ if(${HEXCHECK_RESULT} EQUAL 0)
 	tst_add(afl_fuzz)
 else()
 	message(STATUS	"Check for working hexdumps - broken")
-	message(WARNING	"The test suite can't be run:\n${HEXCHECK_ERROR}")
+	message(
+		WARNING
+		"The test suite can't be run:"
+		"\nhexcheck: ${HEXCHECK_ERROR}"
+		"\nbincheck: ${BINCHECK_ERROR}")
 endif()
 
 if(COVERAGE)
