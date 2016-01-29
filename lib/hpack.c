@@ -216,11 +216,10 @@ hpack_decode_dynamic(HPACK_CTX)
 	hp->off = 0;
 
 	if (priv.len <= hp->lim) {
+		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
 		hp->len += priv.len;
-		if (++ctx->hp->cnt > 1) {
+		if (++ctx->hp->cnt > 1)
 			assert(priv.he->pre_sz = priv.len);
-			CALLBACK(ctx, HPACK_EVT_INDEX, NULL, 0);
-		}
 	}
 	else {
 		assert(hp->len == 0);

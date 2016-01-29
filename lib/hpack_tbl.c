@@ -191,6 +191,10 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(buf != NULL);
 		assert(len > 0);
 		break;
+	case HPACK_EVT_INDEX:
+		assert(buf == NULL);
+		assert(len == 0);
+		break;
 	default:
 		WRONG("Unexpected event");
 	}
@@ -276,7 +280,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	unsigned ovl;
 
 	assert(evt != HPACK_EVT_NEVER);
-	assert(evt != HPACK_EVT_INDEX);
+	assert(evt != HPACK_EVT_EVICT);
 	assert(evt != HPACK_EVT_TABLE);
 
 	priv2 = priv;
