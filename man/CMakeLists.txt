@@ -32,7 +32,7 @@ macro(man_page SECTION PAGE)
 		OUTPUT	${MAN}.gz
 		COMMAND cp ${SRC} ${RST}
 		COMMAND	sh -c "${CMD}"
-		COMMAND gzip ${MAN}
+		COMMAND gzip -f ${MAN}
 		DEPENDS	${RST})
 	install(
 		FILES ${CMAKE_CURRENT_BINARY_DIR}/${MAN}.gz
