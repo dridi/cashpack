@@ -37,13 +37,32 @@ macro(man_page SECTION PAGE)
 	install(
 		FILES ${CMAKE_CURRENT_BINARY_DIR}/${MAN}.gz
 		DESTINATION ${MAN_INSTALL_DIR}/man${SECTION})
+	set(MANUALS ${MANUALS} ${MAN}.gz)
 endmacro(man_page)
 
-if(MANPAGES)
-	file(GLOB RST_MANUALS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.rst)
-	string(REPLACE .rst .gz MANUALS "${RST_MANUALS}")
+macro(man_link SECTION DEST LINK)
+	set(MAN ${LINK}.${SECTION})
+	set(CMD "echo .so man${SECTION}/${DEST}.${SECTION}")
+	add_custom_command(
+		OUTPUT	${MAN}.gz
+		COMMAND sh -c "${CMD} >${MAN}"
+		COMMAND gzip -f ${MAN})
+	install(
+		FILES ${CMAKE_CURRENT_BINARY_DIR}/${MAN}.gz
+		DESTINATION ${MAN_INSTALL_DIR}/man${SECTION})
+	set(MANUALS ${MANUALS} ${MAN}.gz)
+endmacro(man_link)
 
-	add_custom_target(man ALL DEPENDS ${MANUALS})
+if(MANPAGES)
+	set(MANUALS "")
 
 	man_page(3 cashpack)
+	man_page(3 hpack_alloc)
+	man_link(3 hpack_alloc hpack_decoder)
+	man_link(3 hpack_alloc hpack_encoder)
+	man_link(3 hpack_alloc hpack_free)
+	man_page(3 hpack_decode)
+	man_page(3 hpack_foreach)
+
+	add_custom_target(man ALL DEPENDS ${MANUALS})
 endif()

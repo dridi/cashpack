@@ -22,46 +22,42 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-========
-cashpack
-========
+============
+hpack_decode
+============
 
-------------------------------
-The C Anti-State HPACK library
-------------------------------
+----------------------------
+Decode a chunk of HPACK data
+----------------------------
 
 :Manual section: 3
 
 SYNOPSIS
 ========
 
-.. code::
-
-   #include <stdlib.h>
-
-.. include:: ../inc/hpack.h
-   :literal:
+| **#include <stdlib.h>**
+| **#include <hpack.h>**
+|
+| **typedef void hpack_decoded_f(**
+| **\     void** *\*priv*\ **,**
+| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
+|
+| **enum hpack_res_e hpack_decode(**
+| **\     struct hpack** *\*hpack*\ **,**
+| **\     const void** *\*buf*\ **,** size_t** *size*\ **,**
+| **\     hpack_decoded_f** *cb*, **void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
 
 TODO
 
-NOTES
-=====
-
-TODO
-
-EXAMPLE
-=======
-
-TODO
-
 SEE ALSO
 ========
 
+**cashpack**\(3),
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
-**hpack_decode**\(3),
 **hpack_foreach**\(3)

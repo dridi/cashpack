@@ -22,46 +22,48 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-========
-cashpack
-========
+===========
+hpack_alloc
+===========
 
-------------------------------
-The C Anti-State HPACK library
-------------------------------
+--------------------------------------
+Allocate, resize and free HPACK tables
+--------------------------------------
 
 :Manual section: 3
 
 SYNOPSIS
 ========
 
-.. code::
-
-   #include <stdlib.h>
-
-.. include:: ../inc/hpack.h
-   :literal:
+| **#include <stdlib.h>**
+| **#include <hpack.h>**
+|
+| **typedef void \* hpack_malloc_f(size_t** *size*\ **);**
+| **typedef void \* hpack_realloc_f(void** *\*ptr*\ **, size_t** *size*\ **);**
+| **typedef void   hpack_free_f(void** *\*ptr*\ **);**
+|
+| **struct hpack_alloc {**
+|   **hpack_malloc_f**  *\*malloc*\ **;**
+|   **hpack_realloc_f** *\*realloc*\ **;**
+|   **hpack_free_f**    *\*free*\ **;**
+| **};**
+|
+| **extern const struct hpack_alloc *hpack_default_alloc;**
+|
+| **struct hpack * hpack_encoder(size_t** *max*\ **, \
+    const struct hpack_alloc** *\*alloc*\ **);**
+| **struct hpack * hpack_decoder(size_t** *max*\ **, \
+    const struct hpack_alloc** *\*alloc*\ **);**
+| **void hpack_free(struct hpack** *\**hpack*\ **);**
 
 DESCRIPTION
 ===========
 
 TODO
 
-NOTES
-=====
-
-TODO
-
-EXAMPLE
-=======
-
-TODO
-
 SEE ALSO
 ========
 
-**hpack_decoder**\(3),
-**hpack_encoder**\(3),
-**hpack_free**\(3),
+**cashpack**\(3),
 **hpack_decode**\(3),
 **hpack_foreach**\(3)
