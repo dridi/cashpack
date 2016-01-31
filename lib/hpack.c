@@ -76,21 +76,21 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 }
 
 struct hpack *
-HPACK_encoder(size_t max, const struct hpack_alloc *ha)
+hpack_encoder(size_t max, const struct hpack_alloc *ha)
 {
 
 	return (hpack_new(ENCODER_MAGIC, max, ha));
 }
 
 struct hpack *
-HPACK_decoder(size_t max, const struct hpack_alloc *ha)
+hpack_decoder(size_t max, const struct hpack_alloc *ha)
 {
 
 	return (hpack_new(DECODER_MAGIC, max, ha));
 }
 
 void
-HPACK_free(struct hpack **hpp)
+hpack_free(struct hpack **hpp)
 {
 	struct hpack *hp;
 
@@ -106,7 +106,7 @@ HPACK_free(struct hpack **hpp)
 }
 
 int
-HPACK_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
+hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx ctx;
 
@@ -263,7 +263,7 @@ hpack_decode_update(HPACK_CTX)
 }
 
 enum hpack_res_e
-HPACK_decode(struct hpack *hp, const void *buf, size_t len,
+hpack_decode(struct hpack *hp, const void *buf, size_t len,
     hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx ctx;

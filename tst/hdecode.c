@@ -208,17 +208,17 @@ main(int argc, char **argv)
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
 
-	hp = HPACK_decoder(tbl_sz, hpack_default_alloc);
+	hp = hpack_decoder(tbl_sz, hpack_default_alloc);
 	assert(hp != NULL);
 
 	OUT("Decoded header list:\n");
 
-	res = HPACK_decode(hp, buf, st.st_size, cb, NULL);
+	res = hpack_decode(hp, buf, st.st_size, cb, NULL);
 
 	OUT("\n\nDynamic Table (after decoding):");
 	ctx.cnt = 0;
 	ctx.len = 0;
-	HPACK_foreach(hp, print_entries, &ctx);
+	hpack_foreach(hp, print_entries, &ctx);
 	if (ctx.cnt == 0) {
 		assert(ctx.len == 0);
 		OUT(" empty.\n");
@@ -230,7 +230,7 @@ main(int argc, char **argv)
 		WRT(ctx.buf, ctx.sz);
 	}
 
-	HPACK_free(&hp);
+	hpack_free(&hp);
 
 	retval = munmap(buf, st.st_size);
 	assert(retval == 0);

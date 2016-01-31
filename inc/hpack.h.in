@@ -56,11 +56,11 @@ extern const struct hpack_alloc *hpack_default_alloc;
 
 typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
 
-struct hpack * HPACK_encoder(size_t, const struct hpack_alloc *);
-struct hpack * HPACK_decoder(size_t, const struct hpack_alloc *);
-void HPACK_free(struct hpack **);
+struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
+struct hpack * hpack_decoder(size_t, const struct hpack_alloc *);
+void hpack_free(struct hpack **);
 
-int HPACK_foreach(struct hpack *, hpack_decoded_f, void *);
+int hpack_foreach(struct hpack *, hpack_decoded_f, void *);
 
-enum hpack_res_e HPACK_decode(struct hpack *, const void *, size_t,
+enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t,
     hpack_decoded_f, void *);
