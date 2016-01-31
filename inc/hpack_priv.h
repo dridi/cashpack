@@ -55,10 +55,11 @@ struct hpt_field {
 struct hpt_entry {
 	uint32_t	magic;
 #define HPT_ENTRY_MAGIC	0xe4582b39
-	uint16_t	pre_sz;
+	uint32_t	align;
+	int64_t		pre_sz;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
-	uint16_t	pad[11];
+	uint16_t	pad[6];
 };
 
 struct hpt_priv {

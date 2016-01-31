@@ -180,6 +180,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(hp->off == 0);
 
 		/* entry overhead, see section 4.1 */
+		assert(sizeof *hp->tbl == 32);
 		priv->he->pre_sz = 32;
 		priv->len = 32;
 		priv->nam = 1;
