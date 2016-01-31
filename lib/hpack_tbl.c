@@ -38,8 +38,11 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
+#define HPT_OVERHEAD 32 /* section 4.1 */
+#define HPT_HEADERSZ 30 /* account for 2 null bytes */
+
 #define MOVE(he, off)	(void *)((uintptr_t)(he) + (off))
-#define JUMP(he, off)	(void *)((uintptr_t)(he) + sizeof *(he) + (off))
+#define JUMP(he, off)	(void *)((uintptr_t)(he) + HPT_HEADERSZ + (off))
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
 const struct hpt_field hpt_static[] = {
@@ -76,8 +79,8 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 		assert(he->nam_sz > 0);
 		if (--idx == 0)
 			return (he);
-		off = sizeof *he + he->nam_sz + he->val_sz;
-		he = JUMP(he, he->nam_sz + he->val_sz);
+		off = HPT_OVERHEAD + he->nam_sz + he->val_sz;
+		he = MOVE(he, off);
 	}
 }
 
@@ -98,7 +101,7 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	hf->nam_sz = he->nam_sz;
 	hf->val_sz = he->val_sz;
 	hf->nam = JUMP(he, 0);
-	hf->val = JUMP(he, he->nam_sz);
+	hf->val = JUMP(he, he->nam_sz + 1);
 	return (0);
 }
 
@@ -109,6 +112,8 @@ HPT_foreach(HPACK_CTX)
 	ptrdiff_t off;
 	size_t i;
 
+	assert(ctx->hp->off == 0);
+
 	off = 0;
 	tbl = ctx->hp->tbl;
 	he = tbl;
@@ -117,12 +122,12 @@ HPT_foreach(HPACK_CTX)
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->pre_sz == off);
 		assert(he->nam_sz > 0);
-		off = sizeof *he + he->nam_sz + he->val_sz;
+		off = HPT_OVERHEAD + he->nam_sz + he->val_sz;
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
 		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), he->nam_sz);
-		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, he->nam_sz),
+		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, he->nam_sz + 1),
 		    he->val_sz);
-		he = JUMP(he, he->nam_sz + he->val_sz);
+		he = MOVE(he, off);
 	}
 }
 
@@ -146,7 +151,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	while (hp->cnt > 0 && len > hp->lim) {
 		assert(he->magic == HPT_ENTRY_MAGIC);
 		assert(he->nam_sz > 0);
-		sz = sizeof *he + he->nam_sz + he->val_sz;
+		sz = HPT_OVERHEAD + he->nam_sz + he->val_sz;
 		len -= sz;
 		hp->len -= sz;
 		hp->cnt--;
@@ -169,23 +174,30 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
     size_t len)
 {
 	struct hpack *hp;
+	char *c;
+
+	hp = priv->ctx->hp;
 
 	switch (evt) {
 	case HPACK_EVT_NAME:
 		assert(len > 0);
 
-		hp = priv->ctx->hp;
 		assert(priv->he == hp->tbl);
 		assert(priv->he->pre_sz == 0);
 		assert(hp->off == 0);
 
-		/* entry overhead, see section 4.1 */
-		assert(sizeof *hp->tbl == 32);
-		priv->he->pre_sz = 32;
-		priv->len = 32;
+		assert(sizeof *hp->tbl == HPT_OVERHEAD);
+		/* account for the entry header + the name null byte */
+		priv->he->pre_sz = HPT_HEADERSZ + 1;
+		priv->len = HPT_HEADERSZ + 1;
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
+		/* write the name null byte */
+		c = MOVE(hp->tbl, priv->len - 1);
+		*c = '\0';
+		/* account for the value null byte */
+		priv->len++;
 		priv->nam = 0;
 		break;
 	case HPACK_EVT_DATA:
@@ -195,6 +207,9 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 	case HPACK_EVT_INDEX:
 		assert(buf == NULL);
 		assert(len == 0);
+		/* write the value null byte */
+		c = MOVE(hp->tbl, priv->len - 1);
+		*c = '\0';
 		break;
 	default:
 		WRONG("Unexpected event");
@@ -298,7 +313,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 
 	priv2->wrt = evt == HPACK_EVT_NAME ?
 	    JUMP(hp->tbl, 0) :
-	    MOVE(hp->tbl, priv2->len - len);
+	    MOVE(hp->tbl, priv2->len - len - 1);
 
 	if (ovl && !hpt_overlap(hp, buf, len))
 		INCOMPL(); /* XXX: insert evicted indexed name */
@@ -308,9 +323,9 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	if (evt == HPACK_EVT_NAME) {
 		if (hp->cnt > 0) {
 			assert(priv2->he != hp->tbl);
-			assert(priv2->he->pre_sz > 0);
+			assert(priv2->he->pre_sz >= HPT_HEADERSZ);
 		}
-		(void)memset(hp->tbl, 0, sizeof *hp->tbl);
+		(void)memset(hp->tbl, 0, HPT_HEADERSZ);
 		hp->tbl->magic = HPT_ENTRY_MAGIC;
 	}
 
