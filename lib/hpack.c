@@ -60,8 +60,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
 
-	if (ha == NULL || ha->malloc == NULL || ha->realloc == NULL ||
-	    ha->free == NULL)
+	if (ha == NULL || ha->malloc == NULL || ha->free == NULL)
 		return (NULL);
 
 	hp = ha->malloc(sizeof *hp + max);
