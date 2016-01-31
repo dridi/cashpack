@@ -63,6 +63,7 @@ print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
+	(void)priv;
 	(void)evt;
 	(void)buf;
 	(void)len;
@@ -73,6 +74,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
+	(void)priv;
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
@@ -107,7 +109,7 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct tst_ctx *ctx;
 	char str[sizeof "\n[  1] (s =  55) "];
-	int  l;
+	int l;
 
 	assert(priv != NULL);
 	ctx = priv;
@@ -123,6 +125,7 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 		l = snprintf(str, sizeof str, "\n[%3lu] (s = %3lu) ",
 		    ctx->cnt, len);
 		assert(l + 1 == sizeof  str);
+		(void)l;
 		WRT(str, sizeof(str) - 1);
 		break;
 	case HPACK_EVT_VALUE:
@@ -200,6 +203,7 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
+	(void)retval;
 
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
