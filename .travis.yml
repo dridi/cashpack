@@ -3,6 +3,15 @@ language: c
 compiler:
   - clang
   - gcc
+env:
+  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O0
+  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O1
+  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O2
+  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O3
+  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-Os
+  - CMAKE_FLAGS=-DMEMCHECK=ON
+  - CMAKE_FLAGS=-DCOVERAGE=ON
+  - CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release
 addons:
   apt:
     packages:
@@ -15,7 +24,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - ../cmake-3.1.3-Linux-x86_64/bin/cmake -DMEMCHECK=ON ..
+  - ../cmake-3.1.3-Linux-x86_64/bin/cmake $CMAKE_FLAGS ..
   - make check
 after_failure:
   - cat tst/Testing/Temporary/LastTest.log
