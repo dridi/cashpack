@@ -55,6 +55,7 @@ HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
 
 	bits = 0;
 	blen = 0;
+	eos = 0;
 	l = 0;
 	first = 1;
 
