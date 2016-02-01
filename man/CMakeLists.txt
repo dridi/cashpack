@@ -26,7 +26,7 @@ macro(man_page SECTION PAGE)
 	set(MAN ${PAGE}.${SECTION})
 	set(RST ${MAN}.rst)
 	set(SRC ${CMAKE_CURRENT_SOURCE_DIR}/${RST})
-	set(RST2MAN_OPTS "--strip-comments")
+	set(RST2MAN_OPTS "--strip-comments --strict")
 	set(CMD "${RST2MAN} ${RST2MAN_OPTS} ${RST} ${MAN}")
 	add_custom_command(
 		OUTPUT	${MAN}.gz
