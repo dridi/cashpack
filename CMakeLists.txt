@@ -31,9 +31,11 @@ project(
 
 enable_testing()
 
-option(MANPAGES "Generate manual pages"		ON)
-option(COVERAGE "Enable lcov support"		OFF)
-option(MEMCHECK "Enable valgrind support"	OFF)
+option(MANPAGES	"Generate manual pages"			ON)
+option(COVERAGE	"Enable lcov support"			OFF)
+option(MEMCHECK	"Enable valgrind support"		OFF)
+option(ASAN	"Enable address sanitizer"		OFF)
+option(UBSAN	"Enable undefined behavior sanitizer"	OFF)
 
 set(PROJECT_LIB_ABI	0)
 set(PROJECT_C_FLAGS	"-O2 -Wall -Wextra -Werror")
@@ -80,6 +82,14 @@ if(MEMCHECK)
 	else()
 		message(STATUS "Detecting valgring program - done")
 	endif()
+endif()
+
+if(ASAN)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+endif()
+
+if(UBSAN)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
 endif()
 
 set(LIB_INSTALL_DIR lib CACHE PATH "Where to install the library.")

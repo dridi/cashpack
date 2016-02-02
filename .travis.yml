@@ -9,6 +9,8 @@ env:
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O2
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O3
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-Os
+  - CMAKE_FLAGS=-DASAN=ON
+  - CMAKE_FLAGS=-DUBSAN=ON
   - CMAKE_FLAGS=-DMEMCHECK=ON
   - CMAKE_FLAGS=-DCOVERAGE=ON
   - CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release
@@ -17,6 +19,8 @@ addons:
     packages:
     - bc
     - cmake
+    - libasan2
+    - libubsan0
     - python-docutils
     - valgrind
 install:
