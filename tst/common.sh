@@ -58,10 +58,19 @@ memcheck() {
 }
 
 cmd_check() {
+	missing=
+
 	for cmd
 	do
-		type "$cmd" >/dev/null
+		type "$cmd" >/dev/null 2>&1 ||
+		missing="$missing $cmd"
 	done
+
+	if [ -n "$missing" ]
+	then
+		echo "program not found:$missing" >&2
+		return 1
+	fi
 }
 
 rm_comments() {
