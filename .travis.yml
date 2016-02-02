@@ -14,6 +14,12 @@ env:
   - CMAKE_FLAGS=-DMEMCHECK=ON
   - CMAKE_FLAGS=-DCOVERAGE=ON
   - CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release
+matrix:
+  exclude:
+    - compiler: gcc
+      env: CMAKE_FLAGS=-DASAN=ON
+    - compiler: gcc
+      env: CMAKE_FLAGS=-DUBSAN=ON
 addons:
   apt:
     packages:
