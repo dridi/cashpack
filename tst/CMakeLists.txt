@@ -80,8 +80,7 @@ if(${HEXCHECK_RESULT} EQUAL 0 AND ${BINCHECK_RESULT} EQUAL 0)
 	tst_add(afl_fuzz)
 else()
 	message(STATUS	"Check for working hexdumps - broken")
-	message(
-		WARNING
+	message(FATAL_ERROR
 		"The test suite can't be run:"
 		"\nhexcheck: ${HEXCHECK_ERROR}"
 		"\nbincheck: ${BINCHECK_ERROR}")
