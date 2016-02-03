@@ -27,6 +27,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,8 +123,8 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 		assert(len > 0);
 		ctx->cnt++;
 		ctx->len += len;
-		l = snprintf(str, sizeof str, "\n[%3lu] (s = %3lu) ",
-		    ctx->cnt, len);
+		l = snprintf(str, sizeof str,
+		    "\n[%3" PRIuPTR "] (s = %3" PRIuPTR ") ", ctx->cnt, len);
 		assert(l + 1 == sizeof  str);
 		(void)l;
 		WRT(str, sizeof(str) - 1);
@@ -225,7 +226,8 @@ main(int argc, char **argv)
 	}
 	else {
 		assert(ctx.len > 0);
-		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3lu\n", ctx.len);
+		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3" PRIuPTR "\n",
+		    ctx.len);
 		OUT("\n      Table size: ");
 		WRT(ctx.buf, ctx.sz);
 	}

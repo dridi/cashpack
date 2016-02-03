@@ -41,7 +41,7 @@
 #define HPT_OVERHEAD 32 /* section 4.1 */
 #define HPT_HEADERSZ 30 /* account for 2 null bytes */
 
-#define MOVE(he, off)	(void *)((uintptr_t)(he) + (off))
+#define MOVE(he, off)	(void *)(uintptr_t)((uintptr_t)(he) + (off))
 #define JUMP(he, off)	(void *)((uintptr_t)(he) + HPT_HEADERSZ + (off))
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
