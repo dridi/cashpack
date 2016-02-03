@@ -38,9 +38,7 @@ SYNOPSIS
 .. code::
 
    #include <stdlib.h>
-
-.. include:: ../inc/hpack.h
-   :literal:
+   #include <hpack.h>
 
 DESCRIPTION
 ===========
