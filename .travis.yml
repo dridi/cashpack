@@ -9,7 +9,6 @@ env:
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O2
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-O3
   - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-Os
-  - CMAKE_FLAGS=-DCMAKE_C_FLAGS=-m32
   - CMAKE_FLAGS=-DMEMCHECK=ON
   - CMAKE_FLAGS=-DCOVERAGE=ON
   - CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release
@@ -19,6 +18,8 @@ matrix:
       env: CMAKE_FLAGS=-DASAN=ON
     - compiler: clang
       env: CMAKE_FLAGS=-DUBSAN=ON
+    - compiler: gcc
+      env: CMAKE_FLAGS=-DCMAKE_C_FLAGS=-m32
 addons:
   apt:
     packages:
