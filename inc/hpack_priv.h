@@ -32,14 +32,6 @@
  * Data Structures
  */
 
-enum hpack_type_e {
-	HPACK_INDEXED	= 0x80, /* Section 6.1 */
-	HPACK_DYNAMIC	= 0x40, /* Section 6.2.1 */
-	HPACK_LITERAL	= 0x00, /* Section 6.2.2 */
-	HPACK_NEVER	= 0x10, /* Section 6.2.3 */
-	HPACK_UPDATE	= 0x20, /* Section 6.3 */
-};
-
 enum hpack_encoding_e { /* Section 5.2 */
 	HPACK_HUFFMAN	= 0x80,
 	HPACK_RAW	= 0x00,
@@ -88,8 +80,13 @@ struct hpack_ctx {
 	enum hpack_res_e	res;
 	struct hpack		*hp;
 	const uint8_t		*buf;
+	char			*cur;
 	size_t			len;
-	hpack_decoded_f		*cb;
+	union {
+		hpack_decoded_f	*dec;
+		hpack_encoded_f	*enc;
+		hpack_encoded_f	*cb; /* dirty covariance hack */
+	};
 	void			*priv;
 };
 

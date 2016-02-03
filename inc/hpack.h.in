@@ -42,6 +42,8 @@ enum hpack_evt_e {
 #undef HPR
 };
 
+/* hpack_alloc */
+
 typedef void * hpack_malloc_f(size_t);
 typedef void * hpack_realloc_f(void *, size_t);
 typedef void   hpack_free_f(void *);
@@ -54,13 +56,56 @@ struct hpack_alloc {
 
 extern const struct hpack_alloc *hpack_default_alloc;
 
-typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
-
-struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
 struct hpack * hpack_decoder(size_t, const struct hpack_alloc *);
+struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
 void hpack_free(struct hpack **);
 
-int hpack_foreach(struct hpack *, hpack_decoded_f, void *);
+/* hpack_decode */
+
+typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
 
 enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t,
     hpack_decoded_f, void *);
+
+/* hpack_encode */
+
+enum hpack_type_e {
+	HPACK_INDEXED	= 0x80, /* Section 6.1 */
+	HPACK_DYNAMIC	= 0x40, /* Section 6.2.1 */
+	HPACK_LITERAL	= 0x00, /* Section 6.2.2 */
+	HPACK_NEVER	= 0x10, /* Section 6.2.3 */
+	HPACK_UPDATE	= 0x20, /* Section 6.3 */
+};
+
+enum hpack_compress_e {
+	HPACK_IDX = 0x01,
+	HPACK_NAM = 0x02,
+	HPACK_VAL = 0x04,
+};
+
+struct hpack_field {
+	union {
+		uint16_t	idx;
+		const char	*nam;
+	};
+	const char		*val;
+	uint8_t			flg;
+};
+
+struct hpack_item {
+	union {
+		uint16_t		idx;
+		size_t			lim;
+		struct hpack_field	fld;
+	};
+	enum hpack_type_e		typ;
+};
+
+typedef void hpack_encoded_f(void *, enum hpack_evt_e, const void *, size_t);
+
+enum hpack_res_e hpack_encode(struct hpack *, const struct hpack_item *,
+    size_t, hpack_encoded_f, void *);
+
+/* hpack_foreach */
+
+int hpack_foreach(struct hpack *, hpack_decoded_f, void *);

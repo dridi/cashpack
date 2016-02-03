@@ -117,7 +117,7 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 
 	(void)memset(&ctx, 0, sizeof ctx);
 	ctx.hp = hp;
-	ctx.cb = cb;
+	ctx.dec = cb;
 	ctx.priv = priv;
 
 	HPT_foreach(&ctx);
@@ -200,7 +200,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 
 	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
-	tbl_ctx.cb = HPT_insert;
+	tbl_ctx.dec = HPT_insert;
 	tbl_ctx.priv = &priv;
 
 	if (hpack_decode_field(&tbl_ctx, idx) != 0) {
@@ -279,7 +279,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
 	ctx.hp = hp;
 	ctx.buf = buf;
 	ctx.len = len;
-	ctx.cb = cb;
+	ctx.dec = cb;
 	ctx.priv = priv;
 
 	while (ctx.len > 0) {
@@ -299,6 +299,34 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
 			return (ctx.res);
 		}
 	}
+
+	assert(ctx.res == HPACK_RES_OK);
+	return (ctx.res);
+}
+
+/**********************************************************************
+ * Encoder
+ */
+
+enum hpack_res_e
+hpack_encode(struct hpack *hp, const struct hpack_item *itm, size_t len,
+    hpack_encoded_f cb, void *priv)
+{
+	struct hpack_ctx ctx;
+	uint8_t buf[256];
+
+	ctx.res = HPACK_RES_OK;
+	ctx.hp = hp;
+	ctx.buf = buf;
+	ctx.len = sizeof buf;
+	ctx.enc	= cb;
+	ctx.priv = priv;
+
+	while (len > 0)
+		INCOMPL();
+
+	(void)itm;
+	(void)len;
 
 	assert(ctx.res == HPACK_RES_OK);
 	return (ctx.res);
