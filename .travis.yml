@@ -25,6 +25,7 @@ addons:
     packages:
     - bc
     - cmake
+    - gcc-multilib
     - python-docutils
     - valgrind
 install:
