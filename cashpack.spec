@@ -57,7 +57,7 @@ make %{?_smp_mflags} check
 
 
 %files
-%doc README LICENSE
+%doc README.rst LICENSE
 %{_libdir}/*.so.*
 
 

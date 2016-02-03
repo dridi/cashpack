@@ -6,11 +6,14 @@ HTTP/2 or similar protocols in the sense that some assumptions made by the
 library would not work in all situations. For instance, it is not possible
 to feed the decoder with partial HPACK contents.
 
+.. image:: https://travis-ci.org/Dridi/cashpack.svg
+.. image:: https://scan.coverity.com/projects/7758/badge.svg
+
 How to use
 -----------
 
 cashpack relies on CMake for building, and a range of tools for testing and
-code coverage. The basic usage is as follows:
+code coverage. The basic usage is as follows::
 
    $ cmake [-DCOVERAGE=ON|OFF] [-DMEMCHECK=ON|OFF] [-DMANPAGES=ON|OFF] \
    > [-DASAN=ON|OFF]  [-DUBSAN=ON|OFF] path/to/cashpack
@@ -20,7 +23,7 @@ The first command will reveal the missing bits, and the second the potential
 failures. Code coverage MUST be turned off when the test suite is used for
 checking because it turns off assertions.
 
-For code coverage, the simplest way to get a report is as follows:
+For code coverage, the simplest way to get a report is as follows::
 
    $ cmake -DCOVERAGE=ON path/to/cashpack
    $ make lcov
@@ -28,13 +31,21 @@ For code coverage, the simplest way to get a report is as follows:
 
 An example of the library usage can be found in the test suite.
 
+Contributing
+------------
+
+The best way to contribute to cashpack is to use it on platforms other than
+x86_64 GNU/Linux with glibc and report failures. You shouldn't be surprised to
+discover alignment issues on other architectures. Despite a semi-paranoid
+coding style and the benefits of open-source [1]_ there may be security issues.
+
 Design goals
 ------------
 
 0. Disclaimer
 
 This is currently work in progress, not all goals reflect the current state
-of the project. There is also no documentation other than this README.
+of the project. There is also almost no documentation other than this README.
 
 1. Maintain no state besides the dynamic table
 
@@ -53,18 +64,19 @@ By default cashpack relies on malloc(3), realloc(3) and free(3).
 
 3. Zero-copy in the library code
 
-Except when a field needs to be inserted in the dynamic table, cashpack
-does not copy data around. However an insertion in the dynamic table require
-to move the existing contents to make room for the new field. Evictions on
-the other hand are cheap.
+Except when a field needs to be inserted in the dynamic table, cashpack does
+not copy data around. However an insertion in the dynamic table requires to
+move the existing contents to make room for the new field. Evictions on the
+other hand are cheap.
 
 4. Self-contained
 
 Besides the standard C library, cashpack doesn't pull anything at run time.
 
-It can be verified by looking at the shared object:
+It can be verified by looking at the shared object::
 
-   $ nm -D -u libhpack.so |       # list dynamic undefined symbols
+   $ make
+   $ nm -D -u lib/libhpack.so |   # list dynamic undefined symbols
    > awk '/^ +U [^_]/ {print $2}' # print non-weak public names
    free
    malloc
@@ -103,7 +115,7 @@ specification in order to write tests. All examples from RFC 7541 are
 already covered by the test suite.
 
 There are no unit tests, instead C programs are written to interact with
-the library with a Bourne Shell test suite on top of it.
+the library with a Bourne Shell test suite on top of them.
 
 10. Abuse 3-letters abbreviations and acronyms
 
@@ -111,10 +123,4 @@ Function names are actually made up using proper words, but the rest is a
 collection of 3-letter symbols. 4-letter symbols are tolerated as long as
 enough 2-letter symbols restore the balance.
 
-Contributing
-------------
-
-The best way to contribute to cashpack is to use it on platforms other than
-x86_64 GNU/Linux with glibc and report failures. I wouldn't be surprised to
-learn about alignment issues on other architectures. Despite a semi-paranoid
-coding style, there is likely security holes too.
+.. [1] Having many eyes not reviewing the code
