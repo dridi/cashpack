@@ -1,7 +1,7 @@
 Name:           cashpack
 Version:        0.1
 Release:        0.dev%{?dist}
-Summary:        A stateless event-driven HPACK library
+Summary:        The C Anti-State HPACK library
 
 License:        BSD
 URL:            https://github.com/dridi/%{name}
@@ -16,7 +16,7 @@ BuildRequires:  vim-common
 
 
 %description
-%{name} is a stateless event-driven HPACK library.
+%{name} is a stateless event-driven HPACK codec written in C.
 
 
 %package        devel
