@@ -15,6 +15,7 @@ LT_PREREQ([2.2.6])
 
 AC_CONFIG_FILES([
 	Makefile
+	gen/Makefile
 ])
 
 AC_OUTPUT
