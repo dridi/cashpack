@@ -98,15 +98,15 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 
-#define CALL(func, ...)				\
-	do {					\
-		if ((func)(__VA_ARGS__) != 0)	\
-			return (-1);		\
+#define CALL(func, args...)				\
+	do {						\
+		if ((func)(args) != 0)			\
+			return (-1);			\
 	} while (0)
 
-#define CALLBACK(ctx, ...)				\
+#define CALLBACK(ctx, args...)				\
 	do {						\
-		(ctx)->cb((ctx)->priv, __VA_ARGS__);	\
+		(ctx)->cb((ctx)->priv, args);		\
 	} while (0)
 
 #define EXPECT(ctx, err, cond)				\
