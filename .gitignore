@@ -5,3 +5,21 @@ CMakeCache.txt
 install_manifest.txt
 *.cmake
 Makefile
+
+# autotools
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.guess
+config.sub
+configure
+inc/dbg.h
+install-sh
+ltmain.sh
+m4/
+missing
+
+# editors
+*~
+*.swp

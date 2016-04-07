@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+WORK_DIR="$PWD"
+ROOT_DIR="$(dirname "$0")"
+PLATFORM="$(uname -s)"
+
+test -n "$ROOT_DIR"
+cd "$ROOT_DIR"
+
+case "$PLATFORM" in
+FreeBSD|Linux|SunOS)
+	LIBTOOLIZE=libtoolize
+	;;
+Darwin)
+	LIBTOOLIZE=glibtoolize
+	;;
+*)
+	echo "WARNING: unrecognized platform: $PLATFORM" >&2
+	LIBTOOLIZE=libtoolize
+esac
+
+mkdir -p m4 # XXX
+
+aclocal -Wall -Werror -I m4
+$LIBTOOLIZE -Wall -Werror --copy --force
+automake -Wall -Werror --add-missing --copy --foreign
+autoconf -Wall -Werror
+
+cd "$WORK_DIR"
+"$ROOT_DIR"/configure "$@"
