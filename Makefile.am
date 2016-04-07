@@ -9,4 +9,5 @@ dist_doc_DATA = \
 	README.rst
 
 SUBDIRS = \
-	gen
+	gen \
+	inc
