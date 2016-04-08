@@ -27,3 +27,17 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 	AC_MSG_RESULT([yes])
 
 ])
+
+# CASHPACK_CHECK_UNCRUSTIFY
+# -------------------------
+AC_DEFUN([CASHPACK_CHECK_UNCRUSTIFY], [
+
+	UNCRUSTIFY_OPTS="-c '\$(srcdir)/uncrustify.cfg' -q -l C --no-backup"
+
+	AC_CHECK_PROGS(UNCRUSTIFY, [uncrustify], [true])
+	test "$UNCRUSTIFY" = true && UNCRUSTIFY_OPTS=
+
+	AC_SUBST([UNCRUSTIFY])
+	AC_SUBST([UNCRUSTIFY_OPTS])
+
+])
