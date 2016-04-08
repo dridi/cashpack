@@ -21,8 +21,6 @@ Darwin)
 	LIBTOOLIZE=libtoolize
 esac
 
-mkdir -p m4 # XXX
-
 aclocal -Wall -Werror -I m4
 $LIBTOOLIZE -Wall -Werror --copy --force
 automake -Wall -Werror --add-missing --copy --foreign
