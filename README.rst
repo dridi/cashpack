@@ -76,8 +76,9 @@ Besides the standard C library, cashpack doesn't pull anything at run time.
 It can be verified by looking at the shared object::
 
    $ make
-   $ nm -D -u lib/libhpack.so |   # list dynamic undefined symbols
-   > awk '/^ +U [^_]/ {print $2}' # print non-weak public names
+   $ nm -D lib/.libs/libhpack.so |           # list dynamic symbols
+   > awk 'NF == 2 && $1 == "U" {print $2}' | # keep undefined symbols
+   > grep -v '^_'                            # drop __weak symbols
    free
    malloc
    memcpy
