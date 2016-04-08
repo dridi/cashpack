@@ -17,6 +17,7 @@ AC_CONFIG_FILES([
 	Makefile
 	gen/Makefile
 	inc/Makefile
+	lib/Makefile
 ])
 
 AC_OUTPUT

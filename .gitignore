@@ -17,6 +17,7 @@ configure
 depcomp
 inc/dbg.h
 install-sh
+libtool
 ltmain.sh
 m4/
 missing
