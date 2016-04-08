@@ -41,3 +41,25 @@ AC_DEFUN([CASHPACK_CHECK_UNCRUSTIFY], [
 	AC_SUBST([UNCRUSTIFY_OPTS])
 
 ])
+
+# CASHPACK_WITH_MEMCHECK
+# ----------------------
+AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
+
+	AC_CHECK_PROGS(VALGRIND, [valgrind], [no])
+
+	AC_ARG_WITH([memcheck],
+		AS_HELP_STRING(
+			[--with-memcheck],
+			[Run the test suite with Valgrind]),
+		[MEMCHECK="$withval"],
+		[MEMCHECK=OFF])
+
+	test "$MEMCHECK" = yes && MEMCHECK=ON
+
+	test "$MEMCHECK" = ON -a "$VALGRIND" = no &&
+	AC_MSG_FAILURE([Valgrind is required with memcheck])
+
+	AC_SUBST([MEMCHECK])
+
+])
