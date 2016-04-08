@@ -12,4 +12,5 @@ SUBDIRS = \
 	gen \
 	inc \
 	lib \
+	man \
 	tst

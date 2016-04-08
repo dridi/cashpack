@@ -18,6 +18,7 @@ AC_CONFIG_FILES([
 	gen/Makefile
 	inc/Makefile
 	lib/Makefile
+	man/Makefile
 	tst/Makefile
 ])
 
