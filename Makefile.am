@@ -11,4 +11,5 @@ dist_doc_DATA = \
 SUBDIRS = \
 	gen \
 	inc \
-	lib
+	lib \
+	tst
