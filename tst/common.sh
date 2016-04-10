@@ -40,7 +40,7 @@ MEMCHECK_CMD="valgrind		\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
 
 set |
-grep ^MEMCHECK= >/dev/null ||
+grep '^MEMCHECK=' >/dev/null ||
 MEMCHECK=OFF
 
 [ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log*
@@ -62,7 +62,7 @@ cmd_check() {
 
 	for cmd
 	do
-		type "$cmd" >/dev/null 2>&1 ||
+		command -v "$cmd" >/dev/null 2>&1 ||
 		missing="$missing $cmd"
 	done
 
@@ -121,12 +121,12 @@ mk_enc() {
 }
 
 hdecode() {
-	"$TEST_DIR/hex_decode"  <"$TEST_TMP/hex" >"$TEST_TMP/bin"
-	memcheck ./hdecode $@ "$TEST_TMP/bin" >"$TEST_TMP/dec"
+	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
+	memcheck ./hdecode "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
 }
 
 tst_decode() {
-	hdecode $@
+	hdecode "$@"
 
 	printf "Decoded header list:\n\n"    >"$TEST_TMP/tst"
 	cat "$TEST_TMP/msg" "$TEST_TMP/tbl" >>"$TEST_TMP/tst"
