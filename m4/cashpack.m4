@@ -63,3 +63,57 @@ AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
 	AC_SUBST([MEMCHECK])
 
 ])
+
+# _CASHPACK_ASAN
+# --------------
+AC_DEFUN([_CASHPACK_ASAN], [
+
+	AC_CHECK_LIB(
+		[asan],
+		[__asan_address_is_poisoned], [
+			LIBS="$ac_check_lib_save_LIBS"
+			CFLAGS="$CFLAGS -fsanitize=address"
+		],
+		[AC_MSG_FAILURE([Missing libasan for address sanitizer])])
+
+])
+
+# CASHPACK_WITH_ASAN
+# ------------------
+AC_DEFUN([CASHPACK_WITH_ASAN], [
+
+	AC_ARG_WITH([asan],
+		AS_HELP_STRING(
+			[--with-asan],
+			[Build binaries with address sanitizer]),
+		[_CASHPACK_ASAN],
+		[])
+
+])
+
+# _CASHPACK_UBSAN
+# ---------------
+AC_DEFUN([_CASHPACK_UBSAN], [
+
+	AC_CHECK_LIB(
+		[ubsan],
+		[__ubsan_handle_add_overflow], [
+			LIBS="$ac_check_lib_save_LIBS"
+			CFLAGS="$CFLAGS -fsanitize=undefined"
+		],
+		[AC_MSG_FAILURE([Missing libubsan for undefined sanitizer])])
+
+])
+
+# CASHPACK_WITH_UBSAN
+# -------------------
+AC_DEFUN([CASHPACK_WITH_UBSAN], [
+
+	AC_ARG_WITH([ubsan],
+		AS_HELP_STRING(
+			[--with-ubsan],
+			[Build binaries with undefined sanitizer]),
+		[_CASHPACK_UBSAN],
+		[])
+
+])
