@@ -5,13 +5,9 @@ Summary:        The C Anti-State HPACK library
 
 License:        BSD
 URL:            https://github.com/dridi/%{name}
-Source0:        %{name}-master.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  bc
-BuildRequires:  cmake
-BuildRequires:  python-docutils
-BuildRequires:  uncrustify
-BuildRequires:  valgrind
 BuildRequires:  vim-common
 
 
@@ -30,23 +26,19 @@ developing applications that use %{name}.
 
 
 %prep
-%setup -qn %{name}-master
+%setup -q
 
 
 %build
-mkdir build
-cd build
-%cmake -DMEMCHECK=ON ..
+%configure
 make %{?_smp_mflags}
 
 
 %install
-cd build
 %make_install
 
 
 %check
-cd build
 make %{?_smp_mflags} check
 
 
@@ -59,14 +51,20 @@ make %{?_smp_mflags} check
 %files
 %doc README.rst LICENSE
 %{_libdir}/*.so.*
+%{_libdir}/*.la
 
 
 %files devel
 %{_includedir}/*
 %{_libdir}/*.so
+%{_libdir}/*.a
 %{_mandir}/man*/*
 
 
 %changelog
+* Mon Apr 11 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+- Switch to autotools
+- Disable memcheck
+
 * Tue Feb  2 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
 - Initial spec
