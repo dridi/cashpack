@@ -12,22 +12,29 @@ to feed the decoder with partial HPACK contents.
 How to use
 -----------
 
-cashpack relies on CMake for building, and a range of tools for testing and
-code coverage. The basic usage is as follows::
+cashpack relies on autotools for building, and a range of tools for testing
+and code coverage. The basic usage is as follows::
 
-   $ cmake [-DCOVERAGE=ON|OFF] [-DMEMCHECK=ON|OFF] [-DMANPAGES=ON|OFF] \
-   > [-DASAN=ON|OFF]  [-DUBSAN=ON|OFF] path/to/cashpack
+   $ path/to/cashpack/bootstrap \
+   >        [--with-memcheck]   \
+   >        [--with-asan]       \
+   >        [--with-ubsan]      \
+   >        [--with-lcov]
    $ make check
 
 The first command will reveal the missing bits, and the second the potential
 failures. Code coverage MUST be turned off when the test suite is used for
 checking because it turns off assertions.
 
+The ``bootstrap`` script needs to be run only once. In order to reconfigure
+the build tree, you can use autoconf's ``configure`` script. Command-line
+arguments to the ``bootstrap`` script are passed to ``configure``.
+
 For code coverage, the simplest way to get a report is as follows::
 
-   $ cmake -DCOVERAGE=ON path/to/cashpack
+   $ path/to/cashpack/bootsrap --with-lcov
    $ make lcov
-   $ xdg-open tst/lcov/index.html
+   $ xdg-open lcov/index.html
 
 An example of the library usage can be found in the test suite.
 
