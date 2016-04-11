@@ -110,13 +110,11 @@ AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
 # --------------
 AC_DEFUN([_CASHPACK_ASAN], [
 
+	CFLAGS="$CFLAGS -fsanitize=address"
 	AC_CHECK_LIB(
 		[asan],
-		[__asan_address_is_poisoned], [
-			LIBS="$ac_check_lib_save_LIBS"
-			CFLAGS="$CFLAGS -fsanitize=address"
-		],
-		[AC_MSG_FAILURE([Missing libasan for address sanitizer])])
+		[__asan_address_is_poisoned],
+		[LIBS="$ac_check_lib_save_LIBS"])
 
 ])
 
@@ -137,13 +135,10 @@ AC_DEFUN([CASHPACK_WITH_ASAN], [
 # ---------------
 AC_DEFUN([_CASHPACK_UBSAN], [
 
-	AC_CHECK_LIB(
-		[ubsan],
-		[__ubsan_handle_add_overflow], [
-			LIBS="$ac_check_lib_save_LIBS"
-			CFLAGS="$CFLAGS -fsanitize=undefined"
-		],
-		[AC_MSG_FAILURE([Missing libubsan for undefined sanitizer])])
+	CFLAGS="$CFLAGS -fsanitize=undefined"
+	AC_CHECK_LIB([ubsan],
+		[__ubsan_handle_add_overflow],
+		[LIBS="$ac_check_lib_save_LIBS"])
 
 ])
 
