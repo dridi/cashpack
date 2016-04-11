@@ -1,12 +1,6 @@
-# cmake
-build/
-CMakeFiles/
-CMakeCache.txt
-install_manifest.txt
-*.cmake
-Makefile
-
 # autotools
+build/
+Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache/
