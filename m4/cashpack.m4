@@ -28,9 +28,9 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
-# CASHPACK_CHECK_UNCRUSTIFY
-# -------------------------
-AC_DEFUN([CASHPACK_CHECK_UNCRUSTIFY], [
+# CASHPACK_PROG_UNCRUSTIFY
+# ------------------------
+AC_DEFUN([CASHPACK_PROG_UNCRUSTIFY], [
 
 	UNCRUSTIFY_OPTS="-c '\$(srcdir)/uncrustify.cfg' -q -l C --no-backup"
 
