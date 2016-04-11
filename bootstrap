@@ -21,10 +21,10 @@ Darwin)
 	LIBTOOLIZE=libtoolize
 esac
 
-aclocal -Wall -Werror -I m4
-$LIBTOOLIZE -Wall -Werror --copy --force
-automake -Wall -Werror --add-missing --copy --foreign
-autoconf -Wall -Werror
+aclocal -I m4
+$LIBTOOLIZE --copy --force
+automake --add-missing --copy --foreign
+autoconf
 
 cd "$WORK_DIR"
 "$ROOT_DIR"/configure "$@"
