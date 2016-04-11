@@ -23,6 +23,12 @@ m4/
 missing
 test-driver
 
+# lcov
+*.gcov
+*.gcno
+*.gcda
+*.info
+
 # editors
 *~
 *.swp

@@ -126,3 +126,66 @@ AC_DEFUN([CASHPACK_WITH_UBSAN], [
 		[])
 
 ])
+
+# _CASHPACK_LCOV
+# --------------
+AC_DEFUN([_CASHPACK_LCOV], [
+
+	AC_CHECK_PROGS(LCOV, [lcov], [no])
+	test "$LCOV" = no &&
+	AC_MSG_FAILURE([Lcov is required for code coverage])
+
+	AC_CHECK_PROGS(GENHTML, [genhtml], [no])
+	test "$GENHTML" = no &&
+	AC_MSG_FAILURE([Lcov is missing genhtml for reports generation])
+
+	LCOV_RULES="
+
+lcov: all
+	@\$(LCOV) -z -d .
+	@\$(MAKE) \$(AM_MAKEFLAGS) -k check
+	@\$(LCOV) -c -o tst.info -d tst
+	@\$(LCOV) -c -o lib.info -d lib
+	@\$(LCOV) -a tst.info -a lib.info -o raw.info
+	@\$(LCOV) -r raw.info '/usr/*' -o cashpack.info
+	@\$(GENHTML) -o lcov cashpack.info
+	@echo file://\$(abs_builddir)/lcov/index.html
+
+lcov-clean:
+
+clean: lcov-clean
+	@find \$(abs_builddir) -depth '(' \
+		-name '*.gcda' -o \
+		-name '*.gcov' -o \
+		-name '*.gcno' -o \
+		-name '*.info' \
+		')' -delete
+	@rm -rf \$(abs_builddir)/lcov/
+
+.PHONY: lcov lcov-clean
+
+"
+
+	CPPFLAGS="$CPPFLAGS -DNDEBUG"
+	CFLAGS="$CFLAGS -O0 -g -fprofile-arcs -ftest-coverage"
+	LDFLAGS="$LDFLAGS -lgcov"
+
+	AC_SUBST([LCOV])
+	AC_SUBST([GENHTML])
+	AC_SUBST([LCOV_RULES])
+	m4_ifdef([_AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE([LCOV_RULES])])
+
+])
+
+# CASHPACK_WITH_LCOV
+# ------------------
+AC_DEFUN([CASHPACK_WITH_LCOV], [
+
+	AC_ARG_WITH([lcov],
+		AS_HELP_STRING(
+			[--with-lcov],
+			[Measure test suite code coverage with lcov]),
+		[_CASHPACK_LCOV],
+		[])
+
+])

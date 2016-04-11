@@ -14,3 +14,5 @@ SUBDIRS = \
 	lib \
 	man \
 	tst
+
+@LCOV_RULES@
