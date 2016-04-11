@@ -28,6 +28,15 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
+# CASHPACK_PROG_RST2MAN
+-----------------------
+AC_DEFUN([CASHPACK_PROG_RST2MAN], [
+
+	AC_CHECK_PROGS(RST2MAN, [rst2man.py rst2man], [true])
+	AC_SUBST([RST2MAN])
+
+])
+
 # CASHPACK_PROG_UNCRUSTIFY
 # ------------------------
 AC_DEFUN([CASHPACK_PROG_UNCRUSTIFY], [

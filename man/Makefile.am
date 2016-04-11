@@ -1,4 +1,4 @@
-BUILD_MAN = rst2man --strict --strip-comments
+BUILD_MAN = $(RST2MAN) --strict --strip-comments
 
 dist_man_MANS = \
 	cashpack.3 \
