@@ -35,7 +35,7 @@ The C Anti-State HPACK library
 SYNOPSIS
 ========
 
-.. code::
+::
 
    #include <stdlib.h>
    #include <hpack.h>
