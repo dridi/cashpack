@@ -26,6 +26,15 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 	AC_MSG_RESULT([yes])
 
+	dnl Mutual exclusivity of additional checkers
+	cashpack_options="$(
+		echo "$with_memcheck$with_asan$with_ubsan$with_lcov" |
+		awk -F yes '{print NF - 1}'
+	)"
+
+	test "$cashpack_options" -gt 1 &&
+	AC_MSG_FAILURE([Valgrind, ASAN, UBSAN and lcov support can't be combined])
+
 ])
 
 # CASHPACK_PROG_RST2MAN
