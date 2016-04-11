@@ -27,7 +27,9 @@
  */
 
 #ifdef HPR
+#ifndef HPR_ERRORS_ONLY
 HPR(OK,   0, "Success")
+#endif
 HPR(ARG, -1, "Wrong argument")
 HPR(BUF, -2, "Buffer overflow")
 HPR(INT, -3, "Integer overflow")

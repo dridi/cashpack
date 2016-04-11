@@ -163,11 +163,13 @@ main(int argc, char **argv)
 	/* handle options */
 	if (argc > 0 && !strcmp("-r", *argv)) {
 		assert(argc > 2);
+#define HPR_ERRORS_ONLY
 #define HPR(val, cod, txt)			\
 		if (!strcmp(argv[1], #val))	\
 			exp = HPACK_RES_##val;
 #include "tbl/hpack_tbl.h"
 #undef HPR
+#undef HPR_ERRORS_ONLY
 		assert(exp != HPACK_RES_OK);
 		cb = print_nothing;
 		argc -= 2;
@@ -190,11 +192,11 @@ main(int argc, char **argv)
 		    "Default table size: 4096\n"
 		    "Possible results:\n");
 
-#define HPR(val, cod, txt)		\
-		if (strcmp("OK", #val))	\
-			fprintf(stderr, "  %s: %s\n", #val, txt);
+#define HPR_ERRORS_ONLY
+#define HPR(val, cod, txt) fprintf(stderr, "  %s: %s\n", #val, txt);
 #include "tbl/hpack_tbl.h"
 #undef HPR
+#undef HPR_ERRORS_ONLY
 
 		return (EXIT_FAILURE);
 	}
