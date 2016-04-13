@@ -28,9 +28,16 @@ AM_CPPFLAGS = \
 	-I $(top_srcdir)/inc \
 	-I $(top_builddir)/inc
 
-noinst_PROGRAMS = hdecode
+noinst_PROGRAMS = \
+	hdecode \
+	ngdecode
+
 hdecode_SOURCES = hdecode.c
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
+
+ngdecode_SOURCES = ngdecode.c
+ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
+ngdecode_LDFLAGS = $(NGHTTP2_LIBS)
 
 check: $(noinst_PROGRAMS)
 

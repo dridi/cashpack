@@ -57,3 +57,6 @@ mk_tbl <<EOF
 EOF
 
 tst_decode
+
+HDECODE=ngdecode
+tst_decode

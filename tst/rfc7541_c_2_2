@@ -37,3 +37,6 @@ EOF
 mk_tbl </dev/null
 
 tst_decode
+
+HDECODE=ngdecode
+tst_decode

@@ -29,6 +29,8 @@ TEST_NAM="$(basename "$0")"
 TEST_DIR="$(dirname "$0")"
 TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
 
+HDECODE=hdecode
+
 trap "rm -fr $TEST_TMP" EXIT
 
 MEMCHECK_CMD="valgrind		\
@@ -122,7 +124,7 @@ mk_enc() {
 
 hdecode() {
 	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
-	memcheck ./hdecode "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
+	memcheck ./$HDECODE "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
 }
 
 tst_decode() {

@@ -84,6 +84,17 @@ AC_DEFUN([CASHPACK_PROG_UNCRUSTIFY], [
 
 ])
 
+# CASHPACK_LIB_NGHTTP2
+# --------------------
+AC_DEFUN([CASHPACK_LIB_NGHTTP2], [
+
+	PKG_CHECK_MODULES([NGHTTP2],
+		[libnghttp2],
+		[],
+		[AC_MSG_FAILURE([Missing libnghttp2 for the test suite])])
+
+])
+
 # CASHPACK_WITH_MEMCHECK
 # ----------------------
 AC_DEFUN([CASHPACK_WITH_MEMCHECK], [

@@ -8,6 +8,7 @@ URL:            https://github.com/dridi/%{name}
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  bc
+BuildRequires:  libnghttp2-devel
 BuildRequires:  vim-common
 
 

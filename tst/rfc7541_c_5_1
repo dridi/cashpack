@@ -50,3 +50,6 @@ mk_tbl <<EOF
 EOF
 
 tst_decode -t 256
+
+HDECODE=ngdecode
+tst_decode -t 256
