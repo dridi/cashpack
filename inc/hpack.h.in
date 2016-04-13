@@ -106,6 +106,8 @@ typedef void hpack_encoded_f(void *, enum hpack_evt_e, const void *, size_t);
 enum hpack_res_e hpack_encode(struct hpack *, const struct hpack_item *,
     size_t, hpack_encoded_f, void *);
 
+enum hpack_res_e hpack_clean_item(struct hpack_item *);
+
 /* hpack_foreach */
 
 int hpack_foreach(struct hpack *, hpack_decoded_f, void *);

@@ -331,3 +331,35 @@ hpack_encode(struct hpack *hp, const struct hpack_item *itm, size_t len,
 	assert(ctx.res == HPACK_RES_OK);
 	return (ctx.res);
 }
+
+enum hpack_res_e
+hpack_clean_item(struct hpack_item *itm)
+{
+
+	if (itm == NULL)
+		return HPACK_RES_ARG;
+
+	switch (itm->typ) {
+	case HPACK_UPDATE:
+		itm->lim = 0;
+		break;
+	case HPACK_INDEXED:
+		itm->idx = 0;
+		break;
+	case HPACK_DYNAMIC:
+	case HPACK_LITERAL:
+	case HPACK_NEVER:
+		INCOMPL();
+		break;
+	default:
+		return HPACK_RES_ARG;
+	}
+
+	itm->typ = 0;
+
+	if (itm->idx != 0 || itm->lim != 0 || itm->fld.idx != 0 ||
+	    itm->fld.nam != NULL || itm->fld.val != NULL || itm->fld.flg != 0)
+		return HPACK_RES_ARG;
+
+	return HPACK_RES_OK;
+}
