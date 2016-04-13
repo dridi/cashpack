@@ -41,11 +41,7 @@
 
 #include <nghttp2/nghttp2.h>
 
-#define WRT(buf, len) fwrite(buf, len, 1, stdout)
-
-#define OUT(fmt...) fprintf(stdout, fmt)
-
-#define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
+#include "tst.h"
 
 static void
 print_headers(nghttp2_hd_inflater *inf, void *buf, size_t len)

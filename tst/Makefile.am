@@ -32,12 +32,16 @@ noinst_PROGRAMS = \
 	hdecode \
 	ngdecode
 
-hdecode_SOURCES = hdecode.c
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
+hdecode_SOURCES = \
+	tst.h \
+	hdecode.c
 
-ngdecode_SOURCES = ngdecode.c
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
 ngdecode_LDFLAGS = $(NGHTTP2_LIBS)
+ngdecode_SOURCES = \
+	tst.h \
+	ngdecode.c
 
 check: $(noinst_PROGRAMS)
 

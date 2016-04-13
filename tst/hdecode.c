@@ -42,15 +42,7 @@
 #include "hpack.h"
 #include "hpack_assert.h"
 
-#define WRT(buf, len)							\
-	do {								\
-		if (write(STDOUT_FILENO, buf, len) != (ssize_t)len) {	\
-			perror("write");				\
-			exit(EXIT_FAILURE);				\
-		}							\
-	} while (0)
-
-#define OUT(str)	WRT(str, sizeof(str) - 1)
+#include "tst.h"
 
 struct tst_ctx {
 	size_t	cnt;
@@ -109,7 +101,7 @@ void
 print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct tst_ctx *ctx;
-	char str[sizeof "\n[  1] (s =  55) "];
+	char str[sizeof "\n[IDX] (s = LEN) "];
 	int l;
 
 	assert(priv != NULL);
@@ -123,11 +115,10 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 		assert(len > 0);
 		ctx->cnt++;
 		ctx->len += len;
-		l = snprintf(str, sizeof str,
-		    "\n[%3" PRIuPTR "] (s = %3" PRIuPTR ") ", ctx->cnt, len);
+		l = snprintf(str, sizeof str, "\n[%3zu] (s = %3zu) ",
+		    ctx->cnt, len);
 		assert(l + 1 == sizeof  str);
-		(void)l;
-		WRT(str, sizeof(str) - 1);
+		WRT(str, l);
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
@@ -228,8 +219,7 @@ main(int argc, char **argv)
 	}
 	else {
 		assert(ctx.len > 0);
-		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3" PRIuPTR "\n",
-		    ctx.len);
+		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3zu\n", ctx.len);
 		OUT("\n      Table size: ");
 		WRT(ctx.buf, ctx.sz);
 	}
