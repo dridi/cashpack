@@ -119,7 +119,7 @@ mk_tbl() {
 }
 
 mk_enc() {
-	false # XXX: create the encoding sequence
+	rm_comments | rm_blanks >"$TEST_TMP/enc"
 }
 
 hpack_decode() {
@@ -136,10 +136,15 @@ tst_decode() {
 		printf "Decoded header list:\n\n" |
 		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/tst"
 
-		diff -u "$TEST_TMP/tst" "$TEST_TMP/dec"
+		diff -u "$TEST_TMP/dec" "$TEST_TMP/tst"
 	done
 }
 
 tst_encode() {
-	false # XXX: check the encoding process
+	printf "hpack_encode: ./hencode %s\n" "$*"
+
+	memcheck ./hencode "$@"  <"$TEST_TMP/enc" |
+	"$TEST_DIR/hex_encode" >"$TEST_TMP/tst"
+
+	diff -u "$TEST_TMP/hex" "$TEST_TMP/tst"
 }

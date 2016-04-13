@@ -80,8 +80,9 @@ struct hpack_ctx {
 	enum hpack_res_e	res;
 	struct hpack		*hp;
 	const uint8_t		*buf;
-	char			*cur;
+	uint8_t			*cur;
 	size_t			len;
+	size_t			max;
 	union {
 		hpack_decoded_f	*dec;
 		hpack_encoded_f	*enc;
@@ -95,6 +96,8 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 /**********************************************************************
  * Utility Macros
  */
+
+#define TRUST_ME(ptr)	((void *)(uintptr_t)(ptr))
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 
@@ -122,6 +125,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
  */
 
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
+int HPI_encode(HPACK_CTX, size_t, uint8_t, uint16_t);
 
 int HPH_decode(HPACK_CTX, hpack_validate_f, size_t);
 

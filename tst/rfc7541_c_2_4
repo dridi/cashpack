@@ -36,8 +36,13 @@ EOF
 
 mk_tbl </dev/null
 
+mk_enc <<EOF
+indexed 2
+EOF
+
 HDECODE="hdecode ngdecode"
 tst_decode
+tst_encode
 
 # Do the decoding again, with a bindump
 mk_bin <<EOF

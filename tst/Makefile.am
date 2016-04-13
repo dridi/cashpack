@@ -30,12 +30,18 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = \
 	hdecode \
+	hencode \
 	ngdecode
 
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
 	tst.h \
 	hdecode.c
+
+hencode_LDADD = $(top_builddir)/lib/libhpack.la
+hencode_SOURCES = \
+	tst.h \
+	hencode.c
 
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
 ngdecode_LDFLAGS = $(NGHTTP2_LIBS)

@@ -308,25 +308,98 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
  * Encoder
  */
 
+static int
+hpack_encode_indexed(HPACK_CTX, const struct hpack_item *itm)
+{
+
+	return (HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx));
+}
+
+static int
+hpack_encode_dynamic(HPACK_CTX, const struct hpack_item *itm)
+{
+
+	INCOMPL();
+	(void)ctx;
+	(void)itm;
+	return (-1);
+}
+
+static int
+hpack_encode_literal(HPACK_CTX, const struct hpack_item *itm)
+{
+
+	INCOMPL();
+	(void)ctx;
+	(void)itm;
+	return (-1);
+}
+
+static int
+hpack_encode_never(HPACK_CTX, const struct hpack_item *itm)
+{
+
+	INCOMPL();
+	(void)ctx;
+	(void)itm;
+	return (-1);
+}
+
+static int
+hpack_encode_update(HPACK_CTX, const struct hpack_item *itm)
+{
+
+	INCOMPL();
+	(void)ctx;
+	(void)itm;
+	return (-1);
+}
+
 enum hpack_res_e
 hpack_encode(struct hpack *hp, const struct hpack_item *itm, size_t len,
     hpack_encoded_f cb, void *priv)
 {
 	struct hpack_ctx ctx;
 	uint8_t buf[256];
+	int retval;
+
+	/* TODO: preconditions */
 
 	ctx.res = HPACK_RES_OK;
 	ctx.hp = hp;
 	ctx.buf = buf;
-	ctx.len = sizeof buf;
+	ctx.cur = TRUST_ME(ctx.buf);
+	ctx.len = 0;
+	ctx.max = sizeof buf;
 	ctx.enc	= cb;
 	ctx.priv = priv;
 
-	while (len > 0)
-		INCOMPL();
+	while (len > 0) {
+#define HPACK_ENCODE(l, U, or) 					\
+		if (itm->typ == HPACK_##U)			\
+			retval = hpack_encode_##l(&ctx, itm); 	\
+		or
+		HPACK_ENCODE(indexed, INDEXED, else)
+		HPACK_ENCODE(dynamic, DYNAMIC, else)
+		HPACK_ENCODE(literal, LITERAL, else)
+		HPACK_ENCODE(never,   NEVER,   else)
+		HPACK_ENCODE(update,  UPDATE,  /* that was the last */)
+		else {
+			hp->magic = DEFUNCT_MAGIC;
+			return (HPACK_RES_ARG);
+		}
+#undef HPACK_ENCODE
+		if (retval != 0) {
+			assert(ctx.res != HPACK_RES_OK);
+			hp->magic = DEFUNCT_MAGIC;
+			return (ctx.res);
+		}
+		itm++;
+		len--;
+	}
 
-	(void)itm;
-	(void)len;
+	if (ctx.len > 0)
+		CALLBACK(&ctx, HPACK_EVT_DATA, ctx.buf, ctx.len);
 
 	assert(ctx.res == HPACK_RES_OK);
 	return (ctx.res);
