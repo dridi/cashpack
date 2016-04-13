@@ -54,6 +54,7 @@ mk_tbl <<EOF
       Table size:  42
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode
 
 # Empty Huffman-coded value

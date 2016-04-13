@@ -139,4 +139,5 @@ mk_zeros() {
 mk_zeros "01 ffa105 %1600s"     | mk_hex
 mk_zeros ":authority: %1280s\n" | mk_msg
 
+HDECODE="hdecode ngdecode"
 tst_decode

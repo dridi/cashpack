@@ -56,7 +56,7 @@ mk_tbl <<EOF
       Table size: 128
 EOF
 
-tst_decode -t 256
+tst_decode -t 256 # XXX: libnghttp2 fails on this test
 
 # Try the previous message with a table too small
 
@@ -69,6 +69,7 @@ mk_hex <<EOF
 6c65 2e63 6f6d                          | le.com
 EOF
 
+HDECODE="hdecode ngdecode"
 mk_tbl </dev/null
 tst_decode -t 60
 
@@ -81,6 +82,7 @@ mk_bin <<EOF
 11000010 | Indexed field 66
 EOF
 
+HDECODE=hdecode
 tst_decode -r IDX
 
 mk_bin <<EOF

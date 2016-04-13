@@ -36,19 +36,12 @@ EOF
 
 mk_tbl </dev/null
 
-tst_decode
-
-HDECODE=ngdecode
+HDECODE="hdecode ngdecode"
 tst_decode
 
 # Do the decoding again, with a bindump
-HDECODE=hdecode
-
 mk_bin <<EOF
 10000010 | 0x82
 EOF
 
-tst_decode
-
-HDECODE=ngdecode
 tst_decode

@@ -48,7 +48,5 @@ mk_tbl <<EOF
       Table size: 222
 EOF
 
-tst_decode -t 256
-
-HDECODE=ngdecode
+HDECODE="hdecode ngdecode"
 tst_decode -t 256

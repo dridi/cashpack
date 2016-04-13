@@ -93,4 +93,5 @@ mk_bin <<EOF
 00000000 | It must work regarless.
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode -t 1024

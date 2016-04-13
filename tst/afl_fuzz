@@ -22,7 +22,7 @@ mk_hex <<EOF
 3d33 3630 303b 2076 6572 7369 6f6e 3d31 | =3600; version=1
 EOF
 
-hdecode
+hpack_decode ./hdecode
 
 # Error: timeout (infinite loop in the Huffman decoder)
 
@@ -44,4 +44,4 @@ ffff 0000 3649 5540 7f20 6178 0000 1867 | ....6IU@. ax...g
 4633 3630 103b 2076 6090 7369 6f6e 3d31 | F360.; v`.sion=1
 EOF
 
-hdecode -r HUF
+hpack_decode ./hdecode -r HUF

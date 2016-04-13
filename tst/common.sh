@@ -122,18 +122,22 @@ mk_enc() {
 	false # XXX: create the encoding sequence
 }
 
-hdecode() {
+hpack_decode() {
 	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
-	memcheck ./$HDECODE "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
+	printf "hpack_decode: %s\n" "$*"
+	memcheck "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
 }
 
 tst_decode() {
-	hdecode "$@"
+	for dec in $HDECODE
+	do
+		hpack_decode ./$dec "$@"
 
-	printf "Decoded header list:\n\n"    >"$TEST_TMP/tst"
-	cat "$TEST_TMP/msg" "$TEST_TMP/tbl" >>"$TEST_TMP/tst"
+		printf "Decoded header list:\n\n" |
+		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/tst"
 
-	diff -u "$TEST_TMP/tst" "$TEST_TMP/dec"
+		diff -u "$TEST_TMP/tst" "$TEST_TMP/dec"
+	done
 }
 
 tst_encode() {
