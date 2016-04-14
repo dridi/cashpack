@@ -143,10 +143,11 @@ tst_decode() {
 tst_encode() {
 	printf "hpack_encode: ./hencode %s\n" "$*"
 
-	memcheck ./hencode "$@"  <"$TEST_TMP/enc" |
-	"$TEST_DIR/hex_encode" >"$TEST_TMP/tst"
+	memcheck ./hencode "$@"  <"$TEST_TMP/enc" 3>"$TEST_TMP/enc_tbl" |
+	"$TEST_DIR/hex_encode" >"$TEST_TMP/enc_hex"
 
-	diff -u "$TEST_TMP/hex" "$TEST_TMP/tst"
+	diff -u "$TEST_TMP/hex" "$TEST_TMP/enc_hex"
 
-	# XXX: find a way to inspect the dynamic table
+	# XXX: enable this check once implemented in hencode
+	#diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }

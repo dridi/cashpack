@@ -26,11 +26,79 @@
  * SUCH DAMAGE.
  */
 
-#define WRT(buf, len) fwrite(buf, len, 1, stdout)
+#include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#define OUT(fmt...) fprintf(stdout, fmt)
+#include "hpack.h"
+#include "hpack_assert.h"
 
-#define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
+#include "tst.h"
 
-struct hpack;
-void print_dynamic_table(struct hpack *hp);
+struct tst_ctx {
+	size_t	cnt;
+	size_t	len;
+	char	buf[8];
+	size_t	sz;
+};
+
+static void
+print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+{
+	struct tst_ctx *ctx;
+	char str[sizeof "\n[IDX] (s = LEN) "];
+	int l;
+
+	assert(priv != NULL);
+	ctx = priv;
+	if (ctx->cnt == 0)
+		OUT("\n");
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		assert(buf == NULL);
+		assert(len > 0);
+		ctx->cnt++;
+		ctx->len += len;
+		l = snprintf(str, sizeof str, "\n[%3zu] (s = %3zu) ",
+		    ctx->cnt, len);
+		assert(l + 1 == sizeof  str);
+		WRT(str, l);
+		break;
+	case HPACK_EVT_VALUE:
+		OUT(": ");
+		/* fall through */
+	case HPACK_EVT_NAME:
+		assert(buf != NULL);
+		WRT(buf, len);
+		break;
+	default:
+		WRONG("Unexpected event");
+	}
+}
+
+void
+print_dynamic_table(struct hpack *hp)
+{
+	struct tst_ctx ctx;
+
+	ctx.cnt = 0;
+	ctx.len = 0;
+
+	OUT("Dynamic Table (after decoding):");
+
+	hpack_foreach(hp, print_entries, &ctx);
+
+	if (ctx.cnt == 0) {
+		assert(ctx.len == 0);
+		OUT(" empty.\n");
+	}
+	else {
+		assert(ctx.len > 0);
+		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3zu\n", ctx.len);
+		OUT("\n      Table size: ");
+		WRT(ctx.buf, ctx.sz);
+	}
+}

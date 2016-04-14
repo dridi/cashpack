@@ -36,11 +36,13 @@ noinst_PROGRAMS = \
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
 	tst.h \
+	tst.c \
 	hdecode.c
 
 hencode_LDADD = $(top_builddir)/lib/libhpack.la
 hencode_SOURCES = \
 	tst.h \
+	tst.c \
 	hencode.c
 
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)

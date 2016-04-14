@@ -44,14 +44,7 @@
 
 #include "tst.h"
 
-struct tst_ctx {
-	size_t	cnt;
-	size_t	len;
-	char	buf[8];
-	size_t	sz;
-};
-
-void
+static void
 print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
@@ -62,7 +55,7 @@ print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	(void)len;
 }
 
-void
+static void
 print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
@@ -97,41 +90,6 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	}
 }
 
-void
-print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
-{
-	struct tst_ctx *ctx;
-	char str[sizeof "\n[IDX] (s = LEN) "];
-	int l;
-
-	assert(priv != NULL);
-	ctx = priv;
-	if (ctx->cnt == 0)
-		OUT("\n");
-
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
-		assert(len > 0);
-		ctx->cnt++;
-		ctx->len += len;
-		l = snprintf(str, sizeof str, "\n[%3zu] (s = %3zu) ",
-		    ctx->cnt, len);
-		assert(l + 1 == sizeof  str);
-		WRT(str, l);
-		break;
-	case HPACK_EVT_VALUE:
-		OUT(": ");
-		/* fall through */
-	case HPACK_EVT_NAME:
-		assert(buf != NULL);
-		WRT(buf, len);
-		break;
-	default:
-		WRONG("Unexpected event");
-	}
-}
-
 int
 main(int argc, char **argv)
 {
@@ -139,7 +97,6 @@ main(int argc, char **argv)
 	hpack_decoded_f *cb;
 	struct hpack *hp;
 	struct stat st;
-	struct tst_ctx ctx;
 	void *buf;
 	int fd, retval, tbl_sz;
 
@@ -209,20 +166,8 @@ main(int argc, char **argv)
 
 	res = hpack_decode(hp, buf, st.st_size, cb, NULL);
 
-	OUT("\n\nDynamic Table (after decoding):");
-	ctx.cnt = 0;
-	ctx.len = 0;
-	hpack_foreach(hp, print_entries, &ctx);
-	if (ctx.cnt == 0) {
-		assert(ctx.len == 0);
-		OUT(" empty.\n");
-	}
-	else {
-		assert(ctx.len > 0);
-		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3zu\n", ctx.len);
-		OUT("\n      Table size: ");
-		WRT(ctx.buf, ctx.sz);
-	}
+	OUT("\n\n");
+	print_dynamic_table(hp);
 
 	hpack_free(&hp);
 

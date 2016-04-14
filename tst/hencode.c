@@ -220,6 +220,14 @@ main(int argc, char **argv)
 		hpack_clean_item(&itm);
 	} while (res == HPACK_RES_OK);
 
+	if (res == HPACK_RES_OK) {
+		fclose(stdout);
+		dup2(3, STDOUT_FILENO);
+		stdout = fdopen(STDOUT_FILENO, "a");
+
+		print_dynamic_table(hp);
+	}
+
 	hpack_free(&hp);
 
 	return (res != exp);
