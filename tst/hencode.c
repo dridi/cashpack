@@ -69,6 +69,49 @@ write_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	INCOMPL();
 }
 
+static void
+parse_name(struct hpack_item *itm, const char **args)
+{
+	char *sp;
+
+	if (!TOKCMP(*args, "str")) {
+		*args = TOK_ARGS(*args, "str");
+		sp = strchr(*args, ' ');
+		assert(sp != NULL);
+		itm->fld.nam = strndup(*args, sp - *args);
+		*args = sp + 1;
+	}
+	else
+		WRONG("Unknown token");
+
+	return;
+}
+
+static void
+parse_value(struct hpack_item *itm, const char **args)
+{
+	char *sp;
+
+	if (**args == '\n') {
+		assert(itm->fld.flg & HPACK_IDX);
+		return;
+	}
+
+	assert(~itm->fld.flg & HPACK_IDX);
+
+	if (!TOKCMP(*args, "str")) {
+		*args = TOK_ARGS(*args, "str");
+		sp = strchr(*args, '\n');
+		assert(sp != NULL);
+		itm->fld.val = strndup(*args, sp - *args);
+		*args = sp + 1;
+	}
+	else
+		WRONG("Unknown token");
+
+	return;
+}
+
 static int
 parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
 {
@@ -88,6 +131,12 @@ parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
 		args = TOK_ARGS(*lineptr, "indexed");
 		itm->idx = atoi(args);
 		itm->typ = HPACK_INDEXED;
+	}
+	else if (!TOKCMP(*lineptr, "dynamic")) {
+		args = TOK_ARGS(*lineptr, "dynamic");
+		itm->typ = HPACK_DYNAMIC;
+		parse_name(itm, &args);
+		parse_value(itm, &args);
 	}
 	else
 		WRONG("Unknown token");

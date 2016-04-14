@@ -309,6 +309,53 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
  */
 
 static int
+hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
+{
+	const char *str;
+	size_t len;
+	unsigned huf;
+
+	if (evt == HPACK_EVT_NAME) {
+		EXPECT(ctx, ARG, ~itm->fld.flg & HPACK_IDX);
+		str = itm->fld.nam;
+		huf = itm->fld.flg & HPACK_NAM;
+	}
+	else if (evt == HPACK_EVT_VALUE) {
+		str = itm->fld.val;
+		huf = itm->fld.flg & HPACK_VAL;
+	}
+	else
+		WRONG("Unexpected events");
+
+	len = strlen(str);
+	if (len + ctx->len > ctx->max)
+		INCOMPL();
+
+	if (huf != 0)
+		INCOMPL();
+	else {
+		CALL(HPI_encode, ctx, HPACK_PFX_STRING, HPACK_RAW, len);
+		(void)memcpy(ctx->cur, str, len);
+		ctx->cur += len;
+		ctx->len += len;
+	}
+
+	return (0);
+}
+
+static int
+hpack_encode_field(HPACK_CTX, HPACK_ITM)
+{
+
+	if (itm->fld.flg & HPACK_IDX)
+		INCOMPL();
+	else
+		CALL(hpack_encode_string, ctx, itm, HPACK_EVT_NAME);
+
+	return (hpack_encode_string(ctx, itm, HPACK_EVT_VALUE));
+}
+
+static int
 hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 {
 
@@ -319,9 +366,12 @@ static int
 hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 {
 
+	CALL(HPI_encode, ctx, HPACK_PFX_DYNAMIC, itm->typ, 0);
 	CALL(hpack_encode_field, ctx, itm);
-	INCOMPL();
-	return (-1);
+
+	/* XXX: insert into the dynamic table */
+
+	return (0);
 }
 
 static int
@@ -419,6 +469,11 @@ hpack_clean_item(struct hpack_item *itm)
 		itm->idx = 0;
 		break;
 	case HPACK_DYNAMIC:
+		if (itm->fld.flg != 0)
+			INCOMPL();
+		itm->fld.nam = NULL;
+		itm->fld.val = NULL;
+		break;
 	case HPACK_LITERAL:
 	case HPACK_NEVER:
 		INCOMPL();

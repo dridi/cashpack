@@ -147,4 +147,6 @@ tst_encode() {
 	"$TEST_DIR/hex_encode" >"$TEST_TMP/tst"
 
 	diff -u "$TEST_TMP/hex" "$TEST_TMP/tst"
+
+	# XXX: find a way to inspect the dynamic table
 }

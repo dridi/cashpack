@@ -40,5 +40,10 @@ mk_tbl <<EOF
       Table size:  55
 EOF
 
+mk_enc <<EOF
+dynamic str custom-key str custom-header
+EOF
+
 HDECODE="hdecode ngdecode"
 tst_decode
+tst_encode
