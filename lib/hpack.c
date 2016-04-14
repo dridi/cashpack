@@ -335,9 +335,7 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		INCOMPL();
 	else {
 		CALL(HPI_encode, ctx, HPACK_PFX_STRING, HPACK_RAW, len);
-		(void)memcpy(ctx->cur, str, len);
-		ctx->cur += len;
-		ctx->len += len;
+		HPE_push(ctx, str, len);
 	}
 
 	return (0);
@@ -447,8 +445,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 		len--;
 	}
 
-	if (ctx.len > 0)
-		CALLBACK(&ctx, HPACK_EVT_DATA, ctx.buf, ctx.len);
+	HPE_send(&ctx);
 
 	assert(ctx.res == HPACK_RES_OK);
 	return (ctx.res);

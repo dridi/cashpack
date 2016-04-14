@@ -125,6 +125,9 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
  * Function Signatures
  */
 
+void HPE_push(HPACK_CTX, const void *, size_t);
+void HPE_send(HPACK_CTX);
+
 int HPI_decode(HPACK_CTX, size_t, uint16_t *);
 int HPI_encode(HPACK_CTX, size_t, uint8_t, uint16_t);
 

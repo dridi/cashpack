@@ -25,74 +25,49 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * HPACK Integer representation (RFC 7541 Section 5.1)
- *
- * The implementation uses 16-bit unsigned values because 255 (2^8 - 1) octets
- * would have been too little for literal header values (mostly for URLs and
- * cookies) and 65535 (2^16 - 1) octets (65KB!!) seem overkill enough.
+ * HPACK encoding.
  */
 
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hpack.h"
-#include "hpack_assert.h"
 #include "hpack_priv.h"
 
-int
-HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
+void
+HPE_push(HPACK_CTX, const void *buf, size_t len)
 {
-	uint16_t v, n;
-	uint8_t b, m, mask;
+	size_t sz;
 
-	assert(pfx >= 4 && pfx <= 7);
-	assert(val != NULL);
+	assert(buf != NULL);
+	assert(len > 0);
 
-	EXPECT(ctx, BUF, ctx->len > 0);
-	mask = (1 << pfx) - 1;
-	v = *ctx->buf & mask;
-	ctx->buf++;
-	ctx->len--;
+	while (len > 0) {
+		sz = ctx->max - ctx->len;
+		if (sz > len)
+			sz = len;
 
-	if (v < mask) {
-		*val = v;
-		return (0);
+		(void)memcpy(ctx->cur, buf, sz);
+		ctx->cur += sz;
+		ctx->len += sz;
+		len -= sz;
+
+		if (ctx->len == ctx->max)
+			HPE_send(ctx);
 	}
-
-	m = 0;
-
-	do {
-		EXPECT(ctx, BUF, ctx->len > 0);
-		b = *ctx->buf;
-		n = v + (b & 0x7f) * (1 << m);
-		EXPECT(ctx, INT, v <= n);
-		v = n;
-		m += 7;
-		ctx->buf++;
-		ctx->len--;
-	} while (b & 0x80);
-
-	*val = v;
-	return (0);
 }
 
-int
-HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
+void
+HPE_send(HPACK_CTX)
 {
-	uint8_t mask, b;
 
-	assert(pfx >= 4 && pfx <= 7);
-	assert(ctx->len < ctx->max);
+	if (ctx->len == 0)
+		return;
 
-	mask = (1 << pfx) - 1;
-	if (val < mask) {
-		b = pat | (uint8_t)val;
-		HPE_push(ctx, &b, 1);;
-		return (0);
-	}
-
-	INCOMPL();
-	return (0);
+	CALLBACK(ctx, HPACK_EVT_DATA, ctx->buf, ctx->len);
+	ctx->cur = TRUST_ME(ctx->buf);
+	ctx->len = 0;
 }
