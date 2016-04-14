@@ -100,6 +100,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 #define TRUST_ME(ptr)	((void *)(uintptr_t)(ptr))
 
 #define HPACK_CTX	struct hpack_ctx *ctx
+#define HPACK_ITM	const struct hpack_item *itm
 
 #define CALL(func, args...)				\
 	do {						\

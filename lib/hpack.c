@@ -309,14 +309,23 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
  */
 
 static int
-hpack_encode_indexed(HPACK_CTX, const struct hpack_item *itm)
+hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 {
 
 	return (HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx));
 }
 
 static int
-hpack_encode_dynamic(HPACK_CTX, const struct hpack_item *itm)
+hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
+{
+
+	CALL(hpack_encode_field, ctx, itm);
+	INCOMPL();
+	return (-1);
+}
+
+static int
+hpack_encode_literal(HPACK_CTX, HPACK_ITM)
 {
 
 	INCOMPL();
@@ -326,7 +335,7 @@ hpack_encode_dynamic(HPACK_CTX, const struct hpack_item *itm)
 }
 
 static int
-hpack_encode_literal(HPACK_CTX, const struct hpack_item *itm)
+hpack_encode_never(HPACK_CTX, HPACK_ITM)
 {
 
 	INCOMPL();
@@ -336,17 +345,7 @@ hpack_encode_literal(HPACK_CTX, const struct hpack_item *itm)
 }
 
 static int
-hpack_encode_never(HPACK_CTX, const struct hpack_item *itm)
-{
-
-	INCOMPL();
-	(void)ctx;
-	(void)itm;
-	return (-1);
-}
-
-static int
-hpack_encode_update(HPACK_CTX, const struct hpack_item *itm)
+hpack_encode_update(HPACK_CTX, HPACK_ITM)
 {
 
 	INCOMPL();
@@ -356,8 +355,8 @@ hpack_encode_update(HPACK_CTX, const struct hpack_item *itm)
 }
 
 enum hpack_res_e
-hpack_encode(struct hpack *hp, const struct hpack_item *itm, size_t len,
-    hpack_encoded_f cb, void *priv)
+hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
+    void *priv)
 {
 	struct hpack_ctx ctx;
 	uint8_t buf[256];
