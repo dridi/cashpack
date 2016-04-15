@@ -30,8 +30,7 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = \
 	hdecode \
-	hencode \
-	ngdecode
+	hencode
 
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
@@ -45,11 +44,14 @@ hencode_SOURCES = \
 	tst.c \
 	hencode.c
 
+if HAVE_NGHTTP2
+noinst_PROGRAMS += ngdecode
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
 ngdecode_LDFLAGS = $(NGHTTP2_LIBS)
 ngdecode_SOURCES = \
 	tst.h \
 	ngdecode.c
+endif
 
 check: $(noinst_PROGRAMS)
 
@@ -80,7 +82,9 @@ COV_TESTS = \
 REG_TESTS = \
 	afl_fuzz
 
-AM_TESTS_ENVIRONMENT = MEMCHECK="$(MEMCHECK)"
+AM_TESTS_ENVIRONMENT = \
+	MEMCHECK="$(MEMCHECK)" \
+	NGHTTP2="$(NGHTTP2)"
 
 TESTS = $(RFC_TESTS) $(COV_TESTS) $(REG_TESTS)
 

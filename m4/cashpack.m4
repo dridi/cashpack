@@ -90,8 +90,11 @@ AC_DEFUN([CASHPACK_LIB_NGHTTP2], [
 
 	PKG_CHECK_MODULES([NGHTTP2],
 		[libnghttp2],
-		[],
-		[AC_MSG_FAILURE([Missing libnghttp2 for the test suite])])
+		[NGHTTP2=yes],
+		[NGHTTP2=no])
+
+	AC_SUBST([NGHTTP2])
+	AM_CONDITIONAL([HAVE_NGHTTP2], [test "$NGHTTP2" = yes])
 
 ])
 

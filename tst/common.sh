@@ -45,6 +45,10 @@ set |
 grep '^MEMCHECK=' >/dev/null ||
 MEMCHECK=OFF
 
+set |
+grep '^NGHTTP2=' >/dev/null ||
+NGHTTP2=no
+
 [ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log*
 
 memcheck() {
@@ -129,6 +133,7 @@ hpack_decode() {
 }
 
 tst_decode() {
+	[ "$NGHTTP2" = yes ] || HDECODE=hdecode
 	for dec in $HDECODE
 	do
 		hpack_decode ./$dec "$@"
