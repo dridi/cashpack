@@ -325,13 +325,10 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		huf = itm->fld.flg & HPACK_VAL;
 	}
 
-	len = strlen(str);
-	if (len + ctx->len > ctx->max)
-		INCOMPL();
-
 	if (huf != 0)
 		INCOMPL();
 	else {
+		len = strlen(str);
 		CALL(HPI_encode, ctx, HPACK_PFX_STRING, HPACK_RAW, len);
 		HPE_push(ctx, str, len);
 	}
