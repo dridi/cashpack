@@ -43,16 +43,16 @@ MEMCHECK_CMD="valgrind		\
 
 set |
 grep '^MEMCHECK=' >/dev/null ||
-MEMCHECK=OFF
+MEMCHECK=no
 
 set |
 grep '^NGHTTP2=' >/dev/null ||
 NGHTTP2=no
 
-[ "$MEMCHECK" = ON ] && rm -f memcheck-${TEST_NAM}-*.log*
+[ "$MEMCHECK" = yes ] && rm -f memcheck-${TEST_NAM}-*.log*
 
 memcheck() {
-	if [ "$MEMCHECK" = ON ]
+	if [ "$MEMCHECK" = yes ]
 	then
 		local rc=0
 		$MEMCHECK_CMD "$@" || rc=$?

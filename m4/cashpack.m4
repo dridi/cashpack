@@ -109,11 +109,9 @@ AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
 			[--with-memcheck],
 			[Run the test suite with Valgrind]),
 		[MEMCHECK="$withval"],
-		[MEMCHECK=OFF])
+		[MEMCHECK=no])
 
-	test "$MEMCHECK" = yes && MEMCHECK=ON
-
-	test "$MEMCHECK" = ON -a "$VALGRIND" = no &&
+	test "$MEMCHECK" = yes -a "$VALGRIND" = no &&
 	AC_MSG_FAILURE([Valgrind is required with memcheck])
 
 	AC_SUBST([MEMCHECK])
