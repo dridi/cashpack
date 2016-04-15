@@ -106,14 +106,14 @@ parse_name(struct hpack_item *itm, const char **args)
 static void
 parse_value(struct hpack_item *itm, const char **args)
 {
-	char *sp;
+	char *ln;
 
 	if (!TOKCMP(*args, "str")) {
 		*args = TOK_ARGS(*args, "str");
-		sp = strchr(*args, '\n');
-		assert(sp != NULL);
-		itm->fld.val = strndup(*args, sp - *args);
-		*args = sp + 1;
+		ln = strchr(*args, '\n');
+		assert(ln != NULL);
+		itm->fld.val = strndup(*args, ln - *args);
+		*args = ln + 1;
 	}
 	else
 		WRONG("Unknown token");
