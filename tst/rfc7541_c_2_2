@@ -36,5 +36,9 @@ EOF
 
 mk_tbl </dev/null
 
+mk_enc <<EOF
+literal idx 4 str /sample/path
+EOF
+
 HDECODE="hdecode ngdecode"
 tst_decode

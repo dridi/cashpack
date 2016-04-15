@@ -73,5 +73,27 @@ mk_tbl <<EOF
       Table size: 215
 EOF
 
+mk_enc <<EOF
+# C.5.1.  First Response
+dynamic idx 8 huf 302
+dynamic idx 24 huf private
+dynamic idx 33 huf Mon, 21 Oct 2013 20:13:21 GMT
+dynamic idx 46 huf https://www.example.com
+
+# C.5.2.  Second Response
+dynamic idx 8 huf 307
+indexed 65
+indexed 64
+indexed 63
+
+# C.5.3.  Third Response
+indexed 8
+indexed 65
+dynamic idx 33 huf Mon, 21 Oct 2013 20:13:22 GMT
+indexed 64
+dynamic idx 26 huf gzip
+dynamic idx 55 huf foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
+EOF
+
 HDECODE="hdecode ngdecode"
 tst_decode -t 256

@@ -49,5 +49,12 @@ mk_tbl <<EOF
       Table size: 222
 EOF
 
+mk_enc <<EOF
+dynamic idx 8 str 302
+dynamic idx 24 str private
+dynamic idx 33 str Mon, 21 Oct 2013 20:13:21 GMT
+dynamic idx 46 str https://www.example.com
+EOF
+
 HDECODE="hdecode ngdecode"
 tst_decode -t 256
