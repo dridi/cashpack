@@ -60,6 +60,7 @@ struct hpt_priv {
 	void			*wrt;
 	size_t			len;
 	unsigned		nam;
+	unsigned		enc;
 };
 
 struct hpack {

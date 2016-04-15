@@ -147,7 +147,5 @@ tst_encode() {
 	"$TEST_DIR/hex_encode" >"$TEST_TMP/enc_hex"
 
 	diff -u "$TEST_TMP/hex" "$TEST_TMP/enc_hex"
-
-	# XXX: enable this check once implemented in hencode
-	#diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
+	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }

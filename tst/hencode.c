@@ -52,9 +52,14 @@ write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 
 	assert(priv == NULL);
-	assert(evt == HPACK_EVT_DATA);
+	assert(evt != HPACK_EVT_FIELD);
+	assert(evt != HPACK_EVT_NEVER);
+	assert(evt != HPACK_EVT_NAME);
+	assert(evt != HPACK_EVT_VALUE);
+	assert(evt != HPACK_EVT_TABLE);
 
-	WRT(buf, len);
+	if (buf != NULL)
+		WRT(buf, len);
 }
 
 static void

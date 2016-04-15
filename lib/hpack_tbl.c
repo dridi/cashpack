@@ -215,7 +215,8 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		WRONG("Unexpected event");
 	}
 
-	CALLBACK(priv->ctx, evt, buf, len);
+	if (!priv->enc || evt == HPACK_EVT_INDEX)
+		CALLBACK(priv->ctx, evt, buf, len);
 
 	/* is there anything to copy in the table? */
 	return (evt == HPACK_EVT_NAME || (buf != NULL && len > 0));

@@ -363,11 +363,37 @@ hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 static int
 hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 {
+	struct hpack *hp;
+	struct hpt_priv priv;
+	size_t nam_len, val_len;
 
 	CALL(HPI_encode, ctx, HPACK_PFX_DYNAMIC, itm->typ, 0);
 	CALL(hpack_encode_field, ctx, itm);
 
-	/* XXX: insert into the dynamic table */
+	hp = ctx->hp;
+
+	(void)memset(&priv, 0, sizeof priv);
+	priv.ctx = ctx;
+	priv.he = hp->tbl;
+	priv.enc = 1;
+
+	if (itm->fld.flg & HPACK_IDX)
+		INCOMPL();
+
+	nam_len = strlen(itm->fld.nam);
+	val_len = strlen(itm->fld.val);
+
+	HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_len);
+	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_len);
+
+	if (priv.len <= hp->lim) {
+		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
+		hp->len += priv.len;
+		if (++ctx->hp->cnt > 1) {
+			assert(priv.he->pre_sz > 0);
+			assert((size_t)priv.he->pre_sz == priv.len);
+		}
+	}
 
 	return (0);
 }
