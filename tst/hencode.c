@@ -146,6 +146,12 @@ parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
+	else if (!TOKCMP(*lineptr, "never")) {
+		args = TOK_ARGS(*lineptr, "never");
+		itm->typ = HPACK_NEVER;
+		parse_name(itm, &args);
+		parse_value(itm, &args);
+	}
 	else
 		WRONG("Unknown token");
 

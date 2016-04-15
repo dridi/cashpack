@@ -407,10 +407,8 @@ static int
 hpack_encode_never(HPACK_CTX, HPACK_ITM)
 {
 
-	INCOMPL();
-	(void)ctx;
-	(void)itm;
-	return (-1);
+	CALL(HPI_encode, ctx, HPACK_PFX_DYNAMIC, itm->typ, 0);
+	return hpack_encode_field(ctx, itm);
 }
 
 static int
@@ -487,13 +485,13 @@ hpack_clean_item(struct hpack_item *itm)
 		itm->idx = 0;
 		break;
 	case HPACK_DYNAMIC:
+	case HPACK_NEVER:
 		if (itm->fld.flg != 0)
 			INCOMPL();
 		itm->fld.nam = NULL;
 		itm->fld.val = NULL;
 		break;
 	case HPACK_LITERAL:
-	case HPACK_NEVER:
 		INCOMPL();
 		break;
 	default:
