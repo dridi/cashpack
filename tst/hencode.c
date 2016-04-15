@@ -89,6 +89,14 @@ parse_name(struct hpack_item *itm, const char **args)
 		itm->fld.nam = strndup(*args, sp - *args);
 		*args = sp + 1;
 	}
+	else if (!TOKCMP(*args, "idx")) {
+		*args = TOK_ARGS(*args, "idx");
+		sp = strchr(*args, ' ');
+		assert(sp != NULL);
+		itm->fld.idx = atoi(*args);
+		itm->fld.flg = HPACK_IDX;
+		*args = sp + 1;
+	}
 	else
 		WRONG("Unknown token");
 
@@ -99,13 +107,6 @@ static void
 parse_value(struct hpack_item *itm, const char **args)
 {
 	char *sp;
-
-	if (**args == '\n') {
-		assert(itm->fld.flg & HPACK_IDX);
-		return;
-	}
-
-	assert(~itm->fld.flg & HPACK_IDX);
 
 	if (!TOKCMP(*args, "str")) {
 		*args = TOK_ARGS(*args, "str");
@@ -149,6 +150,12 @@ parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
 	else if (!TOKCMP(*lineptr, "never")) {
 		args = TOK_ARGS(*lineptr, "never");
 		itm->typ = HPACK_NEVER;
+		parse_name(itm, &args);
+		parse_value(itm, &args);
+	}
+	else if (!TOKCMP(*lineptr, "literal")) {
+		args = TOK_ARGS(*lineptr, "literal");
+		itm->typ = HPACK_LITERAL;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}

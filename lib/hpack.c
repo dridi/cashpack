@@ -337,12 +337,20 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 }
 
 static int
-hpack_encode_field(HPACK_CTX, HPACK_ITM)
+hpack_encode_field(HPACK_CTX, HPACK_ITM, size_t pfx)
 {
+	uint16_t idx;
 
-	if (itm->fld.flg & HPACK_IDX)
-		INCOMPL();
+	if (itm->fld.flg & HPACK_IDX) {
+		idx = itm->fld.idx;
+		EXPECT(ctx, ARG, idx > 0);
+	}
 	else
+		idx = 0;
+
+	CALL(HPI_encode, ctx, pfx, itm->typ, idx);
+
+	if (idx == 0)
 		CALL(hpack_encode_string, ctx, itm, HPACK_EVT_NAME);
 
 	return (hpack_encode_string(ctx, itm, HPACK_EVT_VALUE));
@@ -362,8 +370,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	struct hpt_priv priv;
 	size_t nam_len, val_len;
 
-	CALL(HPI_encode, ctx, HPACK_PFX_DYNAMIC, itm->typ, 0);
-	CALL(hpack_encode_field, ctx, itm);
+	CALL(hpack_encode_field, ctx, itm, HPACK_PFX_DYNAMIC);
 
 	hp = ctx->hp;
 
@@ -397,18 +404,14 @@ static int
 hpack_encode_literal(HPACK_CTX, HPACK_ITM)
 {
 
-	INCOMPL();
-	(void)ctx;
-	(void)itm;
-	return (-1);
+	return (hpack_encode_field(ctx, itm, HPACK_PFX_LITERAL));
 }
 
 static int
 hpack_encode_never(HPACK_CTX, HPACK_ITM)
 {
 
-	CALL(HPI_encode, ctx, HPACK_PFX_DYNAMIC, itm->typ, 0);
-	return hpack_encode_field(ctx, itm);
+	return (hpack_encode_field(ctx, itm, HPACK_PFX_NEVER));
 }
 
 static int
@@ -485,14 +488,14 @@ hpack_clean_item(struct hpack_item *itm)
 		itm->idx = 0;
 		break;
 	case HPACK_DYNAMIC:
+	case HPACK_LITERAL:
 	case HPACK_NEVER:
-		if (itm->fld.flg != 0)
-			INCOMPL();
-		itm->fld.nam = NULL;
+		if (itm->fld.flg & HPACK_IDX)
+			itm->fld.idx &= ~HPACK_IDX;
+		else
+			itm->fld.nam = NULL;
 		itm->fld.val = NULL;
 		break;
-	case HPACK_LITERAL:
-		INCOMPL();
 		break;
 	default:
 		return HPACK_RES_ARG;

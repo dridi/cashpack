@@ -42,3 +42,4 @@ EOF
 
 HDECODE="hdecode ngdecode"
 tst_decode
+tst_encode
