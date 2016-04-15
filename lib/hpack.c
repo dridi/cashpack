@@ -320,12 +320,10 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		str = itm->fld.nam;
 		huf = itm->fld.flg & HPACK_NAM;
 	}
-	else if (evt == HPACK_EVT_VALUE) {
+	else {
 		str = itm->fld.val;
 		huf = itm->fld.flg & HPACK_VAL;
 	}
-	else
-		WRONG("Unexpected events");
 
 	len = strlen(str);
 	if (len + ctx->len > ctx->max)

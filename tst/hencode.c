@@ -51,6 +51,9 @@ static void
 write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 
+	(void)priv;
+	(void)evt;
+
 	assert(priv == NULL);
 	assert(evt != HPACK_EVT_FIELD);
 	assert(evt != HPACK_EVT_NEVER);
