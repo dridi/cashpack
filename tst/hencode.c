@@ -201,7 +201,7 @@ main(int argc, char **argv)
 	}
 
 	if (argc > 0 && !strcmp("-t", *argv)) {
-		assert(argc > 2);
+		assert(argc == 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
 		argc -= 2;
