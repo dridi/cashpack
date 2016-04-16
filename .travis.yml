@@ -40,6 +40,8 @@ addons:
     branch_pattern: coverity_scan
 before_install:
   - test $TRAVIS_BRANCH != coverity_scan -o "${TRAVIS_JOB_NUMBER##*.}" = 1 || exit 0
+before_script:
+  - test $TRAVIS_BRANCH != coverity_scan || exit 0
 script:
   - mkdir build
   - cd build
