@@ -369,7 +369,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	struct hpack *hp;
 	struct hpt_field hf;
 	struct hpt_priv priv;
-	size_t nam_len, val_len;
+	size_t nam_sz, val_sz;
 
 	CALL(hpack_encode_field, ctx, itm, HPACK_PFX_DYNAMIC);
 
@@ -385,12 +385,12 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 	}
 	else {
-		nam_len = strlen(itm->fld.nam);
-		HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_len);
+		nam_sz = strlen(itm->fld.nam);
+		HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_sz);
 	}
 
-	val_len = strlen(itm->fld.val);
-	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_len);
+	val_sz = strlen(itm->fld.val);
+	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_sz);
 
 	hp->off = 0;
 
