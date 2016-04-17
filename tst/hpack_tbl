@@ -69,8 +69,9 @@ mk_hex <<EOF
 6c65 2e63 6f6d                          | le.com
 EOF
 
-HDECODE="hdecode ngdecode"
 mk_tbl </dev/null
+
+HDECODE="hdecode ngdecode"
 tst_decode -t 60
 
 # Wrong index
