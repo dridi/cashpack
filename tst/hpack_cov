@@ -69,4 +69,9 @@ mk_bin <<EOF
 10000000 | field value has a length of zero octets
 EOF
 
+mk_enc <<EOF
+dynamic idx 1 huf 
+EOF
+
 tst_decode
+tst_encode

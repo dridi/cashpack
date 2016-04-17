@@ -325,8 +325,11 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		huf = itm->fld.flg & HPACK_VAL;
 	}
 
-	if (huf != 0)
-		INCOMPL();
+	if (huf != 0) {
+		CALL(HPH_size, str, &len);
+		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_HUFFMAN, len);
+		HPH_encode(ctx, str);
+	}
 	else {
 		len = strlen(str);
 		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_RAW, len);
@@ -508,6 +511,8 @@ hpack_clean_item(struct hpack_item *itm)
 		else
 			itm->fld.nam = NULL;
 		itm->fld.val = NULL;
+		itm->fld.flg &= ~HPACK_NAM;
+		itm->fld.flg &= ~HPACK_VAL;
 		break;
 		break;
 	default:

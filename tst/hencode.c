@@ -89,6 +89,14 @@ parse_name(struct hpack_item *itm, const char **args)
 		itm->fld.nam = strndup(*args, sp - *args);
 		*args = sp + 1;
 	}
+	else if (!TOKCMP(*args, "huf")) {
+		*args = TOK_ARGS(*args, "huf");
+		sp = strchr(*args, ' ');
+		assert(sp != NULL);
+		itm->fld.nam = strndup(*args, sp - *args);
+		itm->fld.flg = HPACK_NAM;
+		*args = sp + 1;
+	}
 	else if (!TOKCMP(*args, "idx")) {
 		*args = TOK_ARGS(*args, "idx");
 		sp = strchr(*args, ' ');
@@ -113,6 +121,14 @@ parse_value(struct hpack_item *itm, const char **args)
 		ln = strchr(*args, '\n');
 		assert(ln != NULL);
 		itm->fld.val = strndup(*args, ln - *args);
+		*args = ln + 1;
+	}
+	else if (!TOKCMP(*args, "huf")) {
+		*args = TOK_ARGS(*args, "huf");
+		ln = strchr(*args, '\n');
+		assert(ln != NULL);
+		itm->fld.val = strndup(*args, ln - *args);
+		itm->fld.flg |= HPACK_VAL;
 		*args = ln + 1;
 	}
 	else

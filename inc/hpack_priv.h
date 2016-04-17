@@ -132,7 +132,9 @@ void HPE_send(HPACK_CTX);
 int  HPI_decode(HPACK_CTX, size_t, uint16_t *);
 void HPI_encode(HPACK_CTX, size_t, uint8_t, uint16_t);
 
-int HPH_decode(HPACK_CTX, hpack_validate_f, size_t);
+int  HPH_decode(HPACK_CTX, hpack_validate_f, size_t);
+void HPH_encode(HPACK_CTX, const char *);
+int  HPH_size(const char *, size_t *);
 
 hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;

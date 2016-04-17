@@ -37,6 +37,7 @@
 
 #include "hpack.h"
 #include "hpack_priv.h"
+#include "hpack_huf_idx.h"
 #include "hpack_huf_tbl.h"
 
 /**********************************************************************
@@ -121,6 +122,70 @@ HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
 		CALL(val, ctx, (char *)buf, l, first);
 		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 	}
+
+	return (0);
+}
+
+void
+HPH_encode(HPACK_CTX, const char *str)
+{
+	uint64_t bits;
+	uint8_t buf[256], *cur;
+	size_t sz, len, i;
+
+	bits = 0;
+	cur = buf;
+	sz = 0;
+	len = 0;
+
+	while (*str != '\0') {
+		i = hph_idx[(uint16_t)*str];
+		bits = (bits << hph_tbl[i].len) | hph_tbl[i].cod;
+		sz += hph_tbl[i].len;
+
+		while (sz >= 8) {
+			sz -= 8;
+			*cur = (uint8_t)(bits >> sz);
+			cur++;
+			if (++len == sizeof buf) {
+				HPE_push(ctx, buf, sizeof buf);
+				cur = buf;
+				len = 0;
+			}
+		}
+
+		str++;
+	}
+
+	assert(sz < 8);
+	if (sz > 0) {
+		sz = 8 - sz; /* padding bits */
+		bits <<= sz;
+		bits |= (1 << sz) - 1;
+		*cur = (uint8_t)bits;
+		len++;
+	}
+
+	HPE_push(ctx, buf, len);
+}
+
+int
+HPH_size(const char *str, size_t *res)
+{
+	uint16_t i;
+	size_t sz;
+
+	sz = 0;
+
+	while (*str != '\0') {
+		i = hph_idx[(uint16_t)*str];
+		sz += hph_tbl[i].len;
+		str++;
+	}
+
+	*res = sz >> 3;
+	if (sz & 0x07)
+		*res += 1;
 
 	return (0);
 }
