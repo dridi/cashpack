@@ -367,6 +367,7 @@ static int
 hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 {
 	struct hpack *hp;
+	struct hpt_field hf;
 	struct hpt_priv priv;
 	size_t nam_len, val_len;
 
@@ -379,13 +380,16 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	priv.he = hp->tbl;
 	priv.enc = 1;
 
-	if (itm->fld.flg & HPACK_IDX)
-		INCOMPL();
+	if (itm->fld.flg & HPACK_IDX) {
+		CALL(HPT_search, ctx, itm->fld.idx, &hf);
+		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
+	}
+	else {
+		nam_len = strlen(itm->fld.nam);
+		HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_len);
+	}
 
-	nam_len = strlen(itm->fld.nam);
 	val_len = strlen(itm->fld.val);
-
-	HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_len);
 	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_len);
 
 	hp->off = 0;
