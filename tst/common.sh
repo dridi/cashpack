@@ -88,7 +88,10 @@ rm_blanks() {
 }
 
 mk_hex() {
-	rm_comments >"$TEST_TMP/hex"
+	rm_comments |
+	rm_blanks |
+	"$TEST_DIR/hex_decode" |
+	"$TEST_DIR/hex_encode" >"$TEST_TMP/hex"
 }
 
 mk_bin() {

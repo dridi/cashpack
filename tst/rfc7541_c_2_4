@@ -50,3 +50,4 @@ mk_bin <<EOF
 EOF
 
 tst_decode
+tst_encode

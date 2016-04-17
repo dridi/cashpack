@@ -33,7 +33,9 @@ cmd_check bc
 hex="$TEST_TMP/hex"
 dmp="$TEST_TMP/dmp"
 
-printf 0011224488f0ff >"$dmp"
+cat >"$dmp" <<EOF
+0011 2244 88f0 ff                       | .."D...
+EOF
 
 mk_bin <<EOF
 00000000 | 0x00
