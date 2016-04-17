@@ -388,6 +388,8 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_len);
 	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_len);
 
+	hp->off = 0;
+
 	if (priv.len <= hp->lim) {
 		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
 		hp->len += priv.len;
