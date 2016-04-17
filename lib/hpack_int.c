@@ -81,15 +81,17 @@ HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
 int
 HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 {
-	uint8_t mask, b;
+	uint8_t mask, buf[4];
+
+	buf[0] = pat;
 
 	assert(pfx >= 4 && pfx <= 7);
 	assert(ctx->len < ctx->max);
 
 	mask = (1 << pfx) - 1;
 	if (val < mask) {
-		b = pat | (uint8_t)val;
-		HPE_push(ctx, &b, 1);;
+		buf[0] |= (uint8_t)val;
+		HPE_push(ctx, buf, 1);;
 		return (0);
 	}
 
