@@ -131,9 +131,8 @@ tst_decode -r HUF
 
 mk_zeros() {
 	fmt="$(printf %s "$1" | tr ' ' '\t')"
-	printf "$fmt" |
-	tr ' ' '0' |
-	tr '\t' ' '
+	printf "$fmt" ' ' |
+	tr ' \t' '0 '
 }
 
 mk_zeros "01 ffa105 %1600s"     | mk_hex
