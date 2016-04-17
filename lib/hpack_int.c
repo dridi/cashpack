@@ -106,5 +106,9 @@ HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 		i++;
 	}
 
+	assert(i < sizeof buf);
+	buf[i] = val;
+	i++;
+
 	HPE_push(ctx, buf, i);
 }
