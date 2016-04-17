@@ -484,7 +484,7 @@ hpack_clean_item(struct hpack_item *itm)
 {
 
 	if (itm == NULL)
-		return HPACK_RES_ARG;
+		return (HPACK_RES_ARG);
 
 	switch (itm->typ) {
 	case HPACK_UPDATE:
@@ -496,22 +496,24 @@ hpack_clean_item(struct hpack_item *itm)
 	case HPACK_DYNAMIC:
 	case HPACK_LITERAL:
 	case HPACK_NEVER:
-		if (itm->fld.flg & HPACK_IDX)
-			itm->fld.idx &= ~HPACK_IDX;
+		if (itm->fld.flg & HPACK_IDX) {
+			itm->fld.idx = 0;
+			itm->fld.flg &= ~HPACK_IDX;
+		}
 		else
 			itm->fld.nam = NULL;
 		itm->fld.val = NULL;
 		break;
 		break;
 	default:
-		return HPACK_RES_ARG;
+		return (HPACK_RES_ARG);
 	}
 
 	itm->typ = 0;
 
 	if (itm->idx != 0 || itm->lim != 0 || itm->fld.idx != 0 ||
 	    itm->fld.nam != NULL || itm->fld.val != NULL || itm->fld.flg != 0)
-		return HPACK_RES_ARG;
+		return (HPACK_RES_ARG);
 
-	return HPACK_RES_OK;
+	return (HPACK_RES_OK);
 }
