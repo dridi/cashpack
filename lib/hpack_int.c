@@ -78,7 +78,7 @@ HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
 	return (0);
 }
 
-int
+void
 HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 {
 	uint8_t mask, buf[4];
@@ -93,7 +93,7 @@ HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 	if (val < mask) {
 		buf[0] |= (uint8_t)val;
 		HPE_push(ctx, buf, 1);;
-		return (0);
+		return;
 	}
 
 	buf[0] |= mask;
@@ -106,6 +106,5 @@ HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 		i++;
 	}
 
-	HPE_push(ctx, buf, i);;
-	return (0);
+	HPE_push(ctx, buf, i);
 }

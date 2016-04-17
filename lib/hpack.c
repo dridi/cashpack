@@ -329,7 +329,7 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		INCOMPL();
 	else {
 		len = strlen(str);
-		CALL(HPI_encode, ctx, HPACK_PFX_STRING, HPACK_RAW, len);
+		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_RAW, len);
 		HPE_push(ctx, str, len);
 	}
 
@@ -348,7 +348,7 @@ hpack_encode_field(HPACK_CTX, HPACK_ITM, size_t pfx)
 	else
 		idx = 0;
 
-	CALL(HPI_encode, ctx, pfx, itm->typ, idx);
+	HPI_encode(ctx, pfx, itm->typ, idx);
 
 	if (idx == 0)
 		CALL(hpack_encode_string, ctx, itm, HPACK_EVT_NAME);
@@ -360,7 +360,8 @@ static int
 hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 {
 
-	return (HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx));
+	HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx);
+	return (HPACK_RES_OK);
 }
 
 static int
