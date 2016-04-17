@@ -82,6 +82,7 @@ int
 HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 {
 	uint8_t mask, buf[4];
+	size_t i;
 
 	buf[0] = pat;
 
@@ -95,6 +96,16 @@ HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
 		return (0);
 	}
 
-	INCOMPL();
+	buf[0] |= mask;
+	val -= mask;
+	i = 1;
+	while (val >= 0x80) {
+		assert(i < sizeof buf);
+		buf[i] = 0x80 | (val & 0x7f);
+		val >>= 7;
+		i++;
+	}
+
+	HPE_push(ctx, buf, i);;
 	return (0);
 }
