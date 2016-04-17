@@ -135,8 +135,10 @@ mk_zeros() {
 	tr ' \t' '0 '
 }
 
-mk_zeros "01 ffa105 %1600s"     | mk_hex
-mk_zeros ":authority: %1280s\n" | mk_msg
+mk_zeros "01 ffa105 %1600s"           | mk_hex
+mk_zeros ":authority: %1280s\n"       | mk_msg
+mk_zeros "literal idx 1 huf %1280s\n" | mk_enc
 
 HDECODE="hdecode ngdecode"
 tst_decode
+tst_encode
