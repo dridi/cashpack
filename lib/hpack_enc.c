@@ -43,7 +43,6 @@ HPE_push(HPACK_CTX, const void *buf, size_t len)
 	size_t sz;
 
 	assert(buf != NULL);
-	assert(len > 0);
 
 	while (len > 0) {
 		sz = ctx->max - ctx->len;
