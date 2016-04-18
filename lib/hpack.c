@@ -368,7 +368,7 @@ hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 	    itm->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 
 	HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx);
-	return (HPACK_RES_OK);
+	return (0);
 }
 
 static int
@@ -432,10 +432,12 @@ static int
 hpack_encode_update(HPACK_CTX, HPACK_ITM)
 {
 
-	INCOMPL();
-	(void)ctx;
-	(void)itm;
-	return (-1);
+	EXPECT(ctx, ARG, itm->lim <= UINT16_MAX);
+	EXPECT(ctx, LEN, itm->lim <= ctx->hp->max);
+	ctx->hp->lim = itm->lim;
+	HPT_adjust(ctx, ctx->hp->len);
+	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
+	return (0);
 }
 
 enum hpack_res_e
