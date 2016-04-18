@@ -57,13 +57,13 @@ mk_tbl <<EOF
 EOF
 
 mk_enc <<EOF
-# Appendix C.3.1.  First Request
+# Appendix C.4.1.  First Request
 indexed 2
 indexed 6
 indexed 4
 dynamic idx 1 huf www.example.com
 
-# Appendix C.3.2.  Second Request
+# Appendix C.4.2.  Second Request
 indexed 2
 indexed 6
 indexed 4
