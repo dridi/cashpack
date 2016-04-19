@@ -448,7 +448,9 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	uint8_t buf[256];
 	int retval;
 
-	/* TODO: preconditions */
+	if (hp == NULL || hp->magic != ENCODER_MAGIC || itm == NULL ||
+	    len == 0 || cb == NULL)
+		return (HPACK_RES_ARG);
 
 	ctx.res = HPACK_RES_OK;
 	ctx.hp = hp;
