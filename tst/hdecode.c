@@ -49,7 +49,11 @@ print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
+
+#ifdef NDEBUG
 	(void)priv;
+#endif
+
 	(void)evt;
 	(void)buf;
 	(void)len;
@@ -60,7 +64,10 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
+
+#ifdef NDEBUG
 	(void)priv;
+#endif
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
@@ -154,7 +161,10 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
+
+#ifdef NDEBUG
 	(void)retval;
+#endif
 
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
