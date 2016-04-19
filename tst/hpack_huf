@@ -115,6 +115,17 @@ EOF
 
 tst_decode -r HUF
 
+# Invalid character
+
+mk_bin <<EOF
+00000000 | Literal field without indexing
+10000010 | Huffman string of 2 octets
+11111111 | The null character (13 bits)
+11000111 | Followed by '111' EOS
+EOF
+
+tst_decode -r CHR
+
 # Parse a Huffman string longer than the decode buffer
 #
 # Because the most common character is conveniently '0' it can be used to
