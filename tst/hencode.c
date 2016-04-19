@@ -195,7 +195,7 @@ main(int argc, char **argv)
 
 	/* handle options */
 	if (argc > 0 && !strcmp("-r", *argv)) {
-		assert(argc > 2);
+		assert(argc >= 2);
 #define HPR_ERRORS_ONLY
 #define HPR(val, cod, txt)			\
 		if (!strcmp(argv[1], #val))	\
