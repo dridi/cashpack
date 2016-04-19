@@ -314,16 +314,22 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 	const char *str;
 	size_t len;
 	unsigned huf;
+	hpack_validate_f *val;
 
 	if (evt == HPACK_EVT_NAME) {
 		EXPECT(ctx, ARG, ~itm->fld.flg & HPACK_IDX);
 		str = itm->fld.nam;
 		huf = itm->fld.flg & HPACK_NAM;
+		val = HPV_token;
 	}
 	else {
 		str = itm->fld.val;
 		huf = itm->fld.flg & HPACK_VAL;
+		val = HPV_value;
 	}
+
+	len = strlen(str);
+	CALL(val, ctx, str, len, 1);
 
 	if (huf != 0) {
 		CALL(HPH_size, str, &len);
@@ -331,7 +337,6 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 		HPH_encode(ctx, str);
 	}
 	else {
-		len = strlen(str);
 		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_RAW, len);
 		HPE_push(ctx, str, len);
 	}

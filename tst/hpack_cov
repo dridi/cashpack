@@ -75,3 +75,17 @@ EOF
 
 tst_decode
 tst_encode
+
+# Validate pseudo-headers names
+
+mk_hex <<EOF
+0005 3a70 6174 6801 2f                  | ..:path./
+EOF
+
+mk_tbl </dev/null
+
+mk_enc <<EOF
+literal str :path str /
+EOF
+
+tst_encode
