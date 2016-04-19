@@ -89,3 +89,30 @@ literal str :path str /
 EOF
 
 tst_encode
+
+# Tolerate obsolete characters in field values
+
+mk_hex <<EOF
+0004 6e61 6d65 0676 616c c3bc 65        | ..name.val..e
+EOF
+
+mk_tbl </dev/null
+
+mk_enc <<EOF
+literal str name str valüe
+EOF
+
+tst_encode
+
+# Invalid characters for a field name
+
+mk_hex </dev/null
+
+tst_invalid_char() {
+	printf '%s\n' "$1" | mk_enc
+	tst_encode -r CHR
+}
+
+tst_invalid_char "literal str name: str value"
+tst_invalid_char "literal str näme str value"
+tst_invalid_char "literal str Name str value"
