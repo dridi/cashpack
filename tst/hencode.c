@@ -66,18 +66,6 @@ write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 static void
-write_nothing(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
-{
-
-	assert(priv == NULL);
-	(void)priv;
-	(void)evt;
-	(void)buf;
-	(void)len;
-	INCOMPL();
-}
-
-static void
 parse_name(struct hpack_item *itm, const char **args)
 {
 	char *sp;
@@ -215,8 +203,7 @@ main(int argc, char **argv)
 #include "tbl/hpack_tbl.h"
 #undef HPR
 #undef HPR_ERRORS_ONLY
-		if (exp != HPACK_RES_OK)
-			cb = write_nothing;
+		assert(exp != HPACK_RES_OK);
 		argc -= 2;
 		argv += 2;
 	}
@@ -251,7 +238,7 @@ main(int argc, char **argv)
 	assert(hp != NULL);
 
 	memset(&itm, 0, sizeof itm);
-	res = HPACK_RES_OK; // XXX
+	res = HPACK_RES_OK;
 	line = NULL;
 	line_sz = 0;
 

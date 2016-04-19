@@ -154,6 +154,12 @@ tst_encode() {
 	memcheck ./hencode "$@"  <"$TEST_TMP/enc" 3>"$TEST_TMP/enc_tbl" |
 	"$TEST_DIR/hex_encode" >"$TEST_TMP/enc_hex"
 
+	for opt
+	do
+		# skip diffs if an error is expected
+		[ "$opt" = -r ] && return
+	done
+
 	diff -u "$TEST_TMP/hex" "$TEST_TMP/enc_hex"
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }
