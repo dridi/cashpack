@@ -129,6 +129,12 @@ mk_enc() {
 	rm_comments | rm_blanks >"$TEST_TMP/enc"
 }
 
+mk_chars() {
+	fmt="$(printf %s "$2" | tr ' ' '\t')"
+	printf "$fmt" ' ' |
+	tr '\t ' " $1"
+}
+
 hpack_decode() {
 	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
 	printf "hpack_decode: %s\n" "$*"

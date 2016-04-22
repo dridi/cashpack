@@ -140,15 +140,9 @@ tst_decode -r CHR
 # - 01     -> literal field with name index 1 (:authority)
 # - ffa105 -> Huffman string of length 800
 
-mk_zeros() {
-	fmt="$(printf %s "$1" | tr ' ' '\t')"
-	printf "$fmt" ' ' |
-	tr ' \t' '0 '
-}
-
-mk_zeros "01 ffa105 %1600s"           | mk_hex
-mk_zeros ":authority: %1280s\n"       | mk_msg
-mk_zeros "literal idx 1 huf %1280s\n" | mk_enc
+mk_chars 0 "01 ffa105 %1600s"           | mk_hex
+mk_chars 0 ":authority: %1280s\n"       | mk_msg
+mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 
 HDECODE="hdecode ngdecode"
 tst_decode
