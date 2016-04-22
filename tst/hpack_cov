@@ -116,3 +116,17 @@ tst_invalid_char() {
 tst_invalid_char "literal str name: str value"
 tst_invalid_char "literal str näme str value"
 tst_invalid_char "literal str Name str value"
+
+# Encode exactly 256 octets
+#
+# A 253-characters long string is made of 3s because its ASCII hexadecimal
+# happens to be 33. So it can be used to both encode the string and its
+# hexdump. All this effort for a single branch in the code :)
+#
+# - 01   -> literal field with name index 1 (:authority)
+# - 7f7e -> Character string of length 253
+
+mk_chars 3 "01 7f7e %506s"             | mk_hex
+mk_chars 3 "literal idx 1 str %253s\n" | mk_enc
+
+tst_encode
