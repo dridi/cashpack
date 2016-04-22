@@ -351,7 +351,7 @@ hpack_encode_field(HPACK_CTX, HPACK_ITM, size_t pfx)
 
 	if (itm->fld.flg & HPACK_IDX) {
 		idx = itm->fld.idx;
-		EXPECT(ctx, ARG, idx > 0 &&
+		EXPECT(ctx, IDX, idx > 0 &&
 		    idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 	}
 	else
@@ -369,7 +369,7 @@ static int
 hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 {
 
-	EXPECT(ctx, ARG, itm->idx > 0 &&
+	EXPECT(ctx, IDX, itm->idx > 0 &&
 	    itm->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 
 	HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx);
