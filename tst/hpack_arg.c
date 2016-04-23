@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hpack.h"
 
@@ -69,12 +70,22 @@ static const uint8_t basic_frame[] = { 0x82 };
 
 static const uint8_t junk_frame[] = { 0x80 };
 
+static const struct hpack_item basic_item = {
+	.typ = HPACK_INDEXED,
+	.idx = 1,
+};
+
+static const struct hpack_item unknown_item = {
+	.typ = 0xff,
+	.idx = 1,
+};
+
 /**********************************************************************
  * Utility functions
  */
 
 static void
-noop_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+noop_cb(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
 
 	assert(priv == NULL);
@@ -83,6 +94,9 @@ noop_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	(void)buf;
 	(void)len;
 }
+
+static hpack_decoded_f *noop_dec_cb = (hpack_decoded_f *)noop_cb;
+static hpack_encoded_f *noop_enc_cb = (hpack_encoded_f *)noop_cb;
 
 /**********************************************************************
  * Static allocator
@@ -108,6 +122,7 @@ int
 main(int argc, char **argv)
 {
 	struct hpack *hp;
+	struct hpack_item itm;
 	int retval;
 
 	(void)argc;
@@ -143,11 +158,47 @@ main(int argc, char **argv)
 
 	/* defunct decoder */
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_frame,
-	    sizeof junk_frame, noop_cb, NULL);
+	    sizeof junk_frame, noop_dec_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_frame,
-	    sizeof junk_frame, noop_cb, NULL);
+	    sizeof junk_frame, noop_dec_cb, NULL);
 
 	hpack_free(&hp);
+
+	/* encoding process */
+	CHECK_NOTNULL(hp, hpack_encoder, 0, hpack_default_alloc);
+	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_item, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_item, 1, NULL, NULL);
+
+	/* defunct encoder */
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	    noop_enc_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	    noop_enc_cb, NULL);
+
+	hpack_free(&hp);
+
+	/* clean broken items */
+	CHECK_RES(retval, ARG, hpack_clean_item, NULL);
+
+	itm = unknown_item;
+	hpack_clean_item(&itm);
+
+	memset(&itm, 0, sizeof itm);
+	itm.typ = HPACK_INDEXED;
+	itm.fld.nam = "";
+	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
+
+	memset(&itm, 0, sizeof itm);
+	itm.typ = HPACK_INDEXED;
+	itm.fld.val = "";
+	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
+
+	memset(&itm, 0, sizeof itm);
+	itm.typ = HPACK_INDEXED;
+	itm.fld.flg = HPACK_IDX;
+	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
 	return (0);
 }
