@@ -44,3 +44,41 @@ fe
 EOF
 
 tst_decode -r IDX
+
+# Update too large
+
+mk_hex <<EOF
+# Update the table limit to 150
+# 001 11111 -> 001 (table update) and 31 (5-bit prefix)
+# 0 1110111 -> 0 (end of int) and 119
+3f77
+EOF
+
+tst_decode -r LEN -t 100
+
+# A never-indexed field with a broken index
+
+mk_bin <<EOF
+00011111 | a packed integer that expects a continuation
+EOF
+
+tst_decode -r BUF
+
+# Incomplete string
+
+mk_bin <<EOF
+00000000 | a literal header field
+00000001 | with a 1-character name
+EOF
+
+tst_decode -r BUF
+
+# Invalid character
+
+mk_bin <<EOF
+00000000 | a literal header field
+00000001 | with a 1-character name
+00000000 | that is the null byte
+EOF
+
+tst_decode -r CHR

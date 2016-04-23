@@ -61,3 +61,35 @@ never idx 99999 str value
 EOF
 
 tst_encode -r IDX
+
+# Table update doesn't fit
+
+mk_enc <<EOF
+update 9001
+EOF
+
+tst_encode -r LEN -t 4096
+
+# Table update exceeds boundaries
+
+mk_enc <<EOF
+update 70000
+EOF
+
+tst_encode -r ARG
+
+# A dynamic field too big for the table
+
+mk_hex <<EOF
+5409 6c6f 6361 6c68 6f73 74             | T.localhost
+EOF
+
+mk_msg <<EOF
+access-control-allow-origin: localhost
+EOF
+
+mk_enc <<EOF
+dynamic idx 20 str localhost
+EOF
+
+tst_encode -t 42
