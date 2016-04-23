@@ -253,7 +253,6 @@ hpack_decode_never(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
-	EXPECT(ctx, IDX, idx == 0);
 	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
 	return (hpack_decode_field(ctx, idx));
