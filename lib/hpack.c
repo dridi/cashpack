@@ -178,6 +178,8 @@ hpack_decode_indexed(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_INDEXED, &idx);
+	EXPECT(ctx, IDX, idx > 0 &&
+	    idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, idx);
 	return (HPT_decode(ctx, idx));
 }
