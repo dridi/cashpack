@@ -537,9 +537,12 @@ hpack_clean_item(struct hpack_item *itm)
 
 	itm->typ = 0;
 
-	if (itm->idx != 0 || itm->lim != 0 || itm->fld.idx != 0 ||
-	    itm->fld.nam != NULL || itm->fld.val != NULL || itm->fld.flg != 0)
+	if (itm->fld.nam != NULL || itm->fld.val != NULL || itm->fld.flg != 0)
 		return (HPACK_RES_ARG);
+
+	assert(itm->idx == 0);
+	assert(itm->lim == 0);
+	assert(itm->fld.idx == 0);
 
 	return (HPACK_RES_OK);
 }
