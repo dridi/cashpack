@@ -60,7 +60,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
 
-	if (ha == NULL || ha->malloc == NULL || ha->free == NULL)
+	if (ha == NULL || ha->malloc == NULL)
 		return (NULL);
 
 	hp = ha->malloc(sizeof *hp + max);
@@ -102,7 +102,10 @@ hpack_free(struct hpack **hpp)
 	*hpp = NULL;
 	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
 	    hp->magic == DEFUNCT_MAGIC);
-	hp->alloc->free(hp);
+
+	assert(hp->alloc != NULL);
+	if (hp->alloc->free != NULL)
+		hp->alloc->free(hp);
 }
 
 int

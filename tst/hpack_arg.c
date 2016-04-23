@@ -34,6 +34,10 @@
 
 #include "hpack.h"
 
+/**********************************************************************
+ * Utility macros
+ */
+
 #define CHECK_NULL(res, call, args...)	\
 	do {				\
 		res = call(args);	\
@@ -55,11 +59,19 @@
 		(void)res;			\
 	} while (0)
 
+/**********************************************************************
+ * Data structures
+ */
+
 static const struct hpack_alloc null_alloc = { NULL, NULL, NULL };
 
 static const uint8_t basic_frame[] = { 0x82 };
 
 static const uint8_t junk_frame[] = { 0x80 };
+
+/**********************************************************************
+ * Utility functions
+ */
 
 static void
 noop_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
@@ -71,6 +83,26 @@ noop_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	(void)buf;
 	(void)len;
 }
+
+/**********************************************************************
+ * Static allocator
+ */
+
+static uint8_t static_buffer[128];
+
+static void *
+static_malloc(size_t size)
+{
+	if (size > sizeof static_buffer)
+		return (NULL);
+
+	return (&static_buffer);
+}
+
+static const struct hpack_alloc static_alloc = { static_malloc, NULL, NULL };
+
+/**********************************************************************
+ */
 
 int
 main(int argc, char **argv)
@@ -84,6 +116,14 @@ main(int argc, char **argv)
 	/* codec allocation */
 	CHECK_NULL(hp, hpack_decoder, 0, NULL);
 	CHECK_NULL(hp, hpack_decoder, 0, &null_alloc);
+
+	CHECK_NULL(hp, hpack_decoder, 4096, &static_alloc);
+
+	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
+	hpack_free(&hp);
+
+	assert(hp == NULL);
+	hpack_free(&hp);
 
 	/* decoding process */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
