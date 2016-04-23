@@ -137,8 +137,13 @@ mk_chars() {
 
 hpack_decode() {
 	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
-	printf "hpack_decode: %s\n" "$*"
+	printf "hpack_decode: %s\n" "$*" >&2
 	memcheck "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec_out"
+}
+
+hpack_encode() {
+	printf "hpack_encode: ./hencode %s\n" "$*" >&2
+	memcheck "$@" <"$TEST_TMP/enc" 3>"$TEST_TMP/enc_tbl"
 }
 
 tst_decode() {
@@ -157,7 +162,7 @@ tst_decode() {
 tst_encode() {
 	printf "hpack_encode: ./hencode %s\n" "$*"
 
-	memcheck ./hencode "$@"  <"$TEST_TMP/enc" 3>"$TEST_TMP/enc_tbl" |
+	hpack_encode ./hencode "$@" |
 	"$TEST_DIR/hex_encode" >"$TEST_TMP/enc_hex"
 
 	for opt
