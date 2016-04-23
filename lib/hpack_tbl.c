@@ -268,17 +268,17 @@ static void
 hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 {
 	struct hpack *hp;
-	void *tmp;
+	void *ptr;
 
 	hp = priv->ctx->hp;
 
 	if (hp->cnt > 0) {
 		assert(priv->he->magic == HPT_ENTRY_MAGIC);
-		tmp = priv->he;
+		ptr = priv->he;
 		hp->off = priv->len;
 		priv->he->pre_sz = priv->len;
 		priv->he = MOVE(hp->tbl, priv->he->pre_sz);
-		(void)memmove(priv->he, tmp, hp->len);
+		(void)memmove(priv->he, ptr, hp->len);
 		assert(priv->he->magic == HPT_ENTRY_MAGIC);
 	}
 
