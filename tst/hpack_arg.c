@@ -59,6 +59,19 @@ static const struct hpack_alloc null_alloc = { NULL, NULL, NULL };
 
 static const uint8_t basic_frame[] = { 0x82 };
 
+static const uint8_t junk_frame[] = { 0x80 };
+
+static void
+noop_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+{
+
+	assert(priv == NULL);
+	(void)priv;
+	(void)evt;
+	(void)buf;
+	(void)len;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -79,6 +92,14 @@ main(int argc, char **argv)
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame,
 	    sizeof basic_frame, NULL, NULL);
+
+	/* defunct decoder */
+	CHECK_RES(retval, IDX, hpack_decode, hp, junk_frame,
+	    sizeof junk_frame, noop_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, junk_frame,
+	    sizeof junk_frame, noop_cb, NULL);
+
+	hpack_free(&hp);
 
 	return (0);
 }
