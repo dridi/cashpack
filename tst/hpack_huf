@@ -147,3 +147,19 @@ mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode
+
+# Decode a long Huffman string with invalid characters
+#
+# To make matters simpler, we can use the horizontal tabulation that takes 24
+# bits or 3 octets once coded. It's easy enough to embed and is illegal in a
+# header field name.
+#
+# - 00     -> literal field without indexing
+# - ffa405 -> Huffman string of length 803
+# - ffffea -> Huffman coding for a tabulation
+
+mk_chars 0 "00 ffa405 ffffea %1600s" | mk_hex
+mk_msg </dev/null
+
+HDECODE="hdecode"
+tst_decode -r CHR
