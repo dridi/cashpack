@@ -253,8 +253,7 @@ main(int argc, char **argv)
 
 	if (res == HPACK_RES_OK) {
 		fclose(stdout);
-		dup2(3, STDOUT_FILENO);
-		stdout = fdopen(STDOUT_FILENO, "a");
+		stdout = fdopen(3, "a");
 
 		print_dynamic_table(hp);
 	}
