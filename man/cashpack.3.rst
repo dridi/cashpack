@@ -37,6 +37,7 @@ SYNOPSIS
 
 ::
 
+   #include <stdint.h>
    #include <stdlib.h>
    #include <hpack.h>
 
