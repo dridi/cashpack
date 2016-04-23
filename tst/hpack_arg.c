@@ -125,6 +125,8 @@ main(int argc, char **argv)
 	assert(hp == NULL);
 	hpack_free(&hp);
 
+	hpack_free(NULL);
+
 	/* decoding process */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, NULL, NULL);

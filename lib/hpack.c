@@ -94,7 +94,9 @@ hpack_free(struct hpack **hpp)
 {
 	struct hpack *hp;
 
-	assert(hpp != NULL);
+	if (hpp == NULL)
+		return;
+
 	hp = *hpp;
 	if (hp == NULL)
 		return;
