@@ -142,8 +142,10 @@ hpack_decode() {
 }
 
 hpack_encode() {
-	printf "hpack_encode: ./hencode %s\n" "$*" >&2
-	memcheck "$@" <"$TEST_TMP/enc" 3>"$TEST_TMP/enc_tbl"
+	printf "hpack_encode: %s\n" "$*" >&2
+	memcheck "$@" <"$TEST_TMP/enc" \
+		1>"$TEST_TMP/enc_bin" \
+		3>"$TEST_TMP/enc_tbl"
 }
 
 tst_decode() {
@@ -160,16 +162,15 @@ tst_decode() {
 }
 
 tst_encode() {
-	printf "hpack_encode: ./hencode %s\n" "$*"
-
-	hpack_encode ./hencode "$@" |
-	"$TEST_DIR/hex_encode" >"$TEST_TMP/enc_hex"
+	hpack_encode ./hencode "$@"
 
 	for opt
 	do
 		# skip diffs if an error is expected
 		[ "$opt" = -r ] && return
 	done
+
+	"$TEST_DIR/hex_encode" <"$TEST_TMP/enc_bin" >"$TEST_TMP/enc_hex"
 
 	diff -u "$TEST_TMP/hex" "$TEST_TMP/enc_hex"
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
