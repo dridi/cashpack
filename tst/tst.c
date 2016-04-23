@@ -89,7 +89,7 @@ print_dynamic_table(struct hpack *hp)
 
 	OUT("Dynamic Table (after decoding):");
 
-	hpack_foreach(hp, print_entries, &ctx);
+	(void)hpack_foreach(hp, print_entries, &ctx);
 
 	if (ctx.cnt == 0) {
 		assert(ctx.len == 0);
