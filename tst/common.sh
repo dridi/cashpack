@@ -138,7 +138,7 @@ mk_chars() {
 hpack_decode() {
 	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
 	printf "hpack_decode: %s\n" "$*"
-	memcheck "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec"
+	memcheck "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec_out"
 }
 
 tst_decode() {
@@ -148,9 +148,9 @@ tst_decode() {
 		hpack_decode ./$dec "$@"
 
 		printf "Decoded header list:\n\n" |
-		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/tst"
+		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/out"
 
-		diff -u "$TEST_TMP/dec" "$TEST_TMP/tst"
+		diff -u "$TEST_TMP/out" "$TEST_TMP/dec_out"
 	done
 }
 
