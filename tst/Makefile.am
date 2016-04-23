@@ -29,8 +29,12 @@ AM_CPPFLAGS = \
 	-I $(top_builddir)/inc
 
 noinst_PROGRAMS = \
+	hpack_arg \
 	hdecode \
 	hencode
+
+hpack_arg_LDADD = $(top_builddir)/lib/libhpack.la
+hpack_arg_SOURCES = hpack_arg.c
 
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
@@ -74,6 +78,7 @@ RFC_TESTS = \
 	rfc7541_c_6_3
 
 COV_TESTS = \
+	hpack_arg \
 	hpack_cov \
 	hpack_enc \
 	hpack_huf \
