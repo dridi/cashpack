@@ -289,6 +289,52 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		(void)memcpy(priv->wrt, buf, len);
 }
 
+static void
+hpt_copy_evicted(struct hpt_priv *priv, const char *buf, size_t len)
+{
+	struct hpack *hp;
+	void *ptr;
+	char tmp[64];
+	size_t sz, mv;
+
+	assert(priv->he->magic == HPT_ENTRY_MAGIC);
+
+	hp = priv->ctx->hp;
+	if (hp->cnt == 0) {
+		hpt_copy(priv, buf, len);
+		return;
+	}
+
+	assert(hp->len > sizeof *priv->he);
+	mv = hp->len - HPT_HEADERSZ;
+
+	while (len > 0) {
+		sz = len < sizeof tmp ? len : sizeof tmp;
+		ptr = MOVE(priv->wrt, sz);
+
+		(void)memcpy(tmp, buf, sz);
+		(void)memmove(ptr, priv->wrt, mv);
+		(void)memcpy(priv->wrt, tmp, sz);
+
+		buf += sz;
+		len -= sz;
+		priv->wrt = ptr;
+	}
+
+	assert(priv->he->magic == HPT_ENTRY_MAGIC);
+
+	/* make room for the entry metadata and the name's null byte */
+	ptr = MOVE(priv->wrt, HPT_HEADERSZ + 1);
+	(void)memmove(ptr, priv->wrt, mv);
+
+	/* update and copy the entry metadata */
+	assert(priv->he == hp->tbl);
+	hp->off = priv->len;
+	hp->tbl->pre_sz = priv->len;
+	priv->he = MOVE(hp->tbl, priv->he->pre_sz);
+	(void)memcpy(priv->he, hp->tbl, HPT_HEADERSZ);
+}
+
 void
 HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
@@ -317,7 +363,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	    MOVE(hp->tbl, priv2->len - len - 1);
 
 	if (ovl && !hpt_overlap(hp, buf, len))
-		INCOMPL(); /* XXX: insert evicted indexed name */
+		hpt_copy_evicted(priv2, buf, len);
 	else
 		hpt_copy(priv2, buf, len);
 

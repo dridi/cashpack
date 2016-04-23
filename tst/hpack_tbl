@@ -102,3 +102,44 @@ mk_bin <<EOF
 EOF
 
 tst_decode -r IDX
+
+# Use the indexed name of an evicted field
+
+mk_hex <<EOF
+4004 6e61 6d65 0576 616c 7565 7e06 7570 | @.name.value~.up
+6461 7465                               | date
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) name: update
+      Table size:  42
+EOF
+
+mk_enc <<EOF
+dynamic str name str value
+dynamic idx 62 str update
+EOF
+
+tst_encode -t 42
+
+# Use the indexed name of an evicted field in a non-empty table
+
+mk_hex <<EOF
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 656e 7472 797f 0006 7570 6461 | her.entry...upda
+7465                                    | te
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) name: update
+[  2] (s =  42) other: entry
+      Table size:  84
+EOF
+
+mk_enc <<EOF
+dynamic str name str value
+dynamic str other str entry
+dynamic idx 63 str update
+EOF
+
+tst_encode -t 84
