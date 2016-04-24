@@ -169,7 +169,7 @@ main(int argc, char **argv)
 	/* exactly one file name is expected */
 	if (argc != 1) {
 		fprintf(stderr, "Usage: hdecode [-r <expected result>] "
-		    "[-t <table size>] <dump file>\n\n"
+		    "[-s size,[...]] [-t <table size>] <dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n"
 		    "Default table size: 4096\n"
 		    "Possible results:\n");

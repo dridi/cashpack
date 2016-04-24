@@ -153,6 +153,12 @@ requires to build empty files for the HTTP message and the dynamic table::
 
     tst_encode -r IDX # expect an invalid index
 
+When several header blocks are decoded at once, the size of all blocks are
+passed as a comma-separated list. The last size is omitted and instead deduced
+from the total size::
+
+    tst_decode -s 70,8, # decodes 3 blocks
+
 In some cases *hexdumps* are not *that* helpful and a binary representation is
 a better match. This requirement is covered by another function used by some
 tests mostly related to integer encoding::
