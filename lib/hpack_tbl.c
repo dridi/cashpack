@@ -194,11 +194,13 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
-		/* write the name null byte */
-		c = MOVE(hp->tbl, priv->len - 1);
-		*c = '\0';
-		/* account for the value null byte */
-		priv->len++;
+		if (priv->len < hp->lim) {
+			/* write the name null byte */
+			c = MOVE(hp->tbl, priv->len - 1);
+			*c = '\0';
+			/* account for the value null byte */
+			priv->len++;
+		}
 		priv->nam = 0;
 		break;
 	case HPACK_EVT_DATA:
