@@ -66,7 +66,8 @@ dynamic idx 46 str https://www.example.com
 update 150
 EOF
 
-tst_decode -t 256 # XXX: libnghttp2 fails on this test
+HDECODE="hdecode ngdecode"
+tst_decode -s 70, -t 256
 tst_encode -t 256
 
 # Try the previous message with a table too small
