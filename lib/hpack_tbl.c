@@ -89,6 +89,7 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 {
 	const struct hpt_entry *he;
 
+	assert(idx != 0);
 	if (idx <= HPT_STATIC_MAX) {
 		(void)memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
 		return (0);
@@ -394,7 +395,7 @@ HPT_decode(HPACK_CTX, size_t idx)
 {
 	struct hpt_field hf;
 
-	assert(idx != 0);
+	EXPECT(ctx, IDX, idx > 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
 	assert(hf.nam != NULL);
