@@ -189,8 +189,8 @@ main(int argc, char **argv)
 	 * update during decoding. Whether that assumption is correct or not,
 	 * this is purely an HTTP/2 concern and it shouldn't apply for the
 	 * very first request when the initial size of the table may be set
-	 * in the very settings frame. So we clear this state by pretending we
-	 * just ended a request.
+	 * in the first settings frame. So we clear this state by pretending
+	 * we just ended a request.
 	 */
 	(void)nghttp2_hd_inflate_end_headers(inf);
 
