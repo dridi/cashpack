@@ -400,7 +400,8 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	priv.enc = 1;
 
 	if (itm->fld.flg & HPACK_IDX) {
-		CALL(HPT_search, ctx, itm->fld.idx, &hf);
+		(void)HPT_search(ctx, itm->fld.idx, &hf);
+		assert(ctx->res == HPACK_RES_OK);
 		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 	}
 	else {
