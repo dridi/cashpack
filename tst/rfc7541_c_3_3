@@ -91,5 +91,5 @@ dynamic str custom-key str custom-value
 EOF
 
 HDECODE="hdecode ngdecode"
-tst_decode
+tst_decode -s 20,14,
 tst_encode

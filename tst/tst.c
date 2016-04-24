@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "hpack.h"
@@ -116,10 +117,15 @@ TST_decode(struct dec_ctx *ctx)
 
 	do {
 		assert(res == 0);
-		if (*ctx->split != '\0')
-			INCOMPL();
+		if (*ctx->split != '\0') {
+			len = atoi(ctx->split);
+			ctx->split = strchr(ctx->split, ',');
+			assert(ctx->split != NULL);
+			ctx->split++;
+		}
 		else
 			len = ctx->len;
+
 		assert(len <= ctx->len);
 
 		res = ctx->cb(ctx->priv, ctx->buf, len);

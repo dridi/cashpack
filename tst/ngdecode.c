@@ -152,6 +152,13 @@ main(int argc, char **argv)
 		abort();
 	}
 
+	if (argc > 0 && !strcmp("-s", *argv)) {
+		assert(argc > 2);
+		ctx.split = argv[1];
+		argc -= 2;
+		argv += 2;
+	}
+
 	if (argc > 0 && !strcmp("-t", *argv)) {
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
