@@ -37,17 +37,16 @@
 
 #include "tst.h"
 
-struct tst_ctx {
+struct dyn_ctx {
 	size_t	cnt;
 	size_t	len;
-	char	buf[8];
 	size_t	sz;
 };
 
 static void
 print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
-	struct tst_ctx *ctx;
+	struct dyn_ctx *ctx;
 	char str[sizeof "\n[IDX] (s = LEN) "];
 	int l;
 
@@ -82,7 +81,8 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 void
 print_dynamic_table(struct hpack *hp)
 {
-	struct tst_ctx ctx;
+	struct dyn_ctx ctx;
+	char buf[8];
 
 	ctx.cnt = 0;
 	ctx.len = 0;
@@ -97,8 +97,8 @@ print_dynamic_table(struct hpack *hp)
 	}
 	else {
 		assert(ctx.len > 0);
-		ctx.sz = snprintf(ctx.buf, sizeof ctx.buf, "%3zu\n", ctx.len);
+		ctx.sz = snprintf(buf, sizeof buf, "%3zu\n", ctx.len);
 		OUT("\n      Table size: ");
-		WRT(ctx.buf, ctx.sz);
+		WRT(buf, ctx.sz);
 	}
 }
