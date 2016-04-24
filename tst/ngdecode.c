@@ -43,15 +43,17 @@
 
 #include "tst.h"
 
-static void
-print_headers(nghttp2_hd_inflater *inf, void *buf, size_t len)
+static int
+print_headers(void *priv, const void *buf, size_t len)
 {
+	nghttp2_hd_inflater *inf;
 	uint8_t *in;
 	nghttp2_nv nv;
 	ssize_t rv;
 	int flg;
 
-	in = buf;
+	inf = priv;
+	in = (uint8_t *)buf;
 
 	while (len > 0) {
 
@@ -81,6 +83,8 @@ print_headers(nghttp2_hd_inflater *inf, void *buf, size_t len)
 	assert(~flg & NGHTTP2_HD_INFLATE_EMIT);
 	assert(flg & NGHTTP2_HD_INFLATE_FINAL);
 	(void)nghttp2_hd_inflate_end_headers(inf);
+
+	return (0);
 }
 
 static void
@@ -129,10 +133,13 @@ int
 main(int argc, char **argv)
 {
 	nghttp2_hd_inflater *inf;
+	struct dec_ctx ctx;
 	struct stat st;
 	void *buf;
 	int fd, retval, tbl_sz;
 
+	ctx.cb = print_headers;
+	ctx.split = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 
 	/* ignore the command name */
@@ -169,6 +176,7 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
+	ctx.len = st.st_size;
 
 #ifdef NDEBUG
 	(void)retval;
@@ -176,6 +184,8 @@ main(int argc, char **argv)
 
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
+
+	ctx.buf = buf;
 
 	retval = nghttp2_hd_inflate_new(&inf);
 	assert(retval == 0);
@@ -194,9 +204,8 @@ main(int argc, char **argv)
 	 */
 	(void)nghttp2_hd_inflate_end_headers(inf);
 
-	OUT("Decoded header list:\n");
-
-	print_headers(inf, buf, st.st_size);
+	ctx.priv = inf;
+	TST_decode(&ctx);
 
 	OUT("\n\nDynamic Table (after decoding):");
 

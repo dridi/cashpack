@@ -102,3 +102,31 @@ TST_print_table(struct hpack *hp)
 		WRT(buf, ctx.sz);
 	}
 }
+
+int
+TST_decode(struct dec_ctx *ctx)
+{
+	size_t len;
+	int res;
+
+	assert(ctx->len > 0);
+
+	OUT("Decoded header list:\n");
+	res = 0;
+
+	do {
+		assert(res == 0);
+		if (*ctx->split != '\0')
+			INCOMPL();
+		else
+			len = ctx->len;
+		assert(len <= ctx->len);
+
+		res = ctx->cb(ctx->priv, ctx->buf, len);
+
+		ctx->buf += len;
+		ctx->len -= len;
+	} while (ctx->len > 0);
+
+	return (res);
+}

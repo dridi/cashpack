@@ -44,6 +44,11 @@
 
 #include "tst.h"
 
+struct dec_priv {
+	struct hpack	*hp;
+	hpack_decoded_f	*cb;
+};
+
 static void
 print_nothing(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
@@ -97,16 +102,31 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	}
 }
 
+static int
+decode_frame(void *priv, const void *buf, size_t len)
+{
+	struct dec_priv *priv2;
+
+	priv2 = priv;
+	return (hpack_decode(priv2->hp, buf, len, priv2->cb, NULL));
+}
+
 int
 main(int argc, char **argv)
 {
 	enum hpack_res_e res, exp;
 	hpack_decoded_f *cb;
 	struct hpack *hp;
+	struct dec_ctx ctx;
+	struct dec_priv priv;
 	struct stat st;
 	void *buf;
-	int fd, retval, tbl_sz;
+	int fd, retval;
+	size_t tbl_sz;
 
+	ctx.cb = decode_frame;
+	ctx.priv = &priv;
+	ctx.split = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
 	cb = print_headers;
@@ -161,6 +181,7 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
+	ctx.len = st.st_size;
 
 #ifdef NDEBUG
 	(void)retval;
@@ -169,12 +190,14 @@ main(int argc, char **argv)
 	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(buf != MAP_FAILED);
 
+	ctx.buf = buf;
+
 	hp = hpack_decoder(tbl_sz, hpack_default_alloc);
 	assert(hp != NULL);
 
-	OUT("Decoded header list:\n");
-
-	res = hpack_decode(hp, buf, st.st_size, cb, NULL);
+	priv.hp = hp;
+	priv.cb = cb;
+	res = TST_decode(&ctx);
 
 	OUT("\n\n");
 	TST_print_table(hp);

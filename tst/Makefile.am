@@ -52,8 +52,10 @@ if HAVE_NGHTTP2
 noinst_PROGRAMS += ngdecode
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
 ngdecode_LDFLAGS = $(NGHTTP2_LIBS)
+ngdecode_LDADD = $(top_builddir)/lib/libhpack.la
 ngdecode_SOURCES = \
 	tst.h \
+	tst.c \
 	ngdecode.c
 endif
 

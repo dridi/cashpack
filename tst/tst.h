@@ -32,5 +32,17 @@
 
 #define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
 
+typedef int tst_decode_f(void *, const void *, size_t);
+
+struct dec_ctx {
+	void		*priv;
+	tst_decode_f	*cb;
+	const char	*split;
+	const void	*buf;
+	size_t		len;
+};
+
 struct hpack;
+
 void TST_print_table(struct hpack *);
+int  TST_decode(struct dec_ctx *ctx);
