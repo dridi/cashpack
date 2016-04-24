@@ -177,7 +177,7 @@ main(int argc, char **argv)
 	res = hpack_decode(hp, buf, st.st_size, cb, NULL);
 
 	OUT("\n\n");
-	print_dynamic_table(hp);
+	TST_print_table(hp);
 
 	hpack_free(&hp);
 

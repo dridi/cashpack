@@ -33,4 +33,4 @@
 #define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
 
 struct hpack;
-void print_dynamic_table(struct hpack *hp);
+void TST_print_table(struct hpack *);

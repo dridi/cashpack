@@ -44,7 +44,7 @@ struct dyn_ctx {
 };
 
 static void
-print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+tst_print_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 {
 	struct dyn_ctx *ctx;
 	char str[sizeof "\n[IDX] (s = LEN) "];
@@ -79,7 +79,7 @@ print_entries(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 }
 
 void
-print_dynamic_table(struct hpack *hp)
+TST_print_table(struct hpack *hp)
 {
 	struct dyn_ctx ctx;
 	char buf[8];
@@ -89,7 +89,7 @@ print_dynamic_table(struct hpack *hp)
 
 	OUT("Dynamic Table (after decoding):");
 
-	(void)hpack_foreach(hp, print_entries, &ctx);
+	(void)hpack_foreach(hp, tst_print_cb, &ctx);
 
 	if (ctx.cnt == 0) {
 		assert(ctx.len == 0);

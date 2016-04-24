@@ -277,8 +277,7 @@ main(int argc, char **argv)
 	if (res == HPACK_RES_OK) {
 		fclose(stdout);
 		stdout = fdopen(3, "a");
-
-		print_dynamic_table(hp);
+		TST_print_table(hp);
 	}
 
 	hpack_free(&hp);
