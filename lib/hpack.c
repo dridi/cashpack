@@ -338,7 +338,7 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 	CALL(val, ctx, str, len, 1);
 
 	if (huf != 0) {
-		CALL(HPH_size, str, &len);
+		HPH_size(str, &len);
 		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_HUFFMAN, len);
 		HPH_encode(ctx, str);
 	}

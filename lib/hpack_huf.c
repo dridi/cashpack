@@ -169,7 +169,7 @@ HPH_encode(HPACK_CTX, const char *str)
 	HPE_push(ctx, buf, len);
 }
 
-int
+void
 HPH_size(const char *str, size_t *res)
 {
 	uint16_t i;
@@ -186,6 +186,4 @@ HPH_size(const char *str, size_t *res)
 	*res = sz >> 3;
 	if (sz & 0x07)
 		*res += 1;
-
-	return (0);
 }
