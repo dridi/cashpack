@@ -176,6 +176,26 @@ parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
 	return (0);
 }
 
+void
+free_item(struct hpack_item *itm)
+{
+
+	switch (itm->typ) {
+	case HPACK_INDEXED:
+	case HPACK_UPDATE:
+		break;
+	case HPACK_DYNAMIC:
+	case HPACK_LITERAL:
+	case HPACK_NEVER:
+		if (~itm->fld.flg & HPACK_IDX)
+			free((char *)itm->fld.nam);
+		free((char *)itm->fld.val);
+		break;
+	default:
+		WRONG("Unknwon type");
+	}
+}
+
 int
 main(int argc, char **argv)
 {
@@ -248,8 +268,11 @@ main(int argc, char **argv)
 		if (parse_command(&itm, &line, &line_sz) != 0)
 			break;
 		res = hpack_encode(hp, &itm, 1, cb, NULL);
+		free_item(&itm);
 		hpack_clean_item(&itm);
 	} while (res == HPACK_RES_OK);
+
+	free(line);
 
 	if (res == HPACK_RES_OK) {
 		fclose(stdout);

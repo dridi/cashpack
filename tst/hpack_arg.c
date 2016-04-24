@@ -146,7 +146,7 @@ main(int argc, char **argv)
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_foreach, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_foreach, hp, NULL, NULL);
-	hpack_free(NULL);
+	hpack_free(&hp);
 
 	/* decoding process */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
