@@ -323,7 +323,7 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 	hpack_validate_f *val;
 
 	if (evt == HPACK_EVT_NAME) {
-		EXPECT(ctx, ARG, ~itm->fld.flg & HPACK_IDX);
+		assert(~itm->fld.flg & HPACK_IDX);
 		str = itm->fld.nam;
 		huf = itm->fld.flg & HPACK_NAM;
 		val = HPV_token;
