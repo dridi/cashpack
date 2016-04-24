@@ -255,12 +255,12 @@ Additional checking
 
 Writing software in C can be challenging at times, and even assuming no bugs
 in the tool chain it's too easy to corrupt memory or do any kind of fault that
-will patiently wait to trigger an error later and fail at a where so remote
+will patiently wait to trigger an error later and fail at a point so remote
 that tracking the bug down becomes a nightmare.
 
 One helpful thing is to turn on as many compiler warnings as possible, and
 treat them as errors. This is enforced by the build system and won't be as
-effective as Rust's compiler for instance, but that removes all classes of
+effective as Rust's compiler for instance, but that removes some classes of
 possible errors. At least there's no concurrency in HPACK, so we can also let
 compilers do aggressive optimizations and testing all optimization levels with
 continuous integration may reveal undefined behaviour in the code.
