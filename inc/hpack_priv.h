@@ -47,11 +47,16 @@ struct hpt_field {
 struct hpt_entry {
 	uint32_t	magic;
 #define HPT_ENTRY_MAGIC	0xe4582b39
-	uint32_t	align;
+	uint32_t	align; /* fill a hole on 64-bit systems */
 	int64_t		pre_sz;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
-	uint16_t	pad[6];
+	uint16_t	pad[5];
+	/* NB: The last two bytes are never written nor read. They are here
+	 * only to guarantee that this struct size is exactly 32 bytes, the
+	 * per-entry overhead defined in RFC 7541 section 4.1.
+	 */
+	uint16_t	unused;
 };
 
 struct hpt_priv {

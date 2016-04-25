@@ -187,7 +187,17 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(priv->he->pre_sz == 0);
 		assert(hp->off == 0);
 
+		/* NB: Table entries only use HPT_HEADERSZ (30) bytes of
+		 * struct hpt_entry, because header names and values are
+		 * null-terminated to make things easier. However, because
+		 * of struct packing rules, in order to be consistent across
+		 * different CPU architectures the intended size is rather
+		 * HPT_OVERHEAD (32) bytes, with the certainty that the two
+		 * unused bytes are part of the padding. The purpose of this
+		 * assertion is to check that.
+		 */
 		assert(sizeof *hp->tbl == HPT_OVERHEAD);
+
 		/* account for the entry header + the name null byte */
 		priv->he->pre_sz = HPT_HEADERSZ + 1;
 		priv->len = HPT_HEADERSZ + 1;
