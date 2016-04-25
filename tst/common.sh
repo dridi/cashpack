@@ -33,12 +33,13 @@ HDECODE=hdecode
 
 trap "rm -fr $TEST_TMP" EXIT
 
-MEMCHECK_CMD="valgrind		\
-	--tool=memcheck		\
-	--leak-check=full	\
-	--show-reachable=yes	\
-	--track-fds=yes		\
-	--error-exitcode=99	\
+MEMCHECK_CMD="valgrind			\
+	--tool=memcheck			\
+	--leak-check=full		\
+	--show-leak-kinds=all		\
+	--errors-for-leak-kinds=all	\
+	--track-fds=yes			\
+	--error-exitcode=99		\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
 
 set |
