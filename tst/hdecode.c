@@ -121,8 +121,7 @@ main(int argc, char **argv)
 	struct dec_priv priv;
 	struct stat st;
 	void *buf;
-	int fd, retval;
-	size_t tbl_sz;
+	int fd, retval, tbl_sz;
 
 	ctx.cb = decode_frame;
 	ctx.priv = &priv;
