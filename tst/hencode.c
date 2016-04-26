@@ -54,6 +54,7 @@ struct enc_ctx {
 	size_t			cnt;
 	char			*line;
 	size_t			line_sz;
+	enum hpack_res_e	res;
 };
 
 static void
@@ -137,7 +138,7 @@ parse_value(struct hpack_item *itm, const char **args)
 }
 
 static int
-parse_command(struct enc_ctx *ctx)
+parse_commands(struct enc_ctx *ctx)
 {
 	struct hpack_item *itm;
 	const char *args;
@@ -187,7 +188,7 @@ parse_command(struct enc_ctx *ctx)
 	else
 		WRONG("Unknown token");
 
-	return (0);
+	return (parse_commands(ctx));
 }
 
 static void
@@ -210,13 +211,12 @@ free_item(struct hpack_item *itm)
 	}
 }
 
-static int
+static void
 encode_message(struct enc_ctx *ctx)
 {
 	struct hpack_item *itm;
-	int res;
 
-	res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
+	ctx->res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
 	itm = ctx->itm;
 
 	while (ctx->cnt > 0) {
@@ -228,14 +228,12 @@ encode_message(struct enc_ctx *ctx)
 
 	free(ctx->itm);
 	ctx->itm = NULL;
-
-	return (res);
 }
 
 int
 main(int argc, char **argv)
 {
-	enum hpack_res_e res, exp;
+	enum hpack_res_e exp;
 	struct enc_ctx ctx;
 	int tbl_sz;
 
@@ -293,18 +291,16 @@ main(int argc, char **argv)
 	ctx.hp = hpack_encoder(tbl_sz, hpack_default_alloc);
 	assert(ctx.hp != NULL);
 
-	res = HPACK_RES_OK;
+	ctx.res = HPACK_RES_OK;
 
 	do {
-		assert(res == HPACK_RES_OK);
-		if (parse_command(&ctx) != 0)
-			break;
-		res = encode_message(&ctx);
-	} while (res == HPACK_RES_OK);
+		assert(ctx.res == HPACK_RES_OK);
+	} while (parse_commands(&ctx) == 0);
 
+	encode_message(&ctx);
 	free(ctx.line);
 
-	if (res == HPACK_RES_OK) {
+	if (ctx.res == HPACK_RES_OK) {
 		fclose(stdout);
 		stdout = fdopen(3, "a");
 		TST_print_table(ctx.hp);
@@ -312,5 +308,5 @@ main(int argc, char **argv)
 
 	hpack_free(&ctx.hp);
 
-	return (res != exp);
+	return (ctx.res != exp);
 }
