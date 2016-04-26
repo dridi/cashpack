@@ -90,6 +90,15 @@ hpack_decoder(size_t max, const struct hpack_alloc *ha)
 }
 
 void
+hpack_resize(struct hpack *hp, size_t len)
+{
+
+	INCOMPL();
+	(void)hp;
+	(void)len;
+}
+
+void
 hpack_free(struct hpack **hpp)
 {
 	struct hpack *hp;
