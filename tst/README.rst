@@ -194,7 +194,7 @@ Commands and arguments are separated by single spaces to make parsing easier,
 and conveniently only header field values can contain spaces but they can only
 be last so it works by sheer luck.
 
-.. TODO: add the flush statement to the grammar
+.. TODO: add the flush and resize statements to the grammar
 
 ::
 

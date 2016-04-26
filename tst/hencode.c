@@ -234,6 +234,9 @@ parse_commands(struct enc_ctx *ctx)
 		itm->lim = atoi(args);
 		itm->typ = HPACK_UPDATE;
 	}
+	else if (!TOKCMP(ctx->line, "resize")) {
+		INCOMPL();
+	}
 	else
 		WRONG("Unknown token");
 
