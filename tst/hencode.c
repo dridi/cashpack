@@ -47,6 +47,13 @@
 
 #define TOK_ARGS(line, token) (line + sizeof token)
 
+struct enc_ctx {
+	struct hpack_item	*itm;
+	size_t			cnt;
+	char			*line;
+	size_t			line_sz;
+};
+
 static void
 write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 {
@@ -128,45 +135,42 @@ parse_value(struct hpack_item *itm, const char **args)
 }
 
 static int
-parse_command(struct hpack_item *itm, char **lineptr, size_t *line_sz)
+parse_command(struct hpack_item *itm, struct enc_ctx *ctx)
 {
 	const char *args;
 	ssize_t len;
 
-	len = getline(lineptr, line_sz, stdin);
-	if (len == -1) {
-		free(*lineptr);
-		*lineptr = NULL;
+	len = getline(&ctx->line, &ctx->line_sz, stdin);
+	if (len == -1)
 		return (-1);
-	}
 
-	assert((size_t)len == strlen(*lineptr));
+	assert(len >= 0);
 
-	if (!TOKCMP(*lineptr, "indexed")) {
-		args = TOK_ARGS(*lineptr, "indexed");
+	if (!TOKCMP(ctx->line, "indexed")) {
+		args = TOK_ARGS(ctx->line, "indexed");
 		itm->idx = atoi(args);
 		itm->typ = HPACK_INDEXED;
 	}
-	else if (!TOKCMP(*lineptr, "dynamic")) {
-		args = TOK_ARGS(*lineptr, "dynamic");
+	else if (!TOKCMP(ctx->line, "dynamic")) {
+		args = TOK_ARGS(ctx->line, "dynamic");
 		itm->typ = HPACK_DYNAMIC;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
-	else if (!TOKCMP(*lineptr, "never")) {
-		args = TOK_ARGS(*lineptr, "never");
+	else if (!TOKCMP(ctx->line, "never")) {
+		args = TOK_ARGS(ctx->line, "never");
 		itm->typ = HPACK_NEVER;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
-	else if (!TOKCMP(*lineptr, "literal")) {
-		args = TOK_ARGS(*lineptr, "literal");
+	else if (!TOKCMP(ctx->line, "literal")) {
+		args = TOK_ARGS(ctx->line, "literal");
 		itm->typ = HPACK_LITERAL;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
-	else if (!TOKCMP(*lineptr, "update")) {
-		args = TOK_ARGS(*lineptr, "update");
+	else if (!TOKCMP(ctx->line, "update")) {
+		args = TOK_ARGS(ctx->line, "update");
 		itm->lim = atoi(args);
 		itm->typ = HPACK_UPDATE;
 	}
@@ -203,8 +207,7 @@ main(int argc, char **argv)
 	hpack_encoded_f *cb;
 	struct hpack *hp;
 	struct hpack_item itm;
-	char *line;
-	size_t line_sz;
+	struct enc_ctx ctx;
 	int tbl_sz;
 
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
@@ -260,19 +263,18 @@ main(int argc, char **argv)
 	assert(hp != NULL);
 
 	memset(&itm, 0, sizeof itm);
+	memset(&ctx, 0, sizeof ctx);
 	res = HPACK_RES_OK;
-	line = NULL;
-	line_sz = 0;
 
 	do {
-		if (parse_command(&itm, &line, &line_sz) != 0)
+		if (parse_command(&itm, &ctx) != 0)
 			break;
 		res = hpack_encode(hp, &itm, 1, cb, NULL);
 		free_item(&itm);
 		hpack_clean_item(&itm);
 	} while (res == HPACK_RES_OK);
 
-	free(line);
+	free(ctx.line);
 
 	if (res == HPACK_RES_OK) {
 		fclose(stdout);
