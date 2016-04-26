@@ -78,6 +78,45 @@ write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 }
 
 static void
+free_item(struct hpack_item *itm)
+{
+
+	switch (itm->typ) {
+	case HPACK_INDEXED:
+	case HPACK_UPDATE:
+		break;
+	case HPACK_DYNAMIC:
+	case HPACK_LITERAL:
+	case HPACK_NEVER:
+		if (~itm->fld.flg & HPACK_IDX)
+			free((char *)itm->fld.nam);
+		free((char *)itm->fld.val);
+		break;
+	default:
+		WRONG("Unknwon type");
+	}
+}
+
+static void
+encode_message(struct enc_ctx *ctx)
+{
+	struct hpack_item *itm;
+
+	ctx->res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
+	itm = ctx->itm;
+
+	while (ctx->cnt > 0) {
+		free_item(itm);
+		hpack_clean_item(itm);
+		itm++;
+		ctx->cnt--;
+	}
+
+	free(ctx->itm);
+	ctx->itm = NULL;
+}
+
+static void
 parse_name(struct hpack_item *itm, const char **args)
 {
 	char *sp;
@@ -189,45 +228,6 @@ parse_commands(struct enc_ctx *ctx)
 		WRONG("Unknown token");
 
 	return (parse_commands(ctx));
-}
-
-static void
-free_item(struct hpack_item *itm)
-{
-
-	switch (itm->typ) {
-	case HPACK_INDEXED:
-	case HPACK_UPDATE:
-		break;
-	case HPACK_DYNAMIC:
-	case HPACK_LITERAL:
-	case HPACK_NEVER:
-		if (~itm->fld.flg & HPACK_IDX)
-			free((char *)itm->fld.nam);
-		free((char *)itm->fld.val);
-		break;
-	default:
-		WRONG("Unknwon type");
-	}
-}
-
-static void
-encode_message(struct enc_ctx *ctx)
-{
-	struct hpack_item *itm;
-
-	ctx->res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
-	itm = ctx->itm;
-
-	while (ctx->cnt > 0) {
-		free_item(itm);
-		hpack_clean_item(itm);
-		itm++;
-		ctx->cnt--;
-	}
-
-	free(ctx->itm);
-	ctx->itm = NULL;
 }
 
 int
