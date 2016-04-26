@@ -48,6 +48,8 @@
 #define TOK_ARGS(line, token) (line + sizeof token)
 
 struct enc_ctx {
+	struct hpack		*hp;
+	hpack_encoded_f		*cb;
 	struct hpack_item	*itm;
 	size_t			cnt;
 	char			*line;
@@ -135,14 +137,22 @@ parse_value(struct hpack_item *itm, const char **args)
 }
 
 static int
-parse_command(struct hpack_item *itm, struct enc_ctx *ctx)
+parse_command(struct enc_ctx *ctx)
 {
+	struct hpack_item *itm;
 	const char *args;
 	ssize_t len;
 
 	len = getline(&ctx->line, &ctx->line_sz, stdin);
 	if (len == -1)
 		return (-1);
+
+	ctx->cnt++;
+
+	ctx->itm = realloc(ctx->itm, ctx->cnt * sizeof *itm);
+	assert(ctx->itm != NULL);
+
+	itm = ctx->itm + ctx->cnt - 1;
 
 	assert(len >= 0);
 
@@ -180,7 +190,7 @@ parse_command(struct hpack_item *itm, struct enc_ctx *ctx)
 	return (0);
 }
 
-void
+static void
 free_item(struct hpack_item *itm)
 {
 
@@ -200,19 +210,40 @@ free_item(struct hpack_item *itm)
 	}
 }
 
+static int
+encode_message(struct enc_ctx *ctx)
+{
+	struct hpack_item *itm;
+	int res;
+
+	res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
+	itm = ctx->itm;
+
+	while (ctx->cnt > 0) {
+		free_item(itm);
+		hpack_clean_item(itm);
+		itm++;
+		ctx->cnt--;
+	}
+
+	free(ctx->itm);
+	ctx->itm = NULL;
+
+	return (res);
+}
+
 int
 main(int argc, char **argv)
 {
 	enum hpack_res_e res, exp;
-	hpack_encoded_f *cb;
-	struct hpack *hp;
-	struct hpack_item itm;
 	struct enc_ctx ctx;
 	int tbl_sz;
 
+	memset(&ctx, 0, sizeof ctx);
+
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
-	cb = write_data;
+	ctx.cb = write_data;
 
 	/* ignore the command name */
 	argc--;
@@ -259,19 +290,16 @@ main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	hp = hpack_encoder(tbl_sz, hpack_default_alloc);
-	assert(hp != NULL);
+	ctx.hp = hpack_encoder(tbl_sz, hpack_default_alloc);
+	assert(ctx.hp != NULL);
 
-	memset(&itm, 0, sizeof itm);
-	memset(&ctx, 0, sizeof ctx);
 	res = HPACK_RES_OK;
 
 	do {
-		if (parse_command(&itm, &ctx) != 0)
+		assert(res == HPACK_RES_OK);
+		if (parse_command(&ctx) != 0)
 			break;
-		res = hpack_encode(hp, &itm, 1, cb, NULL);
-		free_item(&itm);
-		hpack_clean_item(&itm);
+		res = encode_message(&ctx);
 	} while (res == HPACK_RES_OK);
 
 	free(ctx.line);
@@ -279,10 +307,10 @@ main(int argc, char **argv)
 	if (res == HPACK_RES_OK) {
 		fclose(stdout);
 		stdout = fdopen(3, "a");
-		TST_print_table(hp);
+		TST_print_table(ctx.hp);
 	}
 
-	hpack_free(&hp);
+	hpack_free(&ctx.hp);
 
 	return (res != exp);
 }
