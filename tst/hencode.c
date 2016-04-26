@@ -43,6 +43,8 @@
 
 #include "tst.h"
 
+#define LINECMP(line, token) strcmp(line, token "\n")
+
 #define TOKCMP(line, token) strncmp(line, token " ", sizeof token)
 
 #define TOK_ARGS(line, token) (line + sizeof token)
@@ -101,6 +103,9 @@ static void
 encode_message(struct enc_ctx *ctx)
 {
 	struct hpack_item *itm;
+
+	if (ctx->cnt == 0)
+		return;
 
 	ctx->res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
 	itm = ctx->itm;
@@ -186,6 +191,11 @@ parse_commands(struct enc_ctx *ctx)
 	len = getline(&ctx->line, &ctx->line_sz, stdin);
 	if (len == -1)
 		return (-1);
+
+	if (!LINECMP(ctx->line, "flush")) {
+		encode_message(ctx);
+		return (0);
+	}
 
 	ctx->cnt++;
 

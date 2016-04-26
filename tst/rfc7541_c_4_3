@@ -74,6 +74,7 @@ indexed 2
 indexed 6
 indexed 4
 dynamic idx 1 huf www.example.com
+flush
 
 # Appendix C.4.2.  Second Request
 indexed 2
@@ -81,6 +82,7 @@ indexed 6
 indexed 4
 indexed 62
 dynamic idx 24 huf no-cache
+flush
 
 # Appendix C.4.3.  Third Request
 indexed 2
