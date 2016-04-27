@@ -73,6 +73,8 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	hp->mem = max;
 	hp->max = max;
 	hp->lim = max;
+	hp->nxt = -1;
+	hp->min = -1;
 	return (hp);
 }
 

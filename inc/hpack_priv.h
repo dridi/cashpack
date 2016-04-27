@@ -74,10 +74,35 @@ struct hpack {
 #define DECODER_MAGIC		0xab0e3218
 #define DEFUNCT_MAGIC		0xdffadae9
 	struct hpack_alloc	alloc;
+	/* NB: mem is the table size currently allocated. It may get out of
+	 * sync with the maximum size in some cases. Like when the realloc
+	 * function is omitted.
+	 */
 	size_t			mem;
+	/* NB: max represents the maximum table size defined by the decoder,
+	 * conveyed out of band with for example HTTP/2 settings. The lim
+	 * field represents the soft limit chosen the encoder and it must not
+	 * exceed the maximum.
+	 *
+	 * See RFC 7541 section 4.2. for the details.
+	 */
 	size_t			max;
 	size_t			lim;
+	/* NB: len is the current length of the dynamic table. */
 	size_t			len;
+	/* NB: When the size is updated out of band by the decoder, it must be
+	 * signalled by the encoder in an HPACK block. However, this change is
+	 * deferred until the encode acknowledges the change happening out of
+	 * band. The decoder may also resize the table more than once in which
+	 * case we keep track of the last (nxt) change and the smallest (min)
+	 * one.
+	 *
+	 * A negative value is used when no update-after-resize is expected.
+	 *
+	 * See RFC 7541 section 4.2. for the details.
+	 */
+	ssize_t			nxt;
+	ssize_t			min;
 	size_t			cnt;
 	ptrdiff_t		off;
 	struct hpt_entry	tbl[0];
