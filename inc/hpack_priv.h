@@ -109,7 +109,6 @@ struct hpack {
 };
 
 struct hpack_ctx {
-	enum hpack_res_e	res;
 	struct hpack		*hp;
 	const uint8_t		*buf;
 	uint8_t			*cur;
@@ -121,6 +120,8 @@ struct hpack_ctx {
 		hpack_encoded_f	*cb; /* dirty covariance hack */
 	};
 	void			*priv;
+	enum hpack_res_e	res;
+	unsigned		can_upd;
 };
 
 typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);

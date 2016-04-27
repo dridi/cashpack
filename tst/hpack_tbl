@@ -87,16 +87,32 @@ mk_tbl </dev/null
 HDECODE="hdecode ngdecode"
 tst_decode -t 60
 
-# Wrong index
+# Table size update not at the begining of an HPACK block
 
 mk_msg </dev/null
 mk_tbl </dev/null
 
 mk_bin <<EOF
-11000010 | Indexed field 66
+10000100 | pick ":path: /" from the 4th static entry
+00111111 | 001 (table update) and 31 (5-bit prefix)
+01110111 | 0 (end of int) and 119 (total: 150)
+EOF
+
+mk_enc <<EOF
+indexed 4
+update 150
 EOF
 
 HDECODE=hdecode
+tst_decode -r UPD
+tst_encode -r UPD
+
+# Wrong index
+
+mk_bin <<EOF
+11000010 | Indexed field 66
+EOF
+
 tst_decode -r IDX
 
 mk_bin <<EOF

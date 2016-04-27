@@ -272,8 +272,16 @@ hpack_decode_update(HPACK_CTX)
 {
 	uint16_t sz;
 
+	EXPECT(ctx, UPD, ctx->can_upd);
+
 	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
 	EXPECT(ctx, LEN, sz <= ctx->hp->max);
+	if (ctx->hp->min >= 0) {
+		assert(ctx->hp->min <= ctx->hp->nxt);
+		INCOMPL();
+	}
+	else
+		ctx->can_upd = 0;
 	ctx->hp->lim = sz;
 	HPT_adjust(ctx, ctx->hp->len);
 	return (0);
@@ -296,8 +304,11 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
 	ctx.len = len;
 	ctx.dec = cb;
 	ctx.priv = priv;
+	ctx.can_upd = 1;
 
 	while (ctx.len > 0) {
+		if ((*ctx.buf & HPACK_UPDATE) != HPACK_UPDATE)
+			ctx.can_upd = 0;
 #define HPACK_DECODE(l, U, or) 					\
 		if ((*ctx.buf & HPACK_##U) == HPACK_##U)	\
 			retval = hpack_decode_##l(&ctx); 	\
@@ -453,8 +464,15 @@ static int
 hpack_encode_update(HPACK_CTX, HPACK_ITM)
 {
 
+	EXPECT(ctx, UPD, ctx->can_upd);
 	EXPECT(ctx, ARG, itm->lim <= UINT16_MAX);
 	EXPECT(ctx, LEN, itm->lim <= ctx->hp->max);
+	if (ctx->hp->min >= 0) {
+		assert(ctx->hp->min <= ctx->hp->nxt);
+		INCOMPL();
+	}
+	else
+		ctx->can_upd = 0;
 	ctx->hp->lim = itm->lim;
 	HPT_adjust(ctx, ctx->hp->len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
@@ -481,8 +499,11 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	ctx.max = sizeof buf;
 	ctx.enc	= cb;
 	ctx.priv = priv;
+	ctx.can_upd = 1;
 
 	while (len > 0) {
+		if (itm->typ != HPACK_UPDATE)
+			ctx.can_upd = 0;
 #define HPACK_ENCODE(l, U, or) 					\
 		if (itm->typ == HPACK_##U)			\
 			retval = hpack_encode_##l(&ctx, itm); 	\
