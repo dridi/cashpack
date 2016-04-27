@@ -274,9 +274,9 @@ compilers do aggressive optimizations and testing all optimization levels with
 continuous integration may reveal undefined behaviour in the code.
 
 Going further with undefined behaviour detection, it is possible to build with
-ASAN (address sanitizer) and UBSAN (undefined behaviour sanitizer) support for
-GCC and clang. If Valgrind is available, its memcheck tool can also be used to
-identify undefined behaviour and detect leaks.
+ASAN (address sanitizer), MSAN (memory sanitizer) or UBSAN (undefined behavior
+sanitizer) support for GCC and clang. If Valgrind is available, its memcheck
+tool can also be used to identify undefined behaviour and detect leaks.
 
 Of course all this extra-tooling comes after the very first testing facility
 in cashpack: ``assert``. What unit tests often do besides checking computation

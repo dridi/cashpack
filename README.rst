@@ -18,6 +18,7 @@ and code coverage. The basic usage is as follows::
    $ path/to/cashpack/bootstrap \
    >        [--with-memcheck]   \
    >        [--with-asan]       \
+   >        [--with-msan]       \
    >        [--with-ubsan]      \
    >        [--with-lcov]
    $ make check
@@ -93,6 +94,7 @@ It can be verified by looking at the shared object::
    memset
    realloc
    strchr
+   strlen
 
 5. No system calls
 
