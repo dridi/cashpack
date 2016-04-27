@@ -45,10 +45,13 @@
 int
 HPV_value(HPACK_CTX, const char *str, size_t len, unsigned first)
 {
+	uint8_t c;
 
 	assert(str != NULL);
 	while (len > 0) {
-		EXPECT(ctx, CHR, IS_FIELD_VALUE(*str));
+		c = (uint8_t)*str;
+		EXPECT(ctx, CHR, c == '\t' || (c >= ' ' && c != 0x7f));
+		assert(IS_FIELD_VALUE(c));
 		str++;
 		len--;
 	}
