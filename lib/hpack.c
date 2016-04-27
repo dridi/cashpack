@@ -69,7 +69,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 
 	(void)memset(hp, 0, sizeof *hp + max);
 	hp->magic = magic;
-	hp->alloc = ha;
+	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->mem = max;
 	hp->max = max;
 	hp->lim = max;
@@ -115,9 +115,8 @@ hpack_free(struct hpack **hpp)
 	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
 	    hp->magic == DEFUNCT_MAGIC);
 
-	assert(hp->alloc != NULL);
-	if (hp->alloc->free != NULL)
-		hp->alloc->free(hp);
+	if (hp->alloc.free != NULL)
+		hp->alloc.free(hp);
 }
 
 int
