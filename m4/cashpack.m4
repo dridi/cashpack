@@ -52,12 +52,12 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 	dnl Mutual exclusivity of additional checkers
 	cashpack_options="$(
-		echo "$with_memcheck$with_asan$with_ubsan$with_lcov" |
+		echo "$with_memcheck$with_asan$with_msan$with_ubsan$with_lcov" |
 		awk -F yes '{print NF - 1}'
 	)"
 
 	test "$cashpack_options" -gt 1 &&
-	AC_MSG_FAILURE([Valgrind, ASAN, UBSAN and lcov support can't be combined])
+	AC_MSG_FAILURE([Valgrind, ASAN, MSAN, UBSAN and lcov support can't be combined])
 
 ])
 
@@ -139,6 +139,19 @@ AC_DEFUN([CASHPACK_WITH_ASAN], [
 			[--with-asan],
 			[Build binaries with address sanitizer]),
 		[_CASHPACK_ASAN],
+		[])
+
+])
+
+# CASHPACK_WITH_MSAN
+# ------------------
+AC_DEFUN([CASHPACK_WITH_MSAN], [
+
+	AC_ARG_WITH([msan],
+		AS_HELP_STRING(
+			[--with-msan],
+			[Build binaries with address sanitizer]),
+		[CFLAGS="$CFLAGS -fsanitize=memory -fsanitize-memory-track-origins"],
 		[])
 
 ])

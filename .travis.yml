@@ -19,6 +19,8 @@ matrix:
     - compiler: clang
       env: BUILD_FLAGS=--with-asan
     - compiler: clang
+      env: BUILD_FLAGS=--with-msan
+    - compiler: clang
       env: BUILD_FLAGS=--with-ubsan
     - compiler: gcc
       env: CFLAGS=-m32
