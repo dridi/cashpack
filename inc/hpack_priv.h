@@ -74,6 +74,7 @@ struct hpack {
 #define DECODER_MAGIC			0xab0e3218
 #define DEFUNCT_MAGIC			0xdffadae9
 	const struct hpack_alloc	*alloc;
+	size_t				mem;
 	size_t				max;
 	size_t				lim;
 	size_t				len;

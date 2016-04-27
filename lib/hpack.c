@@ -70,6 +70,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	(void)memset(hp, 0, sizeof *hp + max);
 	hp->magic = magic;
 	hp->alloc = ha;
+	hp->mem = max;
 	hp->max = max;
 	hp->lim = max;
 	return (hp);
