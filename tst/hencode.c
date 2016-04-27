@@ -203,6 +203,7 @@ parse_commands(struct enc_ctx *ctx)
 	assert(ctx->itm != NULL);
 
 	itm = ctx->itm + ctx->cnt - 1;
+	memset(itm, 0, sizeof *itm);
 
 	assert(len >= 0);
 
