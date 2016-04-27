@@ -307,8 +307,11 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
 	ctx.can_upd = 1;
 
 	while (ctx.len > 0) {
-		if ((*ctx.buf & HPACK_UPDATE) != HPACK_UPDATE)
+		if ((*ctx.buf & HPACK_UPDATE) != HPACK_UPDATE) {
+			EXPECT(&ctx, RSZ, hp->nxt < 0);
+			assert(hp->min < 0);
 			ctx.can_upd = 0;
+		}
 #define HPACK_DECODE(l, U, or) 					\
 		if ((*ctx.buf & HPACK_##U) == HPACK_##U)	\
 			retval = hpack_decode_##l(&ctx); 	\

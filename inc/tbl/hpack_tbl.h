@@ -38,6 +38,7 @@ HPR(LEN, -5, "Invalid length")
 HPR(HUF, -6, "Invalid Huffman code")
 HPR(CHR, -7, "Invalid character")
 HPR(UPD, -8, "Spurious update")
+HPR(RSZ, -9, "Missing resize update")
 #endif
 
 #ifdef HPE
