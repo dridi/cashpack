@@ -37,6 +37,7 @@ HPR(IDX, -4, "Invalid index")
 HPR(LEN, -5, "Invalid length")
 HPR(HUF, -6, "Invalid Huffman code")
 HPR(CHR, -7, "Invalid character")
+HPR(UPD, -8, "Spurious update")
 #endif
 
 #ifdef HPE
