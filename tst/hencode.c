@@ -196,6 +196,13 @@ parse_commands(struct enc_ctx *ctx)
 		encode_message(ctx);
 		return (0);
 	}
+	else if (!TOKCMP(ctx->line, "resize")) {
+		assert(ctx->cnt == 0);
+		args = TOK_ARGS(ctx->line, "resize");
+		len = atoi(args);
+		ctx->res = hpack_resize(&ctx->hp, len);
+		return (0);
+	}
 
 	ctx->cnt++;
 
@@ -234,9 +241,6 @@ parse_commands(struct enc_ctx *ctx)
 		args = TOK_ARGS(ctx->line, "update");
 		itm->lim = atoi(args);
 		itm->typ = HPACK_UPDATE;
-	}
-	else if (!TOKCMP(ctx->line, "resize")) {
-		INCOMPL();
 	}
 	else
 		WRONG("Unknown token");

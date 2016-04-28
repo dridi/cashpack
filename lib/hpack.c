@@ -92,13 +92,41 @@ hpack_decoder(size_t max, const struct hpack_alloc *ha)
 	return (hpack_new(DECODER_MAGIC, max, ha));
 }
 
-void
-hpack_resize(struct hpack *hp, size_t len)
+enum hpack_res_e
+hpack_resize(struct hpack **hpp, size_t len)
 {
+	struct hpack *hp;
+	size_t max;
 
-	INCOMPL();
-	(void)hp;
-	(void)len;
+	if (hpp == NULL)
+		return (HPACK_RES_ARG);
+
+	hp = *hpp;
+	if (hp == NULL)
+		return (HPACK_RES_ARG);
+	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
+		return (HPACK_RES_ARG);
+
+	max = hp->alloc.realloc == NULL ? hp->mem : UINT16_MAX;
+	if (len > max)
+		return (HPACK_RES_LEN);
+
+	if (len > hp->mem)
+		INCOMPL();
+
+	if (hp->min < 0) {
+		assert(hp->nxt < 0);
+		hp->nxt = len;
+		hp->min = len;
+	}
+	else {
+		assert(hp->nxt >= hp->min);
+		hp->nxt = len;
+		if (hp->min > (ssize_t)len)
+			hp->min = len;
+	}
+
+	return (HPACK_RES_OK);
 }
 
 void
@@ -472,13 +500,23 @@ hpack_encode_update(HPACK_CTX, HPACK_ITM)
 	EXPECT(ctx, LEN, itm->lim <= ctx->hp->max);
 	if (ctx->hp->min >= 0) {
 		assert(ctx->hp->min <= ctx->hp->nxt);
-		INCOMPL();
+		if (ctx->hp->min < ctx->hp->nxt)
+			assert(itm->lim == (size_t)ctx->hp->min);
 	}
-	else
-		ctx->can_upd = 0;
 	ctx->hp->lim = itm->lim;
 	HPT_adjust(ctx, ctx->hp->len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
+
+	if (ctx->hp->min < ctx->hp->nxt)
+		ctx->hp->min = ctx->hp->nxt;
+	else {
+		ctx->hp->max = ctx->hp->nxt;
+		ctx->hp->lim = ctx->hp->nxt;
+		ctx->hp->min = -1;
+		ctx->hp->nxt = -1;
+		ctx->can_upd = 0;
+	}
+
 	return (0);
 }
 
@@ -487,6 +525,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
     void *priv)
 {
 	struct hpack_ctx ctx;
+	struct hpack_item rsz_itm;
 	uint8_t buf[256];
 	int retval;
 
@@ -503,6 +542,20 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	ctx.enc	= cb;
 	ctx.priv = priv;
 	ctx.can_upd = 1;
+
+	if (hp->min >= 0) {
+		(void)memset(&rsz_itm, 0, sizeof rsz_itm);
+		rsz_itm.typ = HPACK_UPDATE;
+		rsz_itm.lim = hp->min;
+		retval = hpack_encode_update(&ctx, &rsz_itm);
+		assert(retval == 0);
+		if (hp->nxt >= 0) {
+			rsz_itm.lim = hp->nxt;
+			retval = hpack_encode_update(&ctx, &rsz_itm);
+			assert(retval == 0);
+		}
+		hpack_clean_item(&rsz_itm);
+	}
 
 	while (len > 0) {
 		if (itm->typ != HPACK_UPDATE)

@@ -161,3 +161,77 @@ dynamic idx 63 str update
 EOF
 
 tst_encode -t 84
+
+# Resize the table outside of HPACK
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 20
+34                                      | 4
+
+# literal field "name: value"
+0004 6e61 6d65 0576 616c 7565           | ..name.value
+EOF
+
+mk_tbl </dev/null
+
+mk_enc <<EOF
+dynamic str name str value
+flush
+
+resize 20
+
+# cashpack automatically sends the update
+literal str name str value
+EOF
+
+tst_encode
+
+# Let the decoder empty the table
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 0
+20                                      |  
+
+# table update back to 4096
+3fe1 1f                                 | ?..
+
+# literal field "name: value"
+0004 6e61 6d65 0576 616c 7565           | ..name.value
+EOF
+
+mk_enc <<EOF
+dynamic str name str value
+flush
+
+resize 0
+resize 4096
+
+# cashpack automatically sends both updates
+literal str name str value
+EOF
+
+tst_encode
+
+# Let the decoder make no sense
+
+mk_enc <<EOF
+dynamic str name str value
+flush
+
+# the first resize will be ignored leading to the same
+# HPACK blocks as the previous test case
+resize 20
+resize 0
+resize 4096
+
+# cashpack automatically sends the two relevant updates
+literal str name str value
+EOF
+
+tst_encode

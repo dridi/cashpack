@@ -60,6 +60,8 @@ struct hpack * hpack_decoder(size_t, const struct hpack_alloc *);
 struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
 void hpack_free(struct hpack **);
 
+enum hpack_res_e hpack_resize(struct hpack **hpp, size_t len);
+
 /* hpack_decode */
 
 typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
