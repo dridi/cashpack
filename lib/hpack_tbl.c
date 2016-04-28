@@ -375,6 +375,19 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	    JUMP(hp->tbl, 0) :
 	    MOVE(hp->tbl, priv2->len - len - 1);
 
+	/* NB: If the name belonged in the dynamic table when first checked,
+	 * but no longer overlaps once eviction has been performed, we end up
+	 * in a situation described in RFC 7541 section 4.4. and make the more
+	 * expensive and cautious copy.
+	 *
+	 * What the RFC says:
+	 *
+	 * A new entry can reference the name of an entry in the dynamic table
+	 * that will be evicted when adding this new entry into the dynamic
+	 * table.  Implementations are cautioned to avoid deleting the
+	 * referenced name if the referenced entry is evicted from the dynamic
+	 * table prior to inserting the new entry.
+	 */
 	if (ovl && !hpt_overlap(hp, buf, len))
 		hpt_copy_evicted(priv2, buf, len);
 	else
