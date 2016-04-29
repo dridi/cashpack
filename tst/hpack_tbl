@@ -88,7 +88,6 @@ EOF
 
 mk_tbl </dev/null
 
-HDECODE="hdecode ngdecode"
 tst_decode -t 60
 
 # =======================================================
@@ -262,3 +261,70 @@ EOF
 
 tst_decode -s d12,r20,r0,r4096,
 tst_encode
+
+# ===========================
+# Missing update after resize
+# ===========================
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# literal field "name: value"
+0004 6e61 6d65 0576 616c 7565           | ..name.value
+EOF
+
+HDECODE=hdecode
+tst_decode -r RSZ -s d12,r0,
+
+# ====================================
+# Omit the minimum of multiple resizes
+# ====================================
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 4096
+3fe1 1f                                 | ?..
+EOF
+
+tst_decode -r UPD -s d12,r0,r4096,
+
+# =====================================
+# Update too big after multiple resizes
+# =====================================
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 0
+20                                      |  
+
+# table update over 9000
+3f8a 46                                 | ?.F
+EOF
+
+tst_decode -r UPD -s d12,r0,r4096,
+
+# ========================================================
+# Use a soft limit for the last update of multiple resizes
+# ========================================================
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 0
+20                                      |  
+
+# table update to only 2048
+3fe1 08                                 | ?..
+
+# literal field "name: value"
+0004 6e61 6d65 0576 616c 7565           | ..name.value
+EOF
+
+HDECODE="hdecode ngdecode"
+tst_decode -s d12,r0,r4096,

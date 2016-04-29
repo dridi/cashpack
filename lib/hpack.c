@@ -303,7 +303,6 @@ hpack_decode_update(HPACK_CTX)
 	EXPECT(ctx, UPD, ctx->can_upd);
 
 	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
-	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	if (ctx->hp->min >= 0) {
 		assert(ctx->hp->min <= ctx->hp->nxt);
 		if (ctx->hp->min < ctx->hp->nxt) {
@@ -322,6 +321,7 @@ hpack_decode_update(HPACK_CTX)
 	}
 	else
 		ctx->can_upd = 0;
+	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	ctx->hp->lim = sz;
 	HPT_adjust(ctx, ctx->hp->len);
 	return (0);
