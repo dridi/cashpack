@@ -149,6 +149,15 @@ hpack_encode() {
 		3>"$TEST_TMP/enc_tbl"
 }
 
+skip_diff() {
+	for opt
+	do
+		# skip diffs if an error is expected
+		[ "$opt" = -r ] && return
+	done
+	return 1
+}
+
 tst_decode() {
 	[ "$NGHTTP2" = yes ] || HDECODE=hdecode
 	for dec in $HDECODE
@@ -158,6 +167,7 @@ tst_decode() {
 		printf "Decoded header list:\n\n" |
 		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/out"
 
+		skip_diff "$@" ||
 		diff -u "$TEST_TMP/out" "$TEST_TMP/dec_out"
 	done
 }
@@ -165,11 +175,7 @@ tst_decode() {
 tst_encode() {
 	hpack_encode ./hencode "$@"
 
-	for opt
-	do
-		# skip diffs if an error is expected
-		[ "$opt" = -r ] && return
-	done
+	skip_diff "$@" && return
 
 	"$TEST_DIR/hex_encode" <"$TEST_TMP/enc_bin" >"$TEST_TMP/enc_hex"
 
