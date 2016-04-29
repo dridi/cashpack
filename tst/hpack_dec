@@ -29,7 +29,9 @@
 mk_msg </dev/null
 mk_tbl </dev/null
 
+# ==========
 # Null index
+# ==========
 
 mk_hex <<EOF
 80
@@ -37,7 +39,9 @@ EOF
 
 tst_decode -r IDX
 
+# ===============
 # Index too large
+# ===============
 
 mk_hex <<EOF
 fe
@@ -45,7 +49,9 @@ EOF
 
 tst_decode -r IDX
 
+# ================
 # Update too large
+# ================
 
 mk_hex <<EOF
 # Update the table limit to 150
@@ -56,7 +62,9 @@ EOF
 
 tst_decode -r LEN -t 100
 
+# =========================================
 # A never-indexed field with a broken index
+# =========================================
 
 mk_bin <<EOF
 00011111 | a packed integer that expects a continuation
@@ -64,7 +72,9 @@ EOF
 
 tst_decode -r BUF
 
+# =================
 # Incomplete string
+# =================
 
 mk_bin <<EOF
 00000000 | a literal header field
@@ -73,7 +83,9 @@ EOF
 
 tst_decode -r BUF
 
+# =================
 # Invalid character
+# =================
 
 mk_bin <<EOF
 00000000 | a literal header field

@@ -26,7 +26,9 @@
 
 . "$(dirname "$0")"/common.sh
 
+# =======================================
 # Section 6.3.  Dynamic Table Size Update
+# =======================================
 
 mk_hex <<EOF
 # C.5.1.  First Response
@@ -71,7 +73,9 @@ HDECODE="hdecode ngdecode"
 tst_decode -s 70, -t 256
 tst_encode -t 256
 
+# ===============================================
 # Try the previous message with a table too small
+# ===============================================
 
 mk_hex <<EOF
 # C.5.1.  First Response
@@ -87,7 +91,9 @@ mk_tbl </dev/null
 HDECODE="hdecode ngdecode"
 tst_decode -t 60
 
+# =======================================================
 # Table size update not at the begining of an HPACK block
+# =======================================================
 
 mk_msg </dev/null
 mk_tbl </dev/null
@@ -107,7 +113,9 @@ HDECODE=hdecode
 tst_decode -r UPD
 tst_encode -r UPD
 
+# ===========
 # Wrong index
+# ===========
 
 mk_bin <<EOF
 11000010 | Indexed field 66
@@ -121,7 +129,9 @@ EOF
 
 tst_decode -r IDX
 
+# ========================================
 # Use the indexed name of an evicted field
+# ========================================
 
 mk_hex <<EOF
 4004 6e61 6d65 0576 616c 7565 7e06 7570 | @.name.value~.up
@@ -140,7 +150,9 @@ EOF
 
 tst_encode -t 42
 
+# =============================================================
 # Use the indexed name of an evicted field in a non-empty table
+# =============================================================
 
 mk_hex <<EOF
 4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
@@ -162,7 +174,9 @@ EOF
 
 tst_encode -t 84
 
+# =================================
 # Resize the table outside of HPACK
+# =================================
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -189,7 +203,9 @@ EOF
 
 tst_encode
 
+# ===============================
 # Let the decoder empty the table
+# ===============================
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -218,7 +234,9 @@ EOF
 
 tst_encode
 
+# =============================
 # Let the decoder make no sense
+# =============================
 
 mk_enc <<EOF
 dynamic str name str value

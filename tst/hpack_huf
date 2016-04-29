@@ -26,7 +26,9 @@
 
 . "$(dirname "$0")"/common.sh
 
+# ============
 # Empty string
+# ============
 
 mk_msg </dev/null
 mk_tbl </dev/null
@@ -91,7 +93,9 @@ EOF
 
 tst_decode -r HUF
 
+# =============
 # Premature EOS
+# =============
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -105,7 +109,9 @@ EOF
 
 tst_decode -r HUF
 
+# ==========
 # Broken EOS
+# ==========
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -115,7 +121,9 @@ EOF
 
 tst_decode -r HUF
 
+# =================
 # Invalid character
+# =================
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -126,7 +134,9 @@ EOF
 
 tst_decode -r CHR
 
+# ====================================================
 # Parse a Huffman string longer than the decode buffer
+# ====================================================
 #
 # Because the most common character is conveniently '0' it can be used to
 # represent both itself and its Huffman hexdump. Because the Huffman code
@@ -148,7 +158,9 @@ HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode
 
+# ====================================================
 # Decode a long Huffman string with invalid characters
+# ====================================================
 #
 # To make matters simpler, we can use the horizontal tabulation that takes 24
 # bits or 3 octets once coded. It's easy enough to embed and is illegal in a
