@@ -139,7 +139,7 @@ HPH_encode(HPACK_CTX, const char *str)
 	len = 0;
 
 	while (*str != '\0') {
-		i = hph_idx[(uint16_t)*str];
+		i = hph_idx[(uint8_t)*str];
 		bits = (bits << hph_tbl[i].len) | hph_tbl[i].cod;
 		sz += hph_tbl[i].len;
 
