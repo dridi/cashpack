@@ -128,17 +128,22 @@ TST_decode(struct dec_ctx *ctx)
 
 			cb = ctx->dec;
 			len = atoi(ctx->split);
-			assert(len < ctx->len);
-
-			ctx->split = strchr(ctx->split, ',');
-			assert(ctx->split != NULL);
-			ctx->split++;
+			assert(len <= ctx->len);
 			break;
 		case 'r':
-			INCOMPL();
+			ctx->split++;
+
+			cb = ctx->rsz;
+			len = atoi(ctx->split);
 			break;
 		default:
 			WRONG("Invalid spec");
+		}
+
+		if (*ctx->split != '\0') {
+			ctx->split = strchr(ctx->split, ',');
+			assert(ctx->split != NULL);
+			ctx->split++;
 		}
 
 		res = cb(ctx->priv, ctx->buf, len);

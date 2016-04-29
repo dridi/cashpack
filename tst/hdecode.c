@@ -111,6 +111,16 @@ decode_frame(void *priv, const void *buf, size_t len)
 	return (hpack_decode(priv2->hp, buf, len, priv2->cb, NULL));
 }
 
+static int
+resize_table(void *priv, const void *buf, size_t len)
+{
+	struct dec_priv *priv2;
+
+	(void)buf;
+	priv2 = priv;
+	return (hpack_resize(&priv2->hp, len));
+}
+
 int
 main(int argc, char **argv)
 {
@@ -124,6 +134,7 @@ main(int argc, char **argv)
 	int fd, retval, tbl_sz;
 
 	ctx.dec = decode_frame;
+	ctx.rsz = resize_table;
 	ctx.priv = &priv;
 	ctx.split = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
