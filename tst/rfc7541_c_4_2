@@ -73,5 +73,5 @@ dynamic idx 24 huf no-cache
 EOF
 
 HDECODE="hdecode ngdecode"
-tst_decode -s 17,
+tst_decode -s d17,
 tst_encode

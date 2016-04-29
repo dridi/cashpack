@@ -93,5 +93,5 @@ dynamic huf custom-key huf custom-value
 EOF
 
 HDECODE="hdecode ngdecode"
-tst_decode -s 17,12,
+tst_decode -s d17,d12,
 tst_encode

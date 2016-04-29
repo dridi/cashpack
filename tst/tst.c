@@ -107,6 +107,7 @@ TST_print_table(struct hpack *hp)
 int
 TST_decode(struct dec_ctx *ctx)
 {
+	tst_decode_f *cb;
 	size_t len;
 	int res;
 
@@ -117,21 +118,35 @@ TST_decode(struct dec_ctx *ctx)
 
 	do {
 		assert(res == 0);
-		if (*ctx->split != '\0') {
+		switch (*ctx->split) {
+		case '\0':
+			cb = ctx->dec;
+			len = ctx->len;
+			break;
+		case 'd':
+			ctx->split++;
+
+			cb = ctx->dec;
 			len = atoi(ctx->split);
+			assert(len < ctx->len);
+
 			ctx->split = strchr(ctx->split, ',');
 			assert(ctx->split != NULL);
 			ctx->split++;
+			break;
+		case 'r':
+			INCOMPL();
+			break;
+		default:
+			WRONG("Invalid spec");
 		}
-		else
-			len = ctx->len;
 
-		assert(len <= ctx->len);
+		res = cb(ctx->priv, ctx->buf, len);
 
-		res = ctx->cb(ctx->priv, ctx->buf, len);
-
-		ctx->buf += len;
-		ctx->len -= len;
+		if (cb == ctx->dec) {
+			ctx->buf += len;
+			ctx->len -= len;
+		}
 	} while (ctx->len > 0);
 
 	return (res);

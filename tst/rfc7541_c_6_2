@@ -75,5 +75,5 @@ indexed 63
 EOF
 
 HDECODE="hdecode ngdecode"
-tst_decode -t 256
+tst_decode -s d54, -t 256
 tst_encode -t 256

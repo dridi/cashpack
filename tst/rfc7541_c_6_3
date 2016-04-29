@@ -98,5 +98,5 @@ dynamic idx 55 huf foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
 EOF
 
 HDECODE="hdecode ngdecode"
-tst_decode -s 54,8, -t 256
+tst_decode -s d54,d8, -t 256
 tst_encode -t 256

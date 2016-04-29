@@ -123,7 +123,7 @@ main(int argc, char **argv)
 	void *buf;
 	int fd, retval, tbl_sz;
 
-	ctx.cb = decode_frame;
+	ctx.dec = decode_frame;
 	ctx.priv = &priv;
 	ctx.split = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
@@ -168,8 +168,12 @@ main(int argc, char **argv)
 	/* exactly one file name is expected */
 	if (argc != 1) {
 		fprintf(stderr, "Usage: hdecode [-r <expected result>] "
-		    "[-s size,[...]] [-t <table size>] <dump file>\n\n"
-		    "The file contains a dump of HPACK octets.\n"
+		    "[-s spec,[...]] [-t <table size>] <dump file>\n\n"
+		    "The file contains a dump of HPACK octets.\n\n"
+		    "Spec format: <letter><size>\n"
+		    "  d - decode <size> bytes from the dump\n"
+		    "  r - resize the dynamic table to <size> bytes\n"
+		    "  The last empty spec decodes the rest of the dump\n"
 		    "Default table size: 4096\n"
 		    "Possible results:\n");
 

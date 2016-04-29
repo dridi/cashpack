@@ -138,7 +138,7 @@ main(int argc, char **argv)
 	void *buf;
 	int fd, retval, tbl_sz;
 
-	ctx.cb = print_headers;
+	ctx.dec = print_headers;
 	ctx.split = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 

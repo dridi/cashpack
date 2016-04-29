@@ -161,7 +161,11 @@ When several header blocks are decoded at once, the size of all blocks are
 passed as a comma-separated list. The last size is omitted and instead deduced
 from the total size::
 
-    tst_decode -s 70,8, # decodes 3 blocks
+    tst_decode -s d70,d8, # decodes 3 blocks
+
+This list of sizes can also contain dynamic table sizes when they are resized
+out of band, like HTTP/2 settings. In this case the 'd' size prefix's replaced
+by 'r'.
 
 In some cases *hexdumps* are not *that* helpful and a binary representation is
 a better match. This requirement is covered by another function used by some
