@@ -139,7 +139,7 @@ main(int argc, char **argv)
 	int fd, retval, tbl_sz;
 
 	ctx.dec = print_headers;
-	ctx.split = "";
+	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 
 	/* ignore the command name */
@@ -154,7 +154,7 @@ main(int argc, char **argv)
 
 	if (argc > 0 && !strcmp("-s", *argv)) {
 		assert(argc > 2);
-		ctx.split = argv[1];
+		ctx.spec = argv[1];
 		argc -= 2;
 		argv += 2;
 	}

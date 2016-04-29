@@ -118,32 +118,32 @@ TST_decode(struct dec_ctx *ctx)
 
 	do {
 		assert(res == 0);
-		switch (*ctx->split) {
+		switch (*ctx->spec) {
 		case '\0':
 			cb = ctx->dec;
 			len = ctx->len;
 			break;
 		case 'd':
-			ctx->split++;
+			ctx->spec++;
 
 			cb = ctx->dec;
-			len = atoi(ctx->split);
+			len = atoi(ctx->spec);
 			assert(len <= ctx->len);
 			break;
 		case 'r':
-			ctx->split++;
+			ctx->spec++;
 
 			cb = ctx->rsz;
-			len = atoi(ctx->split);
+			len = atoi(ctx->spec);
 			break;
 		default:
 			WRONG("Invalid spec");
 		}
 
-		if (*ctx->split != '\0') {
-			ctx->split = strchr(ctx->split, ',');
-			assert(ctx->split != NULL);
-			ctx->split++;
+		if (*ctx->spec != '\0') {
+			ctx->spec = strchr(ctx->spec, ',');
+			assert(ctx->spec != NULL);
+			ctx->spec++;
 		}
 
 		res = cb(ctx->priv, ctx->buf, len);

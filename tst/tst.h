@@ -38,7 +38,7 @@ struct dec_ctx {
 	void		*priv;
 	tst_decode_f	*dec;
 	tst_decode_f	*rsz;
-	const char	*split;
+	const char	*spec;
 	const void	*buf;
 	size_t		len;
 };

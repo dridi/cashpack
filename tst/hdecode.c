@@ -136,7 +136,7 @@ main(int argc, char **argv)
 	ctx.dec = decode_frame;
 	ctx.rsz = resize_table;
 	ctx.priv = &priv;
-	ctx.split = "";
+	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
 	cb = print_headers;
@@ -163,7 +163,7 @@ main(int argc, char **argv)
 
 	if (argc > 0 && !strcmp("-s", *argv)) {
 		assert(argc > 2);
-		ctx.split = argv[1];
+		ctx.spec = argv[1];
 		argc -= 2;
 		argv += 2;
 	}
