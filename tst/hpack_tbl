@@ -189,6 +189,11 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
+mk_msg <<EOF
+name: value
+name: value
+EOF
+
 mk_tbl </dev/null
 
 mk_enc <<EOF
@@ -201,6 +206,7 @@ resize 20
 literal str name str value
 EOF
 
+tst_decode -s d12,r20,
 tst_encode
 
 # ===============================
@@ -232,6 +238,7 @@ resize 4096
 literal str name str value
 EOF
 
+tst_decode -s d12,r0,r4096,
 tst_encode
 
 # =============================
@@ -252,4 +259,5 @@ resize 4096
 literal str name str value
 EOF
 
+tst_decode -s d12,r20,r0,r4096,
 tst_encode

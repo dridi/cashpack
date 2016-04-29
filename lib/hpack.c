@@ -306,7 +306,18 @@ hpack_decode_update(HPACK_CTX)
 	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	if (ctx->hp->min >= 0) {
 		assert(ctx->hp->min <= ctx->hp->nxt);
-		INCOMPL();
+		if (ctx->hp->min < ctx->hp->nxt) {
+			EXPECT(ctx, UPD, sz == ctx->hp->min);
+			ctx->hp->min = ctx->hp->nxt;
+		}
+		else {
+			EXPECT(ctx, UPD, sz <= ctx->hp->nxt);
+			ctx->hp->max = ctx->hp->nxt;
+			ctx->hp->lim = sz;
+			ctx->hp->min = -1;
+			ctx->hp->nxt = -1;
+			ctx->can_upd = 0;
+		}
 	}
 	else
 		ctx->can_upd = 0;
