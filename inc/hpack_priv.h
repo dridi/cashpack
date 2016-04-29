@@ -150,7 +150,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 	do {						\
 		if (!(cond)) {				\
 			(ctx)->res = HPACK_RES_##err;	\
-			return (-1);			\
+			return (HPACK_RES_##err);	\
 		}					\
 	} while (0)
 
