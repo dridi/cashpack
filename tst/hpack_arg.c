@@ -132,6 +132,8 @@ main(int argc, char **argv)
 	CHECK_NULL(hp, hpack_decoder, 0, NULL);
 	CHECK_NULL(hp, hpack_decoder, 0, &null_alloc);
 
+	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, hpack_default_alloc);
+
 	CHECK_NULL(hp, hpack_decoder, 4096, &static_alloc);
 
 	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
@@ -149,12 +151,15 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	/* decoding process */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
 	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame,
 	    sizeof basic_frame, NULL, NULL);
+
+	/* over-resize decoder with no realloc */
+	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
 
 	/* defunct decoder */
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_frame,
@@ -177,7 +182,15 @@ main(int argc, char **argv)
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
 	    noop_enc_cb, NULL);
 
+	/* resize defunct encoder */
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	    noop_enc_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
 	hpack_free(&hp);
+
+	/* resize null encoder */
+	CHECK_RES(retval, ARG, hpack_resize, NULL, 0);
+	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
 
 	/* clean broken items */
 	CHECK_RES(retval, ARG, hpack_clean_item, NULL);
