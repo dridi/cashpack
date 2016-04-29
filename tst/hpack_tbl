@@ -238,6 +238,7 @@ resize 4096
 literal str name str value
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode -s d12,r0,r4096,
 tst_encode
 

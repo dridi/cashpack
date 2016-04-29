@@ -44,6 +44,23 @@
 #include "tst.h"
 
 static int
+resize_table(void *priv, const void *buf, size_t len)
+{
+	nghttp2_hd_inflater *inf;
+	int retval;
+
+	(void)buf;
+
+	inf = priv;
+	retval = nghttp2_hd_inflate_change_table_size(inf, len);
+	assert(retval == 0);
+
+#ifdef NDEBUG
+	(void)retval;
+#endif
+}
+
+static int
 print_headers(void *priv, const void *buf, size_t len)
 {
 	nghttp2_hd_inflater *inf;
@@ -139,6 +156,7 @@ main(int argc, char **argv)
 	int fd, retval, tbl_sz;
 
 	ctx.dec = print_headers;
+	ctx.rsz = resize_table;
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 
