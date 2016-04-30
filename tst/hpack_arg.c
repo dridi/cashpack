@@ -116,6 +116,21 @@ static_malloc(size_t size)
 static const struct hpack_alloc static_alloc = { static_malloc, NULL, NULL };
 
 /**********************************************************************
+ * Out of memory allocator
+ */
+
+static void *
+oom_realloc(void *ptr, size_t size)
+{
+
+	(void)ptr;
+	(void)size;
+	return (NULL);
+}
+
+static const struct hpack_alloc oom_alloc = { malloc, oom_realloc, free };
+
+/**********************************************************************
  */
 
 int
@@ -191,6 +206,12 @@ main(int argc, char **argv)
 	/* resize null encoder */
 	CHECK_RES(retval, ARG, hpack_resize, NULL, 0);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
+
+	/* fail to resize when out of memory */
+	CHECK_NOTNULL(hp, hpack_decoder, 0, &oom_alloc);
+	retval = hpack_resize(&hp, UINT16_MAX);
+	assert(retval = HPACK_RES_OOM);
+	hpack_free(&hp);
 
 	/* clean broken items */
 	CHECK_RES(retval, ARG, hpack_clean_item, NULL);

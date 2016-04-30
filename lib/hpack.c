@@ -111,8 +111,14 @@ hpack_resize(struct hpack **hpp, size_t len)
 	if (len > max)
 		return (HPACK_RES_LEN);
 
-	if (len > hp->mem)
-		INCOMPL();
+	if (len > hp->mem) {
+		assert(hp->alloc.realloc != NULL);
+		hp = hp->alloc.realloc(hp, sizeof *hp + len);
+		if (hp == NULL)
+			return (HPACK_RES_OOM);
+		hp->mem = len;
+		*hpp = hp;
+	}
 
 	if (hp->min < 0) {
 		assert(hp->nxt < 0);

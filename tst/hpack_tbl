@@ -328,3 +328,15 @@ EOF
 
 HDECODE="hdecode ngdecode"
 tst_decode -s d12,r0,r4096,
+
+# =========================
+# Enlarge the dynamic table
+# =========================
+
+mk_hex </dev/null
+
+mk_enc <<EOF
+resize 9001
+EOF
+
+tst_encode
