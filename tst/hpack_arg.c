@@ -175,8 +175,10 @@ main(int argc, char **argv)
 
 	/* over-resize decoder with no realloc */
 	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
+	hpack_free(&hp);
 
 	/* defunct decoder */
+	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_frame,
 	    sizeof junk_frame, noop_dec_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_frame,

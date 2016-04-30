@@ -108,14 +108,18 @@ hpack_resize(struct hpack **hpp, size_t len)
 		return (HPACK_RES_ARG);
 
 	max = hp->alloc.realloc == NULL ? hp->mem : UINT16_MAX;
-	if (len > max)
+	if (len > max) {
+		hp->magic = DEFUNCT_MAGIC;
 		return (HPACK_RES_LEN);
+	}
 
 	if (len > hp->mem) {
 		assert(hp->alloc.realloc != NULL);
 		hp = hp->alloc.realloc(hp, sizeof *hp + len);
-		if (hp == NULL)
+		if (hp == NULL) {
+			(*hpp)->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_OOM);
+		}
 		hp->mem = len;
 		*hpp = hp;
 	}
