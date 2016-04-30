@@ -26,6 +26,15 @@
 
 . "$(dirname "$0")"/common.sh
 
+# ===========
+# Wrong usage
+# ===========
+
+! ./hdecode # missing param
+! ./hencode unexpected_param
+
+! ./ngdecode # missing param
+
 # ==========
 # Empty name
 # ==========
