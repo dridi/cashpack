@@ -30,15 +30,16 @@
 #ifndef HPR_ERRORS_ONLY
 HPR(OK,   0, "Success")
 #endif
-HPR(ARG, -1, "Wrong argument")
-HPR(BUF, -2, "Buffer overflow")
-HPR(INT, -3, "Integer overflow")
-HPR(IDX, -4, "Invalid index")
-HPR(LEN, -5, "Invalid length")
-HPR(HUF, -6, "Invalid Huffman code")
-HPR(CHR, -7, "Invalid character")
-HPR(UPD, -8, "Spurious update")
-HPR(RSZ, -9, "Missing resize update")
+HPR(ARG,  -1, "Wrong argument")
+HPR(BUF,  -2, "Buffer overflow")
+HPR(INT,  -3, "Integer overflow")
+HPR(IDX,  -4, "Invalid index")
+HPR(LEN,  -5, "Invalid length")
+HPR(HUF,  -6, "Invalid Huffman code")
+HPR(CHR,  -7, "Invalid character")
+HPR(UPD,  -8, "Spurious update")
+HPR(RSZ,  -9, "Missing resize update")
+HPR(OOM, -10, "Out of memory")
 #endif
 
 #ifdef HPE

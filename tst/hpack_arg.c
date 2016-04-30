@@ -215,6 +215,7 @@ main(int argc, char **argv)
 
 	/* strerror */
 	(void)hpack_strerror(HPACK_RES_OK);
+	(void)hpack_strerror(HPACK_RES_OOM);
 	(void)hpack_strerror(UINT16_MAX);
 
 	return (0);
