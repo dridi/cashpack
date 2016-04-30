@@ -155,6 +155,7 @@ hpack_free(struct hpack **hpp)
 	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
 	    hp->magic == DEFUNCT_MAGIC);
 
+	hp->magic = 0;
 	if (hp->alloc.free != NULL)
 		hp->alloc.free(hp);
 }
