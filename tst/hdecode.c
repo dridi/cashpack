@@ -231,5 +231,8 @@ main(int argc, char **argv)
 	retval = close(fd);
 	assert(retval == 0);
 
+	if (res != HPACK_RES_OK)
+		ERR("hpack result: %s (%d)", hpack_strerror(res), res);
+
 	return (res != exp);
 }

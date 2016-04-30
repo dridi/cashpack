@@ -326,5 +326,8 @@ main(int argc, char **argv)
 
 	hpack_free(&ctx.hp);
 
+	if (ctx.res != HPACK_RES_OK)
+		ERR("hpack error: %s (%d)", hpack_strerror(ctx.res), ctx.res);
+
 	return (ctx.res != exp);
 }

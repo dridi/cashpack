@@ -213,5 +213,9 @@ main(int argc, char **argv)
 	itm.fld.flg = HPACK_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
+	/* strerror */
+	(void)hpack_strerror(HPACK_RES_OK);
+	(void)hpack_strerror(UINT16_MAX);
+
 	return (0);
 }
