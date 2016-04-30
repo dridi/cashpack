@@ -210,7 +210,7 @@ parse_commands(struct enc_ctx *ctx)
 	assert(ctx->itm != NULL);
 
 	itm = ctx->itm + ctx->cnt - 1;
-	memset(itm, 0, sizeof *itm);
+	(void)memset(itm, 0, sizeof *itm);
 
 	assert(len >= 0);
 
@@ -255,7 +255,7 @@ main(int argc, char **argv)
 	struct enc_ctx ctx;
 	int tbl_sz;
 
-	memset(&ctx, 0, sizeof ctx);
+	(void)memset(&ctx, 0, sizeof ctx);
 
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;

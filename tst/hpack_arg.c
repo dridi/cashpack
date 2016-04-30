@@ -198,17 +198,17 @@ main(int argc, char **argv)
 	itm = unknown_item;
 	hpack_clean_item(&itm);
 
-	memset(&itm, 0, sizeof itm);
+	(void)memset(&itm, 0, sizeof itm);
 	itm.typ = HPACK_INDEXED;
 	itm.fld.nam = "";
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
-	memset(&itm, 0, sizeof itm);
+	(void)memset(&itm, 0, sizeof itm);
 	itm.typ = HPACK_INDEXED;
 	itm.fld.val = "";
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
-	memset(&itm, 0, sizeof itm);
+	(void)memset(&itm, 0, sizeof itm);
 	itm.typ = HPACK_INDEXED;
 	itm.fld.flg = HPACK_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
