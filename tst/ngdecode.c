@@ -41,6 +41,9 @@
 
 #include <nghttp2/nghttp2.h>
 
+#include "hpack.h"
+#include "hpack_assert.h"
+
 #include "tst.h"
 
 static int
@@ -76,11 +79,8 @@ print_headers(void *priv, const void *buf, size_t len)
 
 		flg = 0;
 		rv = nghttp2_hd_inflate_hd(inf, &nv, &flg, in, len, 1);
-		if (rv < 0) {
-			ERR("nghttp2: error %zd (%s) at %zd (0x%02x)\n",
-			    rv, nghttp2_strerror(rv), (void *)in - buf, *in);
-			abort();
-		}
+		if (rv < 0)
+			return (rv);
 		assert(rv > 0);
 		assert(rv <= (ssize_t)len);
 
@@ -150,10 +150,11 @@ int
 main(int argc, char **argv)
 {
 	nghttp2_hd_inflater *inf;
+	enum hpack_res_e exp;
 	struct dec_ctx ctx;
 	struct stat st;
 	void *buf;
-	int fd, retval, tbl_sz;
+	int fd, retval, tbl_sz, res;
 
 	ctx.dec = print_headers;
 	ctx.rsz = resize_table;
@@ -166,8 +167,13 @@ main(int argc, char **argv)
 
 	/* handle options */
 	if (argc > 0 && !strcmp("-r", *argv)) {
-		(void)fprintf(stderr, "Option -r not supported with ngdecode");
-		abort();
+		assert(argc >= 2);
+		exp = TST_translate_error(argv[1]);
+		assert(exp != HPACK_RES_OK);
+		/* override with nghttp2's generic HPACK error */
+		exp = NGHTTP2_ERR_HEADER_COMP;
+		argc -= 2;
+		argv += 2;
 	}
 
 	if (argc > 0 && !strcmp("-s", *argv)) {
@@ -191,7 +197,14 @@ main(int argc, char **argv)
 		    "[-s size,[...]] [-t <table size>] <dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n"
 		    "Default table size: 4096\n"
-		    "Expected results: not supported\n");
+		    "Possible results:\n");
+
+#define HPR_ERRORS_ONLY
+#define HPR(val, cod, txt)		\
+		fprintf(stderr, "  %s: %s\n", #val, txt);
+#include "tbl/hpack_tbl.h"
+#undef HPR
+#undef HPR_ERRORS_ONLY
 
 		return (EXIT_FAILURE);
 	}
@@ -230,7 +243,7 @@ main(int argc, char **argv)
 	(void)nghttp2_hd_inflate_end_headers(inf);
 
 	ctx.priv = inf;
-	TST_decode(&ctx);
+	res = TST_decode(&ctx);
 
 	OUT("\n\nDynamic Table (after decoding):");
 
@@ -244,5 +257,5 @@ main(int argc, char **argv)
 	retval = close(fd);
 	assert(retval == 0);
 
-	return (EXIT_SUCCESS);
+	return (res != exp);
 }

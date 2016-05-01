@@ -39,6 +39,7 @@ mk_bin <<EOF
 11111111 | 8 bits of EOS
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode -r HUF
 
 mk_bin <<EOF
@@ -154,7 +155,6 @@ mk_chars 0 "01 ffa105 %1600s"           | mk_hex
 mk_chars 0 ":authority: %1280s\n"       | mk_msg
 mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 
-HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode
 
@@ -173,5 +173,4 @@ tst_encode
 mk_chars 0 "00 ffa405 ffffea %1600s" | mk_hex
 mk_msg </dev/null
 
-HDECODE="hdecode"
 tst_decode -r CHR

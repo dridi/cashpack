@@ -37,6 +37,7 @@ mk_hex <<EOF
 80
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode -r IDX
 
 # ===============

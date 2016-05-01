@@ -268,13 +268,7 @@ main(int argc, char **argv)
 	/* handle options */
 	if (argc > 0 && !strcmp("-r", *argv)) {
 		assert(argc >= 2);
-#define HPR_ERRORS_ONLY
-#define HPR(val, cod, txt)			\
-		if (!strcmp(argv[1], #val))	\
-			exp = HPACK_RES_##val;
-#include "tbl/hpack_tbl.h"
-#undef HPR
-#undef HPR_ERRORS_ONLY
+		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
 		argc -= 2;
 		argv += 2;

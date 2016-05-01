@@ -108,7 +108,6 @@ indexed 4
 update 150
 EOF
 
-HDECODE=hdecode
 tst_decode -r UPD
 tst_encode -r UPD
 
@@ -237,7 +236,6 @@ resize 4096
 literal str name str value
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -s d12,r0,r4096,
 tst_encode
 
@@ -274,7 +272,6 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
-HDECODE=hdecode
 tst_decode -r RSZ -s d12,r0,
 
 # ====================================
@@ -326,7 +323,6 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -s d12,r0,r4096,
 
 # =========================

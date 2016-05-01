@@ -156,3 +156,17 @@ TST_decode(struct dec_ctx *ctx)
 
 	return (res);
 }
+
+enum hpack_res_e
+TST_translate_error(const char *str)
+{
+#define HPR_ERRORS_ONLY
+#define HPR(val, cod, txt)			\
+		if (!strcmp(str, #val))	\
+			return (HPACK_RES_##val);
+#include "tbl/hpack_tbl.h"
+#undef HPR
+#undef HPR_ERRORS_ONLY
+	WRONG("Unknown error");
+	return (-1);
+}

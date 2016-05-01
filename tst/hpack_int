@@ -37,6 +37,7 @@ mk_bin <<EOF
 11111111 | The rest of the integer is missing...
 EOF
 
+HDECODE="hdecode ngdecode"
 tst_decode -r BUF
 
 mk_bin <<EOF
@@ -99,5 +100,4 @@ mk_bin <<EOF
 00000000 | It must work regarless.
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -t 1024
