@@ -271,7 +271,7 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
-tst_decode --expect-error RSZ --decoding-spec d12,r0,
+tst_decode --decoding-spec d12,r0, --expect-error RSZ
 
 # ====================================
 # Omit the minimum of multiple resizes
@@ -285,7 +285,7 @@ mk_hex <<EOF
 3fe1 1f                                 | ?..
 EOF
 
-tst_decode --expect-error UPD --decoding-spec d12,r0,r4096,
+tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 
 # =====================================
 # Update too big after multiple resizes
@@ -302,7 +302,7 @@ mk_hex <<EOF
 3f8a 46                                 | ?.F
 EOF
 
-tst_decode --expect-error UPD --decoding-spec d12,r0,r4096,
+tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 
 # ========================================================
 # Use a soft limit for the last update of multiple resizes

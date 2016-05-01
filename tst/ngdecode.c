@@ -166,19 +166,19 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
+	if (argc > 0 && !strcmp("--decoding-spec", *argv)) {
+		assert(argc >= 2);
+		ctx.spec = argv[1];
+		argc -= 2;
+		argv += 2;
+	}
+
 	if (argc > 0 && !strcmp("--expect-error", *argv)) {
 		assert(argc >= 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
 		/* override with nghttp2's generic HPACK error */
 		exp = NGHTTP2_ERR_HEADER_COMP;
-		argc -= 2;
-		argv += 2;
-	}
-
-	if (argc > 0 && !strcmp("--decoding-spec", *argv)) {
-		assert(argc > 2);
-		ctx.spec = argv[1];
 		argc -= 2;
 		argv += 2;
 	}
