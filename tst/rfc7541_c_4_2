@@ -72,5 +72,5 @@ indexed 62
 dynamic idx 24 huf no-cache
 EOF
 
-tst_decode -s d17,
+tst_decode --decoding-spec d17,
 tst_encode

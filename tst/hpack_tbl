@@ -69,8 +69,8 @@ flush
 update 150
 EOF
 
-tst_decode -s d70, -t 256
-tst_encode -t 256
+tst_decode --decoding-spec d70, --table-size 256
+tst_encode --table-size 256
 
 # ===============================================
 # Try the previous message with a table too small
@@ -87,7 +87,7 @@ EOF
 
 mk_tbl </dev/null
 
-tst_decode -t 60
+tst_decode --table-size 60
 
 # =======================================================
 # Table size update not at the begining of an HPACK block
@@ -107,8 +107,8 @@ indexed 4
 update 150
 EOF
 
-tst_decode -r UPD
-tst_encode -r UPD
+tst_decode --expect-error UPD
+tst_encode --expect-error UPD
 
 # ===========
 # Wrong index
@@ -118,13 +118,13 @@ mk_bin <<EOF
 11000010 | Indexed field 66
 EOF
 
-tst_decode -r IDX
+tst_decode --expect-error IDX
 
 mk_bin <<EOF
 01111110 | Indexed name 62
 EOF
 
-tst_decode -r IDX
+tst_decode --expect-error IDX
 
 # ========================================
 # Use the indexed name of an evicted field
@@ -145,7 +145,7 @@ dynamic str name str value
 dynamic idx 62 str update
 EOF
 
-tst_encode -t 42
+tst_encode --table-size 42
 
 # =============================================================
 # Use the indexed name of an evicted field in a non-empty table
@@ -169,7 +169,7 @@ dynamic str other str entry
 dynamic idx 63 str update
 EOF
 
-tst_encode -t 84
+tst_encode --table-size 84
 
 # =================================
 # Resize the table outside of HPACK
@@ -203,7 +203,7 @@ resize 20
 literal str name str value
 EOF
 
-tst_decode -s d12,r20,
+tst_decode --decoding-spec d12,r20,
 tst_encode
 
 # ===============================
@@ -235,7 +235,7 @@ resize 4096
 literal str name str value
 EOF
 
-tst_decode -s d12,r0,r4096,
+tst_decode --decoding-spec d12,r0,r4096,
 tst_encode
 
 # =============================
@@ -256,7 +256,7 @@ resize 4096
 literal str name str value
 EOF
 
-tst_decode -s d12,r20,r0,r4096,
+tst_decode --decoding-spec d12,r20,r0,r4096,
 tst_encode
 
 # ===========================
@@ -271,7 +271,7 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
-tst_decode -r RSZ -s d12,r0,
+tst_decode --expect-error RSZ --decoding-spec d12,r0,
 
 # ====================================
 # Omit the minimum of multiple resizes
@@ -285,7 +285,7 @@ mk_hex <<EOF
 3fe1 1f                                 | ?..
 EOF
 
-tst_decode -r UPD -s d12,r0,r4096,
+tst_decode --expect-error UPD --decoding-spec d12,r0,r4096,
 
 # =====================================
 # Update too big after multiple resizes
@@ -302,7 +302,7 @@ mk_hex <<EOF
 3f8a 46                                 | ?.F
 EOF
 
-tst_decode -r UPD -s d12,r0,r4096,
+tst_decode --expect-error UPD --decoding-spec d12,r0,r4096,
 
 # ========================================================
 # Use a soft limit for the last update of multiple resizes
@@ -322,7 +322,7 @@ mk_hex <<EOF
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
-tst_decode -s d12,r0,r4096,
+tst_decode --decoding-spec d12,r0,r4096,
 
 # =========================
 # Enlarge the dynamic table

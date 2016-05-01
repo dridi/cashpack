@@ -147,7 +147,7 @@ The ``tst_??code`` functions accept two command-line options for test cases
 that diverge from the happy and default paths. For instance it is possible to
 set the initial size of the dynamic table, as shown in some appendices::
 
-    tst_decode -t 256 # start with a 256B table
+    tst_decode --table-size 256 # start with a 256B table
 
 It is also possible to expect a decoding or an encoding error, but it also
 requires to build empty files for the HTTP message and the dynamic table::
@@ -155,13 +155,13 @@ requires to build empty files for the HTTP message and the dynamic table::
     mk_msg </dev/null
     mk_tbl </dev/null
 
-    tst_encode -r IDX # expect an invalid index
+    tst_encode --expect-error IDX # expect an invalid index
 
 When several header blocks are decoded at once, the size of all blocks are
 passed as a comma-separated list. The last size is omitted and instead deduced
 from the total size::
 
-    tst_decode -s d70,d8, # decodes 3 blocks
+    tst_decode --decoding-spec d70,d8, # decodes 3 blocks
 
 This list of sizes can also contain dynamic table sizes when they are resized
 out of band, like HTTP/2 settings. In this case the 'd' size prefix's replaced
@@ -178,7 +178,7 @@ tests mostly related to integer encoding::
     00000011 | value UINT16_MAX + 1
     EOF
 
-    tst_decode -r INT
+    tst_decode --expect-error INT
 
 Finally, an anonymous hero managed to break invariants in the library by using
 American Fuzzy Lop and helped fixing bugs early. Those tests can be found in
@@ -250,7 +250,7 @@ some areas the spec is not always strict::
     00000000 | It must work regarless.
     EOF
 
-    tst_decode -t 1024
+    tst_decode --table-size 1024
 
 If ``nghttp2`` is not available on your system, the interoperability checks
 will be automatically skipped. It is looked up at configure time::

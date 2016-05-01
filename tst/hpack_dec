@@ -37,7 +37,7 @@ mk_hex <<EOF
 80
 EOF
 
-tst_decode -r IDX
+tst_decode --expect-error IDX
 
 # ===============
 # Index too large
@@ -47,7 +47,7 @@ mk_hex <<EOF
 fe
 EOF
 
-tst_decode -r IDX
+tst_decode --expect-error IDX
 
 # ================
 # Update too large
@@ -60,7 +60,7 @@ mk_hex <<EOF
 3f77
 EOF
 
-tst_decode -r LEN -t 100
+tst_decode --expect-error LEN --table-size 100
 
 # =========================================
 # A never-indexed field with a broken index
@@ -70,7 +70,7 @@ mk_bin <<EOF
 00011111 | a packed integer that expects a continuation
 EOF
 
-tst_decode -r BUF
+tst_decode --expect-error BUF
 
 # =================
 # Incomplete string
@@ -81,7 +81,7 @@ mk_bin <<EOF
 00000001 | with a 1-character name
 EOF
 
-tst_decode -r BUF
+tst_decode --expect-error BUF
 
 # =================
 # Invalid character
@@ -93,4 +93,4 @@ mk_bin <<EOF
 00000000 | that is the null byte
 EOF
 
-tst_decode -r CHR
+tst_decode --expect-error CHR

@@ -266,7 +266,7 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
-	if (argc > 0 && !strcmp("-r", *argv)) {
+	if (argc > 0 && !strcmp("--expect-error", *argv)) {
 		assert(argc >= 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
@@ -274,7 +274,7 @@ main(int argc, char **argv)
 		argv += 2;
 	}
 
-	if (argc > 0 && !strcmp("-t", *argv)) {
+	if (argc > 0 && !strcmp("--table-size", *argv)) {
 		assert(argc == 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
@@ -284,11 +284,10 @@ main(int argc, char **argv)
 
 	/* exactly one file name is expected */
 	if (argc != 0) {
-		fprintf(stderr, "Usage: hencode [-r <expected result>] "
-		    "[-t <table size>]\n\n"
-		    "Default result: OK\n"
+		fprintf(stderr, "Usage: hencode [--expect-error <ERR>] "
+		    "[--table-size <size>]\n\n"
 		    "Default table size: 4096\n"
-		    "Possible results:\n");
+		    "Possible errors:\n");
 
 #define HPR_ERRORS_ONLY
 #define HPR(val, cod, txt)		\

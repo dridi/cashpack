@@ -72,5 +72,5 @@ indexed 62
 dynamic idx 24 str no-cache
 EOF
 
-tst_decode -s d20,
+tst_decode --decoding-spec d20,
 tst_encode

@@ -37,13 +37,13 @@ mk_bin <<EOF
 11111111 | The rest of the integer is missing...
 EOF
 
-tst_decode -r BUF
+tst_decode --expect-error BUF
 
 mk_bin <<EOF
 00000000 | Try to read two integers with only one available
 EOF
 
-tst_decode -r BUF
+tst_decode --expect-error BUF
 
 # =================
 # Integer overflows
@@ -56,7 +56,7 @@ mk_bin <<EOF
 00000011 | value UINT16_MAX + 1
 EOF
 
-tst_decode -r INT
+tst_decode --expect-error INT
 
 mk_bin <<EOF
 01111111 | Use a dynamic field
@@ -65,7 +65,7 @@ mk_bin <<EOF
 00000011 | value UINT16_MAX + 1
 EOF
 
-tst_decode -r INT
+tst_decode --expect-error INT
 
 mk_bin <<EOF
 00111111 | Use a table update
@@ -74,7 +74,7 @@ mk_bin <<EOF
 00000011 | value UINT16_MAX + 1
 EOF
 
-tst_decode -r INT
+tst_decode --expect-error INT
 
 mk_bin <<EOF
 00001111 | Use a literal field
@@ -83,7 +83,7 @@ mk_bin <<EOF
 00000011 | value UINT16_MAX + 1
 EOF
 
-tst_decode -r INT
+tst_decode --expect-error INT
 
 # =======
 # Fuzzing
@@ -99,4 +99,4 @@ mk_bin <<EOF
 00000000 | It must work regarless.
 EOF
 
-tst_decode -t 1024
+tst_decode --table-size 1024

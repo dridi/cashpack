@@ -97,5 +97,5 @@ dynamic idx 26 huf gzip
 dynamic idx 55 huf foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
 EOF
 
-tst_decode -s d54,d8, -t 256
-tst_encode -t 256
+tst_decode --decoding-spec d54,d8, --table-size 256
+tst_encode --table-size 256

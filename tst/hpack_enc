@@ -38,7 +38,7 @@ mk_enc <<EOF
 indexed 0
 EOF
 
-tst_encode -r IDX
+tst_encode --expect-error IDX
 
 # ===============
 # Index too large
@@ -48,7 +48,7 @@ mk_enc <<EOF
 indexed 99999
 EOF
 
-tst_encode -r IDX
+tst_encode --expect-error IDX
 
 # ===================
 # Wrong dynamic field
@@ -58,7 +58,7 @@ mk_enc <<EOF
 dynamic idx 0 str value
 EOF
 
-tst_encode -r IDX
+tst_encode --expect-error IDX
 
 # =========================
 # Wrong never-indexed field
@@ -68,7 +68,7 @@ mk_enc <<EOF
 never idx 99999 str value
 EOF
 
-tst_encode -r IDX
+tst_encode --expect-error IDX
 
 # ========================
 # Table update doesn't fit
@@ -78,7 +78,7 @@ mk_enc <<EOF
 update 9001
 EOF
 
-tst_encode -r LEN -t 4096
+tst_encode --expect-error LEN --table-size 4096
 
 # ===============================
 # Table update exceeds boundaries
@@ -88,7 +88,7 @@ mk_enc <<EOF
 update 70000
 EOF
 
-tst_encode -r ARG
+tst_encode --expect-error ARG
 
 # =====================================
 # A dynamic field too big for the table
@@ -106,4 +106,4 @@ mk_enc <<EOF
 dynamic idx 20 str localhost
 EOF
 
-tst_encode -t 42
+tst_encode --table-size 42

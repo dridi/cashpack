@@ -100,5 +100,5 @@ dynamic idx 26 str gzip
 dynamic idx 55 str foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
 EOF
 
-tst_decode -t 256
-tst_encode -t 256
+tst_decode --table-size 256
+tst_encode --table-size 256

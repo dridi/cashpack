@@ -33,6 +33,8 @@
 ! ./hdecode # missing param
 ! ./hencode unexpected_param
 
+! ./hdecode --expect-error UNKNOWN
+
 ! ./ngdecode # missing param
 
 # ==========
@@ -47,7 +49,7 @@ mk_bin <<EOF
 00000000 | field name has a length of zero octets
 EOF
 
-tst_decode -r LEN
+tst_decode --expect-error LEN
 
 # ===========
 # Empty value
@@ -131,7 +133,7 @@ mk_hex </dev/null
 
 tst_invalid_char() {
 	printf '%s\n' "$1" | mk_enc
-	tst_encode -r CHR
+	tst_encode --expect-error CHR
 }
 
 tst_invalid_char "literal str name: str value"

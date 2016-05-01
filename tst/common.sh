@@ -154,8 +154,7 @@ hpack_encode() {
 skip_diff() {
 	for opt
 	do
-		# skip diffs if an error is expected
-		[ "$opt" = -r ] && return
+		[ "$opt" = --expect-error ] && return
 	done
 	return 1
 }

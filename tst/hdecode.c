@@ -146,7 +146,7 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
-	if (argc > 0 && !strcmp("-r", *argv)) {
+	if (argc > 0 && !strcmp("--expect-error", *argv)) {
 		assert(argc > 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
@@ -155,14 +155,14 @@ main(int argc, char **argv)
 		argv += 2;
 	}
 
-	if (argc > 0 && !strcmp("-s", *argv)) {
+	if (argc > 0 && !strcmp("--decoding-spec", *argv)) {
 		assert(argc > 2);
 		ctx.spec = argv[1];
 		argc -= 2;
 		argv += 2;
 	}
 
-	if (argc > 0 && !strcmp("-t", *argv)) {
+	if (argc > 0 && !strcmp("--table-size", *argv)) {
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
@@ -172,15 +172,16 @@ main(int argc, char **argv)
 
 	/* exactly one file name is expected */
 	if (argc != 1) {
-		fprintf(stderr, "Usage: hdecode [-r <expected result>] "
-		    "[-s spec,[...]] [-t <table size>] <dump file>\n\n"
+		fprintf(stderr, "Usage: hdecode [--expect-error <ERR>] "
+		    "[--decoding-spec <spec>,[...]] [--table-size <size>] "
+		    "<dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n\n"
 		    "Spec format: <letter><size>\n"
 		    "  d - decode <size> bytes from the dump\n"
 		    "  r - resize the dynamic table to <size> bytes\n"
 		    "  The last empty spec decodes the rest of the dump\n"
 		    "Default table size: 4096\n"
-		    "Possible results:\n");
+		    "Possible errors:\n");
 
 #define HPR_ERRORS_ONLY
 #define HPR(val, cod, txt) fprintf(stderr, "  %s: %s\n", #val, txt);

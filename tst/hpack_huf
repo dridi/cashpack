@@ -39,7 +39,7 @@ mk_bin <<EOF
 11111111 | 8 bits of EOS
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -48,7 +48,7 @@ mk_bin <<EOF
 11111111 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -58,7 +58,7 @@ mk_bin <<EOF
 11111111 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -69,7 +69,7 @@ mk_bin <<EOF
 11111100 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -80,7 +80,7 @@ mk_bin <<EOF
 11111110 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -91,7 +91,7 @@ mk_bin <<EOF
 11111111 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 # =============
 # Premature EOS
@@ -107,7 +107,7 @@ mk_bin <<EOF
 00000000 |
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 # ==========
 # Broken EOS
@@ -119,7 +119,7 @@ mk_bin <<EOF
 00000110 | '0' followed by broken '110' EOS
 EOF
 
-tst_decode -r HUF
+tst_decode --expect-error HUF
 
 # =================
 # Invalid character
@@ -132,7 +132,7 @@ mk_bin <<EOF
 11000111 | Followed by '111' EOS
 EOF
 
-tst_decode -r CHR
+tst_decode --expect-error CHR
 
 # ====================================================
 # Parse a Huffman string longer than the decode buffer
@@ -172,4 +172,4 @@ tst_encode
 mk_chars 0 "00 ffa405 ffffea %1600s" | mk_hex
 mk_msg </dev/null
 
-tst_decode -r CHR
+tst_decode --expect-error CHR
