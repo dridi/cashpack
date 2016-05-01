@@ -55,6 +55,5 @@ dynamic idx 33 huf Mon, 21 Oct 2013 20:13:21 GMT
 dynamic idx 46 huf https://www.example.com
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -t 256
 tst_encode -t 256

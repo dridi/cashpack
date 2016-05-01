@@ -92,6 +92,5 @@ indexed 63
 dynamic str custom-key str custom-value
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -s d20,d14,
 tst_encode

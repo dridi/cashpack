@@ -40,7 +40,6 @@ mk_enc <<EOF
 indexed 2
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode
 

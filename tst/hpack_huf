@@ -39,7 +39,6 @@ mk_bin <<EOF
 11111111 | 8 bits of EOS
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -r HUF
 
 mk_bin <<EOF

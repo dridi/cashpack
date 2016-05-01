@@ -31,6 +31,8 @@ TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
 
 HDECODE=hdecode
 
+test -x ./ngdecode && HDECODE+=' ngdecode'
+
 trap "rm -fr $TEST_TMP" EXIT
 
 MEMCHECK_CMD="valgrind			\

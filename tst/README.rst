@@ -235,10 +235,10 @@ Interoperability checks
 -----------------------
 
 Because HPACK is a protocol, cashpack should be able to work fine with any
-other HPACK implementation. For that it uses ``nghttp2`` in places where it
-makes sense, but this testing is rather limited at this time. Only decoding
-is done, using an ``ngdecode`` C program behaving similarly to ``hdecode``
-and it has to be explicitly specified when it is used::
+other HPACK implementation. For that it used ``nghttp2`` in places where it
+makes sense, but this is now done systematically using an ``ngdecode`` C
+program that behaves similarly to ``hdecode``. This is also useful because in
+some areas the spec is not always strict::
 
     mk_bin <<EOF
     00111111 | Use a table update
@@ -250,7 +250,6 @@ and it has to be explicitly specified when it is used::
     00000000 | It must work regarless.
     EOF
 
-    HDECODE="hdecode ngdecode"
     tst_decode -t 1024
 
 If ``nghttp2`` is not available on your system, the interoperability checks

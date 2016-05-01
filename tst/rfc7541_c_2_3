@@ -41,6 +41,5 @@ mk_enc <<EOF
 never str password str secret
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode

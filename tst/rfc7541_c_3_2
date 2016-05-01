@@ -72,6 +72,5 @@ indexed 62
 dynamic idx 24 str no-cache
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -s d20,
 tst_encode

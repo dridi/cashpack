@@ -50,6 +50,5 @@ indexed 4
 dynamic idx 1 str www.example.com
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode

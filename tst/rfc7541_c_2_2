@@ -40,6 +40,5 @@ mk_enc <<EOF
 literal idx 4 str /sample/path
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode
 tst_encode

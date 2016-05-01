@@ -37,7 +37,6 @@ mk_bin <<EOF
 11111111 | The rest of the integer is missing...
 EOF
 
-HDECODE="hdecode ngdecode"
 tst_decode -r BUF
 
 mk_bin <<EOF
