@@ -66,9 +66,9 @@
 
 static const struct hpack_alloc null_alloc = { NULL, NULL, NULL };
 
-static const uint8_t basic_frame[] = { 0x82 };
+static const uint8_t basic_block[] = { 0x82 };
 
-static const uint8_t junk_frame[] = { 0x80 };
+static const uint8_t junk_block[] = { 0x80 };
 
 static const struct hpack_item basic_item = {
 	.typ = HPACK_INDEXED,
@@ -169,9 +169,9 @@ main(int argc, char **argv)
 	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
 	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_decode, hp, basic_frame,
-	    sizeof basic_frame, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block,
+	    sizeof basic_block, NULL, NULL);
 
 	/* over-resize decoder with no realloc */
 	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
@@ -179,10 +179,10 @@ main(int argc, char **argv)
 
 	/* defunct decoder */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
-	CHECK_RES(retval, IDX, hpack_decode, hp, junk_frame,
-	    sizeof junk_frame, noop_dec_cb, NULL);
-	CHECK_RES(retval, ARG, hpack_decode, hp, junk_frame,
-	    sizeof junk_frame, noop_dec_cb, NULL);
+	CHECK_RES(retval, IDX, hpack_decode, hp, junk_block,
+	    sizeof junk_block, noop_dec_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, junk_block,
+	    sizeof junk_block, noop_dec_cb, NULL);
 
 	hpack_free(&hp);
 

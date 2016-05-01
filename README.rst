@@ -98,7 +98,7 @@ It can be verified by looking at the shared object::
 
 5. No system calls
 
-Again on the assumption that decoded HPACK frames are always complete,
+Again on the assumption that decoded HPACK blocks are always complete,
 there is no need to make system calls in the decoding code path for tasks
 such as fetching data.
 

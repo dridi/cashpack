@@ -103,7 +103,7 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 }
 
 static int
-decode_frame(void *priv, const void *buf, size_t len)
+decode_block(void *priv, const void *buf, size_t len)
 {
 	struct dec_priv *priv2;
 
@@ -133,7 +133,7 @@ main(int argc, char **argv)
 	void *buf;
 	int fd, retval, tbl_sz;
 
-	ctx.dec = decode_frame;
+	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
 	ctx.priv = &priv;
 	ctx.spec = "";
