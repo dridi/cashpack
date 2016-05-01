@@ -324,6 +324,38 @@ EOF
 
 tst_decode --decoding-spec d12,r0,r4096,
 
+# =============================================
+# No more than two updates can occur in a block
+# =============================================
+
+mk_hex <<EOF
+# dynamic field "name: value"
+4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# table update to 0
+20                                      |  
+
+# table update back to 4096
+3fe1 1f                                 | ?..
+
+# table update to 20
+34                                      | 4
+EOF
+
+mk_enc <<EOF
+dynamic str name str value
+flush
+
+resize 0
+resize 4096
+
+update 20
+EOF
+
+HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
+tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
+tst_encode --expect-error UPD
+
 # =========================
 # Enlarge the dynamic table
 # =========================
