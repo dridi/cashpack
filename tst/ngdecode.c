@@ -237,13 +237,11 @@ main(int argc, char **argv)
 	retval = nghttp2_hd_inflate_change_table_size(inf, tbl_sz);
 	assert(retval == 0);
 
-	/* NB: nghttp2 assumes that reducing the maximum table size below the
-	 * current limit should be followed first thing by a dynamic table
-	 * update during decoding. Whether that assumption is correct or not,
-	 * this is purely an HTTP/2 concern and it shouldn't apply for the
-	 * very first request when the initial size of the table may be set
-	 * in the first settings frame. So we clear this state by pretending
-	 * we just ended a request.
+	/* NB: nghttp2 doesn't allow to pick an initial size for the dynamic
+	 * table. So for tests starting with a reduced table, like some of the
+	 * examples from the RFC, an update will be needed on the first block.
+	 *
+	 * We clear this state by pretending we just ended a request.
 	 */
 	(void)nghttp2_hd_inflate_end_headers(inf);
 
