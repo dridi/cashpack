@@ -24,9 +24,9 @@ The typical structure of a test case is the following::
 
     . "$(dirname "$0")"/common.sh
 
-    # ===============
-    # Test case title
-    # ===============
+    _ ---------------
+    _ Test case title
+    _ ---------------
 
     mk_hex <<EOF
     [...]

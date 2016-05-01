@@ -183,3 +183,12 @@ tst_encode() {
 	diff -u "$TEST_TMP/hex" "$TEST_TMP/enc_hex"
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }
+
+_() {
+	if expr "$1" : '^-' >/dev/null
+	then
+		echo "------$*"
+	else
+		echo "TEST: $*"
+	fi
+}

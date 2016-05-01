@@ -26,9 +26,9 @@
 
 . "$(dirname "$0")"/common.sh
 
-# ============
-# Empty string
-# ============
+_ ------------
+_ Empty string
+_ ------------
 
 mk_msg </dev/null
 mk_tbl </dev/null
@@ -93,9 +93,9 @@ EOF
 
 tst_decode --expect-error HUF
 
-# =============
-# Premature EOS
-# =============
+_ -------------
+_ Premature EOS
+_ -------------
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -109,9 +109,9 @@ EOF
 
 tst_decode --expect-error HUF
 
-# ==========
-# Broken EOS
-# ==========
+_ ----------
+_ Broken EOS
+_ ----------
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -121,9 +121,9 @@ EOF
 
 tst_decode --expect-error HUF
 
-# =================
-# Invalid character
-# =================
+_ -----------------
+_ Invalid character
+_ -----------------
 
 mk_bin <<EOF
 00000000 | Literal field without indexing
@@ -134,10 +134,10 @@ EOF
 
 tst_decode --expect-error CHR
 
-# ====================================================
-# Parse a Huffman string longer than the decode buffer
-# ====================================================
-#
+_ ----------------------------------------------------
+_ Parse a Huffman string longer than the decode buffer
+_ ----------------------------------------------------
+
 # Because the most common character is conveniently '0' it can be used to
 # represent both itself and its Huffman hexdump. Because the Huffman code
 # is a 5-bit string of zeros, this test picks a big multiple of both 5 and
@@ -157,10 +157,10 @@ mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 tst_decode
 tst_encode
 
-# ====================================================
-# Decode a long Huffman string with invalid characters
-# ====================================================
-#
+_ ----------------------------------------------------
+_ Decode a long Huffman string with invalid characters
+_ ----------------------------------------------------
+
 # To make matters simpler, we can use the horizontal tabulation that takes 24
 # bits or 3 octets once coded. It's easy enough to embed and is illegal in a
 # header field name.

@@ -26,9 +26,9 @@
 
 . "$(dirname "$0")"/common.sh
 
-# ===========
-# Wrong usage
-# ===========
+_ -----------
+_ Wrong usage
+_ -----------
 
 ! ./hdecode # missing param
 ! ./hencode unexpected_param
@@ -37,9 +37,9 @@
 
 ! ./ngdecode # missing param
 
-# ==========
-# Empty name
-# ==========
+_ ----------
+_ Empty name
+_ ----------
 
 mk_msg </dev/null
 mk_tbl </dev/null
@@ -51,9 +51,9 @@ EOF
 
 tst_decode --expect-error LEN
 
-# ===========
-# Empty value
-# ===========
+_ -----------
+_ Empty value
+_ -----------
 
 mk_bin <<EOF
 01000001 | dynamic field (01) with indexed name 1
@@ -76,9 +76,9 @@ EOF
 tst_decode
 tst_encode
 
-# =========================
-# Empty Huffman-coded value
-# =========================
+_ -------------------------
+_ Empty Huffman-coded value
+_ -------------------------
 
 mk_bin <<EOF
 01000001 | dynamic field (01) with indexed name 1
@@ -92,9 +92,9 @@ EOF
 tst_decode
 tst_encode
 
-# =============================
-# Validate pseudo-headers names
-# =============================
+_ -----------------------------
+_ Validate pseudo-headers names
+_ -----------------------------
 
 mk_hex <<EOF
 0005 3a70 6174 6801 2f                  | ..:path./
@@ -108,9 +108,9 @@ EOF
 
 tst_encode
 
-# ============================================
-# Tolerate obsolete characters in field values
-# ============================================
+_ --------------------------------------------
+_ Tolerate obsolete characters in field values
+_ --------------------------------------------
 
 mk_hex <<EOF
 0004 6e61 6d65 0f6f 6273 6f6c 6574 6509 | ..name.obsolete.
@@ -125,9 +125,9 @@ EOF
 
 tst_encode
 
-# ===================================
-# Invalid characters for a field name
-# ===================================
+_ -----------------------------------
+_ Invalid characters for a field name
+_ -----------------------------------
 
 mk_hex </dev/null
 
@@ -140,17 +140,17 @@ tst_invalid_char "literal str name: str value"
 tst_invalid_char "literal str näme str value"
 tst_invalid_char "literal str Name str value"
 
-# ==============================================
-# Invalid (control) characters for a field value
-# ==============================================
+_ --------------------------------------------
+_ Invalid control characters for a field value
+_ --------------------------------------------
 
 tst_invalid_char "literal str name str value"
 tst_invalid_char "literal str name str value"
 
-# =========================
-# Encode exactly 256 octets
-# =========================
-#
+_ -------------------------
+_ Encode exactly 256 octets
+_ -------------------------
+
 # A 253-characters long string is made of 3s because its ASCII hexadecimal
 # happens to be 33. So it can be used to both encode the string and its
 # hexdump. All this effort for a single branch in the code :)

@@ -30,9 +30,9 @@ mk_hex </dev/null
 mk_msg </dev/null
 mk_tbl </dev/null
 
-# ==========
-# Null index
-# ==========
+_ ----------
+_ Null index
+_ ----------
 
 mk_enc <<EOF
 indexed 0
@@ -40,9 +40,9 @@ EOF
 
 tst_encode --expect-error IDX
 
-# ===============
-# Index too large
-# ===============
+_ ---------------
+_ Index too large
+_ ---------------
 
 mk_enc <<EOF
 indexed 99999
@@ -50,9 +50,9 @@ EOF
 
 tst_encode --expect-error IDX
 
-# ===================
-# Wrong dynamic field
-# ===================
+_ -------------------
+_ Wrong dynamic field
+_ -------------------
 
 mk_enc <<EOF
 dynamic idx 0 str value
@@ -60,9 +60,9 @@ EOF
 
 tst_encode --expect-error IDX
 
-# =========================
-# Wrong never-indexed field
-# =========================
+_ -------------------------
+_ Wrong never-indexed field
+_ -------------------------
 
 mk_enc <<EOF
 never idx 99999 str value
@@ -70,9 +70,9 @@ EOF
 
 tst_encode --expect-error IDX
 
-# ========================
-# Table update doesn't fit
-# ========================
+_ ------------------------
+_ Table update doesn´t fit
+_ ------------------------
 
 mk_enc <<EOF
 update 9001
@@ -80,9 +80,9 @@ EOF
 
 tst_encode --expect-error LEN --table-size 4096
 
-# ===============================
-# Table update exceeds boundaries
-# ===============================
+_ -------------------------------
+_ Table update exceeds boundaries
+_ -------------------------------
 
 mk_enc <<EOF
 update 70000
@@ -90,9 +90,9 @@ EOF
 
 tst_encode --expect-error ARG
 
-# =====================================
-# A dynamic field too big for the table
-# =====================================
+_ -------------------------------------
+_ A dynamic field too big for the table
+_ -------------------------------------
 
 mk_hex <<EOF
 5409 6c6f 6361 6c68 6f73 74             | T.localhost

@@ -29,9 +29,9 @@
 mk_msg </dev/null
 mk_tbl </dev/null
 
-# ================
-# Buffer overflows
-# ================
+_ ----------------
+_ Buffer overflows
+_ ----------------
 
 mk_bin <<EOF
 11111111 | The rest of the integer is missing...
@@ -45,9 +45,9 @@ EOF
 
 tst_decode --expect-error BUF
 
-# =================
-# Integer overflows
-# =================
+_ -----------------
+_ Integer overflows
+_ -----------------
 
 mk_bin <<EOF
 11111111 | Use an indexed field
@@ -85,9 +85,9 @@ EOF
 
 tst_decode --expect-error INT
 
-# =======
-# Fuzzing
-# =======
+_ -------
+_ Fuzzing
+_ -------
 
 mk_bin <<EOF
 00111111 | Use a table update

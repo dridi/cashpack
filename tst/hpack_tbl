@@ -26,9 +26,9 @@
 
 . "$(dirname "$0")"/common.sh
 
-# =======================================
-# Section 6.3.  Dynamic Table Size Update
-# =======================================
+_ --------------------------------------
+_ Section 6.3. Dynamic Table Size Update
+_ --------------------------------------
 
 mk_hex <<EOF
 # C.5.1.  First Response
@@ -72,9 +72,9 @@ EOF
 tst_decode --decoding-spec d70, --table-size 256
 tst_encode --table-size 256
 
-# ===============================================
-# Try the previous message with a table too small
-# ===============================================
+_ -----------------------------------------------
+_ Try the previous message with a table too small
+_ -----------------------------------------------
 
 mk_hex <<EOF
 # C.5.1.  First Response
@@ -89,9 +89,9 @@ mk_tbl </dev/null
 
 tst_decode --table-size 60
 
-# =======================================================
-# Table size update not at the begining of an HPACK block
-# =======================================================
+_ -------------------------------------------------------
+_ Table size update not at the begining of an HPACK block
+_ -------------------------------------------------------
 
 mk_msg </dev/null
 mk_tbl </dev/null
@@ -110,9 +110,9 @@ EOF
 tst_decode --expect-error UPD
 tst_encode --expect-error UPD
 
-# ===========
-# Wrong index
-# ===========
+_ -----------
+_ Wrong index
+_ -----------
 
 mk_bin <<EOF
 11000010 | Indexed field 66
@@ -126,9 +126,9 @@ EOF
 
 tst_decode --expect-error IDX
 
-# ========================================
-# Use the indexed name of an evicted field
-# ========================================
+_ ----------------------------------------
+_ Use the indexed name of an evicted field
+_ ----------------------------------------
 
 mk_hex <<EOF
 4004 6e61 6d65 0576 616c 7565 7e06 7570 | @.name.value~.up
@@ -147,9 +147,9 @@ EOF
 
 tst_encode --table-size 42
 
-# =============================================================
-# Use the indexed name of an evicted field in a non-empty table
-# =============================================================
+_ -------------------------------------------------------------
+_ Use the indexed name of an evicted field in a non-empty table
+_ -------------------------------------------------------------
 
 mk_hex <<EOF
 4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
@@ -171,9 +171,9 @@ EOF
 
 tst_encode --table-size 84
 
-# =================================
-# Resize the table outside of HPACK
-# =================================
+_ ---------------------------------
+_ Resize the table outside of HPACK
+_ ---------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -206,9 +206,9 @@ EOF
 tst_decode --decoding-spec d12,r20,
 tst_encode
 
-# ===============================
-# Let the decoder empty the table
-# ===============================
+_ -------------------------------
+_ Let the decoder empty the table
+_ -------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -238,9 +238,9 @@ EOF
 tst_decode --decoding-spec d12,r0,r4096,
 tst_encode
 
-# =============================
-# Let the decoder make no sense
-# =============================
+_ -----------------------------
+_ Let the decoder make no sense
+_ -----------------------------
 
 mk_enc <<EOF
 dynamic str name str value
@@ -259,9 +259,9 @@ EOF
 tst_decode --decoding-spec d12,r20,r0,r4096,
 tst_encode
 
-# ===========================
-# Missing update after resize
-# ===========================
+_ ---------------------------
+_ Missing update after resize
+_ ---------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -273,9 +273,9 @@ EOF
 
 tst_decode --decoding-spec d12,r0, --expect-error RSZ
 
-# ====================================
-# Omit the minimum of multiple resizes
-# ====================================
+_ ------------------------------------
+_ Omit the minimum of multiple resizes
+_ ------------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -287,9 +287,9 @@ EOF
 
 tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 
-# =====================================
-# Update too big after multiple resizes
-# =====================================
+_ -------------------------------------
+_ Update too big after multiple resizes
+_ -------------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -304,9 +304,9 @@ EOF
 
 tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 
-# ========================================================
-# Use a soft limit for the last update of multiple resizes
-# ========================================================
+_ --------------------------------------------------------
+_ Use a soft limit for the last update of multiple resizes
+_ --------------------------------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -324,9 +324,9 @@ EOF
 
 tst_decode --decoding-spec d12,r0,r4096,
 
-# =============================================
-# No more than two updates can occur in a block
-# =============================================
+_ ---------------------------------------------
+_ No more than two updates can occur in a block
+_ ---------------------------------------------
 
 mk_hex <<EOF
 # dynamic field "name: value"
@@ -356,9 +356,9 @@ HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
 tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 tst_encode --expect-error UPD
 
-# =========================
-# Enlarge the dynamic table
-# =========================
+_ -------------------------
+_ Enlarge the dynamic table
+_ -------------------------
 
 mk_hex </dev/null
 
