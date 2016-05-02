@@ -165,10 +165,11 @@ tst_decode() {
 	do
 		hpack_decode ./$dec "$@"
 
+		skip_diff "$@" && continue
+
 		printf "Decoded header list:\n\n" |
 		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/out"
 
-		skip_diff "$@" ||
 		diff -u "$TEST_TMP/out" "$TEST_TMP/dec_out"
 	done
 }
