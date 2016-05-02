@@ -29,16 +29,6 @@
 mk_msg </dev/null
 mk_tbl </dev/null
 
-_ ---------------
-_ Index too large
-_ ---------------
-
-mk_hex <<EOF
-fe
-EOF
-
-tst_decode --expect-error IDX
-
 _ ----------------
 _ Update too large
 _ ----------------
