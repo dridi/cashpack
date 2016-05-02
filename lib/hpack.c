@@ -542,9 +542,12 @@ hpack_encode_update(HPACK_CTX, HPACK_ITM)
 	HPT_adjust(ctx, ctx->hp->len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
 
-	if (ctx->hp->min < ctx->hp->nxt)
+	if (ctx->hp->min < ctx->hp->nxt) {
+		assert(ctx->hp->min >= 0);
 		ctx->hp->min = ctx->hp->nxt;
-	else {
+	}
+	else if (ctx->hp->min >= 0) {
+		assert(ctx->hp->min == ctx->hp->nxt);
 		ctx->hp->max = ctx->hp->nxt;
 		ctx->hp->lim = ctx->hp->nxt;
 		ctx->hp->min = -1;
@@ -579,11 +582,13 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	ctx.can_upd = 1;
 
 	if (hp->min >= 0) {
+		assert(hp->min <= hp->nxt);
 		(void)memset(&rsz_itm, 0, sizeof rsz_itm);
 		rsz_itm.typ = HPACK_UPDATE;
 		rsz_itm.lim = hp->min;
 		retval = hpack_encode_update(&ctx, &rsz_itm);
 		assert(retval == 0);
+		assert(hp->min == hp->nxt);
 		if (hp->nxt >= 0) {
 			rsz_itm.lim = hp->nxt;
 			retval = hpack_encode_update(&ctx, &rsz_itm);
