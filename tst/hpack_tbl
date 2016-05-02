@@ -110,22 +110,6 @@ EOF
 tst_decode --expect-error UPD
 tst_encode --expect-error UPD
 
-_ -----------
-_ Wrong index
-_ -----------
-
-mk_bin <<EOF
-11000010 | Indexed field 66
-EOF
-
-tst_decode --expect-error IDX
-
-mk_bin <<EOF
-01111110 | Indexed name 62
-EOF
-
-tst_decode --expect-error IDX
-
 _ ----------------------------------------
 _ Use the indexed name of an evicted field
 _ ----------------------------------------
