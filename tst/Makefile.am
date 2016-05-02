@@ -62,6 +62,7 @@ endif
 check: $(noinst_PROGRAMS)
 
 RFC_TESTS = \
+	rfc7541_2_3_2 \
 	rfc7541_c_2_1 \
 	rfc7541_c_2_2 \
 	rfc7541_c_2_3 \
