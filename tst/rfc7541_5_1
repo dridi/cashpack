@@ -1,28 +1,20 @@
 #!/bin/sh
 #
-# Copyright (c) 2016 Dridi Boukelmoune
-# All rights reserved.
+# Written by Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
+# This file is in the public domain.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-# SUCH DAMAGE.
+# 5.1.  Integer Representation
+#
+#    [...]
+#
+#    This integer representation allows for values of indefinite size.  It
+#    is also possible for an encoder to send a large number of zero
+#    values, which can waste octets and could be used to overflow integer
+#    values.  Integer encodings that exceed implementation limits -- in
+#    value or octet length -- MUST be treated as decoding errors.
+#    Different limits can be set for each of the different uses of
+#    integers, based on implementation constraints.
 
 . "$(dirname "$0")"/common.sh
 
@@ -96,7 +88,8 @@ mk_bin <<EOF
 10000000 | way more bytes than
 10000000 | needed to encode its
 10000000 | rather small value.
-00000000 | It must work regarless.
+10000000 | For cashpack it must
+00000000 | work regarless.
 EOF
 
 tst_decode --table-size 1024

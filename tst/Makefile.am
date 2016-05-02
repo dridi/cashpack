@@ -68,6 +68,7 @@ RFC_TESTS = \
 	rfc7541_4_2 \
 	rfc7541_4_3 \
 	rfc7541_4_4 \
+	rfc7541_5_1 \
 	rfc7541_c_2_1 \
 	rfc7541_c_2_2 \
 	rfc7541_c_2_3 \
@@ -91,7 +92,6 @@ COV_TESTS = \
 	hpack_dec \
 	hpack_enc \
 	hpack_huf \
-	hpack_int \
 	hpack_tbl
 
 REG_TESTS = \
