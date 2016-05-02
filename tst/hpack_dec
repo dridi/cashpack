@@ -26,22 +26,6 @@
 
 . "$(dirname "$0")"/common.sh
 
-mk_msg </dev/null
-mk_tbl </dev/null
-
-_ ----------------
-_ Update too large
-_ ----------------
-
-mk_hex <<EOF
-# Update the table limit to 150
-# 001 11111 -> 001 (table update) and 31 (5-bit prefix)
-# 0 1110111 -> 0 (end of int) and 119
-3f77
-EOF
-
-tst_decode --expect-error LEN --table-size 100
-
 _ -----------------------------------------
 _ A never-indexed field with a broken index
 _ -----------------------------------------
