@@ -1,3 +1,7 @@
+# cc
+*.[soa]
+*.so*
+
 # autotools
 build/
 Makefile
@@ -6,16 +10,21 @@ aclocal.m4
 autom4te.cache/
 compile
 config.guess
+config.status
 config.sub
 configure
 depcomp
-inc/dbg.h
 install-sh
 libtool
 ltmain.sh
 m4/
 missing
 test-driver
+.deps/
+.libs/
+*.l[oa]
+*.log
+*.trs
 
 # lcov
 *.gcov
@@ -23,6 +32,25 @@ test-driver
 *.gcda
 *.info
 
+# ctags
+tags
+
 # editors
 *~
 *.swp
+
+# built programs
+hphidx
+hphtbl
+hdecode
+hencode
+hpack_arg
+ngdecode
+
+# generated headers
+hpack.h
+hpack_huf_idx.h
+hpack_huf_tbl.h
+
+# manual pages
+*.3
