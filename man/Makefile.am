@@ -31,11 +31,14 @@ dist_man_MANS = \
 	hpack_decoder.3 \
 	hpack_encoder.3 \
 	hpack_foreach.3 \
-	hpack_free.3
+	hpack_free.3 \
+	hpack_resize.3 \
+	hpack_strerror.3 \
+	hpack_trim.3
 
 CLEANFILES = $(dist_man_MANS)
-
 EXTRA_DIST = \
+	$(dist_man_MANS) \
 	cashpack.3.rst \
 	hpack_alloc.3.rst \
 	hpack_decode.3.rst \
@@ -43,6 +46,9 @@ EXTRA_DIST = \
 
 cashpack.3: cashpack.3.rst
 	$(AM_V_GEN) $(BUILD_MAN) $(srcdir)/cashpack.3.rst cashpack.3
+
+hpack_strerror.3:
+	$(AM_V_GEN) echo ".so man3/cashpack.3" >hpack_strerror.3
 
 hpack_alloc.3: hpack_alloc.3.rst
 	$(AM_V_GEN) $(BUILD_MAN) $(srcdir)/hpack_alloc.3.rst hpack_alloc.3
@@ -52,6 +58,12 @@ hpack_decoder.3:
 
 hpack_encoder.3:
 	$(AM_V_GEN) echo ".so man3/hpack_alloc.3" >hpack_encoder.3
+
+hpack_resize.3:
+	$(AM_V_GEN) echo ".so man3/hpack_alloc.3" >hpack_resize.3
+
+hpack_trim.3:
+	$(AM_V_GEN) echo ".so man3/hpack_alloc.3" >hpack_trim.3
 
 hpack_free.3:
 	$(AM_V_GEN) echo ".so man3/hpack_alloc.3" >hpack_free.3
