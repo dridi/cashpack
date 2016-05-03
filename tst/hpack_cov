@@ -108,44 +108,16 @@ EOF
 
 tst_encode
 
-_ --------------------------------------------
-_ Tolerate obsolete characters in field values
-_ --------------------------------------------
-
-mk_hex <<EOF
-0004 6e61 6d65 0f6f 6273 6f6c 6574 6509 | ..name.obsolete.
-7661 6cc3 bc65                          | val..e
-EOF
-
-mk_tbl </dev/null
-
-mk_enc <<EOF
-literal str name str obsolete	valüe
-EOF
-
-tst_encode
-
 _ -----------------------------------
 _ Invalid characters for a field name
 _ -----------------------------------
-
-mk_hex </dev/null
 
 tst_invalid_char() {
 	printf '%s\n' "$1" | mk_enc
 	tst_encode --expect-error CHR
 }
 
-tst_invalid_char "literal str name: str value"
-tst_invalid_char "literal str näme str value"
 tst_invalid_char "literal str Name str value"
-
-_ --------------------------------------------
-_ Invalid control characters for a field value
-_ --------------------------------------------
-
-tst_invalid_char "literal str name str value"
-tst_invalid_char "literal str name str value"
 
 _ -------------------------
 _ Encode exactly 256 octets
@@ -160,5 +132,6 @@ _ -------------------------
 
 mk_chars 3 "01 7f7e %506s"             | mk_hex
 mk_chars 3 "literal idx 1 str %253s\n" | mk_enc
+mk_tbl </dev/null
 
 tst_encode

@@ -87,7 +87,8 @@ RFC_TESTS = \
 	rfc7541_c_5_3 \
 	rfc7541_c_6_1 \
 	rfc7541_c_6_2 \
-	rfc7541_c_6_3
+	rfc7541_c_6_3 \
+	rfc7230_3_2
 
 COV_TESTS = \
 	hpack_arg \
