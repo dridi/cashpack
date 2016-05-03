@@ -50,10 +50,13 @@ coding style and the benefits of open-source [1]_ there may be security issues.
 Design goals
 ------------
 
-0. Disclaimer
+0. Code clarity
 
-This is currently work in progress, not all goals reflect the current state
-of the project. There is also almost no documentation other than this README.
+This goal overrides all the others. Code clarity prevails over other goals
+unless numbers show that optimizations are required. Because of the natural
+indirection created by an event-driven approach (it leads to the fifth circle
+of the callback hell) accidental complexity should be kept to a minimum. There
+is also almost no documentation other than this README.
 
 1. Maintain no state besides the dynamic table
 
