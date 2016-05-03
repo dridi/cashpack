@@ -92,33 +92,6 @@ EOF
 tst_decode
 tst_encode
 
-_ -----------------------------
-_ Validate pseudo-headers names
-_ -----------------------------
-
-mk_hex <<EOF
-0005 3a70 6174 6801 2f                  | ..:path./
-EOF
-
-mk_tbl </dev/null
-
-mk_enc <<EOF
-literal str :path str /
-EOF
-
-tst_encode
-
-_ -----------------------------------
-_ Invalid characters for a field name
-_ -----------------------------------
-
-tst_invalid_char() {
-	printf '%s\n' "$1" | mk_enc
-	tst_encode --expect-error CHR
-}
-
-tst_invalid_char "literal str Name str value"
-
 _ -------------------------
 _ Encode exactly 256 octets
 _ -------------------------

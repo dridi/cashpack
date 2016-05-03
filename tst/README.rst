@@ -274,6 +274,10 @@ will be automatically skipped. It is looked up at configure time::
     checking for NGHTTP2... yes
     [...]
 
+Some of ``nghttp2`` tests fail and are deactivated. It may be fixed on newer
+versions or handled at the HTTP/2 level. It doesn't necessary mean that the
+library is wrong.
+
 Compatibility tests may be extended to other HPACK implementations. For that
 the main requirements are the ability to probe the dynamic table, enough
 control over the coding process and the ability to write ``hencode``-like and
