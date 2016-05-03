@@ -196,6 +196,11 @@ parse_commands(struct enc_ctx *ctx)
 		encode_message(ctx);
 		return (0);
 	}
+	else if (!LINECMP(ctx->line, "trim")) {
+		assert(ctx->cnt == 0);
+		ctx->res = hpack_trim(&ctx->hp);
+		return (0);
+	}
 	else if (!TOKCMP(ctx->line, "resize")) {
 		assert(ctx->cnt == 0);
 		args = TOK_ARGS(ctx->line, "resize");

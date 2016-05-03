@@ -139,6 +139,31 @@ hpack_resize(struct hpack **hpp, size_t len)
 	return (HPACK_RES_OK);
 }
 
+enum hpack_res_e
+hpack_trim(struct hpack **hpp)
+{
+	struct hpack *hp;
+
+	if (hpp == NULL)
+		return (HPACK_RES_ARG);
+
+	hp = *hpp;
+	if (hp == NULL || hp->alloc.realloc == NULL)
+		return (HPACK_RES_ARG);
+	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
+		return (HPACK_RES_ARG);
+
+	if (hp->mem > hp->max) {
+		hp = hp->alloc.realloc(hp, hp->max);
+		if (hp == NULL)
+			return (HPACK_RES_OOM); /* the codec is NOT defunct */
+		hp->mem = hp->max;
+		*hpp = hp;
+	}
+
+	return (HPACK_RES_OK);
+}
+
 void
 hpack_free(struct hpack **hpp)
 {

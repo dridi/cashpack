@@ -70,6 +70,8 @@ static const uint8_t basic_block[] = { 0x82 };
 
 static const uint8_t junk_block[] = { 0x80 };
 
+static const uint8_t update_block[] = { 0x20 };
+
 static const struct hpack_item basic_item = {
 	.typ = HPACK_INDEXED,
 	.idx = 1,
@@ -173,8 +175,17 @@ main(int argc, char **argv)
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block,
 	    sizeof basic_block, NULL, NULL);
 
-	/* over-resize decoder with no realloc */
+	/* over-resize/trim decoder with no realloc */
 	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
+	CHECK_RES(retval, ARG, hpack_trim, &hp);
+	hpack_free(&hp);
+
+	/* fail to trim decoder */
+	CHECK_NOTNULL(hp, hpack_decoder, 4096, &oom_alloc);
+	CHECK_RES(retval, OK, hpack_resize, &hp, 0);
+	CHECK_RES(retval, OK, hpack_decode, hp, update_block,
+	    sizeof update_block, noop_dec_cb, NULL);
+	CHECK_RES(retval, OOM, hpack_trim, &hp);
 	hpack_free(&hp);
 
 	/* defunct decoder */
@@ -199,15 +210,19 @@ main(int argc, char **argv)
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
 	    noop_enc_cb, NULL);
 
-	/* resize defunct encoder */
+	/* resize/trim defunct encoder */
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
 	    noop_enc_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
+	CHECK_RES(retval, ARG, hpack_trim, &hp);
 	hpack_free(&hp);
 
-	/* resize null encoder */
+	/* resize/trim null encoder */
 	CHECK_RES(retval, ARG, hpack_resize, NULL, 0);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
+
+	CHECK_RES(retval, ARG, hpack_trim, NULL);
+	CHECK_RES(retval, ARG, hpack_trim, &hp);
 
 	/* fail to resize when out of memory */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, &oom_alloc);

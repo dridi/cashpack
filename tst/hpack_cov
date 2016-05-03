@@ -108,3 +108,29 @@ mk_chars 3 "literal idx 1 str %253s\n" | mk_enc
 mk_tbl </dev/null
 
 tst_encode
+
+_ ----------------------
+_ Trim the dynamic table
+_ ----------------------
+
+mk_hex <<EOF
+3fe1 0700 0564 756d 6d79 0668 6561 6465 | ?....dummy.heade
+72                                      | r
+EOF
+
+mk_msg <<EOF
+dummy: header
+EOF
+
+mk_enc <<EOF
+# resize and no-op trim
+resize 1024
+trim
+
+# trigger update and trim
+literal str dummy str header
+flush
+trim
+EOF
+
+tst_encode
