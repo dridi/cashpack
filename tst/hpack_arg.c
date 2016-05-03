@@ -227,7 +227,7 @@ main(int argc, char **argv)
 	/* fail to resize when out of memory */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, &oom_alloc);
 	retval = hpack_resize(&hp, UINT16_MAX);
-	assert(retval = HPACK_RES_OOM);
+	assert(retval == HPACK_RES_OOM);
 	hpack_free(&hp);
 
 	/* clean broken items */
