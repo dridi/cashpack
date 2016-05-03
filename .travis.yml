@@ -13,7 +13,7 @@ env:
     - CFLAGS=-O3
     - CFLAGS=-Os
     - BUILD_FLAGS=--with-memcheck
-    - BUILD_FLAGS=--with-lcov
+    - BUILD_FLAGS=--with-lcov BUILD_TARGET=lcov
 matrix:
   include:
     - compiler: clang
@@ -24,6 +24,8 @@ matrix:
       env: BUILD_FLAGS=--with-ubsan
     - compiler: gcc
       env: CFLAGS=-m32
+    - compiler: gcc
+      env: BUILD_TARGET="all distcheck"
 addons:
   apt:
     packages:
@@ -41,12 +43,10 @@ addons:
     build_command: make
     branch_pattern: coverity_scan
 before_install:
-  - test $TRAVIS_BRANCH != coverity_scan -o "${TRAVIS_JOB_NUMBER##*.}" = 1 || exit 0
+  - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
 script:
   - test $TRAVIS_BRANCH != coverity_scan || exit 0
   - mkdir build
   - cd build
   - ../bootstrap $BUILD_FLAGS
-  - make check
-after_failure:
-  - cat tst/test-suite.log
+  - make ${BUILD_TARGET:-check}
