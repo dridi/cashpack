@@ -134,14 +134,23 @@ will feed the encoding script to the ``hencode`` C program and check that the
 binary output matches the one from the *hexdump* and performs a similar check
 for the dynamic table.
 
-Testing edge cases
-------------------
+Coverage of the HPACK protocol
+------------------------------
 
 Unfortunately examples from the RFC are far from enough to get decent coverage
 of the HPACK protocol. The appendices don't even bother showing an update of
-the soft limit of a dynamic table, and they all take the happy path. So in
-addition to the ``rfc_*`` test cases are the ``hpack_*`` cases that aim at
-increasing both HPACK and cashpack coverage in the test suite.
+the soft limit of a dynamic table, and they all take the happy path.
+
+For that matter, sections describing decoding errors or expected behavior have
+their own test cases in addition to the examples from the appendix C. This
+should be enough to demonstrate cashpack's compliance.
+
+Testing edge cases
+------------------
+
+Being compliant is one thing, but cashpack has its peculiar architecture and
+needs coverage of its own. So in addition to the ``rfc_*`` test cases are the
+``hpack_*`` cases that aim at increasing cashpack coverage in the test suite.
 
 The ``tst_??code`` functions accept two command-line options for test cases
 that diverge from the happy and default paths. For instance it is possible to
@@ -202,20 +211,24 @@ Commands and arguments are separated by single spaces to make parsing easier,
 and conveniently only header field values can contain spaces but they can only
 be last so it works by sheer luck.
 
-.. TODO: add the flush and resize statements to the grammar
-
 ::
 
-    encoding-script = 1*( statement LF )
+    encoding-script = 1*( statement )
 
-    statement = indexed-field / dynamic-field / literal-field / never-field /
-        table-update
+    statement = block-statement / resize
+
+    block-statement = 1*( header-statement LF ) flush
+
+    header-statement = indexed-field / dynamic-field / literal-field /
+        never-field / table-update
 
     indexed-field = "indexed" SP index
     dynamic-field = "dynamic" SP field-name SP field-value
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
     table-update  = "update" SP size
+    flush         = "flush" LF
+    resize        = "resize" SP size LF
 
     index  = number
     size   = number
@@ -247,7 +260,8 @@ some areas the spec is not always strict::
     10000000 | way more bytes than
     10000000 | needed to encode its
     10000000 | rather small value.
-    00000000 | It must work regarless.
+    10000000 | For cashpack it must
+    00000000 | work regarless.
     EOF
 
     tst_decode --table-size 1024
