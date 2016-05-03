@@ -236,13 +236,15 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 }
 
 static unsigned
-hpt_evict(struct hpt_priv *priv, const char *buf, size_t len)
+hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
 {
 	struct hpack *hp;
 
 	hp = priv->ctx->hp;
 	if (buf != NULL)
 		priv->len += len;
+
+	/* fitting the new field may require eviction */
 	HPT_adjust(priv->ctx, hp->len + priv->len);
 
 	/* does the new field even fit alone? */
@@ -368,7 +370,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 		assert(hp->cnt > 0);
 	}
 
-	if (!hpt_notify(priv2, evt, buf, len) || !hpt_evict(priv2, buf, len))
+	if (!hpt_notify(priv2, evt, buf, len) || !hpt_fit(priv2, buf, len))
 		return;
 
 	priv2->wrt = evt == HPACK_EVT_NAME ?
