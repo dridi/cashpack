@@ -8,7 +8,6 @@ URL:            https://github.com/dridi/%{name}
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  bc
-BuildRequires:  libnghttp2-devel
 BuildRequires:  vim-common
 
 
@@ -59,10 +58,15 @@ make %{?_smp_mflags} check
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/*.a
+%{_libdir}/pkgconfig/*.pc
 %{_mandir}/man*/*
 
 
 %changelog
+* Wed May  4 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+- Add pkgconfig file
+- Disable nghttp2
+
 * Mon Apr 11 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
 - Switch to autotools
 - Disable memcheck

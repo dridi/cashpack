@@ -52,6 +52,7 @@ AC_CONFIG_FILES([
 	gen/Makefile
 	inc/Makefile
 	lib/Makefile
+	lib/cashpack.pc
 	man/Makefile
 	tst/Makefile
 ])

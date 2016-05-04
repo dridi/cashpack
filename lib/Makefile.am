@@ -45,3 +45,8 @@ libhpack_la_SOURCES = \
 	$(top_builddir)/inc/hpack.h \
 	$(top_builddir)/gen/hpack_huf_idx.h \
 	$(top_builddir)/gen/hpack_huf_tbl.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = $(PACKAGE).pc
+
+EXTRA_DIST = $(PACKAGE).pc.in
