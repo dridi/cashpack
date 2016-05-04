@@ -42,7 +42,9 @@ dist_man_MANS = \
 SUFFIXES = .3.rst .3
 
 .3.rst.3:
-	$(AM_V_GEN) $(BUILD_MAN_PAGE) $< >$@
+	@test "$(abs_srcdir)" = "$(abs_builddir)" || \
+		ln -f -s $(srcdir)/$@.rst $@.rst
+	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst >$@
 
 # man links
 
