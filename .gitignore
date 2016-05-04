@@ -54,3 +54,4 @@ hpack_huf_tbl.h
 
 # manual pages
 *.3
+hpe2rst.rst

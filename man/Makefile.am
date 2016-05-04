@@ -22,6 +22,9 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
+AM_CFLAGS = -Wall -Werror -Wextra
+AM_CPPFLAGS = -I$(top_srcdir)/inc
+
 BUILD_MAN_PAGE = $(RST2MAN) --strict --strip-comments
 BUILD_MAN_LINK = printf ".so man3/%s\n"
 
@@ -36,6 +39,15 @@ dist_man_MANS = \
 	hpack_resize.3 \
 	hpack_strerror.3 \
 	hpack_trim.3
+
+# doc generators
+
+noinst_PROGRAMS = hpe2rst.gen
+
+hpe2rst_gen_SOURCES = hpe2rst.c
+
+.gen.rst:
+	$(AM_V_GEN) ./$< >$@
 
 # man pages
 
@@ -61,7 +73,10 @@ hpack_strerror.3:
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
 
-CLEANFILES = $(dist_man_MANS)
+CLEANFILES = \
+	$(dist_man_MANS) \
+	hpe2rst.rst
+
 EXTRA_DIST = \
 	$(dist_man_MANS) \
 	cashpack.3.rst \

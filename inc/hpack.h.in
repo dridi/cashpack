@@ -37,9 +37,9 @@ enum hpack_res_e {
 };
 
 enum hpack_evt_e {
-#define HPE(e, v, d)	HPACK_EVT_##e	= v,
+#define HPE(e, v, d, l)	HPACK_EVT_##e	= v,
 #include "tbl/hpack_tbl.h"
-#undef HPR
+#undef HPE
 };
 
 /* hpack_alloc */
