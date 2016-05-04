@@ -50,17 +50,10 @@ static int
 resize_table(void *priv, const void *buf, size_t len)
 {
 	nghttp2_hd_inflater *inf;
-	int retval;
 
 	(void)buf;
-
 	inf = priv;
-	retval = nghttp2_hd_inflate_change_table_size(inf, len);
-	assert(retval == 0);
-
-#ifdef NDEBUG
-	(void)retval;
-#endif
+	return (nghttp2_hd_inflate_change_table_size(inf, len));
 }
 
 static int
