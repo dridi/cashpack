@@ -73,7 +73,6 @@ write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_NAME);
 	assert(evt != HPACK_EVT_VALUE);
-	assert(evt != HPACK_EVT_TABLE);
 
 	if (buf != NULL)
 		WRT(buf, len);

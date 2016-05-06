@@ -372,6 +372,7 @@ hpack_decode_update(HPACK_CTX)
 	EXPECT(ctx, LEN, sz <= ctx->hp->max);
 	ctx->hp->lim = sz;
 	HPT_adjust(ctx, ctx->hp->len);
+	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, sz);
 	return (0);
 }
 
@@ -566,6 +567,7 @@ hpack_encode_update(HPACK_CTX, HPACK_ITM)
 	ctx->hp->lim = itm->lim;
 	HPT_adjust(ctx, ctx->hp->len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
+	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, itm->lim);
 
 	if (ctx->hp->min < ctx->hp->nxt) {
 		assert(ctx->hp->min >= 0);
