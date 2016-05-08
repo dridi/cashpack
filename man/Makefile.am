@@ -23,7 +23,7 @@
 # SUCH DAMAGE.
 
 AM_CFLAGS = -Wall -Werror -Wextra
-AM_CPPFLAGS = -I$(top_srcdir)/inc
+AM_CPPFLAGS = -I$(top_srcdir)/inc -I$(top_builddir)/inc
 
 BUILD_MAN_PAGE = $(RST2MAN) --strict --strip-comments
 BUILD_MAN_LINK = printf ".so man3/%s\n"
@@ -41,14 +41,40 @@ dist_man_MANS = \
 	hpack_strerror.3 \
 	hpack_trim.3
 
+# code examples
+
+examplesdir = $(pkgdatadir)/examples
+
+examples_DATA = cashdump.c
+
 # doc generators
 
-noinst_PROGRAMS = hpe2rst.gen
+noinst_PROGRAMS = \
+	cashdump \
+	hpe2rst.gen
+
+cashdump_LDADD = $(top_builddir)/lib/libhpack.la
+cashdump_SOURCES = cashdump.c
 
 hpe2rst_gen_SOURCES = hpe2rst.c
 
 .gen.rst:
 	$(AM_V_GEN) ./$< >$@
+
+.c.src:
+	@echo '$$ cat' $$(basename '$<') >$@
+	$(AM_V_GEN) $(SED) '1,28d' <$< >>$@
+
+cashdump.hex: frames.hex
+	@echo '$$ hexdump -C frames.bin' >$@
+	$(AM_V_GEN) $(top_srcdir)/tst/hex_decode <$(srcdir)/frames.hex | \
+		hexdump -C >>$@
+
+cashdump.out: cashdump frames.hex
+	@echo '$$ gcc -lhpack -o cashdump cashdump.c' >$@
+	@echo '$$ ./cashdump <frames.bin' >>$@
+	$(AM_V_GEN) $(top_srcdir)/tst/hex_decode <$(srcdir)/frames.hex | \
+		./cashdump >>$@
 
 # man pages
 
@@ -59,7 +85,7 @@ SUFFIXES = .3.rst .3
 		ln -f -s $(srcdir)/$@.rst $@.rst
 	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst >$@
 
-cashpack.3: hpe2rst.rst
+cashpack.3: hpe2rst.rst cashdump.src cashdump.hex cashdump.out
 
 # man links
 
@@ -78,7 +104,10 @@ hpack_clean_item.3:
 
 CLEANFILES = \
 	$(dist_man_MANS) \
-	hpe2rst.rst
+	hpe2rst.rst \
+	cashdump.hex \
+	cashdump.out \
+	cashdump.src
 
 EXTRA_DIST = \
 	$(dist_man_MANS) \
@@ -87,4 +116,5 @@ EXTRA_DIST = \
 	hpack_decode.3.rst \
 	hpack_encode.3.rst \
 	hpack_foreach.3.rst \
-	hpack_strerror.3.rst
+	hpack_strerror.3.rst \
+	frames.hex

@@ -60,9 +60,13 @@ make %{?_smp_mflags} check
 %{_libdir}/*.a
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man*/*
+%{_datarootdir}/%{name}
 
 
 %changelog
+* Sun May  8 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+- Add %%_datarootdir
+
 * Wed May  4 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
 - Add pkgconfig file
 - Disable nghttp2

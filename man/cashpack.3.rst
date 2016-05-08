@@ -184,15 +184,33 @@ When dealing with events, unknown values should be ignored. Future versions of
 cashpack may introduce new events. The values for existing events shall never
 be changed.
 
-NOTES
-=====
-
-TODO
-
 EXAMPLE
 =======
 
-TODO
+The following example shows how to read HTTP/2 frames and decode HPACK blocks.
+Only HEADERS frames are read, which means that SETTINGS frames resizing the
+dynamic table would be ignored and may lead to decoding errors for perfectly
+fine frames. On the other hand, malformed HTTP/2 frames (eg. duplicate headers
+in a single block) may be decoded without problems.
+
+The headers blocks are printed for each stream and at the end, the dynamic
+table is printed too. This program is stateless and doesn't have side effects
+so it doesn't use the private pointer in its decoding callback:
+
+.. include:: cashdump.src
+    :literal:
+
+The HTTP/2 frames in this example are stored in a binary file in the same
+directory:
+
+.. include:: cashdump.hex
+    :literal:
+
+Assuming a standard installation of cashpack, the program can be compiled and
+will produce the following output for the frames dumped above:
+
+.. include:: cashdump.out
+    :literal:
 
 FILES
 =====

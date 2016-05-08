@@ -37,7 +37,7 @@ For code coverage, the simplest way to get a report is as follows::
    $ make lcov
    $ xdg-open lcov/index.html
 
-An example of the library usage can be found in the test suite.
+An example of the library usage can be found in the `cashpack(3)` manual.
 
 Contributing
 ------------
