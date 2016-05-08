@@ -23,11 +23,11 @@
 .. SUCH DAMAGE.
 
 ============
-hpack_decode
+hpack_encode
 ============
 
 ----------------------------
-Decode a block of HPACK data
+Encode a block of HPACK data
 ----------------------------
 
 :Manual section: 3
@@ -39,15 +39,12 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_decoded_f(**
+| **typedef void hpack_encoded_f(**
 | **\     void** *\*priv*\ **,**
 | **\     enum hpack_evt_e** *evt*\ **,**
-| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
+| **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **enum hpack_res_e hpack_decode(**
-| **\     struct hpack** *\*hpack*\ **,**
-| **\     const void** *\*buf*\ **, size_t** *size*\ **,**
-| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+| **enum hpack_res_e hpack_encode(** /\* TODO \*/ **);**
 
 DESCRIPTION
 ===========
@@ -62,3 +59,4 @@ SEE ALSO
 **hpack_encoder**\(3),
 **hpack_free**\(3),
 **hpack_foreach**\(3)
+

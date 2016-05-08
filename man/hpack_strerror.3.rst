@@ -22,13 +22,13 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-============
-hpack_decode
-============
+==============
+hpack_strerror
+==============
 
-----------------------------
-Decode a block of HPACK data
-----------------------------
+------------------------------------------
+Return a string describing an error number
+------------------------------------------
 
 :Manual section: 3
 
@@ -39,15 +39,7 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_decoded_f(**
-| **\     void** *\*priv*\ **,**
-| **\     enum hpack_evt_e** *evt*\ **,**
-| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
-|
-| **enum hpack_res_e hpack_decode(**
-| **\     struct hpack** *\*hpack*\ **,**
-| **\     const void** *\*buf*\ **, size_t** *size*\ **,**
-| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+| **const char * hpack_strerror(enum hpack_res_e** *res*\ **);**
 
 DESCRIPTION
 ===========

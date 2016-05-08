@@ -35,6 +35,7 @@ Allocate, resize and free HPACK tables
 SYNOPSIS
 ========
 
+| **#include <stdint.h>**
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |

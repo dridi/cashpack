@@ -3,8 +3,8 @@ CASHPACK - The C Anti-State HPACK library
 
 cashpack is a stateless event-driven HPACK codec. It is meant to work with
 HTTP/2 or similar protocols in the sense that some assumptions made by the
-library would not work in all situations. For instance, it is not possible
-to feed the decoder with partial HPACK contents.
+library would not work in all situations. For instance, HTTP/2 doesn't allow
+upper-case characters in header names, neither does cashpack.
 
 .. image:: https://travis-ci.org/Dridi/cashpack.svg
 .. image:: https://scan.coverity.com/projects/7758/badge.svg
@@ -55,8 +55,7 @@ Design goals
 This goal overrides all the others. Code clarity prevails over other goals
 unless numbers show that optimizations are required. Because of the natural
 indirection created by an event-driven approach (it leads to the fifth circle
-of the callback hell) accidental complexity should be kept to a minimum. There
-is also almost no documentation other than this README.
+of the callback hell) accidental complexity should be kept to a minimum.
 
 1. Maintain no state besides the dynamic table
 
@@ -75,7 +74,7 @@ By default cashpack relies on malloc(3), realloc(3) and free(3).
 
 3. Zero-copy in the library code
 
-Except when a field needs to be inserted in the dynamic table, cashpack does
+Except when a field needs to be inserted in the dynamic table, cashpack may
 not copy data around. However an insertion in the dynamic table requires to
 move the existing contents to make room for the new field. Evictions on the
 other hand are cheap.
@@ -101,9 +100,8 @@ It can be verified by looking at the shared object::
 
 5. No system calls
 
-Again on the assumption that decoded HPACK blocks are always complete,
-there is no need to make system calls in the decoding code path for tasks
-such as fetching data.
+cashpack is not responsible for writing or reading HPACK blocks, it will only
+send events during decoding or encoding.
 
 6. No locking
 
@@ -112,7 +110,7 @@ or encoding should happen in the HTTP/2 RX or TX loop, which is ordered.
 
 7. Decoding as a state machine
 
-Events are triggered following a deterministic finite state machine, which
+Events are triggered following deterministic finite state machines, which
 hopefully should help better understand the decoding flow.
 
 8. Tight API

@@ -44,7 +44,145 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-TODO
+This is an overview of cashpack, a stateless event-driven HPACK codec written
+in C. Instead of strictly following the HPACK specification, it implements
+validation bits of HTTP/1.1 and HTTP/2 that don't require to maintain state.
+HPACK is a stateful protocol by design, even though HTTP itself is stateless.
+cashpack doesn't keep track of state beyond what's absolutely needed to comply
+with HPACK, and it puts the user in a stateless event driver where the user
+may manage more state.
+
+MEMORY LAYOUT
+=============
+
+Regardless of the number of insertions done over the lifetime of an HPACK
+instance, only a single allocation is needed. This makes cashpack a good fit
+for embedded systems or in general strong requirements on memory management.
+Updating the dynamic table size may however require a reallocation.
+
+A single allocation means that the HPACK data structure and its dynamic table
+are allocated at once, packed together. The dynamic table is literally managed
+as a FIFO buffer. Consider a table with a size of 96 octets in which a header
+``"name: value"`` is inserted::
+
+    | 0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |                                                               |
+    +-                30 octets of overhead                -+---+---+
+    |                                                       | n   a
+    +---+---+---+---+---+---+---+---+---+-------------------+---+---+
+      m   e | ¶ | v   a   l   u   e | ¶ |                           |
+    +---+---+---+---+---+---+---+---+---+                          -+
+    |                                                               |
+    +-                                                             -+
+    |               55 octets of empty/unused space                 |
+    +-                                                             -+
+    |                                                               |
+    +---------------------------------------------------------------+
+
+The ¶ symbol represents the NUL character, meaning that strings in the dynamic
+table are null-terminated and can be used with functions expecting a C string.
+HPACK estimates an optimistic overhead of about 32 octets per entry, but with
+cashpack this is exactly what you get: 30 octets for house-keeping plus 2 null
+characters.
+
+Now let's insert a new field ``"other: header"`` in the table::
+
+    | 0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |                                                               |
+    +-                30 octets of overhead                -+---+---+
+    |                                                       | o   t
+    +---+---+---+---+---+---+---+---+---+-------------------+---+---+
+      h   e   r | ¶ | h   e   a   d   e   r | ¶ |                   |
+    +---+---+---+---+---+---+---+---+---+---+---+                  -+
+    |                                                               |
+    +-      30 octets of overhead       +---+---+---+---+---+---+---+
+    |                                   | n   a   m   e | ¶ | v   a
+    +---+---+---+---+-------------------+---+---+---+---+---+---+---+
+      l   u   e | ¶ |        12 octets of empty/unused space        |
+    +---+---+---+---+-----------------------------------------------+
+
+Insertions are expensive, because new entries will push existing entries
+further in the FIFO. However only entries that remain after the insertion are
+moved. Entries are effectively evicted before insertions, and evictions are
+very cheap. It is just a matter of decrementing the number of entries and the
+table consumption. The dynamic table is systematically maintained as a
+contiguous list of entries, therefore a cashpack decoder never suffers
+fragmentation because no allocation occur during a header field insertion.
+A cashpack encoder maintains its table identically, there's no difference to
+the point that they both share the same ``struct hpack *`` type.
+
+LOCKING
+=======
+
+There is absolutely no locking in cashpack, a ``struct hpack *`` is left
+completely unguarded. The only thread-safe operation for this data structure
+is its allocation.
+
+You shouldn't need to lock an HPACK structure because HTTP's transport must be
+ordered. In HTTP/2 streams are multiplexed but header frames (and for what
+it's worth all frames) are decoded in order too.
+
+RFC 2616 stated that you need a TCP-like protocol to transport HTTP, and that
+you may use a different protocol as long as it provides TCP-like reliability:
+
+|
+| > HTTP communication usually takes place over TCP/IP connections. [...]
+| > HTTP only presumes a reliable transport; any protocol that provides such
+| > guarantees can be used; the mapping of the HTTP/1.1 request and response
+| > structures onto the transport data units of the protocol in question is
+| > outside the scope of this specification.
+
+The QUIC protocol is an example of a reliable HTTP transport over unreliable
+UDP.
+
+However TCP establishes full-duplex communications that are completely
+independent. That too is not a problem because an HTTP/2 session will require
+two HPACK contexts: one for the requests and one for the responses.
+
+DECODER VS ENCODER
+==================
+
+The only difference between a decoder and an encoder are the operations they
+each perform. A decoder and an encoder sharing both ends of an HPACK session
+maintain a single dynamic table in sync. They share the same state (HTTP is
+otherwise a stateless protocol) and this reflects on the type system as both
+decoders and encoders have the same ``struct hpack *`` type.
+
+When performing an HTTP/2 session, you will need to allocate both an encoder
+and a decoder, one of each being either for requests or responses. Both HPACK
+decoding and encoding operations are event-driven. Codecs' dynamic tables can
+also be probed, once again using an event driver.
+
+EVENTS
+======
+
+The list of events is the same for all event drivers, some of them only use a
+subset. There are two callback signatures for callbacks, almost identical:
+
+|
+| **typedef void hpack_decoded_f(**
+| **\     void** *\*priv*\ **,**
+| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
+|
+| **typedef void hpack_encoded_f(**
+| **\     void** *\*priv*\ **,**
+| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     const void** *\*buf*\ **, size_t** *size*\ **);**
+
+When not ``NULL``, The *buf* argument always point to non-persistent memory
+that should only be considered valid (unless documented otherwise) until the
+callback returns.
+
+The type ``enum hpack_evt_e`` may take the following values:
+
+.. include:: hpe2rst.rst
+
+When dealing with events, unknown values should be ignored. Future versions of
+cashpack may introduce new events. The values for existing events shall never
+be changed.
 
 NOTES
 =====
@@ -56,6 +194,26 @@ EXAMPLE
 
 TODO
 
+FILES
+=====
+
+These are subject to difference depending on local installation conventions.
+
+*${includedir}/hpack.h*
+        cashpack include file
+
+*${libdir}/libhpack.a*
+        cashpack static archive
+
+*${libdir}/libhpack.la*
+        cashpack libtool archive
+
+*${libdir}/libhpack.so*
+        cashpack shared object
+
+*${libdir}/pkgconfig/cashpack.pc*
+        pkg-config file for cashpack
+
 SEE ALSO
 ========
 
@@ -63,4 +221,7 @@ SEE ALSO
 **hpack_encoder**\(3),
 **hpack_free**\(3),
 **hpack_decode**\(3),
-**hpack_foreach**\(3)
+**hpack_encode**\(3),
+**hpack_foreach**\(3),
+**pkg-config**\(1),
+**libtool**\(1)

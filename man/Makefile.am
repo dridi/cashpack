@@ -33,6 +33,7 @@ dist_man_MANS = \
 	hpack_alloc.3 \
 	hpack_decode.3 \
 	hpack_decoder.3 \
+	hpack_encode.3 \
 	hpack_encoder.3 \
 	hpack_foreach.3 \
 	hpack_free.3 \
@@ -58,6 +59,8 @@ SUFFIXES = .3.rst .3
 		ln -f -s $(srcdir)/$@.rst $@.rst
 	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst >$@
 
+cashpack.3: hpe2rst.rst
+
 # man links
 
 hpack_alloc_links = \
@@ -67,11 +70,11 @@ hpack_alloc_links = \
 	hpack_resize.3 \
 	hpack_trim.3
 
-hpack_strerror.3:
-	$(AM_V_GEN) $(BUILD_MAN_LINK) cashpack.3 >$@
-
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
+
+hpack_clean_item.3:
+	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_encode.3 >$@
 
 CLEANFILES = \
 	$(dist_man_MANS) \
@@ -82,4 +85,6 @@ EXTRA_DIST = \
 	cashpack.3.rst \
 	hpack_alloc.3.rst \
 	hpack_decode.3.rst \
-	hpack_foreach.3.rst
+	hpack_encode.3.rst \
+	hpack_foreach.3.rst \
+	hpack_strerror.3.rst
