@@ -23,7 +23,7 @@
 # SUCH DAMAGE.
 
 AC_INIT([cashpack], [0.1], [https://github.com/dridi/cashpack/issues])
-AC_COPYRIGHT([Copyright (c) 2015-2016 Dridi Boukelmoune])
+AC_COPYRIGHT([Copyright (c) 2016 Dridi Boukelmoune])
 
 AC_PREREQ([2.63])
 AC_REVISION([revision 1])
