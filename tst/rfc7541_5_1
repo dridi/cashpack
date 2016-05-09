@@ -88,8 +88,9 @@ mk_bin <<EOF
 10000000 | way more bytes than
 10000000 | needed to encode its
 10000000 | rather small value.
-10000000 | For cashpack it must
-00000000 | work regarless.
+10000000 | For cashpack it will
+00000000 | fail decoding.
 EOF
 
-tst_decode --table-size 1024
+HDECODE=hdecode # XXX: nghttp2 accepts this
+tst_decode --expect-error INT --table-size 1024
