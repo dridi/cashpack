@@ -291,18 +291,20 @@ static void
 hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 {
 	struct hpack *hp;
+	struct hpt_entry tmp;
 	void *ptr;
 
 	hp = priv->ctx->hp;
 
 	if (hp->cnt > 0) {
-		assert(priv->he->magic == HPT_ENTRY_MAGIC);
+		(void)memcpy(&tmp, priv->he, HPT_HEADERSZ);
+		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		ptr = priv->he;
 		hp->off = priv->len;
-		priv->he->pre_sz = priv->len;
-		priv->he = MOVE(hp->tbl, priv->he->pre_sz);
+		tmp.pre_sz = priv->len;
+		priv->he = MOVE(hp->tbl, tmp.pre_sz);
 		(void)memmove(priv->he, ptr, hp->len);
-		assert(priv->he->magic == HPT_ENTRY_MAGIC);
+		(void)memcpy(priv->he, &tmp, HPT_HEADERSZ);
 	}
 
 	if (hpt_overlap(hp, buf, len))
@@ -364,6 +366,9 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 	struct hpt_priv *priv2;
 	struct hpack *hp;
 	unsigned ovl;
+#ifndef NDEBUG
+	struct hpt_entry tmp;
+#endif
 
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_EVICT);
@@ -405,8 +410,11 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 
 	if (evt == HPACK_EVT_NAME) {
 		if (hp->cnt > 0) {
+#ifndef NDEBUG
+			(void)memcpy(&tmp, priv2->he, HPT_HEADERSZ);
 			assert(priv2->he != hp->tbl);
-			assert(priv2->he->pre_sz >= HPT_HEADERSZ);
+			assert(tmp.pre_sz >= HPT_HEADERSZ);
+#endif
 		}
 		(void)memset(hp->tbl, 0, HPT_HEADERSZ);
 		hp->tbl->magic = HPT_ENTRY_MAGIC;
