@@ -103,8 +103,15 @@ struct hpack {
 	 */
 	ssize_t			nxt;
 	ssize_t			min;
+	/* NB: cnt is the entries counter. */
 	size_t			cnt;
+	/* NB: off keep tracks of the table offset when an entry is inserted
+	 * and the whole table is moved in a FIFO fashion.
+	 */
 	ptrdiff_t		off;
+	/* NB: This is where the dynamic table starts, it's not actually part
+	 * of this structure.
+	 */
 	struct hpt_entry	tbl[0];
 };
 
