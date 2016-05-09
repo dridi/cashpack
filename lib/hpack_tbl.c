@@ -64,23 +64,25 @@ const struct hpt_field hpt_static[] = {
 static struct hpt_entry *
 hpt_dynamic(struct hpack *hp, size_t idx)
 {
-	struct hpt_entry *he;
+	struct hpt_entry *he, tmp;
 	ptrdiff_t off;
 
 	he = MOVE(hp->tbl, hp->off);
-	off = he->pre_sz;
+	(void)memcpy(&tmp, he, HPT_HEADERSZ);
+	off = tmp.pre_sz;
 
 	assert(idx > 0);
 	assert(idx <= hp->cnt);
 
 	while (1) {
-		assert(he->magic == HPT_ENTRY_MAGIC);
-		assert(he->pre_sz == off);
-		assert(he->nam_sz > 0);
+		assert(tmp.magic == HPT_ENTRY_MAGIC);
+		assert(tmp.pre_sz == off);
+		assert(tmp.nam_sz > 0);
 		if (--idx == 0)
 			return (he);
-		off = HPT_OVERHEAD + he->nam_sz + he->val_sz;
+		off = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		he = MOVE(he, off);
+		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 	}
 }
 
@@ -88,6 +90,7 @@ int
 HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 {
 	const struct hpt_entry *he;
+	struct hpt_entry tmp;
 
 	assert(idx != 0);
 	if (idx <= HPT_STATIC_MAX) {
@@ -99,10 +102,11 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
 	he = hpt_dynamic(ctx->hp, idx);
-	hf->nam_sz = he->nam_sz;
-	hf->val_sz = he->val_sz;
+	(void)memcpy(&tmp, he, HPT_HEADERSZ);
+	hf->nam_sz = tmp.nam_sz;
+	hf->val_sz = tmp.val_sz;
 	hf->nam = JUMP(he, 0);
-	hf->val = JUMP(he, he->nam_sz + 1);
+	hf->val = JUMP(he, tmp.nam_sz + 1);
 	return (0);
 }
 
@@ -110,6 +114,7 @@ void
 HPT_foreach(HPACK_CTX)
 {
 	const struct hpt_entry *he, *tbl;
+	struct hpt_entry tmp;
 	ptrdiff_t off;
 	size_t i;
 
@@ -120,14 +125,15 @@ HPT_foreach(HPACK_CTX)
 	he = tbl;
 	for (i = 0; i < ctx->hp->cnt; i++) {
 		assert(DIFF(tbl, he) < ctx->hp->len);
-		assert(he->magic == HPT_ENTRY_MAGIC);
-		assert(he->pre_sz == off);
-		assert(he->nam_sz > 0);
-		off = HPT_OVERHEAD + he->nam_sz + he->val_sz;
+		(void)memcpy(&tmp, he, HPT_HEADERSZ);
+		assert(tmp.magic == HPT_ENTRY_MAGIC);
+		assert(tmp.pre_sz == off);
+		assert(tmp.nam_sz > 0);
+		off = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
-		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), he->nam_sz);
-		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, he->nam_sz + 1),
-		    he->val_sz);
+		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), tmp.nam_sz);
+		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, tmp.nam_sz + 1),
+		    tmp.val_sz);
 		he = MOVE(he, off);
 	}
 }
@@ -141,6 +147,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 {
 	struct hpack *hp;
 	struct hpt_entry *he;
+	struct hpt_entry tmp;
 	size_t sz;
 
 	hp = ctx->hp;
@@ -150,13 +157,14 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	he = hpt_dynamic(hp, hp->cnt);
 
 	while (hp->cnt > 0 && len > hp->lim) {
-		assert(he->magic == HPT_ENTRY_MAGIC);
-		assert(he->nam_sz > 0);
-		sz = HPT_OVERHEAD + he->nam_sz + he->val_sz;
+		(void)memcpy(&tmp, he, HPT_HEADERSZ);
+		assert(tmp.magic == HPT_ENTRY_MAGIC);
+		assert(tmp.nam_sz > 0);
+		sz = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		len -= sz;
 		hp->len -= sz;
 		hp->cnt--;
-		he = MOVE(he, -he->pre_sz);
+		he = MOVE(he, -tmp.pre_sz);
 		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, 0);
 	}
 
