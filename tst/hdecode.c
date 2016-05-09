@@ -110,7 +110,7 @@ decode_block(void *priv, const void *buf, size_t len)
 	struct dec_priv *priv2;
 
 	priv2 = priv;
-	return (hpack_decode(priv2->hp, buf, len, priv2->cb, NULL));
+	return (hpack_decode(priv2->hp, buf, len, 0, priv2->cb, NULL));
 }
 
 static int

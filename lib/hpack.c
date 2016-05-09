@@ -383,7 +383,7 @@ hpack_decode_update(HPACK_CTX)
 }
 
 enum hpack_res_e
-hpack_decode(struct hpack *hp, const void *buf, size_t len,
+hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
     hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx ctx;
@@ -392,6 +392,9 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len,
 	if (hp == NULL || hp->magic != DECODER_MAGIC || buf == NULL ||
 	    len == 0 || cb == NULL)
 		return (HPACK_RES_ARG);
+
+	if (cut)
+		INCOMPL();
 
 	ctx.res = HPACK_RES_OK;
 	ctx.hp = hp;

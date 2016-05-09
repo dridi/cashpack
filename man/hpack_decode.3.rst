@@ -47,7 +47,8 @@ SYNOPSIS
 | **enum hpack_res_e hpack_decode(**
 | **\     struct hpack** *\*hpack*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **,**
-| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+| **\     unsigned** *cut*\ **, const void** *\*buf*\ **,**
+| **\     void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========

@@ -69,7 +69,7 @@ const char * hpack_strerror(enum hpack_res_e);
 
 typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
 
-enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t,
+enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t, unsigned,
     hpack_decoded_f, void *);
 
 /* hpack_encode */

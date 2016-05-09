@@ -169,11 +169,12 @@ main(int argc, char **argv)
 
 	/* decoding process */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
-	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block, 0, 0, NULL,
+	    NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block,
-	    sizeof basic_block, NULL, NULL);
+	    sizeof basic_block, 0, NULL, NULL);
 
 	/* over-resize/trim decoder with no realloc */
 	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
@@ -184,16 +185,16 @@ main(int argc, char **argv)
 	CHECK_NOTNULL(hp, hpack_decoder, 4096, &oom_alloc);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 0);
 	CHECK_RES(retval, OK, hpack_decode, hp, update_block,
-	    sizeof update_block, noop_dec_cb, NULL);
+	    sizeof update_block, 0, noop_dec_cb, NULL);
 	CHECK_RES(retval, OOM, hpack_trim, &hp);
 	hpack_free(&hp);
 
 	/* defunct decoder */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_block,
-	    sizeof junk_block, noop_dec_cb, NULL);
+	    sizeof junk_block, 0, noop_dec_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_block,
-	    sizeof junk_block, noop_dec_cb, NULL);
+	    sizeof junk_block, 0, noop_dec_cb, NULL);
 
 	hpack_free(&hp);
 
