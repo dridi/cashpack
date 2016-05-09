@@ -525,7 +525,6 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	(void)memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
-	priv.enc = 1;
 
 	if (itm->fld.flg & HPACK_IDX) {
 		(void)HPT_search(ctx, itm->fld.idx, &hf);
