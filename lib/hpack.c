@@ -281,6 +281,9 @@ hpack_decode_dynamic(HPACK_CTX)
 	struct hpack_ctx tbl_ctx;
 	struct hpt_priv priv;
 	uint16_t idx;
+#ifndef NDEBUG
+	struct hpt_entry tmp;
+#endif
 
 	hp = ctx->hp;
 
@@ -310,8 +313,11 @@ hpack_decode_dynamic(HPACK_CTX)
 		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
 		hp->len += priv.len;
 		if (++ctx->hp->cnt > 1) {
-			assert(priv.he->pre_sz > 0);
-			assert((size_t)priv.he->pre_sz == priv.len);
+#ifndef NDEBUG
+			(void)memcpy(&tmp, priv.he, sizeof tmp);
+			assert(tmp.pre_sz > 0);
+			assert((size_t)tmp.pre_sz == priv.len);
+#endif
 		}
 	}
 	else {
@@ -501,6 +507,9 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	struct hpt_field hf;
 	struct hpt_priv priv;
 	size_t nam_sz, val_sz;
+#ifndef NDEBUG
+	struct hpt_entry tmp;
+#endif
 
 	CALL(hpack_encode_field, ctx, itm, HPACK_PFX_DYNAMIC);
 
@@ -530,8 +539,11 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
 		hp->len += priv.len;
 		if (++ctx->hp->cnt > 1) {
-			assert(priv.he->pre_sz > 0);
-			assert((size_t)priv.he->pre_sz == priv.len);
+#ifndef NDEBUG
+			(void)memcpy(&tmp, priv.he, sizeof tmp);
+			assert(tmp.pre_sz > 0);
+			assert((size_t)tmp.pre_sz == priv.len);
+#endif
 		}
 	}
 
