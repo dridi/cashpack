@@ -125,6 +125,11 @@ struct hpack {
 	 * and the whole table is moved in a FIFO fashion.
 	 */
 	ptrdiff_t		off;
+	/* NB: Decoding is inherently stateful, so the context might as well
+	 * be part of the whole data structure. It is still a separate data
+	 * structure because it is possible to chain contexts.
+	 */
+	struct hpack_ctx	ctx;
 	/* NB: This is where the dynamic table starts, it's not actually part
 	 * of this structure.
 	 */

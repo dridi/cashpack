@@ -104,7 +104,7 @@ static hpack_encoded_f *noop_enc_cb = (hpack_encoded_f *)noop_cb;
  * Static allocator
  */
 
-static uint8_t static_buffer[128];
+static uint8_t static_buffer[256];
 
 static void *
 static_malloc(size_t size)

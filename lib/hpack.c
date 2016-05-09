@@ -188,19 +188,21 @@ hpack_free(struct hpack **hpp)
 int
 hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
-	struct hpack_ctx ctx;
+	struct hpack_ctx *ctx;
 
 	if (hp == NULL || cb == NULL)
 		return (HPACK_RES_ARG);
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (HPACK_RES_ARG);
 
-	(void)memset(&ctx, 0, sizeof ctx);
-	ctx.hp = hp;
-	ctx.dec = cb;
-	ctx.priv = priv;
+	ctx = &hp->ctx;
 
-	HPT_foreach(&ctx);
+	(void)memset(ctx, 0, sizeof *ctx);
+	ctx->hp = hp;
+	ctx->dec = cb;
+	ctx->priv = priv;
+
+	HPT_foreach(ctx);
 	return (HPACK_RES_OK);
 }
 
@@ -386,7 +388,7 @@ enum hpack_res_e
 hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
     hpack_decoded_f cb, void *priv)
 {
-	struct hpack_ctx ctx;
+	struct hpack_ctx *ctx;
 	int retval;
 
 	if (hp == NULL || hp->magic != DECODER_MAGIC || buf == NULL ||
@@ -396,23 +398,25 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	if (cut)
 		INCOMPL();
 
-	ctx.res = HPACK_RES_OK;
-	ctx.hp = hp;
-	ctx.buf = buf;
-	ctx.len = len;
-	ctx.dec = cb;
-	ctx.priv = priv;
-	ctx.can_upd = 1;
+	ctx = &hp->ctx;
 
-	while (ctx.len > 0) {
-		if ((*ctx.buf & HPACK_UPDATE) != HPACK_UPDATE) {
-			EXPECT(&ctx, RSZ, hp->nxt < 0);
+	ctx->res = HPACK_RES_OK;
+	ctx->hp = hp;
+	ctx->buf = buf;
+	ctx->len = len;
+	ctx->dec = cb;
+	ctx->priv = priv;
+	ctx->can_upd = 1;
+
+	while (ctx->len > 0) {
+		if ((*ctx->buf & HPACK_UPDATE) != HPACK_UPDATE) {
+			EXPECT(ctx, RSZ, hp->nxt < 0);
 			assert(hp->min < 0);
-			ctx.can_upd = 0;
+			ctx->can_upd = 0;
 		}
 #define HPACK_DECODE(l, U, or) 					\
-		if ((*ctx.buf & HPACK_##U) == HPACK_##U)	\
-			retval = hpack_decode_##l(&ctx); 	\
+		if ((*ctx->buf & HPACK_##U) == HPACK_##U)	\
+			retval = hpack_decode_##l(ctx); 	\
 		or
 		HPACK_DECODE(indexed, INDEXED, else)
 		HPACK_DECODE(dynamic, DYNAMIC, else)
@@ -421,14 +425,14 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 		HPACK_DECODE(literal, LITERAL, /* out of bits */)
 #undef HPACK_DECODE
 		if (retval != 0) {
-			assert(ctx.res != HPACK_RES_OK);
+			assert(ctx->res != HPACK_RES_OK);
 			hp->magic = DEFUNCT_MAGIC;
-			return (ctx.res);
+			return (ctx->res);
 		}
 	}
 
-	assert(ctx.res == HPACK_RES_OK);
-	return (ctx.res);
+	assert(ctx->res == HPACK_RES_OK);
+	return (ctx->res);
 }
 
 /**********************************************************************
@@ -604,7 +608,7 @@ enum hpack_res_e
 hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
     void *priv)
 {
-	struct hpack_ctx ctx;
+	struct hpack_ctx *ctx;
 	struct hpack_item rsz_itm;
 	uint8_t buf[256];
 	int retval;
@@ -613,27 +617,29 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	    len == 0 || cb == NULL)
 		return (HPACK_RES_ARG);
 
-	ctx.res = HPACK_RES_OK;
-	ctx.hp = hp;
-	ctx.buf = buf;
-	ctx.cur = TRUST_ME(ctx.buf);
-	ctx.len = 0;
-	ctx.max = sizeof buf;
-	ctx.enc	= cb;
-	ctx.priv = priv;
-	ctx.can_upd = 1;
+	ctx = &hp->ctx;
+
+	ctx->res = HPACK_RES_OK;
+	ctx->hp = hp;
+	ctx->buf = buf;
+	ctx->cur = TRUST_ME(ctx->buf);
+	ctx->len = 0;
+	ctx->max = sizeof buf;
+	ctx->enc = cb;
+	ctx->priv = priv;
+	ctx->can_upd = 1;
 
 	if (hp->min >= 0) {
 		assert(hp->min <= hp->nxt);
 		(void)memset(&rsz_itm, 0, sizeof rsz_itm);
 		rsz_itm.typ = HPACK_UPDATE;
 		rsz_itm.lim = hp->min;
-		retval = hpack_encode_update(&ctx, &rsz_itm);
+		retval = hpack_encode_update(ctx, &rsz_itm);
 		assert(retval == 0);
 		assert(hp->min == hp->nxt);
 		if (hp->nxt >= 0) {
 			rsz_itm.lim = hp->nxt;
-			retval = hpack_encode_update(&ctx, &rsz_itm);
+			retval = hpack_encode_update(ctx, &rsz_itm);
 			assert(retval == 0);
 		}
 		hpack_clean_item(&rsz_itm);
@@ -641,10 +647,10 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	while (len > 0) {
 		if (itm->typ != HPACK_UPDATE)
-			ctx.can_upd = 0;
+			ctx->can_upd = 0;
 #define HPACK_ENCODE(l, U, or) 					\
 		if (itm->typ == HPACK_##U)			\
-			retval = hpack_encode_##l(&ctx, itm); 	\
+			retval = hpack_encode_##l(ctx, itm); 	\
 		or
 		HPACK_ENCODE(indexed, INDEXED, else)
 		HPACK_ENCODE(dynamic, DYNAMIC, else)
@@ -657,18 +663,18 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 		}
 #undef HPACK_ENCODE
 		if (retval != 0) {
-			assert(ctx.res != HPACK_RES_OK);
+			assert(ctx->res != HPACK_RES_OK);
 			hp->magic = DEFUNCT_MAGIC;
-			return (ctx.res);
+			return (ctx->res);
 		}
 		itm++;
 		len--;
 	}
 
-	HPE_send(&ctx);
+	HPE_send(ctx);
 
-	assert(ctx.res == HPACK_RES_OK);
-	return (ctx.res);
+	assert(ctx->res == HPACK_RES_OK);
+	return (ctx->res);
 }
 
 enum hpack_res_e
