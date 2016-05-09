@@ -68,6 +68,22 @@ struct hpt_priv {
 	unsigned		enc;
 };
 
+struct hpack_ctx {
+	struct hpack		*hp;
+	const uint8_t		*buf;
+	uint8_t			*cur;
+	size_t			len;
+	size_t			max;
+	union {
+		hpack_decoded_f	*dec;
+		hpack_encoded_f	*enc;
+		hpack_encoded_f	*cb; /* dirty covariance hack */
+	};
+	void			*priv;
+	enum hpack_res_e	res;
+	unsigned		can_upd;
+};
+
 struct hpack {
 	uint32_t		magic;
 #define ENCODER_MAGIC		0x8ab1fb4c
@@ -113,22 +129,6 @@ struct hpack {
 	 * of this structure.
 	 */
 	struct hpt_entry	tbl[0];
-};
-
-struct hpack_ctx {
-	struct hpack		*hp;
-	const uint8_t		*buf;
-	uint8_t			*cur;
-	size_t			len;
-	size_t			max;
-	union {
-		hpack_decoded_f	*dec;
-		hpack_encoded_f	*enc;
-		hpack_encoded_f	*cb; /* dirty covariance hack */
-	};
-	void			*priv;
-	enum hpack_res_e	res;
-	unsigned		can_upd;
 };
 
 typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
