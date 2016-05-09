@@ -43,9 +43,8 @@ Contributing
 ------------
 
 The best way to contribute to cashpack is to use it on platforms other than
-x86_64 GNU/Linux with glibc and report failures. You shouldn't be surprised to
-discover alignment issues on other architectures. Despite a semi-paranoid
-coding style and the benefits of open-source [1]_ there may be security issues.
+x86_64 GNU/Linux with glibc and report failures. Despite a paranoid coding
+style and the benefits of open-source [1]_ there may be security issues.
 
 Design goals
 ------------
