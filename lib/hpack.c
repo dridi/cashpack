@@ -301,12 +301,12 @@ hpack_decode_dynamic(HPACK_CTX)
 	tbl_ctx.priv = &priv;
 
 	if (hpack_decode_field(&tbl_ctx, idx) != 0) {
-		assert(tbl_ctx.res != HPACK_RES_OK);
+		assert(tbl_ctx.res != ctx->res);
 		ctx->res = tbl_ctx.res;
 		return (-1);
 	}
 
-	assert(tbl_ctx.res == HPACK_RES_OK);
+	assert(tbl_ctx.res == ctx->res);
 	ctx->buf = tbl_ctx.buf;
 	ctx->len = tbl_ctx.len;
 	hp->off = 0;
@@ -395,18 +395,22 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	    len == 0 || cb == NULL)
 		return (HPACK_RES_ARG);
 
-	if (cut)
-		INCOMPL();
-
 	ctx = &hp->ctx;
 
-	ctx->res = HPACK_RES_OK;
-	ctx->hp = hp;
+	if (ctx->res == HPACK_RES_BLK) {
+		assert(ctx->hp == hp);
+	}
+	else {
+		assert(ctx->res == HPACK_RES_OK);
+		ctx->hp = hp;
+		ctx->can_upd = 1;
+	}
+
 	ctx->buf = buf;
 	ctx->len = len;
 	ctx->dec = cb;
 	ctx->priv = priv;
-	ctx->can_upd = 1;
+	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->len > 0) {
 		if ((*ctx->buf & HPACK_UPDATE) != HPACK_UPDATE) {
@@ -426,12 +430,15 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
-			hp->magic = DEFUNCT_MAGIC;
+			if (cut && ctx->res == HPACK_RES_BUF)
+				ctx->res = HPACK_RES_BLK;
+			else
+				hp->magic = DEFUNCT_MAGIC;
 			return (ctx->res);
 		}
 	}
 
-	assert(ctx->res == HPACK_RES_OK);
+	assert(ctx->res == HPACK_RES_OK || ctx->res == HPACK_RES_BLK);
 	return (ctx->res);
 }
 

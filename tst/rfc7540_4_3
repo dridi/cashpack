@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Written by Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+#
+# This file is in the public domain.
+#
+# 4.3.  Header Compression and Decompression
+#
+#    [...]
+#
+#    A receiving endpoint reassembles the header block by concatenating
+#    its fragments and then decompresses the block to reconstruct the
+#    header list.
+#
+#    A complete header block consists of either:
+#
+#    o  a single HEADERS or PUSH_PROMISE frame, with the END_HEADERS flag
+#       set, or
+#
+#    o  a HEADERS or PUSH_PROMISE frame with the END_HEADERS flag cleared
+#       and one or more CONTINUATION frames, where the last CONTINUATION
+#       frame has the END_HEADERS flag set.
+#
+#    [...]
+
+. "$(dirname "$0")"/common.sh
+
+_ ---------------------------------------
+_ Decode partial blocks at field boundary
+_ ---------------------------------------
+
+mk_hex <<EOF
+# C.5.1.  First Response
+# first half
+4803 3330 3258 0770 7269 7661 7465 611d | H.302X.privatea.
+4d6f 6e2c 2032 3120 4f63 7420 3230 3133 | Mon, 21 Oct 2013
+2032 303a 3133 3a32 3120 474d 54        |  20:13:21 GMT
+
+# second half
+                                6e 1768 |              n.h
+7474 7073 3a2f 2f77 7777 2e65 7861 6d70 | ttps://www.examp
+6c65 2e63 6f6d                          | le.com
+EOF
+
+mk_msg <<EOF
+:status: 302
+cache-control: private
+date: Mon, 21 Oct 2013 20:13:21 GMT
+location: https://www.example.com
+EOF
+
+mk_tbl </dev/null
+
+tst_decode --decoding-spec p45, --table-size 32

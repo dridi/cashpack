@@ -89,6 +89,7 @@ RFC_TESTS = \
 	rfc7541_c_6_2 \
 	rfc7541_c_6_3 \
 	rfc7230_3_2 \
+	rfc7540_4_3 \
 	rfc7540_8_1_2
 
 COV_TESTS = \
