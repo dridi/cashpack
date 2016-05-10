@@ -40,6 +40,10 @@ HPR(CHR,  -7, "Invalid character")
 HPR(UPD,  -8, "Spurious update")
 HPR(RSZ,  -9, "Missing resize update")
 HPR(OOM, -10, "Out of memory")
+#ifndef HPR_ERRORS_ONLY
+HPR(BLK, -11, "Incomplete block")
+#endif
+HPR(BSY, -12, "Decoder busy")
 #endif
 
 #ifdef HPE
