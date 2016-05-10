@@ -105,20 +105,29 @@ print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 }
 
 static int
-decode_block(void *priv, const void *buf, size_t len)
+decode_block(void *priv, const void *buf, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
+	int retval;
 
 	priv2 = priv;
-	return (hpack_decode(priv2->hp, buf, len, 0, priv2->cb, NULL));
+	retval = hpack_decode(priv2->hp, buf, len, cut, priv2->cb, NULL);
+
+	if (retval == HPACK_RES_BLK) {
+		assert(cut);
+		retval = 0;
+	}
+
+	return (retval);
 }
 
 static int
-resize_table(void *priv, const void *buf, size_t len)
+resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
 
 	(void)buf;
+	(void)cut;
 	priv2 = priv;
 	return (hpack_resize(&priv2->hp, len));
 }
@@ -179,7 +188,8 @@ main(int argc, char **argv)
 		    "<dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n\n"
 		    "Spec format: <letter><size>\n"
-		    "  d - decode <size> bytes from the dump\n"
+		    "  d - decode a block of <size> bytes from the dump\n"
+		    "  p - decode a partial block of <size> bytes\n"
 		    "  r - resize the dynamic table to <size> bytes\n"
 		    "  The last empty spec decodes the rest of the dump\n"
 		    "Default table size: 4096\n"

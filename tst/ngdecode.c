@@ -47,16 +47,6 @@
 #include "tst.h"
 
 static int
-resize_table(void *priv, const void *buf, size_t len)
-{
-	nghttp2_hd_inflater *inf;
-
-	(void)buf;
-	inf = priv;
-	return (nghttp2_hd_inflate_change_table_size(inf, len));
-}
-
-static int
 print_headers(void *priv, const void *buf, size_t len)
 {
 	nghttp2_hd_inflater *inf;
@@ -87,12 +77,6 @@ print_headers(void *priv, const void *buf, size_t len)
 		in += rv;
 		len -= rv;
 	}
-
-	rv = nghttp2_hd_inflate_hd(inf, &nv, &flg, in, len, 1);
-	assert(rv == 0);
-	assert(~flg & NGHTTP2_HD_INFLATE_EMIT);
-	assert(flg & NGHTTP2_HD_INFLATE_FINAL);
-	(void)nghttp2_hd_inflate_end_headers(inf);
 
 	return (0);
 }
@@ -139,6 +123,41 @@ print_entries(nghttp2_hd_inflater *inf)
 	}
 }
 
+static int
+decode_block(void *priv, const void *buf, size_t len, unsigned cut)
+{
+	nghttp2_hd_inflater *inf;
+	nghttp2_nv nv;
+	uint8_t *end;
+	int rv, flg;
+
+	inf = priv;
+	rv = print_headers(inf, buf, len);
+
+	if (rv == 0 && !cut) {
+		end = (uint8_t *)buf + len;
+		flg = 0;
+		rv = nghttp2_hd_inflate_hd(inf, &nv, &flg, end, 0, 1);
+		assert(rv == 0);
+		assert(~flg & NGHTTP2_HD_INFLATE_EMIT);
+		assert(flg & NGHTTP2_HD_INFLATE_FINAL);
+		(void)nghttp2_hd_inflate_end_headers(inf);
+	}
+
+	return (rv);
+}
+
+static int
+resize_table(void *priv, const void *buf, size_t len, unsigned cut)
+{
+	nghttp2_hd_inflater *inf;
+
+	(void)buf;
+	(void)cut;
+	inf = priv;
+	return (nghttp2_hd_inflate_change_table_size(inf, len));
+}
+
 int
 main(int argc, char **argv)
 {
@@ -149,7 +168,7 @@ main(int argc, char **argv)
 	void *buf;
 	int fd, retval, tbl_sz, res;
 
-	ctx.dec = print_headers;
+	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
@@ -192,6 +211,7 @@ main(int argc, char **argv)
 		    "The file contains a dump of HPACK octets.\n"
 		    "Spec format: <letter><size>\n"
 		    "  d - decode <size> bytes from the dump\n"
+		    "  p - decode a partial block of <size> bytes\n"
 		    "  r - resize the dynamic table to <size> bytes\n"
 		    "  The last empty spec decodes the rest of the dump\n"
 		    "Default table size: 4096\n"

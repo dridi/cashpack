@@ -174,7 +174,7 @@ from the total size::
 
 This list of sizes can also contain dynamic table sizes when they are resized
 out of band, like HTTP/2 settings. In this case the 'd' size prefix's replaced
-by 'r'.
+by 'r'. Partial blocks may be decoded, in this case the prefix is 'p'.
 
 In some cases *hexdumps* are not *that* helpful and a binary representation is
 a better match. This requirement is covered by another function used by some

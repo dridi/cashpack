@@ -32,7 +32,7 @@
 
 #define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
 
-typedef int tst_decode_f(void *, const void *, size_t);
+typedef int tst_decode_f(void *, const void *, size_t, unsigned);
 
 struct dec_ctx {
 	void		*priv;

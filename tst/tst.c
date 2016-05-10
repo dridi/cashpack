@@ -109,6 +109,7 @@ TST_decode(struct dec_ctx *ctx)
 {
 	tst_decode_f *cb;
 	size_t len;
+	unsigned cut;
 	int res;
 
 	assert(ctx->len > 0);
@@ -118,11 +119,16 @@ TST_decode(struct dec_ctx *ctx)
 
 	do {
 		assert(res == 0);
+		cut = 0;
+
 		switch (*ctx->spec) {
 		case '\0':
 			cb = ctx->dec;
 			len = ctx->len;
 			break;
+		case 'p':
+			cut = 1;
+			/* fall through */
 		case 'd':
 			ctx->spec++;
 
@@ -146,7 +152,7 @@ TST_decode(struct dec_ctx *ctx)
 			ctx->spec++;
 		}
 
-		res = cb(ctx->priv, ctx->buf, len);
+		res = cb(ctx->priv, ctx->buf, len, cut);
 
 		if (cb == ctx->dec) {
 			ctx->buf += len;
