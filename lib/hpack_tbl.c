@@ -192,7 +192,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(len > 0);
 
 		priv->len = HPT_HEADERSZ + 1;
-		if (hp->lim < priv->len)
+		if (hp->lim <= HPT_OVERHEAD || hp->lim < priv->len)
 			break;
 
 		assert(priv->he == hp->tbl);
