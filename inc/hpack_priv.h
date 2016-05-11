@@ -83,12 +83,7 @@ struct hpack_ctx {
 	unsigned		can_upd;
 };
 
-struct hpack {
-	uint32_t		magic;
-#define ENCODER_MAGIC		0x8ab1fb4c
-#define DECODER_MAGIC		0xab0e3218
-#define DEFUNCT_MAGIC		0xdffadae9
-	struct hpack_alloc	alloc;
+struct hpack_size {
 	/* NB: mem is the table size currently allocated. It may get out of
 	 * sync with the maximum size in some cases. Like when the realloc
 	 * function is omitted.
@@ -118,6 +113,15 @@ struct hpack {
 	 */
 	ssize_t			nxt;
 	ssize_t			min;
+};
+
+struct hpack {
+	uint32_t		magic;
+#define ENCODER_MAGIC		0x8ab1fb4c
+#define DECODER_MAGIC		0xab0e3218
+#define DEFUNCT_MAGIC		0xdffadae9
+	struct hpack_alloc	alloc;
+	struct hpack_size	sz;
 	/* NB: cnt is the entries counter. */
 	size_t			cnt;
 	/* NB: off keep tracks of the table offset when an entry is inserted

@@ -75,11 +75,11 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	(void)memset(hp, 0, sizeof *hp + max_init);
 	hp->magic = magic;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
-	hp->mem = max;
-	hp->max = max;
-	hp->lim = max;
-	hp->nxt = -1;
-	hp->min = -1;
+	hp->sz.mem = max;
+	hp->sz.max = max;
+	hp->sz.lim = max;
+	hp->sz.nxt = -1;
+	hp->sz.min = -1;
 	return (hp);
 }
 
@@ -112,33 +112,33 @@ hpack_resize(struct hpack **hpp, size_t len)
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (HPACK_RES_ARG);
 
-	max = hp->alloc.realloc == NULL ? hp->mem : UINT16_MAX;
+	max = hp->alloc.realloc == NULL ? hp->sz.mem : UINT16_MAX;
 	if (len > max) {
 		hp->magic = DEFUNCT_MAGIC;
 		return (HPACK_RES_LEN);
 	}
 
-	if (len > hp->mem) {
+	if (len > hp->sz.mem) {
 		assert(hp->alloc.realloc != NULL);
 		hp = hp->alloc.realloc(hp, sizeof *hp + len);
 		if (hp == NULL) {
 			(*hpp)->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_OOM);
 		}
-		hp->mem = len;
+		hp->sz.mem = len;
 		*hpp = hp;
 	}
 
-	if (hp->min < 0) {
-		assert(hp->nxt < 0);
-		hp->nxt = len;
-		hp->min = len;
+	if (hp->sz.min < 0) {
+		assert(hp->sz.nxt < 0);
+		hp->sz.nxt = len;
+		hp->sz.min = len;
 	}
 	else {
-		assert(hp->nxt >= hp->min);
-		hp->nxt = len;
-		if (hp->min > (ssize_t)len)
-			hp->min = len;
+		assert(hp->sz.nxt >= hp->sz.min);
+		hp->sz.nxt = len;
+		if (hp->sz.min > (ssize_t)len)
+			hp->sz.min = len;
 	}
 
 	return (HPACK_RES_OK);
@@ -158,11 +158,11 @@ hpack_trim(struct hpack **hpp)
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (HPACK_RES_ARG);
 
-	if (hp->mem > hp->max) {
-		hp = hp->alloc.realloc(hp, hp->max);
+	if (hp->sz.mem > hp->sz.max) {
+		hp = hp->alloc.realloc(hp, hp->sz.max);
 		if (hp == NULL)
 			return (HPACK_RES_OOM); /* the codec is NOT defunct */
-		hp->mem = hp->max;
+		hp->sz.mem = hp->sz.max;
 		*hpp = hp;
 	}
 
@@ -321,9 +321,9 @@ hpack_decode_dynamic(HPACK_CTX)
 	ctx->len = tbl_ctx.len;
 	hp->off = 0;
 
-	if (priv.len <= hp->lim) {
+	if (priv.len <= hp->sz.lim) {
 		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
-		hp->len += priv.len;
+		hp->sz.len += priv.len;
 		if (++ctx->hp->cnt > 1) {
 #ifndef NDEBUG
 			(void)memcpy(&tmp, priv.he, sizeof tmp);
@@ -333,7 +333,7 @@ hpack_decode_dynamic(HPACK_CTX)
 		}
 	}
 	else {
-		assert(hp->len == 0);
+		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 	}
 
@@ -369,27 +369,27 @@ hpack_decode_update(HPACK_CTX)
 	EXPECT(ctx, UPD, ctx->can_upd);
 
 	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
-	if (ctx->hp->min >= 0) {
-		assert(ctx->hp->min <= ctx->hp->nxt);
-		if (ctx->hp->min < ctx->hp->nxt) {
-			EXPECT(ctx, UPD, sz == ctx->hp->min);
-			ctx->hp->min = ctx->hp->nxt;
+	if (ctx->hp->sz.min >= 0) {
+		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
+		if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
+			EXPECT(ctx, UPD, sz == ctx->hp->sz.min);
+			ctx->hp->sz.min = ctx->hp->sz.nxt;
 		}
 		else {
-			EXPECT(ctx, UPD, sz == ctx->hp->nxt ||
-			    sz < ctx->hp->nxt);
-			ctx->hp->max = ctx->hp->nxt;
-			ctx->hp->lim = sz;
-			ctx->hp->min = -1;
-			ctx->hp->nxt = -1;
+			EXPECT(ctx, UPD, sz == ctx->hp->sz.nxt ||
+			    sz < ctx->hp->sz.nxt);
+			ctx->hp->sz.max = ctx->hp->sz.nxt;
+			ctx->hp->sz.lim = sz;
+			ctx->hp->sz.min = -1;
+			ctx->hp->sz.nxt = -1;
 			ctx->can_upd = 0;
 		}
 	}
 	else
 		ctx->can_upd = 0;
-	EXPECT(ctx, LEN, sz <= ctx->hp->max);
-	ctx->hp->lim = sz;
-	HPT_adjust(ctx, ctx->hp->len);
+	EXPECT(ctx, LEN, sz <= ctx->hp->sz.max);
+	ctx->hp->sz.lim = sz;
+	HPT_adjust(ctx, ctx->hp->sz.len);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, sz);
 	return (0);
 }
@@ -424,11 +424,11 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 
 	while (ctx->len > 0) {
 		if ((*ctx->buf & HPACK_UPDATE) != HPACK_UPDATE) {
-			if (hp->nxt >= 0) {
+			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
 				return (HPACK_RES_RSZ);
 			}
-			assert(hp->min < 0);
+			assert(hp->sz.min < 0);
 			ctx->can_upd = 0;
 		}
 #define HPACK_DECODE(l, U, or) 					\
@@ -561,9 +561,9 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 
 	hp->off = 0;
 
-	if (priv.len <= hp->lim) {
+	if (priv.len <= hp->sz.lim) {
 		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
-		hp->len += priv.len;
+		hp->sz.len += priv.len;
 		if (++ctx->hp->cnt > 1) {
 #ifndef NDEBUG
 			(void)memcpy(&tmp, priv.he, sizeof tmp);
@@ -596,27 +596,27 @@ hpack_encode_update(HPACK_CTX, HPACK_ITM)
 
 	EXPECT(ctx, UPD, ctx->can_upd);
 	EXPECT(ctx, ARG, itm->lim <= UINT16_MAX);
-	EXPECT(ctx, LEN, itm->lim <= ctx->hp->max);
-	if (ctx->hp->min >= 0) {
-		assert(ctx->hp->min <= ctx->hp->nxt);
-		if (ctx->hp->min < ctx->hp->nxt)
-			assert(itm->lim == (size_t)ctx->hp->min);
+	EXPECT(ctx, LEN, itm->lim <= ctx->hp->sz.max);
+	if (ctx->hp->sz.min >= 0) {
+		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
+		if (ctx->hp->sz.min < ctx->hp->sz.nxt)
+			assert(itm->lim == (size_t)ctx->hp->sz.min);
 	}
-	ctx->hp->lim = itm->lim;
-	HPT_adjust(ctx, ctx->hp->len);
+	ctx->hp->sz.lim = itm->lim;
+	HPT_adjust(ctx, ctx->hp->sz.len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, itm->lim);
 
-	if (ctx->hp->min < ctx->hp->nxt) {
-		assert(ctx->hp->min >= 0);
-		ctx->hp->min = ctx->hp->nxt;
+	if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
+		assert(ctx->hp->sz.min >= 0);
+		ctx->hp->sz.min = ctx->hp->sz.nxt;
 	}
-	else if (ctx->hp->min >= 0) {
-		assert(ctx->hp->min == ctx->hp->nxt);
-		ctx->hp->max = ctx->hp->nxt;
-		ctx->hp->lim = ctx->hp->nxt;
-		ctx->hp->min = -1;
-		ctx->hp->nxt = -1;
+	else if (ctx->hp->sz.min >= 0) {
+		assert(ctx->hp->sz.min == ctx->hp->sz.nxt);
+		ctx->hp->sz.max = ctx->hp->sz.nxt;
+		ctx->hp->sz.lim = ctx->hp->sz.nxt;
+		ctx->hp->sz.min = -1;
+		ctx->hp->sz.nxt = -1;
 		ctx->can_upd = 0;
 	}
 
@@ -648,16 +648,16 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	ctx->priv = priv;
 	ctx->can_upd = 1;
 
-	if (hp->min >= 0) {
-		assert(hp->min <= hp->nxt);
+	if (hp->sz.min >= 0) {
+		assert(hp->sz.min <= hp->sz.nxt);
 		(void)memset(&rsz_itm, 0, sizeof rsz_itm);
 		rsz_itm.typ = HPACK_UPDATE;
-		rsz_itm.lim = hp->min;
+		rsz_itm.lim = hp->sz.min;
 		retval = hpack_encode_update(ctx, &rsz_itm);
 		assert(retval == 0);
-		assert(hp->min == hp->nxt);
-		if (hp->nxt >= 0) {
-			rsz_itm.lim = hp->nxt;
+		assert(hp->sz.min == hp->sz.nxt);
+		if (hp->sz.nxt >= 0) {
+			rsz_itm.lim = hp->sz.nxt;
 			retval = hpack_encode_update(ctx, &rsz_itm);
 			assert(retval == 0);
 		}

@@ -124,7 +124,7 @@ HPT_foreach(HPACK_CTX)
 	tbl = ctx->hp->tbl;
 	he = tbl;
 	for (i = 0; i < ctx->hp->cnt; i++) {
-		assert(DIFF(tbl, he) < ctx->hp->len);
+		assert(DIFF(tbl, he) < ctx->hp->sz.len);
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.pre_sz == off);
@@ -156,22 +156,22 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 
 	he = hpt_dynamic(hp, hp->cnt);
 
-	while (hp->cnt > 0 && len > hp->lim) {
+	while (hp->cnt > 0 && len > hp->sz.lim) {
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.nam_sz > 0);
 		sz = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		len -= sz;
-		hp->len -= sz;
+		hp->sz.len -= sz;
 		hp->cnt--;
 		he = MOVE(he, -tmp.pre_sz);
 		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, 0);
 	}
 
 	if (hp->cnt == 0)
-		assert(hp->len == 0);
+		assert(hp->sz.len == 0);
 	else
-		assert(hp->len > 0);
+		assert(hp->sz.len > 0);
 }
 
 /**********************************************************************
@@ -192,7 +192,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(len > 0);
 
 		priv->len = HPT_HEADERSZ + 1;
-		if (hp->lim <= HPT_OVERHEAD || hp->lim < priv->len)
+		if (hp->sz.lim <= HPT_OVERHEAD || hp->sz.lim < priv->len)
 			break;
 
 		assert(priv->he == hp->tbl);
@@ -215,7 +215,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
-		if (priv->len < hp->lim) {
+		if (priv->len < hp->sz.lim) {
 			/* write the name null byte */
 			c = MOVE(hp->tbl, priv->len - 1);
 			*c = '\0';
@@ -256,11 +256,11 @@ hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
 		priv->len += len;
 
 	/* fitting the new field may require eviction */
-	HPT_adjust(priv->ctx, hp->len + priv->len);
+	HPT_adjust(priv->ctx, hp->sz.len + priv->len);
 
 	/* does the new field even fit alone? */
-	if (priv->len > hp->lim) {
-		assert(hp->len == 0);
+	if (priv->len > hp->sz.lim) {
+		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 		return (0);
 	}
@@ -277,7 +277,7 @@ hpt_overlap(const struct hpack *hp, const char *buf, size_t len)
 
 	bgn = (uintptr_t)hp->tbl;
 	pos = (uintptr_t)buf;
-	end = bgn + hp->len;
+	end = bgn + hp->sz.len;
 
 	if (pos >= bgn && pos < end) {
 		pos += len;
@@ -306,7 +306,7 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		hp->off = priv->len;
 		tmp.pre_sz = priv->len;
 		priv->he = MOVE(hp->tbl, tmp.pre_sz);
-		(void)memmove(priv->he, ptr, hp->len);
+		(void)memmove(priv->he, ptr, hp->sz.len);
 		(void)memcpy(priv->he, &tmp, HPT_HEADERSZ);
 	}
 
@@ -333,8 +333,8 @@ hpt_copy_evicted(struct hpt_priv *priv, const char *buf, size_t len)
 		return;
 	}
 
-	assert(hp->len > sizeof *priv->he);
-	mv = hp->len - HPT_HEADERSZ;
+	assert(hp->sz.len > sizeof *priv->he);
+	mv = hp->sz.len - HPT_HEADERSZ;
 
 	while (len > 0) {
 		sz = len < sizeof tmp ? len : sizeof tmp;
