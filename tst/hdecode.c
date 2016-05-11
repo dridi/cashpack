@@ -168,6 +168,7 @@ main(int argc, char **argv)
 		assert(argc > 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
+		assert(exp != HPACK_RES_BSY);
 		cb = print_nothing;
 		argc -= 2;
 		argv += 2;

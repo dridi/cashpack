@@ -37,6 +37,9 @@ _ -----------
 
 ! ./ngdecode # missing param
 
+! ./hdecode  --expect-error BSY /dev/null
+! ./ngdecode --expect-error BSY /dev/null
+
 _ ----------
 _ Empty name
 _ ----------

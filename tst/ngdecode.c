@@ -189,6 +189,7 @@ main(int argc, char **argv)
 		assert(argc >= 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
+		assert(exp != HPACK_RES_BSY);
 		/* override with nghttp2's generic HPACK error */
 		exp = NGHTTP2_ERR_HEADER_COMP;
 		argc -= 2;
