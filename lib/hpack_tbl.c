@@ -191,6 +191,10 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 	case HPACK_EVT_NAME:
 		assert(len > 0);
 
+		priv->len = HPT_HEADERSZ + 1;
+		if (hp->lim < priv->len)
+			break;
+
 		assert(priv->he == hp->tbl);
 		assert(priv->he->pre_sz == 0);
 		assert(hp->off == 0);
@@ -208,7 +212,6 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 
 		/* account for the entry header + the name null byte */
 		priv->he->pre_sz = HPT_HEADERSZ + 1;
-		priv->len = HPT_HEADERSZ + 1;
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
