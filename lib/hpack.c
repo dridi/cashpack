@@ -419,7 +419,10 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 
 	while (ctx->len > 0) {
 		if ((*ctx->buf & HPACK_UPDATE) != HPACK_UPDATE) {
-			EXPECT(ctx, RSZ, hp->nxt < 0);
+			if (hp->nxt >= 0) {
+				hp->magic = DEFUNCT_MAGIC;
+				return (HPACK_RES_RSZ);
+			}
 			assert(hp->min < 0);
 			ctx->can_upd = 0;
 		}
