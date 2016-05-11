@@ -202,6 +202,11 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 
 	ctx = &hp->ctx;
 
+	if (ctx->res != HPACK_RES_OK) {
+		assert(ctx->res == HPACK_RES_BLK);
+		return (HPACK_RES_BSY);
+	}
+
 	(void)memset(ctx, 0, sizeof *ctx);
 	ctx->hp = hp;
 	ctx->dec = cb;
