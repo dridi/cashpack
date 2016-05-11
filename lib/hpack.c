@@ -59,6 +59,7 @@ static struct hpack *
 hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
+	size_t max_init;
 
 	if (ha == NULL || ha->malloc == NULL || max > UINT16_MAX)
 		return (NULL);
@@ -67,7 +68,11 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	if (hp == NULL)
 		return (NULL);
 
-	(void)memset(hp, 0, sizeof *hp + max);
+	max_init = sizeof *hp->tbl;
+	if (max_init > max)
+		max_init = max;
+
+	(void)memset(hp, 0, sizeof *hp + max_init);
 	hp->magic = magic;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->mem = max;
