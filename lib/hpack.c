@@ -423,7 +423,9 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->len > 0) {
-		if ((*ctx->buf & HPACK_UPDATE) != HPACK_UPDATE) {
+		if (!hp->state.bsy)
+			hp->state.typ = *ctx->buf;
+		if ((hp->state.typ & HPACK_UPDATE) != HPACK_UPDATE) {
 			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
 				return (HPACK_RES_RSZ);
@@ -432,7 +434,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 			ctx->can_upd = 0;
 		}
 #define HPACK_DECODE(l, U, or) 					\
-		if ((*ctx->buf & HPACK_##U) == HPACK_##U)	\
+		if ((hp->state.typ & HPACK_##U) == HPACK_##U)	\
 			retval = hpack_decode_##l(ctx); 	\
 		or
 		HPACK_DECODE(indexed, INDEXED, else)

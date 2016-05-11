@@ -44,38 +44,48 @@
 int
 HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
 {
-	uint16_t v, n;
-	uint8_t b, m, mask;
+	struct hpack_state *hs;
+	uint16_t n;
+	uint8_t b, mask;
 
 	assert(pfx >= 4 && pfx <= 7);
 	assert(val != NULL);
 
+	hs = &ctx->hp->state;
+	if (hs->bsy)
+		assert(hs->magic == INT_STATE_MAGIC);
+	else
+		hs->magic = INT_STATE_MAGIC;
+
 	EXPECT(ctx, BUF, ctx->len > 0);
-	mask = (1 << pfx) - 1;
-	v = *ctx->buf & mask;
-	ctx->buf++;
-	ctx->len--;
+	if (!hs->bsy) {
+		mask = (1 << pfx) - 1;
+		hs->v = *ctx->buf & mask;
+		ctx->buf++;
+		ctx->len--;
 
-	if (v < mask) {
-		*val = v;
-		return (0);
+		if (hs->v < mask) {
+			*val = hs->v;
+			return (0);
+		}
+		hs->m = 0;
+		hs->bsy = 1;
 	}
-
-	m = 0;
 
 	do {
 		EXPECT(ctx, BUF, ctx->len > 0);
-		EXPECT(ctx, INT, m < 32);
+		EXPECT(ctx, INT, hs->m < 32);
 		b = *ctx->buf;
-		n = v + (b & 0x7f) * (1 << m);
-		EXPECT(ctx, INT, v <= n);
-		v = n;
-		m += 7;
+		n = hs->v + (b & 0x7f) * (1 << hs->m);
+		EXPECT(ctx, INT, hs->v <= n);
+		hs->v = n;
+		hs->m += 7;
 		ctx->buf++;
 		ctx->len--;
 	} while (b & 0x80);
 
-	*val = v;
+	*val = hs->v;
+	hs->bsy = 0;
 	return (0);
 }
 

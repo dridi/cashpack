@@ -115,6 +115,20 @@ struct hpack_size {
 	ssize_t			min;
 };
 
+struct hpack_state {
+	uint32_t			magic;
+#define INT_STATE_MAGIC			0x494E5453
+	int				bsy;
+	uint8_t				typ;
+	union {
+		/* integer decoding state */
+		struct {
+			uint16_t	v;
+			uint8_t		m;
+		};
+	};
+};
+
 struct hpack {
 	uint32_t		magic;
 #define ENCODER_MAGIC		0x8ab1fb4c
@@ -122,6 +136,7 @@ struct hpack {
 #define DEFUNCT_MAGIC		0xdffadae9
 	struct hpack_alloc	alloc;
 	struct hpack_size	sz;
+	struct hpack_state	state;
 	/* NB: cnt is the entries counter. */
 	size_t			cnt;
 	/* NB: off keep tracks of the table offset when an entry is inserted

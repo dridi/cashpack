@@ -52,3 +52,42 @@ EOF
 mk_tbl </dev/null
 
 tst_decode --decoding-spec p45, --table-size 32
+
+_ -------------------------------------
+_ Break inside an indexed field integer
+_ -------------------------------------
+
+mk_hex <<EOF
+# indexed field 257 (invalid index)
+ff81 8000
+EOF
+
+HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
+tst_decode --decoding-spec p1, --expect-error IDX
+tst_decode --decoding-spec p2, --expect-error IDX
+tst_decode --decoding-spec p3, --expect-error IDX
+tst_decode --decoding-spec p1,p1, --expect-error IDX
+tst_decode --decoding-spec p1,p2, --expect-error IDX
+tst_decode --decoding-spec p2,p1, --expect-error IDX
+tst_decode --decoding-spec p1,p1,p1, --expect-error IDX
+
+_ -----------------------------------
+_ Break inside a table update integer
+_ -----------------------------------
+
+mk_hex <<EOF
+# table update of 256
+3fe1 01                                 | ?..
+
+# C.2.2.  Literal Header Field without Indexing
+040c 2f73 616d 706c 652f 7061 7468      | ../sample/path
+EOF
+
+mk_msg <<EOF
+:path: /sample/path
+EOF
+
+HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
+tst_decode --decoding-spec p1,
+tst_decode --decoding-spec p2,
+tst_decode --decoding-spec p1,p1,
