@@ -37,6 +37,14 @@ enum hpack_encoding_e { /* Section 5.2 */
 	HPACK_RAW	= 0x00,
 };
 
+enum hpack_stp_e {
+	HPACK_STP_FLD_INT,
+	HPACK_STP_NAM_LEN,
+	HPACK_STP_NAM_STR,
+	HPACK_STP_VAL_LEN,
+	HPACK_STP_VAL_STR,
+};
+
 struct hpt_field {
 	char		*nam;
 	char		*val;
@@ -118,6 +126,7 @@ struct hpack_size {
 struct hpack_state {
 	uint32_t			magic;
 #define INT_STATE_MAGIC			0x494E5453
+	enum hpack_stp_e		stp;
 	int				bsy;
 	uint8_t				typ;
 	union {

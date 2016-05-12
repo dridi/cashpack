@@ -268,12 +268,28 @@ static int
 hpack_decode_field(HPACK_CTX, uint16_t idx)
 {
 
-	if (idx == 0)
-		CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
-	else
-		CALL(HPT_decode_name, ctx, idx);
+	switch (ctx->hp->state.stp) {
+	case HPACK_STP_FLD_INT:
+		ctx->hp->state.stp = HPACK_STP_NAM_LEN;
+		/* fall through */
+	case HPACK_STP_NAM_LEN:
+	case HPACK_STP_NAM_STR:
+		if (idx == 0)
+			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
+		else
+			CALL(HPT_decode_name, ctx, idx);
+		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
+		/* fall through */
+	case HPACK_STP_VAL_LEN:
+	case HPACK_STP_VAL_STR:
+		CALL(hpack_decode_string, ctx, HPACK_EVT_VALUE);
+		ctx->hp->state.stp = HPACK_STP_FLD_INT;
+		break;
+	default:
+		WRONG("Unknown step");
+	}
 
-	return (hpack_decode_string(ctx, HPACK_EVT_VALUE));
+	return (0);
 }
 
 static int
@@ -303,8 +319,10 @@ hpack_decode_dynamic(HPACK_CTX)
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
 
-	CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
-	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
+		CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	}
 
 	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
 	tbl_ctx.dec = HPT_insert;
@@ -345,8 +363,10 @@ hpack_decode_literal(HPACK_CTX)
 {
 	uint16_t idx;
 
-	CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &idx);
-	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
+		CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &idx);
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	}
 	return (hpack_decode_field(ctx, idx));
 }
 
@@ -355,9 +375,11 @@ hpack_decode_never(HPACK_CTX)
 {
 	uint16_t idx;
 
-	CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
-	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
-	CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
+	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
+		CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+		CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
+	}
 	return (hpack_decode_field(ctx, idx));
 }
 
@@ -414,6 +436,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 		assert(ctx->res == HPACK_RES_OK);
 		ctx->hp = hp;
 		ctx->can_upd = 1;
+		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
 	ctx->buf = buf;

@@ -91,3 +91,43 @@ HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
 tst_decode --decoding-spec p1,
 tst_decode --decoding-spec p2,
 tst_decode --decoding-spec p1,p1,
+
+_ ----------------------------------
+_ Break inside a name length integer
+_ ----------------------------------
+
+mk_hex <<EOF
+# literal field "long-name-...
+007f 0b6c 6f6e 672d 6e61 6d65 2d        | ...long-name-
+
+# ...333333"
+$(mk_chars 3 %256s)
+
+# : "value"
+0576 616c 7565                          | .value
+EOF
+
+mk_msg <<EOF
+long-name-$(mk_chars 3 %128s): value
+EOF
+
+tst_decode --decoding-spec p2,
+
+_ -----------------------------------
+_ Break inside a value length integer
+_ -----------------------------------
+
+mk_hex <<EOF
+# literal field "name: long-value-...
+0004 6e61 6d65 7f0c 6c6f 6e67 2d76 616c | ..name..long-val
+7565 2d                                 | ue-
+
+# ...333333"
+$(mk_chars 3 %256s)
+EOF
+
+mk_msg <<EOF
+name: long-value-$(mk_chars 3 %128s)
+EOF
+
+tst_decode --decoding-spec p7,
