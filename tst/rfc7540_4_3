@@ -111,7 +111,9 @@ mk_msg <<EOF
 long-name-$(mk_chars 3 %128s): value
 EOF
 
-tst_decode --decoding-spec p2,
+tst_decode --decoding-spec p2,    # break inside
+tst_decode --decoding-spec p1,    # break before
+tst_decode --decoding-spec p1,p1, # break before and inside
 
 _ -----------------------------------
 _ Break inside a value length integer
@@ -130,4 +132,6 @@ mk_msg <<EOF
 name: long-value-$(mk_chars 3 %128s)
 EOF
 
-tst_decode --decoding-spec p7,
+tst_decode --decoding-spec p7,    # break inside
+tst_decode --decoding-spec p6,    # break before
+tst_decode --decoding-spec p6,p1, # break before and inside

@@ -443,7 +443,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->len > 0) {
-		if (!hp->state.bsy)
+		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->buf;
 		if ((hp->state.typ & HPACK_UPDATE) != HPACK_UPDATE) {
 			if (hp->sz.nxt >= 0) {

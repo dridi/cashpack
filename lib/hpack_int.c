@@ -57,6 +57,7 @@ HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
 	else
 		hs->magic = INT_STATE_MAGIC;
 
+	assert(ctx->len > 0 || ctx->hp->state.stp != HPACK_STP_FLD_INT);
 	EXPECT(ctx, BUF, ctx->len > 0);
 	if (!hs->bsy) {
 		mask = (1 << pfx) - 1;
