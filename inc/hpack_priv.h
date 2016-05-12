@@ -128,6 +128,7 @@ struct hpack_state {
 #define INT_STATE_MAGIC			0x494E5453
 	enum hpack_stp_e		stp;
 	int				bsy;
+	uint16_t			idx;
 	uint8_t				typ;
 	union {
 		/* integer decoding state */
@@ -215,4 +216,4 @@ void HPT_adjust(struct hpack_ctx *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX);
 int  HPT_decode(HPACK_CTX, size_t);
-int  HPT_decode_name(HPACK_CTX, size_t);
+int  HPT_decode_name(HPACK_CTX);

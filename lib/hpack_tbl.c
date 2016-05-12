@@ -453,13 +453,13 @@ HPT_decode(HPACK_CTX, size_t idx)
 }
 
 int
-HPT_decode_name(HPACK_CTX, size_t idx)
+HPT_decode_name(HPACK_CTX)
 {
 	struct hpt_field hf;
 
-	assert(idx != 0);
+	assert(ctx->hp->state.idx != 0);
 	(void)memset(&hf, 0, sizeof hf);
-	CALL(HPT_search, ctx, idx, &hf);
+	CALL(HPT_search, ctx, ctx->hp->state.idx, &hf);
 	assert(hf.nam != NULL);
 	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 

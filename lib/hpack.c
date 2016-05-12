@@ -265,7 +265,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 }
 
 static int
-hpack_decode_field(HPACK_CTX, uint16_t idx)
+hpack_decode_field(HPACK_CTX)
 {
 
 	switch (ctx->hp->state.stp) {
@@ -274,10 +274,10 @@ hpack_decode_field(HPACK_CTX, uint16_t idx)
 		/* fall through */
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_NAM_STR:
-		if (idx == 0)
+		if (ctx->hp->state.idx == 0)
 			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
 		else
-			CALL(HPT_decode_name, ctx, idx);
+			CALL(HPT_decode_name, ctx);
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
 		/* fall through */
 	case HPACK_STP_VAL_LEN:
@@ -308,7 +308,6 @@ hpack_decode_dynamic(HPACK_CTX)
 	struct hpack *hp;
 	struct hpack_ctx tbl_ctx;
 	struct hpt_priv priv;
-	uint16_t idx;
 #ifndef NDEBUG
 	struct hpt_entry tmp;
 #endif
@@ -320,7 +319,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	priv.he = hp->tbl;
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 
@@ -328,7 +327,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	tbl_ctx.dec = HPT_insert;
 	tbl_ctx.priv = &priv;
 
-	if (hpack_decode_field(&tbl_ctx, idx) != 0) {
+	if (hpack_decode_field(&tbl_ctx) != 0) {
 		assert(tbl_ctx.res != ctx->res);
 		ctx->res = tbl_ctx.res;
 		return (-1);
@@ -361,26 +360,24 @@ hpack_decode_dynamic(HPACK_CTX)
 static int
 hpack_decode_literal(HPACK_CTX)
 {
-	uint16_t idx;
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &ctx->hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
-	return (hpack_decode_field(ctx, idx));
+	return (hpack_decode_field(ctx));
 }
 
 static int
 hpack_decode_never(HPACK_CTX)
 {
-	uint16_t idx;
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &ctx->hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 		CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
 	}
-	return (hpack_decode_field(ctx, idx));
+	return (hpack_decode_field(ctx));
 }
 
 static int
