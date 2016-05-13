@@ -92,9 +92,9 @@ tst_decode --decoding-spec p1,
 tst_decode --decoding-spec p2,
 tst_decode --decoding-spec p1,p1,
 
-_ ----------------------------------
-_ Break inside a name length integer
-_ ----------------------------------
+_ -------------------------
+_ Break inside a field name
+_ -------------------------
 
 mk_hex <<EOF
 # literal field "long-name-...
@@ -111,13 +111,16 @@ mk_msg <<EOF
 long-name-$(mk_chars 3 %128s): value
 EOF
 
-tst_decode --decoding-spec p2,    # break inside
-tst_decode --decoding-spec p1,    # break before
-tst_decode --decoding-spec p1,p1, # break before and inside
+tst_decode --decoding-spec p2,    # break inside the length
+tst_decode --decoding-spec p1,    # break before the length
+tst_decode --decoding-spec p1,p1, # break before and inside the length
 
-_ -----------------------------------
-_ Break inside a value length integer
-_ -----------------------------------
+tst_decode --decoding-spec p3,    # break before the string
+tst_decode --decoding-spec p100,  # break inside the string
+
+_ --------------------------
+_ Break inside a field value
+_ --------------------------
 
 mk_hex <<EOF
 # literal field "name: long-value-...
@@ -132,6 +135,9 @@ mk_msg <<EOF
 name: long-value-$(mk_chars 3 %128s)
 EOF
 
-tst_decode --decoding-spec p7,    # break inside
-tst_decode --decoding-spec p6,    # break before
-tst_decode --decoding-spec p6,p1, # break before and inside
+tst_decode --decoding-spec p7,    # break inside the length
+tst_decode --decoding-spec p6,    # break before the length
+tst_decode --decoding-spec p6,p1, # break before and inside the length
+
+tst_decode --decoding-spec p8,    # break before the string
+tst_decode --decoding-spec p100,  # break inside the string

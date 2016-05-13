@@ -126,6 +126,8 @@ struct hpack_size {
 struct hpack_state {
 	uint32_t			magic;
 #define INT_STATE_MAGIC			0x494E5453
+#define STR_STATE_MAGIC			0x53545253
+#define HUF_STATE_MAGIC			0x48554653
 	enum hpack_stp_e		stp;
 	int				bsy;
 	uint16_t			idx;
@@ -135,6 +137,11 @@ struct hpack_state {
 		struct {
 			uint16_t	v;
 			uint8_t		m;
+		};
+		/* string decoding state */
+		struct {
+			uint16_t	len;
+			uint8_t		first;
 		};
 	};
 };

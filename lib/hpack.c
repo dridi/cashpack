@@ -233,15 +233,65 @@ hpack_strerror(enum hpack_res_e res)
  */
 
 static int
+hpack_decode_raw_string(HPACK_CTX, enum hpack_evt_e evt, size_t len)
+{
+	struct hpack_state *hs;
+	hpack_validate_f *val;
+
+	hs = &ctx->hp->state;
+	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
+
+	if (len > ctx->len)
+		len = ctx->len;
+
+	CALL(val, ctx, (char *)ctx->buf, len, hs->first);
+	if (hs->len <= len || !hs->first) {
+		if (hs->first)
+			CALLBACK(ctx, evt, NULL, hs->len);
+		if (len > 0)
+			CALLBACK(ctx, HPACK_EVT_DATA, (char *)ctx->buf, len);
+	}
+	else
+		CALLBACK(ctx, evt, (char *)ctx->buf, len);
+
+	ctx->buf += len;
+	ctx->len -= len;
+	hs->len -= len;
+	hs->first = 0;
+	EXPECT(ctx, BUF, hs->len == 0);
+
+	return (0);
+}
+
+static int
 hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 {
+	struct hpack_state *hs;
 	uint16_t len;
 	uint8_t huf;
 	hpack_validate_f *val;
 
-	huf = *ctx->buf & HPACK_HUFFMAN;
-	CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
-	EXPECT(ctx, BUF, ctx->len >= len);
+	hs = &ctx->hp->state;
+
+	switch (hs->stp) {
+	case HPACK_STP_NAM_LEN:
+	case HPACK_STP_VAL_LEN:
+		/* decode integer */
+		huf = *ctx->buf & HPACK_HUFFMAN;
+		CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
+
+		/* set up string decoding */
+		hs->magic = huf ?  HUF_STATE_MAGIC : STR_STATE_MAGIC;
+		hs->len = len;
+		hs->first = 1;
+		hs->stp++;
+		/* fall through */
+	case HPACK_STP_NAM_STR:
+	case HPACK_STP_VAL_STR:
+		break;
+	default:
+		WRONG("Unknown step");
+	}
 
 	if (evt == HPACK_EVT_NAME) {
 		EXPECT(ctx, LEN, len > 0);
@@ -250,15 +300,16 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	else
 		val = HPV_value;
 
-	if (huf) {
+	if (len > 0)
+		EXPECT(ctx, BUF, ctx->len > 0);
+
+	if (hs->magic == HUF_STATE_MAGIC) {
 		CALLBACK(ctx, evt, NULL, len);
 		CALL(HPH_decode, ctx, val, len);
 	}
 	else {
-		CALL(val, ctx, (char *)ctx->buf, len, 1);
-		CALLBACK(ctx, evt, (char *)ctx->buf, len);
-		ctx->buf += len;
-		ctx->len -= len;
+		assert(hs->magic == STR_STATE_MAGIC);
+		CALL(hpack_decode_raw_string, ctx, evt, hs->len);
 	}
 
 	return (0);

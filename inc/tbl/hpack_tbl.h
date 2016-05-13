@@ -82,10 +82,11 @@ HPE(NAME,  3, "field name",
 	"\tbeen or will be decoded. When *buf* is not ``NULL``, it points\n"
 	"\tto the *len* characters of the name string. The string is NOT\n"
 	"\tnull-terminated. A ``NULL`` *buf* means that there are *len*\n"
-	"\tHuffman octets to decode. In the worst case, the decoded string\n"
-	"\tlength is ``1.6 * len`` and can be used as a baseline for a\n"
-	"\tpreallocation. The decoded contents will be notified by at least\n"
-	"\tone DATA event.\n\n"
+	"\tHuffman octets to decode, or that the HPACK block expects a\n"
+	"\tcontinuation in the middle of this string. In the worst case,\n"
+	"\tthe decoded string length is ``1.6 * len`` and can be used as a\n"
+	"\tbaseline for a preallocation. When *buf* is ``NULL`` the decoded\n"
+	"\tcontents will be notified by at least one DATA event.\n\n"
 
 	"\tWhen the contents of the dynamic table are listed, exactly one\n"
 	"\tNAME event follows a FIELD event. The *buf* argument points to\n"
@@ -98,7 +99,8 @@ HPE(VALUE, 4, "field Value",
 
 HPE(DATA,  5, "raw data",
 	"\tA decoder sends DATA events for every chunks of Huffman octets\n"
-	"\tsuccessfully decoded.\n\n"
+	"\tsuccessfully decoded. It may send DATA events when the HPACK\n"
+	"\tblock expects a continuation in the middle of the string.\n\n"
 
 	"\tAn encoder sends DATA events when the encoding buffer is full,\n"
 	"\tor when the encoding process is over and there are remaining\n"
