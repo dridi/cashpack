@@ -38,11 +38,11 @@ enum hpack_encoding_e { /* Section 5.2 */
 };
 
 enum hpack_stp_e {
-	HPACK_STP_FLD_INT,
-	HPACK_STP_NAM_LEN,
-	HPACK_STP_NAM_STR,
-	HPACK_STP_VAL_LEN,
-	HPACK_STP_VAL_STR,
+	HPACK_STP_FLD_INT = 0,
+	HPACK_STP_NAM_LEN = 1,
+	HPACK_STP_NAM_STR = 2,
+	HPACK_STP_VAL_LEN = 3,
+	HPACK_STP_VAL_STR = 4,
 };
 
 struct hpt_field {
