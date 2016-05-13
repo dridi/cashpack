@@ -45,14 +45,17 @@
  */
 
 int
-HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
+HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 {
 	const struct hph_entry *he;
+	hpack_validate_f *val;
 	uint64_t bits;
 	uint32_t cod;
 	uint16_t blen;
 	char buf[256];
 	unsigned eos, l, first;
+
+	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
 
 	bits = 0;
 	blen = 0;

@@ -269,7 +269,6 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 	struct hpack_state *hs;
 	uint16_t len;
 	uint8_t huf;
-	hpack_validate_f *val;
 
 	hs = &ctx->hp->state;
 
@@ -285,6 +284,13 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 		hs->len = len;
 		hs->first = 1;
 		hs->stp++;
+
+		if (evt == HPACK_EVT_NAME)
+			EXPECT(ctx, LEN, len > 0);
+
+		if (len > 0)
+			EXPECT(ctx, BUF, ctx->len > 0);
+
 		/* fall through */
 	case HPACK_STP_NAM_STR:
 	case HPACK_STP_VAL_STR:
@@ -293,19 +299,11 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 		WRONG("Unknown step");
 	}
 
-	if (evt == HPACK_EVT_NAME) {
-		EXPECT(ctx, LEN, len > 0);
-		val = HPV_token;
-	}
-	else
-		val = HPV_value;
-
-	if (len > 0)
-		EXPECT(ctx, BUF, ctx->len > 0);
+	assert(hs->len > 0 || evt != HPACK_EVT_NAME);
 
 	if (hs->magic == HUF_STATE_MAGIC) {
-		CALLBACK(ctx, evt, NULL, len);
-		CALL(HPH_decode, ctx, val, len);
+		CALLBACK(ctx, evt, NULL, hs->len);
+		CALL(HPH_decode, ctx, evt, hs->len);
 	}
 	else {
 		assert(hs->magic == STR_STATE_MAGIC);
