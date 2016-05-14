@@ -132,6 +132,10 @@ struct hpack_state {
 	int				bsy;
 	uint16_t			idx;
 	uint8_t				typ;
+	/* NB: the field below belongs to string decoding state but saves up
+	 * to 8 bytes on structure packing if moved here.
+	 */
+	uint8_t				first;
 	union {
 		/* integer decoding state */
 		struct {
@@ -145,7 +149,6 @@ struct hpack_state {
 			uint16_t	len;
 			uint8_t		pos;
 			uint8_t		blen;
-			uint8_t		first;
 		};
 	};
 };
