@@ -125,7 +125,7 @@ HPH_encode(HPACK_CTX, const char *str)
 {
 	uint64_t bits;
 	uint8_t buf[256], *cur;
-	size_t sz, len, i;
+	int sz, len, i;
 
 	bits = 0;
 	cur = buf;
