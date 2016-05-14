@@ -39,90 +39,84 @@
 #include "hpack_priv.h"
 #include "hpack_huf_idx.h"
 #include "hpack_huf_tbl.h"
+#include "hpack_huf_dec.h"
 
 /**********************************************************************
  * Decode
  */
 
+#define MASK(pack, n) (pack >> (64 - n))
+
+#include <stdio.h>
 int
 HPH_decode(HPACK_CTX, hpack_validate_f val, size_t len)
 {
-	const struct hph_entry *he;
-	uint64_t bits;
-	uint32_t cod;
-	uint16_t blen;
 	char buf[256];
-	unsigned eos, l, first;
+	uint64_t pack = 0;
+	int pl = 0; /* pack length*/
+	unsigned first =1, l =0;
+	struct stbl *tbl = &byte0;
+	struct ssym *sym;
 
-	bits = 0;
-	blen = 0;
-	eos = 0;
-	l = 0;
-	first = 1;
-
-	while (len > 0 || blen > 0) {
-		he = &hph_tbl[9]; /* the last 5-bit code */
-		cod = UINT16_MAX;
-		eos = 1;
-
-		while (he != hph_tbl) {
-			if (blen < he->len) {
-				if (len == 0)
-					break;
-				bits = (bits << 8) | *ctx->buf;
-				blen += 8;
+	while (len > 0 || pl != 0) {
+		assert(pl >= 0);
+		/* make sure we have enough data*/
+		if (pl < tbl->msk) {
+			if (MASK(pack, pl) == (unsigned)((1 << pl) - 1) &&
+					len == 0){
+					/* flush what we have */
+					if (l > 0) {
+						CALL(val, ctx, buf, l, first);
+						CALLBACK(ctx, HPACK_EVT_DATA,
+								buf, l);
+					}
+					EXPECT(ctx, HUF, tbl == &byte0);
+					return (0);
+			}
+			/* fit as many bytes as we can in pack */
+			while (pl <= 56 && len > 0) {
+				pack |= (uint64_t)(*ctx->buf & 0xff)
+							<< (56 - pl);
+				pl += 8;
 				ctx->buf++;
 				ctx->len--;
 				len--;
 			}
-			cod = bits >> (blen - he->len);
-			if (cod <= he->cod) {
-				eos = 0;
-				break;
-			}
-			he = &hph_tbl[he->nxt];
 		}
 
-		if (eos)
-			break;
+		assert(tbl);
+		assert(tbl->msk);
+		sym = &tbl->syms[MASK(pack, tbl->msk)];
 
-		assert(he->cod >= cod);
-		he -= he->cod - cod;
-		assert(he->cod == cod);
+		assert(sym->csm <= tbl->msk);
 
-		assert(l < sizeof buf);
-		buf[l] = he->chr;
+		/* nothing consumed, it's an error */
+		EXPECT(ctx, HUF, sym->csm > 0);
+		EXPECT(ctx, HUF, pl >= sym->csm);
+
+		pack <<= sym->csm;
+		pl -= sym->csm;
+		/* point to the next table */
+		if (sym->nxt) {
+			tbl = sym->nxt;
+			continue;
+		}
+		buf[l] = sym->chr;
+		tbl = &byte0;
 		if (++l == sizeof buf) {
 			CALL(val, ctx, (char *)buf, l, first);
 			CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 			l = 0;
 			first = 0;
 		}
-
-		assert(blen >= he->len);
-		blen -= he->len;
-		bits &= (1 << blen) - 1;
-	}
-
-	EXPECT(ctx, HUF, len == 0); /* premature EOS */
-
-	if (eos) {
-		/* check padding */
-		assert(blen > 0);
-		EXPECT(ctx, HUF, blen < 8);
-		EXPECT(ctx, HUF, bits + 1 == (uint64_t)(1 << blen));
-	}
-	else {
-		/* no padding */
-		assert(bits == 0);
-		assert(blen == 0);
 	}
 
 	if (l > 0) {
 		CALL(val, ctx, (char *)buf, l, first);
 		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 	}
-
+	/* are we expecting more bits? */
+	EXPECT(ctx, HUF, tbl == &byte0);
 	return (0);
 }
 
