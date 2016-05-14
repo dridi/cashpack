@@ -141,8 +141,10 @@ struct hpack_state {
 		/* string decoding state */
 		struct {
 			uint64_t	bits;
-			uint16_t	blen;
+			uint32_t	cod;
 			uint16_t	len;
+			uint8_t		pos;
+			uint8_t		blen;
 			uint8_t		first;
 		};
 	};

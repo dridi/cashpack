@@ -141,3 +141,23 @@ tst_decode --decoding-spec p6,p1, # break before and inside the length
 
 tst_decode --decoding-spec p8,    # break before the string
 tst_decode --decoding-spec p100,  # break inside the string
+
+_ -----------------------------
+_ Break inside a Huffman string
+_ -----------------------------
+
+mk_hex <<EOF
+# literal field "zero: ...
+0004 7a65 726f d0                       | ..zero.
+
+# ...000000"
+$(mk_chars 0 %160s)
+EOF
+
+mk_msg <<EOF
+zero: $(mk_chars 0 %128s)
+EOF
+
+tst_decode
+tst_decode --decoding-spec p7,  # break before the string
+tst_decode --decoding-spec p50, # break inside the string
