@@ -44,4 +44,4 @@ ffff 0000 3649 5540 7f20 6178 0000 1867 | ....6IU@. ax...g
 4633 3630 103b 2076 6090 7369 6f6e 3d31 | F360.; v`.sion=1
 EOF
 
-hpack_decode ./hdecode --expect-error HUF
+hpack_decode ./hdecode --expect-error CHR

@@ -112,6 +112,11 @@ HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 		bits &= (1 << blen) - 1;
 	}
 
+	if (l > 0) {
+		CALL(val, ctx, (char *)buf, l, hs->first);
+		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
+	}
+
 	EXPECT(ctx, HUF, len == 0); /* premature EOS */
 
 	if (eos) {
@@ -124,11 +129,6 @@ HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 		/* no padding */
 		assert(bits == 0);
 		assert(blen == 0);
-	}
-
-	if (l > 0) {
-		CALL(val, ctx, (char *)buf, l, hs->first);
-		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 	}
 
 	return (0);
