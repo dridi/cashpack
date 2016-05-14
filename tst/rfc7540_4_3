@@ -62,7 +62,10 @@ mk_hex <<EOF
 ff81 8000
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
+HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test and those below
+
+tst_decode --expect-error IDX
+
 tst_decode --decoding-spec p1, --expect-error IDX
 tst_decode --decoding-spec p2, --expect-error IDX
 tst_decode --decoding-spec p3, --expect-error IDX
@@ -87,7 +90,8 @@ mk_msg <<EOF
 :path: /sample/path
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
+tst_decode
+
 tst_decode --decoding-spec p1,
 tst_decode --decoding-spec p2,
 tst_decode --decoding-spec p1,p1,
@@ -110,6 +114,8 @@ EOF
 mk_msg <<EOF
 long-name-$(mk_chars 3 %128s): value
 EOF
+
+tst_decode
 
 tst_decode --decoding-spec p2,    # break inside the length
 tst_decode --decoding-spec p1,    # break before the length
@@ -135,6 +141,8 @@ mk_msg <<EOF
 name: long-value-$(mk_chars 3 %128s)
 EOF
 
+tst_decode
+
 tst_decode --decoding-spec p7,    # break inside the length
 tst_decode --decoding-spec p6,    # break before the length
 tst_decode --decoding-spec p6,p1, # break before and inside the length
@@ -159,5 +167,6 @@ zero: $(mk_chars 0 %128s)
 EOF
 
 tst_decode
+
 tst_decode --decoding-spec p7,  # break before the string
 tst_decode --decoding-spec p50, # break inside the string
