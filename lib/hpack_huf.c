@@ -48,12 +48,18 @@ int
 HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 {
 	const struct hph_entry *he;
+	struct hpack_state *hs;
 	hpack_validate_f *val;
 	uint64_t bits;
 	uint32_t cod;
 	uint16_t blen;
 	char buf[256];
-	unsigned eos, l, first;
+	unsigned eos, l;
+
+	hs = &ctx->hp->state;
+
+	if (hs->first)
+		CALLBACK(ctx, evt, NULL, len);
 
 	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
 
@@ -61,7 +67,6 @@ HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 	blen = 0;
 	eos = 0;
 	l = 0;
-	first = 1;
 
 	while (len > 0 || blen > 0) {
 		he = &hph_tbl[9]; /* the last 5-bit code */
@@ -96,10 +101,10 @@ HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 		assert(l < sizeof buf);
 		buf[l] = he->chr;
 		if (++l == sizeof buf) {
-			CALL(val, ctx, (char *)buf, l, first);
+			CALL(val, ctx, (char *)buf, l, hs->first);
 			CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 			l = 0;
-			first = 0;
+			hs->first = 0;
 		}
 
 		assert(blen >= he->len);
@@ -122,7 +127,7 @@ HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 	}
 
 	if (l > 0) {
-		CALL(val, ctx, (char *)buf, l, first);
+		CALL(val, ctx, (char *)buf, l, hs->first);
 		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 	}
 

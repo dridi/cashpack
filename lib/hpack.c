@@ -301,10 +301,8 @@ hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
 
 	assert(hs->len > 0 || evt != HPACK_EVT_NAME);
 
-	if (hs->magic == HUF_STATE_MAGIC) {
-		CALLBACK(ctx, evt, NULL, hs->len);
+	if (hs->magic == HUF_STATE_MAGIC)
 		CALL(HPH_decode, ctx, evt, hs->len);
-	}
 	else {
 		assert(hs->magic == STR_STATE_MAGIC);
 		CALL(hpack_decode_raw_string, ctx, evt, hs->len);
