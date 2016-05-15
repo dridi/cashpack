@@ -200,13 +200,13 @@ tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 {
 	uint8_t *buf;
 	ssize_t pos;
-	unsigned i;
+	int i;
 
 	buf = ptr;
 	pos = 0;
 
 	while (len > 0) {
-		fprintf(stderr, "%s%06lx: ", pfx, pos);
+		fprintf(stderr, "%s%06zx: ", pfx, pos);
 		for (i = 0; i < 16; i++)
 			if (i < len)
 				fprintf(stderr, "%02x ", buf[i]);
