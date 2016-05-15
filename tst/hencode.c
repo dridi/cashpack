@@ -252,12 +252,16 @@ parse_commands(struct enc_ctx *ctx)
 	return (parse_commands(ctx));
 }
 
+struct hpack *hp = NULL;
+
 int
 main(int argc, char **argv)
 {
 	enum hpack_res_e exp;
 	struct enc_ctx ctx;
 	int tbl_sz;
+
+	TST_signal();
 
 	(void)memset(&ctx, 0, sizeof ctx);
 
@@ -305,6 +309,8 @@ main(int argc, char **argv)
 
 	ctx.hp = hpack_encoder(tbl_sz, hpack_default_alloc);
 	assert(ctx.hp != NULL);
+
+	hp = ctx.hp;
 
 	ctx.res = HPACK_RES_OK;
 

@@ -309,6 +309,112 @@ results is the verification that invariants are met. Instead of outsourcing
 invariant checks, they are closer to potential faults origins: the source code
 itself. About 5% of the code is dedicated to that.
 
+Reporting
+---------
+
+Writing test cases is one side of the coin, reporting also takes an important
+part in the testing process. cashpack relies on ``automake`` for building and
+testing, and the default test runner meets enough requirements:
+
+- process-based testing
+- parallel execution
+- individual log files
+- global log file for failures
+
+So when tests are failing, a ``test-suite.log`` should contain the useful bits
+to understand the failure. If a debugger is needed to make progress, that's a
+sign that the test suite doesn't report enough and it's usually a good time to
+improve it.
+
+On Travis CI, an old version of ``automake`` is used in the Ubuntu 12.04 LTS
+containers, so the contents of ``test-suite.log`` can be found directly in the
+console's log. This behavior can be brought back in more recent versions of
+``automake`` by adding ``AUTOMAKE_OPTIONS = serial-tests`` to the relevant
+``Makefile``.
+
+The cashpack test suite itself logs useful information, like the programs that
+get executed, their results, and when an assert triggers a dump of the HPACK
+data structure.
+
+Here is a passing test log::
+
+    PASS: hpack_huf
+    ===============
+
+    -----------------------
+    TEST: Invalid character
+    -----------------------
+    hpack_decode: ./hdecode --expect-error CHR
+    main: hpack result: Invalid character (-7)
+    hpack_decode: ./ngdecode --expect-error CHR
+    ----------------------------------------------------------
+    TEST: Parse a Huffman string longer than the decode buffer
+    ----------------------------------------------------------
+    hpack_decode: ./hdecode
+    hpack_decode: ./ngdecode
+    hpack_encode: ./hencode
+    ----------------------------------------------------------
+    TEST: Decode a long Huffman string with invalid characters
+    ----------------------------------------------------------
+    hpack_decode: ./hdecode --expect-error CHR
+    main: hpack result: Invalid character (-7)
+    hpack_decode: ./ngdecode --expect-error CHR
+
+The different test cases stand out thanks to their title, and each case has
+one or more checks to perform. If a check appears to run fine, its output is
+compared (``diff -u``) with the expected results::
+
+    FAIL: rfc7541_c_6_3
+    ===================
+
+    hpack_decode: ./hdecode --decoding-spec d54,d8, --table-size 256
+    --- cashpack.Eif6kv7m/dec_out   2016-05-15 12:40:25.888082395 +0200
+    +++ cashpack.Eif6kv7m/out       2016-05-15 12:40:25.889082406 +0200
+    @@ -18,6 +18,6 @@
+     Dynamic Table (after decoding):
+
+     [  1] (s =  98) set-cookie: foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
+    -[  2] (s =  52) content-encoding: gzip
+    +[  2] (s =  52) content-encoding: date
+     [  3] (s =  65) date: Mon, 21 Oct 2013 20:13:22 GMT
+           Table size: 215
+    FAIL rfc7541_c_6_3 (exit status: 1)
+
+Finally, if an invariant is not met and triggers an assert, a dump of the data
+structure is printed in the standard error. The C programs used in testing may
+abort on regular errors for convenience, in both cases the output may look
+like this::
+
+    FAIL: rfc7541_c_6_3
+    ===================
+
+    hpack_decode: ./hdecode --decoding-spec d54,d8, --table-size 256
+    lt-hdecode: tst/hdecode.c:237: main: Assertion `!"Incomplete code"' failed.
+    *hp = 0x256dc20 {
+            .magic = ab0e3218
+            [... gory details ...]
+            .tbl = 0x256dce0 <<EOF
+            000000: 39 2b 58 e4 00 00 00 00 00 00 00 00 00 00 00 00 | 9+X.............
+            000010: 0a 00 38 00 00 00 00 00 00 00 00 00 00 00 73 65 | ..8...........se
+            000020: 74 2d 63 6f 6f 6b 69 65 00 66 6f 6f 3d 41 53 44 | t-cookie.foo=ASD
+            000030: 4a 4b 48 51 4b 42 5a 58 4f 51 57 45 4f 50 49 55 | JKHQKBZXOQWEOPIU
+            000040: 41 58 51 57 45 4f 49 55 3b 20 6d 61 78 2d 61 67 | AXQWEOIU; max-ag
+            000050: 65 3d 33 36 30 30 3b 20 76 65 72 73 69 6f 6e 3d | e=3600; version=
+            000060: 31 00 39 2b 58 e4 00 00 00 00 62 00 00 00 00 00 | 1.9+X.....b.....
+            000070: 00 00 10 00 04 00 00 00 00 00 00 00 00 00 00 00 | ................
+            000080: 63 6f 6e 74 65 6e 74 2d 65 6e 63 6f 64 69 6e 67 | content-encoding
+            000090: 00 67 7a 69 70 00 39 2b 58 e4 00 00 00 00 34 00 | .gzip.9+X.....4.
+            0000a0: 00 00 00 00 00 00 04 00 1d 00 00 00 00 00 00 00 | ................
+            0000b0: 00 00 00 00 64 61 74 65 00 4d 6f 6e 2c 20 32 31 | ....date.Mon, 21
+            0000c0: 20 4f 63 74 20 32 30 31 33 20 32 30 3a 31 33 3a |  Oct 2013 20:13:
+            0000d0: 32 32 20 47 4d 54 00                            | 22 GMT.
+            EOF
+    }
+    tst/common.sh: line 57: 16044 Aborted                 (core dumped) "$@"
+    FAIL rfc7541_c_6_3 (exit status: 134)
+
+If that's really not enough, then all hail the mighty debugger.
+
 Closing words
 -------------
 

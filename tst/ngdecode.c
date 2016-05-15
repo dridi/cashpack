@@ -42,9 +42,10 @@
 #include <nghttp2/nghttp2.h>
 
 #include "hpack.h"
-#include "hpack_assert.h"
 
 #include "tst.h"
+
+struct hpack *hp = NULL; /* unused, but needed by tst.c */
 
 static int
 print_headers(void *priv, const void *buf, size_t len)

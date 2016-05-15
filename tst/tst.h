@@ -49,3 +49,5 @@ void TST_print_table(struct hpack *);
 int  TST_decode(struct dec_ctx *);
 
 enum hpack_res_e TST_translate_error(const char *);
+
+void TST_signal();

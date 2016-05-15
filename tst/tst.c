@@ -27,6 +27,9 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
+#include <signal.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,8 +38,13 @@
 
 #include "hpack.h"
 #include "hpack_assert.h"
+#include "hpack_priv.h"
 
 #include "tst.h"
+
+/**********************************************************************
+ * Dynamic table
+ */
 
 struct dyn_ctx {
 	size_t	cnt;
@@ -103,6 +111,10 @@ TST_print_table(struct hpack *hp)
 		WRT(buf, ctx.sz);
 	}
 }
+
+/**********************************************************************
+ * Decoding process
+ */
 
 int
 TST_decode(struct dec_ctx *ctx)
@@ -175,4 +187,90 @@ TST_translate_error(const char *str)
 #undef HPR_ERRORS_ONLY
 	WRONG("Unknown error");
 	return (-1);
+}
+
+/**********************************************************************
+ * Signal handling
+ */
+
+extern struct hpack *hp;
+
+static void
+tst_hexdump(void *ptr, ssize_t len, const char *pfx)
+{
+	uint8_t *buf;
+	ssize_t pos;
+	unsigned i;
+
+	buf = ptr;
+	pos = 0;
+
+	while (len > 0) {
+		fprintf(stderr, "%s%06lx: ", pfx, pos);
+		for (i = 0; i < 16; i++)
+			if (i < len)
+				fprintf(stderr, "%02x ", buf[i]);
+			else
+				fprintf(stderr, "   ");
+		fprintf(stderr, "| ");
+		for (i = 0; i < 16; i++)
+			if (i < len)
+				fprintf(stderr, "%c",
+				    isprint(buf[i]) ? buf[i] : '.');
+		fprintf(stderr, "\n");
+		len -= 16;
+		buf += 16;
+		pos += 16;
+	}
+}
+
+static void
+tst_dump(int signo)
+{
+	uint8_t *ptr;
+
+	(void)signo;
+
+	if (hp == NULL)
+		return;
+
+	fprintf(stderr, "*hp = %p {\n", hp);
+	fprintf(stderr, "\t.magic = %08x\n", hp->magic);
+	fprintf(stderr, "\t.alloc = {\n");
+	fprintf(stderr, "\t\t.malloc = %p\n", hp->alloc.malloc);
+	fprintf(stderr, "\t\t.realloc = %p\n", hp->alloc.realloc);
+	fprintf(stderr, "\t\t.free = %p\n", hp->alloc.free);
+	fprintf(stderr, "\t}\n");
+	fprintf(stderr, "\t.sz = {\n");
+	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
+	fprintf(stderr, "\t\t.max = %zu\n", hp->sz.max);
+	fprintf(stderr, "\t\t.lim = %zu\n", hp->sz.lim);
+	fprintf(stderr, "\t\t.len = %zu\n", hp->sz.len);
+	fprintf(stderr, "\t\t.nxt = %zd\n", hp->sz.nxt);
+	fprintf(stderr, "\t\t.min = %zd\n", hp->sz.min);
+	fprintf(stderr, "\t}\n");
+	fprintf(stderr, "\t.state = {\n");
+	// XXX: do when bored
+	fprintf(stderr, "\t}\n");
+	fprintf(stderr, "\t.ctx = {\n");
+	// XXX: do when bored
+	fprintf(stderr, "\t}\n");
+	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
+	fprintf(stderr, "\t.off = %zd\n", hp->off);
+
+	ptr = (uint8_t *)hp->tbl + hp->off;
+	fprintf(stderr, "\t.tbl = %p <<EOF\n", ptr);
+	tst_hexdump(ptr, hp->sz.len, "\t");
+	fprintf(stderr, "\tEOF\n");
+	fprintf(stderr, "}\n");
+}
+
+void
+TST_signal()
+{
+
+	if (signal(SIGABRT, tst_dump) == SIG_ERR) {
+		ERR("%s", "Failed to install signal handler");
+		exit(EXIT_FAILURE);
+	}
 }

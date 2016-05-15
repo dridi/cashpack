@@ -132,17 +132,20 @@ resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 	return (hpack_resize(&priv2->hp, len));
 }
 
+struct hpack *hp = NULL;
+
 int
 main(int argc, char **argv)
 {
 	enum hpack_res_e res, exp;
 	hpack_decoded_f *cb;
-	struct hpack *hp;
 	struct dec_ctx ctx;
 	struct dec_priv priv;
 	struct stat st;
 	void *buf;
 	int fd, retval, tbl_sz;
+
+	TST_signal();
 
 	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
