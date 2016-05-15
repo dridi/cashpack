@@ -93,6 +93,7 @@ rm_blanks() {
 mk_hex() {
 	"$TEST_DIR/hex_decode" |
 	"$TEST_DIR/hex_encode" >"$TEST_TMP/hex"
+	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
 }
 
 mk_bin() {
@@ -137,7 +138,6 @@ mk_chars() {
 }
 
 hpack_decode() {
-	"$TEST_DIR/hex_decode" <"$TEST_TMP/hex" >"$TEST_TMP/bin"
 	printf "hpack_decode: %s\n" "$*" >&2
 	memcheck "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec_out"
 }
