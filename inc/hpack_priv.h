@@ -71,7 +71,6 @@ struct hpt_priv {
 	struct hpack_ctx	*ctx;
 	struct hpt_entry	*he;
 	void			*wrt;
-	size_t			len;
 	unsigned		nam;
 };
 
@@ -81,6 +80,7 @@ struct hpack_ctx {
 	uint8_t			*cur;
 	size_t			len;
 	size_t			max;
+	size_t			ins;
 	union {
 		hpack_decoded_f	*dec;
 		hpack_encoded_f	*enc;

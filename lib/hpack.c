@@ -385,14 +385,14 @@ hpack_decode_dynamic(HPACK_CTX)
 	ctx->len = tbl_ctx.len;
 	hp->off = 0;
 
-	if (priv.len <= hp->sz.lim) {
+	if (ctx->ins <= hp->sz.lim) {
 		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
-		hp->sz.len += priv.len;
+		hp->sz.len += ctx->ins;
 		if (++ctx->hp->cnt > 1) {
 #ifndef NDEBUG
 			(void)memcpy(&tmp, priv.he, sizeof tmp);
 			assert(tmp.pre_sz > 0);
-			assert((size_t)tmp.pre_sz == priv.len);
+			assert((size_t)tmp.pre_sz == ctx->ins);
 #endif
 		}
 	}
@@ -630,14 +630,14 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 
 	hp->off = 0;
 
-	if (priv.len <= hp->sz.lim) {
+	if (ctx->ins <= hp->sz.lim) {
 		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
-		hp->sz.len += priv.len;
+		hp->sz.len += ctx->ins;
 		if (++ctx->hp->cnt > 1) {
 #ifndef NDEBUG
 			(void)memcpy(&tmp, priv.he, sizeof tmp);
 			assert(tmp.pre_sz > 0);
-			assert((size_t)tmp.pre_sz == priv.len);
+			assert((size_t)tmp.pre_sz == ctx->ins);
 #endif
 		}
 	}

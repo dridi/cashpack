@@ -191,8 +191,8 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 	case HPACK_EVT_NAME:
 		assert(len > 0);
 
-		priv->len = HPT_HEADERSZ + 1;
-		if (hp->sz.lim <= HPT_OVERHEAD || hp->sz.lim < priv->len)
+		priv->ctx->ins = HPT_HEADERSZ + 1;
+		if (hp->sz.lim <= HPT_OVERHEAD || hp->sz.lim < priv->ctx->ins)
 			break;
 
 		assert(priv->he == hp->tbl);
@@ -215,12 +215,12 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
-		if (priv->len < hp->sz.lim) {
+		if (priv->ctx->ins < hp->sz.lim) {
 			/* write the name null byte */
-			c = MOVE(hp->tbl, priv->len - 1);
+			c = MOVE(hp->tbl, priv->ctx->ins - 1);
 			*c = '\0';
 			/* account for the value null byte */
-			priv->len++;
+			priv->ctx->ins++;
 		}
 		priv->nam = 0;
 		break;
@@ -232,7 +232,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		assert(buf == NULL);
 		assert(len == 0);
 		/* write the value null byte */
-		c = MOVE(hp->tbl, priv->len - 1);
+		c = MOVE(hp->tbl, priv->ctx->ins - 1);
 		*c = '\0';
 		break;
 	default:
@@ -253,13 +253,13 @@ hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
 
 	hp = priv->ctx->hp;
 	if (buf != NULL)
-		priv->len += len;
+		priv->ctx->ins += len;
 
 	/* fitting the new field may require eviction */
-	HPT_adjust(priv->ctx, hp->sz.len + priv->len);
+	HPT_adjust(priv->ctx, hp->sz.len + priv->ctx->ins);
 
 	/* does the new field even fit alone? */
-	if (priv->len > hp->sz.lim) {
+	if (priv->ctx->ins > hp->sz.lim) {
 		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 		return (0);
@@ -303,15 +303,15 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 		(void)memcpy(&tmp, priv->he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		ptr = priv->he;
-		hp->off = priv->len;
-		tmp.pre_sz = priv->len;
+		hp->off = priv->ctx->ins;
+		tmp.pre_sz = priv->ctx->ins;
 		priv->he = MOVE(hp->tbl, tmp.pre_sz);
 		(void)memmove(priv->he, ptr, hp->sz.len);
 		(void)memcpy(priv->he, &tmp, HPT_HEADERSZ);
 	}
 
 	if (hpt_overlap(hp, buf, len))
-		buf += priv->len;
+		buf += priv->ctx->ins;
 
 	if (buf != NULL)
 		(void)memcpy(priv->wrt, buf, len);
@@ -357,8 +357,8 @@ hpt_copy_evicted(struct hpt_priv *priv, const char *buf, size_t len)
 
 	/* update and copy the entry metadata */
 	assert(priv->he == hp->tbl);
-	hp->off = priv->len;
-	hp->tbl->pre_sz = priv->len;
+	hp->off = priv->ctx->ins;
+	hp->tbl->pre_sz = priv->ctx->ins;
 	priv->he = MOVE(hp->tbl, priv->he->pre_sz);
 	(void)memcpy(priv->he, hp->tbl, HPT_HEADERSZ);
 }
@@ -391,7 +391,7 @@ HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
 
 	priv2->wrt = evt == HPACK_EVT_NAME ?
 	    JUMP(hp->tbl, 0) :
-	    MOVE(hp->tbl, priv2->len - len - 1);
+	    MOVE(hp->tbl, priv2->ctx->ins - len - 1);
 
 	/* NB: If the name belonged in the dynamic table when first checked,
 	 * but no longer overlaps once eviction has been performed, we end up
