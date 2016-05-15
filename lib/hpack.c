@@ -363,9 +363,10 @@ hpack_decode_dynamic(HPACK_CTX)
 
 	(void)memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
-	priv.he = hp->tbl;
+	priv.nam = hp->state.stp <= HPACK_STP_NAM_STR;
+	priv.he = (void *)((uintptr_t)hp->tbl + hp->off);
 
-	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
+	if (hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
