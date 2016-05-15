@@ -146,6 +146,9 @@ main(int argc, char **argv)
 		str = frm.str[0] << 24 | frm.str[1] << 16 | frm.str[2] << 8 |
 		    frm.str[3];
 
+		if (len > sizeof buf)
+			return (EXIT_FAILURE); /* DIY */
+
 		flg = frm.flg;
 		if (flg & H2_FLG_PADDED)
 			skip_block(&pad, 1);
