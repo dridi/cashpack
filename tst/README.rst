@@ -338,15 +338,13 @@ data structure.
 
 Here is a passing test log::
 
-    PASS: hpack_huf
-    ===============
-
     -----------------------
     TEST: Invalid character
     -----------------------
     hpack_decode: ./hdecode --expect-error CHR
     main: hpack result: Invalid character (-7)
     hpack_decode: ./ngdecode --expect-error CHR
+    main: nghttp2 result: Header compression/decompression error (-523)
     ----------------------------------------------------------
     TEST: Parse a Huffman string longer than the decode buffer
     ----------------------------------------------------------
@@ -359,6 +357,8 @@ Here is a passing test log::
     hpack_decode: ./hdecode --expect-error CHR
     main: hpack result: Invalid character (-7)
     hpack_decode: ./ngdecode --expect-error CHR
+    main: nghttp2 result: Header compression/decompression error (-523)
+    PASS hpack_huf (exit status: 0)
 
 The different test cases stand out thanks to their title, and each case has
 one or more checks to perform. If a check appears to run fine, its output is

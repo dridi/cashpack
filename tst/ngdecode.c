@@ -173,6 +173,7 @@ main(int argc, char **argv)
 	ctx.rsz = resize_table;
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
+	exp = HPACK_RES_OK;
 
 	/* ignore the command name */
 	argc--;
@@ -274,6 +275,9 @@ main(int argc, char **argv)
 
 	retval = close(fd);
 	assert(retval == 0);
+
+	if (res != 0)
+		ERR("nghttp2 result: %s (%d)", nghttp2_strerror(res), res);
 
 	return (res != exp);
 }
