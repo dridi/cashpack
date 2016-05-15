@@ -114,7 +114,7 @@ mk_msg() {
 
 mk_tbl() {
 	msg="Dynamic Table (after decoding):"
-	cat >"$TEST_TMP/tbl_tmp"
+	rm_comments >"$TEST_TMP/tbl_tmp"
 
 	if [ -s "$TEST_TMP/tbl_tmp" ]
 	then
