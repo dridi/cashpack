@@ -64,7 +64,7 @@
  * Data structures
  */
 
-static const struct hpack_alloc null_alloc = { NULL, NULL, NULL };
+static const struct hpack_alloc null_alloc = { NULL, NULL, NULL, NULL };
 
 static const uint8_t basic_block[] = { 0x82 };
 
@@ -107,30 +107,60 @@ static hpack_encoded_f *noop_enc_cb = (hpack_encoded_f *)noop_cb;
 static uint8_t static_buffer[256];
 
 static void *
-static_malloc(size_t size)
+static_malloc(size_t size, void *priv)
 {
+
+	(void)priv;
 	if (size > sizeof static_buffer)
 		return (NULL);
 
 	return (&static_buffer);
 }
 
-static const struct hpack_alloc static_alloc = { static_malloc, NULL, NULL };
+static const struct hpack_alloc static_alloc = {
+	static_malloc,
+	NULL,
+	NULL,
+	NULL
+};
 
 /**********************************************************************
  * Out of memory allocator
  */
 
 static void *
-oom_realloc(void *ptr, size_t size)
+oom_malloc(size_t size, void *priv)
+{
+
+	(void)priv;
+	return (malloc(size));
+}
+
+static void *
+oom_realloc(void *ptr, size_t size, void *priv)
 {
 
 	(void)ptr;
 	(void)size;
+	(void)priv;
 	return (NULL);
 }
 
-static const struct hpack_alloc oom_alloc = { malloc, oom_realloc, free };
+static void
+oom_free(void *ptr, void *priv)
+{
+
+	(void)priv;
+	free(ptr);
+}
+
+
+static const struct hpack_alloc oom_alloc = {
+	oom_malloc,
+	oom_realloc,
+	oom_free,
+	NULL
+};
 
 /**********************************************************************
  */

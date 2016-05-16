@@ -39,32 +39,134 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void \* hpack_malloc_f(size_t** *size*\ **);**
-| **typedef void \* hpack_realloc_f(void** *\*ptr*\ **, size_t** *size*\ **);**
-| **typedef void   hpack_free_f(void** *\*ptr*\ **);**
+| **typedef void \* hpack_malloc_f(size_t** *size*\ **, void** *\*priv*\ **);**
+| **typedef void \* hpack_realloc_f(void** *\*ptr*\ **, size_t** *size*\ **, \
+    void** *\*priv*\ **);**
+| **typedef void   hpack_free_f(void** *\*ptr*\ **, void** *\*priv*\ **);**
 |
 | **struct hpack_alloc {**
 |   **hpack_malloc_f**  *\*malloc*\ **;**
 |   **hpack_realloc_f** *\*realloc*\ **;**
 |   **hpack_free_f**    *\*free*\ **;**
+|   **void**            *\*priv*\ **;**
 | **};**
 |
-| **extern const struct hpack_alloc *hpack_default_alloc;**
+| **extern const struct hpack_alloc** *\*hpack_default_alloc;*
 |
 | **struct hpack * hpack_encoder(size_t** *max*\ **, \
     const struct hpack_alloc** *\*alloc*\ **);**
 | **struct hpack * hpack_decoder(size_t** *max*\ **, \
     const struct hpack_alloc** *\*alloc*\ **);**
-| **void hpack_free(struct hpack** *\**hpack*\ **);**
+| **void hpack_free(struct hpack** *\**hpackp*\ **);**
+|
+| **enum hpack_res_e hpack_resize(struct hpack** *\*\*hpackp*\ **, size_t** \
+    *max*\ **);**
+| **enum hpack_res_e hpack_trim(struct hpack** *\*\*hpackp*\ **);**
 
 DESCRIPTION
 ===========
 
-TODO
+This is an overview of memory management in cashpack, a stateless event-driven
+HPACK codec written in C. cashpack offers a great deal of control over memory
+management and follows a single-allocation principle. Under very specific
+circumstances, the dynamic table is effectively resized and that may trigger a
+reallocation.
+
+.. TODO: once possible, document how to fully prevent reallocations
+
+MEMORY MANAGEMENT
+=================
+
+Memory management is composed of three very familiar operations: ``malloc()``,
+``realloc()`` and ``free()``. These operations may rely on external state that
+may be passed using the *\*priv* pointer in ``struct hpack_alloc``. A private
+pointer's destination MUST outlive HPACK codecs created using it.
+
+The memory management functions, if specified, MUST follow the same semantics
+as **malloc**\(3) **realloc**\(3) and **free**\(3). Especially, the ``malloc``
+operation is responsible for meeting platform-specific alignment requirements.
+It is NOT necessary to initialize memory like ``calloc(3)`` would do, cashpack
+will always write to memory before reading it. *hpack_default_alloc* is here
+to provide a thin wrapper on top of the libc standard functions.
+
+cashpack doesn't get in the way of memory management and doesn't prevent doing
+things like defragmentation. It is perfectly safe to move the data structure,
+it is both persistent and self-contained. The only references outside of the
+data structure are the pointers for the memory manager's functions and state,
+they need to be persistent too and can't be changed once allocated.
+
+ALLOCATION
+==========
+
+The ``hpack_decoder()`` and ``hpack_encoder()`` functions create respectively
+HPACK decoders and encoders. Both  share the same ``struct hpack *`` type for
+common operations, but using a decoder for an encoding operation will fail and
+vice versa. The *max* argument defines the dynamic table initial maximum size.
+For instance, the initial size for HTTP/2 is 4096 octets. The *alloc* argument
+points to the memory manager that performs actual memory allocations.
+
+The absolute maximum size for the dynamic table is 65535 octets.
+
+The ``hpack_free()`` function frees the space allocated to HPACK codecs. The
+memory manager may not provide a free operation, but it may still be useful to
+properly dispose of a codec. The function will wipe the pointer and make the
+data structure unusable to reduce risks of double-frees or uses-after-free.
+
+RESIZING
+========
+
+The ``hpack_resize()`` function allows the resize *\*hpackp*'s dynamic table
+outside of the HPACK protocol. With HTTP/2, that is be upon the acknowledgment
+of a SETTINGS frame. If the new maximum size *max* is greater than available
+memory for the dynamic table, a reallocation is performed. If *max* is lower
+than available memory, the allocation is left untouched.
+
+After out-of-band resizes, the HPACK protocol expects up to two table updates
+in the following HPACK block. An HPACK decoder checks the expected updates
+when the next block is decoded with the ``hpack_decode()`` function. An HPACK
+encoder automatically includes table updates in the next block encoded with
+the ``hpack_encode()`` function.
+
+The ``hpack_trim()`` function performs a reallocation if the available memory
+for the dynamic table is greater than its maximum size. This reallocation may
+fail without consequences on the HPACK codec.
+
+RETURN VALUE
+============
+
+The ``hpack_decoder()`` and ``hpack_encoder()`` functions return a pointer to
+the allocated codec. On error, these functions return NULL. Errors include
+invalid parameters or a failed allocation.
+
+The ``hpack_resize()`` and ``hpack_trim()`` functions return ``HPACK_RES_OK``.
+On error, these functions may return various errors and possibly make the
+*hpackp* argument improper for further use.
+
+ERRORS
+======
+
+The ``hpack_resize()`` and ``hpack_trim()`` functions can fail with the
+following errors:
+
+``HPACK_RES_ARG``: *hpackp* is ``NULL`` or points to a ``NULL`` or defunct
+codec.
+
+``HPACK_RES_BSY``: the codec is busy processing an HPACK block.
+
+``HPACK_RES_LEN``: the new size exceeds 65535 or the memory manager has no
+``realloc`` operation to grow the table.
+
+``HPACK_RES_OOM``: the reallocation failed.
+
+.. TODO: figure how to easily list specific errors, and whether it's worth it
 
 SEE ALSO
 ========
 
 **cashpack**\(3),
 **hpack_decode**\(3),
-**hpack_foreach**\(3)
+**hpack_encode**\(3),
+**hpack_foreach**\(3),
+**malloc**\(3),
+**realloc**\(3),
+**free**\(3)

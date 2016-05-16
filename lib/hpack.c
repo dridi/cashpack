@@ -48,7 +48,39 @@ enum hpack_pfx_e {
 	HPACK_PFX_UPDATE	= 5,
 };
 
-const struct hpack_alloc hpack_libc_alloc = { malloc, realloc, free };
+/**********************************************************************
+ */
+
+static void *
+hpack_libc_malloc(size_t size, void *priv)
+{
+
+	(void)priv;
+	return (malloc(size));
+}
+
+static void *
+hpack_libc_realloc(void *ptr, size_t size, void *priv)
+{
+
+	(void)priv;
+	return (realloc(ptr, size));
+}
+
+static void
+hpack_libc_free(void *ptr, void *priv)
+{
+
+	(void)priv;
+	free(ptr);
+}
+
+const struct hpack_alloc hpack_libc_alloc = {
+	hpack_libc_malloc,
+	hpack_libc_realloc,
+	hpack_libc_free,
+	NULL
+};
 
 const struct hpack_alloc *hpack_default_alloc = &hpack_libc_alloc;
 
@@ -64,7 +96,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	if (ha == NULL || ha->malloc == NULL || max > UINT16_MAX)
 		return (NULL);
 
-	hp = ha->malloc(sizeof *hp + max);
+	hp = ha->malloc(sizeof *hp + max, ha->priv);
 	if (hp == NULL)
 		return (NULL);
 
@@ -112,6 +144,11 @@ hpack_resize(struct hpack **hpp, size_t len)
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (HPACK_RES_ARG);
 
+	if (hp->ctx.res != HPACK_RES_OK) {
+		assert(hp->ctx.res == HPACK_RES_BLK);
+		return (HPACK_RES_BSY);
+	}
+
 	max = hp->alloc.realloc == NULL ? hp->sz.mem : UINT16_MAX;
 	if (len > max) {
 		hp->magic = DEFUNCT_MAGIC;
@@ -120,7 +157,7 @@ hpack_resize(struct hpack **hpp, size_t len)
 
 	if (len > hp->sz.mem) {
 		assert(hp->alloc.realloc != NULL);
-		hp = hp->alloc.realloc(hp, sizeof *hp + len);
+		hp = hp->alloc.realloc(hp, sizeof *hp + len, hp->alloc.priv);
 		if (hp == NULL) {
 			(*hpp)->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_OOM);
@@ -158,8 +195,13 @@ hpack_trim(struct hpack **hpp)
 	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
 		return (HPACK_RES_ARG);
 
+	if (hp->ctx.res != HPACK_RES_OK) {
+		assert(hp->ctx.res == HPACK_RES_BLK);
+		return (HPACK_RES_BSY);
+	}
+
 	if (hp->sz.mem > hp->sz.max) {
-		hp = hp->alloc.realloc(hp, hp->sz.max);
+		hp = hp->alloc.realloc(hp, hp->sz.max, hp->alloc.priv);
 		if (hp == NULL)
 			return (HPACK_RES_OOM); /* the codec is NOT defunct */
 		hp->sz.mem = hp->sz.max;
@@ -187,7 +229,7 @@ hpack_free(struct hpack **hpp)
 
 	hp->magic = 0;
 	if (hp->alloc.free != NULL)
-		hp->alloc.free(hp);
+		hp->alloc.free(hp, hp->alloc.priv);
 }
 
 int
@@ -618,7 +660,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 
 	if (itm->fld.flg & HPACK_IDX) {
 		(void)HPT_search(ctx, itm->fld.idx, &hf);
-		assert(ctx->res == HPACK_RES_OK);
+		assert(ctx->res == HPACK_RES_BLK);
 		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 	}
 	else {
@@ -708,7 +750,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	ctx = &hp->ctx;
 
-	ctx->res = HPACK_RES_OK;
+	ctx->res = HPACK_RES_BLK;
 	ctx->hp = hp;
 	ctx->buf = buf;
 	ctx->cur = TRUST_ME(ctx->buf);
@@ -753,6 +795,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 #undef HPACK_ENCODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
+			assert(ctx->res != HPACK_RES_BLK);
 			hp->magic = DEFUNCT_MAGIC;
 			return (ctx->res);
 		}
@@ -762,7 +805,8 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	HPE_send(ctx);
 
-	assert(ctx->res == HPACK_RES_OK);
+	assert(ctx->res == HPACK_RES_BLK);
+	ctx->res = HPACK_RES_OK;
 	return (ctx->res);
 }
 
