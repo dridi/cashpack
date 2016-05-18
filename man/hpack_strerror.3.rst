@@ -27,7 +27,7 @@ hpack_strerror
 ==============
 
 ------------------------------------------
-Return a string describing an error number
+return a string describing an error number
 ------------------------------------------
 
 :Manual section: 3

@@ -22,14 +22,15 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-===========
-hpack_alloc
-===========
+==================================================================
+hpack_decoder, hpack_encoder, hpack_free, hpack_resize, hpack_trim
+==================================================================
 
 --------------------------------------
-Allocate, resize and free HPACK tables
+allocate, resize and free HPACK codecs
 --------------------------------------
 
+:Title upper: hpack_alloc
 :Manual section: 3
 
 SYNOPSIS

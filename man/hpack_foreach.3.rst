@@ -27,7 +27,7 @@ hpack_foreach
 =============
 
 ---------------------------------------
-Probe the contents of the dynamic table
+probe the contents of the dynamic table
 ---------------------------------------
 
 :Manual section: 3

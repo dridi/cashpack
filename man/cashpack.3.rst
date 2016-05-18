@@ -27,7 +27,7 @@ cashpack
 ========
 
 ------------------------------
-The C Anti-State HPACK library
+the C Anti-State HPACK library
 ------------------------------
 
 :Manual section: 3

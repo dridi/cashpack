@@ -22,14 +22,15 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-============
-hpack_encode
-============
+==============================
+hpack_encode, hpack_clean_item
+==============================
 
-----------------------------
-Encode a block of HPACK data
-----------------------------
+---------------------
+encode an HPACK block
+---------------------
 
+:Title upper: hpack_encode
 :Manual section: 3
 
 SYNOPSIS

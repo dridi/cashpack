@@ -26,9 +26,9 @@
 hpack_decode
 ============
 
-----------------------------
-Decode a block of HPACK data
-----------------------------
+---------------------
+decode an HPACK block
+---------------------
 
 :Manual section: 3
 
