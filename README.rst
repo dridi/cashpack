@@ -56,12 +56,12 @@ unless numbers show that optimizations are required. Because of the natural
 indirection created by an event-driven approach (it leads to the fifth circle
 of the callback hell) accidental complexity should be kept to a minimum.
 
-1. Maintain no state besides the dynamic table
+1. Stateless event drivers
 
 An HPACK implementation cannot be completely stateless, because a dynamic
-table needs to be maintained. Relying on the assumption that HTTP/2 will
-always decode complete HPACK sequences, statelessness is achieved using an
-event-driven API.
+table needs to be maintained. There is also the need to be able to decode
+partial HPACK blocks incrementally. The event-driven API on the other hand is
+completely stateless, and can carry user-defined state.
 
 2. Single allocation
 
