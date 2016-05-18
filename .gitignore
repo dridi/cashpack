@@ -4,22 +4,15 @@
 
 # autotools
 build/
+build-aux/
 Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache/
-compile
-config.guess
 config.status
-config.sub
 configure
-depcomp
-install-sh
 libtool
-ltmain.sh
 m4/
-missing
-test-driver
 .deps/
 .libs/
 *.l[oa]
