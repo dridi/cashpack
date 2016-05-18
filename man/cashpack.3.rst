@@ -241,5 +241,6 @@ SEE ALSO
 **hpack_decode**\(3),
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
+**hpack_strerror**\(3),
 **pkg-config**\(1),
 **libtool**\(1)

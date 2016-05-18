@@ -62,4 +62,5 @@ SEE ALSO
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
-**hpack_foreach**\(3)
+**hpack_foreach**\(3),
+**hpack_strerror**\(3)

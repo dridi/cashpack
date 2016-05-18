@@ -28,22 +28,56 @@
 
 #ifdef HPR
 #ifndef HPR_ERRORS_ONLY
-HPR(OK,   0, "Success")
+HPR(OK, 0, "success",
+	"\tThe operation succeeded. This is not an error.\n\n")
 #endif
-HPR(ARG,  -1, "Wrong argument")
-HPR(BUF,  -2, "Buffer overflow")
-HPR(INT,  -3, "Integer overflow")
-HPR(IDX,  -4, "Invalid index")
-HPR(LEN,  -5, "Invalid length")
-HPR(HUF,  -6, "Invalid Huffman code")
-HPR(CHR,  -7, "Invalid character")
-HPR(UPD,  -8, "Spurious update")
-HPR(RSZ,  -9, "Missing resize update")
-HPR(OOM, -10, "Out of memory")
+
+HPR(ARG, -1, "invalid argument",
+	"\tThis may include unexpected ``NULL`` pointers, values out of\n"
+	"\trange, usage of a defunct codec... This error reflects a misuse\n"
+	"\tof the library.\n\n")
+
+HPR(BUF, -2, "buffer overflow",
+	"\tThe decoding buffer ends before the decoded HPACK block, reading\n"
+	"\tfurther would result in a buffer overflow. This error is turned\n"
+	"\tinto a BLK result when decoding is partial.\n\n")
+
+HPR(INT, -3, "integer overflow",
+	"\tDecoding of an integer gives a value too large.\n\n")
+
+HPR(IDX, -4, "invalid index",
+	"\tThe decoded or specified index is out of range.\n\n")
+
+HPR(LEN, -5, "invalid length",
+	"\tAn invalid length may refer to header fields with an empty name\n"
+	"\tor a table size that exceeds the maximum. Anything that doesn't\n"
+	"\tmeet a length requirement.\n\n")
+
+HPR(HUF, -6, "invalid Huffman code",
+	"\tA decoder decoded an invalid Huffman sequence.\n\n")
+
+HPR(CHR, -7, "invalid character",
+	"\tAn invalid header name or value character was decoded.\n\n")
+
+HPR(UPD, -8, "spurious update",
+	"\tA table update occurred at a wrong time or with a wrong size.\n\n")
+
+HPR(RSZ, -9, "missing resize update",
+	"\tA table update was expected after a table resize but didn't\n"
+	"\toccur.\n\n")
+
+HPR(OOM, -10, "out of memory",
+	"\tA reallocation failed during a table update.\n\n")
+
 #ifndef HPR_ERRORS_ONLY
-HPR(BLK, -11, "Incomplete block")
+HPR(BLK, -11, "incomplete block",
+	"\tThe expected result during partial decoding. This is not an\n"
+	"\terror.\n\n")
 #endif
-HPR(BSY, -12, "Decoder busy")
+
+HPR(BSY, -12, "codec busy",
+	"\tSome operations such as listing the contents of the dynamic\n"
+	"\ttable can't be performed while a block is being decoded.\n\n")
 #endif
 
 #ifdef HPE

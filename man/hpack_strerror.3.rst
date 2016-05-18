@@ -39,12 +39,31 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
+| **enum hpack_res_e;**
+|
 | **const char * hpack_strerror(enum hpack_res_e** *res*\ **);**
 
 DESCRIPTION
 ===========
 
-TODO
+This is an overview of error handling in cashpack, a stateless event-driven
+HPACK codec written in C. cashpack offers a detailed set of result codes for
+error handling. Most of the result codes map to errors, and most errors leave
+a defunct codec that can no longer be used.
+
+The ``hpack_strerror()`` function is a thread-safe function that translates an
+error code into a human readable short description.
+
+RESULT CODES
+============
+
+.. include:: hpr2rst.rst
+
+RETURN VALUE
+============
+
+The ``hpack_strerror()`` function returns a constant string corresponding to
+one of the short descriptions detailed above, or ``NULL`` for unknown values.
 
 SEE ALSO
 ========
@@ -53,4 +72,8 @@ SEE ALSO
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
+**hpack_resize**\(3),
+**hpack_trim**\(3),
+**hpack_decode**\(3),
+**hpack_encode**\(3),
 **hpack_foreach**\(3)

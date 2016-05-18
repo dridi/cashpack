@@ -221,8 +221,7 @@ main(int argc, char **argv)
 		    "Possible errors:\n");
 
 #define HPR_ERRORS_ONLY
-#define HPR(val, cod, txt)		\
-		fprintf(stderr, "  %s: %s\n", #val, txt);
+#define HPR(val, cod, txt, rst) fprintf(stderr, "  %s: %s\n", #val, txt);
 #include "tbl/hpack_tbl.h"
 #undef HPR
 #undef HPR_ERRORS_ONLY

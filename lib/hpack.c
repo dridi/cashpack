@@ -262,12 +262,12 @@ const char *
 hpack_strerror(enum hpack_res_e res)
 {
 
-#define HPR(val, cod, txt)	\
+#define HPR(val, cod, txt, rst)	\
 	if (res == cod)		\
 		return (txt);
 #include "tbl/hpack_tbl.h"
 #undef HPR
-	return ("Unknown result");
+	return (NULL);
 }
 
 /**********************************************************************

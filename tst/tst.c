@@ -179,7 +179,7 @@ enum hpack_res_e
 TST_translate_error(const char *str)
 {
 #define HPR_ERRORS_ONLY
-#define HPR(val, cod, txt)			\
+#define HPR(val, cod, txt, rst)			\
 		if (!strcmp(str, #val))	\
 			return (HPACK_RES_##val);
 #include "tbl/hpack_tbl.h"

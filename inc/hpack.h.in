@@ -31,7 +31,7 @@
 struct hpack;
 
 enum hpack_res_e {
-#define HPR(r, v, d)	HPACK_RES_##r	= v,
+#define HPR(r, v, d, l)	HPACK_RES_##r	= v,
 #include "tbl/hpack_tbl.h"
 #undef HPR
 };
