@@ -224,8 +224,9 @@ hpack_free(struct hpack **hpp)
 		return;
 
 	*hpp = NULL;
-	assert(hp->magic == ENCODER_MAGIC || hp->magic == DECODER_MAGIC ||
-	    hp->magic == DEFUNCT_MAGIC);
+	if (hp->magic != ENCODER_MAGIC && hp->magic != DECODER_MAGIC &&
+	    hp->magic != DEFUNCT_MAGIC)
+		return;
 
 	hp->magic = 0;
 	if (hp->alloc.free != NULL)
