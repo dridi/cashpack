@@ -217,5 +217,6 @@ SEE ALSO
 **hpack_free**\(3),
 **hpack_resize**\(3),
 **hpack_trim**\(3),
+**hpack_encode**\(3),
 **hpack_foreach**\(3),
 **hpack_strerror**\(3)

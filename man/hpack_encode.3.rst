@@ -45,10 +45,68 @@ SYNOPSIS
 | **\     enum hpack_evt_e** *evt*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **enum hpack_res_e hpack_encode(** /\* TODO \*/ **);**
+| **enum hpack_type_e {**
+| \     *HPACK_INDEXED*\ **,**
+| \     *HPACK_DYNAMIC*\ **,**
+| \     *HPACK_LITERAL*\ **,**
+| \     *HPACK_NEVER*\ **,**
+| \     *HPACK_UPDATE*
+| **};**
+|
+| **enum hpack_compress_e {**
+| \     *HPACK_IDX*\ **,**
+| \     *HPACK_NAM*\ **,**
+| \     *HPACK_VAL*
+| **};**
+|
+| **struct hpack_field {**
+|   **union {**
+|     **uint16_t**   *idx*\ **;**
+|     **const char** *\*nam*\ **;**
+|   **};**
+|   **const char**   *\*val*\ **;**
+|   **uint8_t**      *flg*\ **;**
+| **};**
+|
+| **struct hpack_item {**
+|   **union {**
+|     **uint16_t**           *idx*\ **;**
+|     **size_t**             *lim*\ **;**
+|     **struct hpack_field** *fld*\ **;**
+|   **};**
+|   **enum hpack_type_e**    *typ*\ **;**
+| **};**
+|
+| **enum hpack_res_e hpack_encode(**
+| **\     struct hpack** *\*hpack*\ **,**
+| **\     const struct hpack_item** *\*items*\ **, size_t** *nb*\ **,**
+| **\     hpack_encoded_f** *\*cb*\ **, void** *\*priv*\ **);**
+|
+| **enum hpack_res_e hpack_clean_item(struct hpack_item** *\*item*\ **);**
 
 DESCRIPTION
 ===========
+
+This is an overview of encoding with cashpack, a stateless event-driven HPACK
+codec written in C. HPACK is a stateful protocol, but cashpack implements
+encoding using a stateless event driver. The *hpack* parameter keeps track of
+the dynamic table updates across multiple calls of the ``hpack_encode()``
+function for the lifetime of the HTTP session.
+
+TODO
+
+ENCODING STATE MACHINE
+======================
+
+TODO
+
+RETURN VALUE
+============
+
+TODO
+
+ERRORS
+======
 
 TODO
 
@@ -59,5 +117,8 @@ SEE ALSO
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
+**hpack_resize**\(3),
+**hpack_trim**\(3),
+**hpack_decode**\(3),
 **hpack_foreach**\(3),
 **hpack_strerror**\(3)
