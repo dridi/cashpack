@@ -238,6 +238,8 @@ SEE ALSO
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
+**hpack_resize**\(3),
+**hpack_trim**\(3),
 **hpack_decode**\(3),
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
