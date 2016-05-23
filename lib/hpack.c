@@ -109,7 +109,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->sz.mem = max;
 	hp->sz.max = max;
-	hp->sz.lim = max;
+	hp->sz.lim = -1;
 	hp->sz.nxt = -1;
 	hp->sz.min = -1;
 	return (hp);
@@ -429,7 +429,9 @@ hpack_decode_dynamic(HPACK_CTX)
 	ctx->len = tbl_ctx.len;
 	hp->off = 0;
 
-	if (ctx->ins <= hp->sz.lim) {
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
+
+	if (ctx->ins <= HPACK_LIMIT(hp)) {
 		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
 		hp->sz.len += ctx->ins;
 		if (++ctx->hp->cnt > 1) {
@@ -673,8 +675,9 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_sz);
 
 	hp->off = 0;
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
-	if (ctx->ins <= hp->sz.lim) {
+	if (ctx->ins <= HPACK_LIMIT(hp)) {
 		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
 		hp->sz.len += ctx->ins;
 		if (++ctx->hp->cnt > 1) {

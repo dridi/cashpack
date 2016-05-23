@@ -151,12 +151,14 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	size_t sz;
 
 	hp = ctx->hp;
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
+
 	if (hp->cnt == 0)
 		return;
 
 	he = hpt_dynamic(hp, hp->cnt);
 
-	while (hp->cnt > 0 && len > hp->sz.lim) {
+	while (hp->cnt > 0 && len > HPACK_LIMIT(hp)) {
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.nam_sz > 0);
@@ -186,13 +188,15 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 	char *c;
 
 	hp = priv->ctx->hp;
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
 	switch (evt) {
 	case HPACK_EVT_NAME:
 		assert(len > 0);
 
 		priv->ctx->ins = HPT_HEADERSZ + 1;
-		if (hp->sz.lim <= HPT_OVERHEAD || hp->sz.lim < priv->ctx->ins)
+		if (HPACK_LIMIT(hp) <= HPT_OVERHEAD ||
+		    HPACK_LIMIT(hp) < priv->ctx->ins)
 			break;
 
 		assert(priv->he == hp->tbl);
@@ -215,7 +219,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
 		priv->nam = 1;
 		break;
 	case HPACK_EVT_VALUE:
-		if (priv->ctx->ins < hp->sz.lim) {
+		if (priv->ctx->ins < HPACK_LIMIT(hp)) {
 			/* write the name null byte */
 			c = MOVE(hp->tbl, priv->ctx->ins - 1);
 			*c = '\0';
@@ -252,6 +256,8 @@ hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
 	struct hpack *hp;
 
 	hp = priv->ctx->hp;
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
+
 	if (buf != NULL)
 		priv->ctx->ins += len;
 
@@ -259,7 +265,7 @@ hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
 	HPT_adjust(priv->ctx, hp->sz.len + priv->ctx->ins);
 
 	/* does the new field even fit alone? */
-	if (priv->ctx->ins > hp->sz.lim) {
+	if (priv->ctx->ins > HPACK_LIMIT(hp)) {
 		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 		return (0);

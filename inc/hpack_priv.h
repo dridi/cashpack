@@ -105,7 +105,7 @@ struct hpack_size {
 	 * See RFC 7541 section 4.2. for the details.
 	 */
 	size_t			max;
-	size_t			lim;
+	ssize_t			lim;
 	/* NB: len is the current length of the dynamic table. */
 	size_t			len;
 	/* NB: When the size is updated out of band by the decoder, it must be
@@ -188,6 +188,9 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 #define HPACK_ITM	const struct hpack_item *itm
+
+#define HPACK_LIMIT(hp) \
+	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
 
 #define CALL(func, args...)				\
 	do {						\
