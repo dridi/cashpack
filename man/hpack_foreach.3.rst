@@ -44,14 +44,58 @@ SYNOPSIS
 | **\     enum hpack_evt_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **int hpack_foreach(**
+| **enum hpack_res_e hpack_foreach(**
 | **\     struct hpack** *\*hpack*\ **,**
 | **\     hpack_decoded_f** *cb*, **void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
 
-TODO
+This is an overview of dynamic table probing with cashpack, a stateless
+event-driven HPACK codec written in C. Both HPACK decoders and encoders share
+a dynamic table in sync, it is possible outside of block processing to probe
+the contents of the dynamic table. However, the dynamic table entries are not
+persistent and MUST be considered stale after the decoding or encoding of an
+HPACK block if ``EVICT`` or ``INSERT`` events occurred.
+
+The ``hpack_foreach()`` function walks the dynamic table of *hpack* and calls
+*cb* for all entries events, passing a *priv* pointer that can be used to
+maintain state.
+
+FOREACH STATE MACHINE
+=====================
+
+The state machine is very straightforward. For each field, exactly three
+events are emitted in this order: ``FIELD``, ``NAME`` and ``VALUE``.
+
+::
+
+    (start)
+       |
+       +---> FIELD ---> NAME
+       |       ^          |
+       v       |          v
+     (end) <---+------- VALUE
+
+The ``NAME`` and ``VALUE`` events provide null-terminated character strings
+pointing directly inside the dynamic table. Dereferencing stale pointers is
+undefined behavior. See ``cashpack``\ (3) for more details on the events
+semantics.
+
+RETURN VALUE
+============
+
+The ``hpack_foreach()`` function returns ``HPACK_RES_OK``. On error, this
+function returns one of the listed errors.
+
+ERRORS
+======
+
+The ``hpack_decode()`` function can fail with the following errors:
+
+``HPACK_RES_ARG``: *hpack* doesn't point to a valid codec or *cb* is ``NULL``.
+
+``HPACK_RES_BSY``: the codec is busy processing an HPACK block.
 
 SEE ALSO
 ========
@@ -60,5 +104,9 @@ SEE ALSO
 **hpack_decoder**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
+**hpack_resize**\(3),
+**hpack_trim**\(3),
+**hpack_decode**\(3),
+**hpack_encode**\(3),
 **hpack_foreach**\(3),
 **hpack_strerror**\(3)

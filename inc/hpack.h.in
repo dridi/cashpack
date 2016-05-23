@@ -116,4 +116,4 @@ enum hpack_res_e hpack_clean_item(struct hpack_item *);
 
 /* hpack_foreach */
 
-int hpack_foreach(struct hpack *, hpack_decoded_f, void *);
+enum hpack_res_e hpack_foreach(struct hpack *, hpack_decoded_f, void *);

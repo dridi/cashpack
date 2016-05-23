@@ -233,7 +233,7 @@ hpack_free(struct hpack **hpp)
 		hp->alloc.free(hp, hp->alloc.priv);
 }
 
-int
+enum hpack_res_e
 hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx *ctx;
