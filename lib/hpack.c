@@ -133,7 +133,7 @@ enum hpack_res_e
 hpack_resize(struct hpack **hpp, size_t len)
 {
 	struct hpack *hp;
-	size_t max;
+	size_t max, mem;
 
 	if (hpp == NULL)
 		return (HPACK_RES_ARG);
@@ -155,14 +155,19 @@ hpack_resize(struct hpack **hpp, size_t len)
 		return (HPACK_RES_LEN);
 	}
 
-	if (len > hp->sz.mem) {
+	mem = len;
+	if (hp->magic == ENCODER_MAGIC && hp->sz.lim >= 0 &&
+	    (size_t)hp->sz.lim > mem)
+		mem = hp->sz.lim;
+
+	if (mem > hp->sz.mem) {
 		assert(hp->alloc.realloc != NULL);
-		hp = hp->alloc.realloc(hp, sizeof *hp + len, hp->alloc.priv);
+		hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
 		if (hp == NULL) {
 			(*hpp)->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_OOM);
 		}
-		hp->sz.mem = len;
+		hp->sz.mem = mem;
 		*hpp = hp;
 	}
 
@@ -185,6 +190,7 @@ enum hpack_res_e
 hpack_trim(struct hpack **hpp)
 {
 	struct hpack *hp;
+	size_t max;
 
 	if (hpp == NULL)
 		return (HPACK_RES_ARG);
@@ -200,11 +206,17 @@ hpack_trim(struct hpack **hpp)
 		return (HPACK_RES_BSY);
 	}
 
-	if (hp->sz.mem > hp->sz.max) {
-		hp = hp->alloc.realloc(hp, hp->sz.max, hp->alloc.priv);
+	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
+	if (hp->magic != ENCODER_MAGIC)
+		max = HPACK_LIMIT(hp);
+	else
+		max = hp->sz.max;
+
+	if (hp->sz.mem > max) {
+		hp = hp->alloc.realloc(hp, sizeof *hp + max, hp->alloc.priv);
 		if (hp == NULL)
 			return (HPACK_RES_OOM); /* the codec is NOT defunct */
-		hp->sz.mem = hp->sz.max;
+		hp->sz.mem = max;
 		*hpp = hp;
 	}
 
