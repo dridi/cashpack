@@ -719,21 +719,21 @@ hpack_encode_never(HPACK_CTX, HPACK_ITM)
 }
 
 static int
-hpack_encode_update(HPACK_CTX, HPACK_ITM)
+hpack_encode_update(HPACK_CTX, size_t lim)
 {
 
 	EXPECT(ctx, UPD, ctx->can_upd);
-	EXPECT(ctx, ARG, itm->lim <= UINT16_MAX);
-	EXPECT(ctx, LEN, itm->lim <= ctx->hp->sz.max);
+	EXPECT(ctx, ARG, lim <= UINT16_MAX);
+	EXPECT(ctx, LEN, lim <= ctx->hp->sz.max);
 	if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
 		if (ctx->hp->sz.min < ctx->hp->sz.nxt)
-			assert(itm->lim == (size_t)ctx->hp->sz.min);
+			assert(lim == (size_t)ctx->hp->sz.min);
 	}
-	ctx->hp->sz.lim = itm->lim;
+	ctx->hp->sz.lim = lim;
 	HPT_adjust(ctx, ctx->hp->sz.len);
-	HPI_encode(ctx, HPACK_PFX_UPDATE, itm->typ, itm->lim);
-	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, itm->lim);
+	HPI_encode(ctx, HPACK_PFX_UPDATE, HPACK_UPDATE, lim);
+	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
 
 	if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
 		assert(ctx->hp->sz.min >= 0);
@@ -756,7 +756,6 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
     void *priv)
 {
 	struct hpack_ctx *ctx;
-	struct hpack_item rsz_itm;
 	uint8_t buf[256];
 	int retval;
 
@@ -778,18 +777,13 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	if (hp->sz.min >= 0) {
 		assert(hp->sz.min <= hp->sz.nxt);
-		(void)memset(&rsz_itm, 0, sizeof rsz_itm);
-		rsz_itm.typ = HPACK_UPDATE;
-		rsz_itm.lim = hp->sz.min;
-		retval = hpack_encode_update(ctx, &rsz_itm);
+		retval = hpack_encode_update(ctx, hp->sz.min);
 		assert(retval == 0);
 		assert(hp->sz.min == hp->sz.nxt);
 		if (hp->sz.nxt >= 0) {
-			rsz_itm.lim = hp->sz.nxt;
-			retval = hpack_encode_update(ctx, &rsz_itm);
+			retval = hpack_encode_update(ctx, hp->sz.nxt);
 			assert(retval == 0);
 		}
-		hpack_clean_item(&rsz_itm);
 	}
 
 	while (len > 0) {
@@ -802,8 +796,10 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 		HPACK_ENCODE(indexed, INDEXED, else)
 		HPACK_ENCODE(dynamic, DYNAMIC, else)
 		HPACK_ENCODE(literal, LITERAL, else)
-		HPACK_ENCODE(never,   NEVER,   else)
-		HPACK_ENCODE(update,  UPDATE,  /* that was the last */)
+		HPACK_ENCODE(never,   NEVER,   /* last type of field */)
+		else if (itm->typ == HPACK_UPDATE) {
+			retval = hpack_encode_update(ctx, itm->lim);
+		}
 		else {
 			hp->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_ARG);
