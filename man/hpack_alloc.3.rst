@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-==================================================================
-hpack_decoder, hpack_encoder, hpack_free, hpack_resize, hpack_trim
-==================================================================
+===============================================================================
+hpack_decoder, hpack_encoder, hpack_free, hpack_resize, hpack_limit, hpack_trim
+===============================================================================
 
 --------------------------------------
 allocate, resize and free HPACK codecs
@@ -61,6 +61,8 @@ SYNOPSIS
 | **void hpack_free(struct hpack** *\**hpackp*\ **);**
 |
 | **enum hpack_res_e hpack_resize(struct hpack** *\*\*hpackp*\ **, size_t** \
+    *max*\ **);**
+| **enum hpack_res_e hpack_limit(struct hpack** *\*hpack*\ **, size_t** \
     *max*\ **);**
 | **enum hpack_res_e hpack_trim(struct hpack** *\*\*hpackp*\ **);**
 
@@ -128,6 +130,13 @@ when the next block is decoded with the ``hpack_decode()`` function. An HPACK
 encoder automatically includes table updates in the next block encoded with
 the ``hpack_encode()`` function.
 
+The ``hpack_limit()`` function allows an encoder to limit to *max* the size of
+the dynamic table for *hpack* below the maximum decided by the peer decoder.
+The limit is then sent as a table update when the next header list is encoded,
+and overrides any subsequent calls to ``hpack_resize()``. Once applied, the
+limit doesn't need to be reapplied every time the decoder decides to change
+the maximum.
+
 The ``hpack_trim()`` function performs a reallocation if the available memory
 for the dynamic table is greater than its maximum size. This reallocation may
 fail without consequences on the HPACK codec.
@@ -139,27 +148,28 @@ The ``hpack_decoder()`` and ``hpack_encoder()`` functions return a pointer to
 the allocated codec. On error, these functions return NULL. Errors include
 invalid parameters or a failed allocation.
 
-The ``hpack_resize()`` and ``hpack_trim()`` functions return ``HPACK_RES_OK``.
-On error, these functions may return various errors and possibly make the
-*hpackp* argument improper for further use.
+The ``hpack_resize()`` ``hpack_limit()`` and ``hpack_trim()`` functions return
+``HPACK_RES_OK``. On error, these functions may return various errors and
+``hpack_resize()`` may make its *hpackp* argument improper for further use.
 
 ERRORS
 ======
 
-The ``hpack_resize()`` and ``hpack_trim()`` functions can fail with the
-following errors:
+The ``hpack_resize()`` ``hpack_limit()`` and ``hpack_trim()`` functions can
+fail with the following errors:
 
-``HPACK_RES_ARG``: *hpackp* is ``NULL`` or points to a ``NULL`` or defunct
-codec.
+``HPACK_RES_ARG``: *hpackp*/*hpack* is ``NULL`` or points to a ``NULL`` or
+defunct codec.
 
 ``HPACK_RES_BSY``: the codec is busy processing an HPACK block.
 
 ``HPACK_RES_LEN``: the new size exceeds 65535 or the memory manager has no
 ``realloc`` operation to grow the table.
 
-``HPACK_RES_OOM``: the reallocation failed.
+The ``hpack_resize()`` and ``hpack_trim()`` functions can fail with the
+following error:
 
-.. TODO: figure how to easily list specific errors, and whether it's worth it
+``HPACK_RES_OOM``: the reallocation failed.
 
 SEE ALSO
 ========

@@ -229,13 +229,7 @@ mk_bin <<EOF
 01110111 | 0 (end of int) and 119 (total: 150)
 EOF
 
-mk_enc <<EOF
-indexed 4
-update 150
-EOF
-
 tst_decode --expect-error UPD
-tst_encode --expect-error UPD
 
 _ ---------------------------------------------
 _ No more than two updates can occur in a block
@@ -255,16 +249,5 @@ mk_hex <<EOF
 34                                      | 4
 EOF
 
-mk_enc <<EOF
-dynamic str name str value
-flush
-
-resize 0
-resize 4096
-
-update 20
-EOF
-
 HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
 tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
-tst_encode --expect-error UPD

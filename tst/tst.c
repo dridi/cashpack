@@ -245,6 +245,7 @@ tst_dump(int signo)
 	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
 	fprintf(stderr, "\t\t.max = %zu\n", hp->sz.max);
 	fprintf(stderr, "\t\t.lim = %zu\n", hp->sz.lim);
+	fprintf(stderr, "\t\t.cap = %zd\n", hp->sz.cap);
 	fprintf(stderr, "\t\t.len = %zu\n", hp->sz.len);
 	fprintf(stderr, "\t\t.nxt = %zd\n", hp->sz.nxt);
 	fprintf(stderr, "\t\t.min = %zd\n", hp->sz.min);

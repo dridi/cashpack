@@ -84,7 +84,6 @@ free_item(struct hpack_item *itm)
 
 	switch (itm->typ) {
 	case HPACK_INDEXED:
-	case HPACK_UPDATE:
 		break;
 	case HPACK_DYNAMIC:
 	case HPACK_LITERAL:
@@ -207,6 +206,12 @@ parse_commands(struct enc_ctx *ctx)
 		ctx->res = hpack_resize(&ctx->hp, len);
 		return (0);
 	}
+	else if (!TOKCMP(ctx->line, "update")) {
+		args = TOK_ARGS(ctx->line, "update");
+		len = atoi(args);
+		ctx->res = hpack_limit(ctx->hp, len);
+		return (0);
+	}
 
 	ctx->cnt++;
 
@@ -240,11 +245,6 @@ parse_commands(struct enc_ctx *ctx)
 		itm->typ = HPACK_LITERAL;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
-	}
-	else if (!TOKCMP(ctx->line, "update")) {
-		args = TOK_ARGS(ctx->line, "update");
-		itm->lim = atoi(args);
-		itm->typ = HPACK_UPDATE;
 	}
 	else
 		WRONG("Unknown token");

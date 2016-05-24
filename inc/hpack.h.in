@@ -62,6 +62,7 @@ struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
 void hpack_free(struct hpack **);
 
 enum hpack_res_e hpack_resize(struct hpack **, size_t);
+enum hpack_res_e hpack_limit(struct hpack *, size_t);
 enum hpack_res_e hpack_trim(struct hpack **);
 
 const char * hpack_strerror(enum hpack_res_e);

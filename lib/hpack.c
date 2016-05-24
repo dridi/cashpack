@@ -110,6 +110,7 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 	hp->sz.mem = max;
 	hp->sz.max = max;
 	hp->sz.lim = -1;
+	hp->sz.cap = -1;
 	hp->sz.nxt = -1;
 	hp->sz.min = -1;
 	return (hp);
@@ -150,18 +151,23 @@ hpack_resize(struct hpack **hpp, size_t len)
 	}
 
 	max = hp->alloc.realloc == NULL ? hp->sz.mem : UINT16_MAX;
-	if (len > max) {
+	mem = len;
+
+	if (hp->magic == ENCODER_MAGIC) {
+		if (hp->sz.lim >= 0 && (size_t)hp->sz.lim < mem)
+			mem = hp->sz.lim;
+		if (hp->sz.cap >= 0 && (size_t)hp->sz.cap < mem)
+			mem = hp->sz.lim >= 0 ? hp->sz.lim : hp->sz.cap;
+	}
+
+	if (mem > max) {
 		hp->magic = DEFUNCT_MAGIC;
 		return (HPACK_RES_LEN);
 	}
 
-	mem = len;
-	if (hp->magic == ENCODER_MAGIC && hp->sz.lim >= 0 &&
-	    (size_t)hp->sz.lim > mem)
-		mem = hp->sz.lim;
-
 	if (mem > hp->sz.mem) {
 		assert(hp->alloc.realloc != NULL);
+		assert(hp->sz.len <= mem);
 		hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
 		if (hp == NULL) {
 			(*hpp)->magic = DEFUNCT_MAGIC;
@@ -183,6 +189,27 @@ hpack_resize(struct hpack **hpp, size_t len)
 			hp->sz.min = len;
 	}
 
+	return (HPACK_RES_OK);
+}
+
+enum hpack_res_e
+hpack_limit(struct hpack *hp, size_t len)
+{
+	size_t max;
+
+	if (hp == NULL || hp->magic != ENCODER_MAGIC)
+		return (HPACK_RES_ARG);
+
+	if (hp->ctx.res != HPACK_RES_OK) {
+		assert(hp->ctx.res == HPACK_RES_BLK);
+		return (HPACK_RES_BSY);
+	}
+
+	max = hp->alloc.realloc == NULL ? hp->sz.mem : UINT16_MAX;
+	if (len > max)
+		return (HPACK_RES_LEN); /* the codec is NOT defunct */
+
+	hp->sz.cap = len;
 	return (HPACK_RES_OK);
 }
 
@@ -722,15 +749,21 @@ static int
 hpack_encode_update(HPACK_CTX, size_t lim)
 {
 
-	EXPECT(ctx, UPD, ctx->can_upd);
-	EXPECT(ctx, ARG, lim <= UINT16_MAX);
-	EXPECT(ctx, LEN, lim <= ctx->hp->sz.max);
+	assert(ctx->can_upd);
+	assert(lim <= UINT16_MAX);
+
 	if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
 		if (ctx->hp->sz.min < ctx->hp->sz.nxt)
 			assert(lim == (size_t)ctx->hp->sz.min);
+		else if (ctx->hp->sz.cap >= 0) {
+			lim = ctx->hp->sz.cap;
+			ctx->hp->sz.cap = -1;
+		}
 	}
+
 	ctx->hp->sz.lim = lim;
+
 	HPT_adjust(ctx, ctx->hp->sz.len);
 	HPI_encode(ctx, HPACK_PFX_UPDATE, HPACK_UPDATE, lim);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
@@ -742,12 +775,12 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 	else if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min == ctx->hp->sz.nxt);
 		ctx->hp->sz.max = ctx->hp->sz.nxt;
-		ctx->hp->sz.lim = ctx->hp->sz.nxt;
 		ctx->hp->sz.min = -1;
 		ctx->hp->sz.nxt = -1;
 		ctx->can_upd = 0;
 	}
 
+	assert(lim <= ctx->hp->sz.max);
 	return (0);
 }
 
@@ -784,11 +817,17 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 			retval = hpack_encode_update(ctx, hp->sz.nxt);
 			assert(retval == 0);
 		}
+		assert(ctx->hp->sz.cap < 0);
+		assert(!ctx->can_upd);
+	}
+
+	if (ctx->hp->sz.cap >= 0) {
+		retval = hpack_encode_update(ctx, hp->sz.cap);
+		assert(retval == 0);
+		hp->sz.cap = -1;
 	}
 
 	while (len > 0) {
-		if (itm->typ != HPACK_UPDATE)
-			ctx->can_upd = 0;
 #define HPACK_ENCODE(l, U, or) 					\
 		if (itm->typ == HPACK_##U)			\
 			retval = hpack_encode_##l(ctx, itm); 	\
@@ -798,7 +837,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 		HPACK_ENCODE(literal, LITERAL, else)
 		HPACK_ENCODE(never,   NEVER,   /* last type of field */)
 		else if (itm->typ == HPACK_UPDATE) {
-			retval = hpack_encode_update(ctx, itm->lim);
+			WRONG("no longer possible");
 		}
 		else {
 			hp->magic = DEFUNCT_MAGIC;

@@ -106,6 +106,10 @@ struct hpack_size {
 	 */
 	size_t			max;
 	ssize_t			lim;
+	/* NB: when the table limit is capped to a new value, it is stored in
+	 * the cap field to be applied when the next header list is encoded.
+	 */
+	ssize_t			cap;
 	/* NB: len is the current length of the dynamic table. */
 	size_t			len;
 	/* NB: When the size is updated out of band by the decoder, it must be

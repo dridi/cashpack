@@ -30,9 +30,4 @@ mk_hex <<EOF
 3f77
 EOF
 
-mk_enc <<EOF
-update 150
-EOF
-
 tst_decode --expect-error LEN --table-size 100
-tst_encode --expect-error LEN --table-size 100

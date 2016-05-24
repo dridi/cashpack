@@ -215,20 +215,20 @@ be last so it works by sheer luck.
 
     encoding-script = 1*( statement )
 
-    statement = block-statement / resize
+    statement = block-statement / resize / update
 
     block-statement = 1*( header-statement LF ) flush
 
     header-statement = indexed-field / dynamic-field / literal-field /
-        never-field / table-update
+        never-field
 
     indexed-field = "indexed" SP index
     dynamic-field = "dynamic" SP field-name SP field-value
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
-    table-update  = "update" SP size
     flush         = "flush" LF
     resize        = "resize" SP size LF
+    update        = "update" SP size LF
 
     index  = number
     size   = number
@@ -419,10 +419,10 @@ Closing words
 -------------
 
 There are no unit tests in cashpack, and yet the library had a decent coverage
-of 90% at the time of the writing of this documentation. That would be some
-average of lines of code, functions and branches coverage if that even means
-anything. The code coverage of a test suite doesn't even necessary reflect the
-quality of the tests.
+of 90% at the time of the writing of this documentation's first revision. That
+would be some average of lines of code functions and branches coverage if that
+even means anything. The code coverage of a test suite doesn't even necessary
+reflect the quality of the tests.
 
 It's just a numbers game and some kinds of *wossname* coverage are quite hard
 to quantify, like for example the infinite possibilities of decodable input,
