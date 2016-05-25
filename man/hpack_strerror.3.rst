@@ -57,6 +57,16 @@ error code into a human readable short description.
 RESULT CODES
 ============
 
+Only errors have a negative result code, so functions can be called with a
+generic style::
+
+    retval = hpack_xxx(...);
+    if (retval < 0) {
+    	/* error handling */
+    }
+
+The list of possible results:
+
 .. include:: hpr2rst.rst
 
 RETURN VALUE

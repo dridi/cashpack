@@ -28,6 +28,10 @@
 
 #ifdef HPR
 #ifndef HPR_ERRORS_ONLY
+HPR(BLK, 1, "incomplete block",
+	"\tThe expected result during partial decoding. This is not an\n"
+	"\terror.\n\n")
+
 HPR(OK, 0, "success",
 	"\tThe operation succeeded. This is not an error.\n\n")
 #endif
@@ -57,7 +61,7 @@ HPR(HUF, -6, "invalid Huffman code",
 	"\tA decoder decoded an invalid Huffman sequence.\n\n")
 
 HPR(CHR, -7, "invalid character",
-	"\tAn invalid header name or value character was decoded.\n\n")
+	"\tAn invalid header name or value character was coded.\n\n")
 
 HPR(UPD, -8, "spurious update",
 	"\tA table update occurred at a wrong time or with a wrong size.\n\n")
@@ -69,16 +73,10 @@ HPR(RSZ, -9, "missing resize update",
 HPR(OOM, -10, "out of memory",
 	"\tA reallocation failed during a table update.\n\n")
 
-#ifndef HPR_ERRORS_ONLY
-HPR(BLK, -11, "incomplete block",
-	"\tThe expected result during partial decoding. This is not an\n"
-	"\terror.\n\n")
-#endif
-
-HPR(BSY, -12, "codec busy",
+HPR(BSY, -11, "codec busy",
 	"\tSome operations such as listing the contents of the dynamic\n"
 	"\ttable can't be performed while a block is being decoded.\n\n")
-#endif
+#endif /* HPR */
 
 #ifdef HPE
 HPE(FIELD, 0, "new field",
@@ -155,4 +153,4 @@ HPE(TABLE, 7, "the table was updated",
 	"\tA decoder or an encoder sends a TABLE event when a dynamic table\n"
 	"\tupdate is decoded or encoded. The *buf* argument is always\n"
 	"\t``NULL`` and *len* is the new table maximum size.\n\n")
-#endif
+#endif /* HPE */
