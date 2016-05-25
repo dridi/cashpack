@@ -42,7 +42,7 @@ SYNOPSIS
 |
 | **typedef void hpack_encoded_f(**
 | **\     void** *\*priv*\ **,**
-| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     enum hpack_event_e** *evt*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
 | **enum hpack_type_e {**
@@ -77,12 +77,12 @@ SYNOPSIS
 |   **enum hpack_type_e**    *typ*\ **;**
 | **};**
 |
-| **enum hpack_res_e hpack_encode(**
+| **enum hpack_result_e hpack_encode(**
 | **\     struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_item** *\*items*\ **, size_t** *nb*\ **,**
 | **\     hpack_encoded_f** *\*cb*\ **, void** *\*priv*\ **);**
 |
-| **enum hpack_res_e hpack_clean_item(struct hpack_item** *\*item*\ **);**
+| **enum hpack_result_e hpack_clean_item(struct hpack_item** *\*item*\ **);**
 
 DESCRIPTION
 ===========

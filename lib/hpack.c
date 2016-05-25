@@ -39,7 +39,7 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
-enum hpack_pfx_e {
+enum hpack_prefix_e {
 	HPACK_PFX_STRING	= 7,
 	HPACK_PFX_INDEXED	= 7,
 	HPACK_PFX_DYNAMIC	= 6,
@@ -130,7 +130,7 @@ hpack_decoder(size_t max, const struct hpack_alloc *ha)
 	return (hpack_new(DECODER_MAGIC, max, ha));
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_resize(struct hpack **hpp, size_t len)
 {
 	struct hpack *hp;
@@ -192,7 +192,7 @@ hpack_resize(struct hpack **hpp, size_t len)
 	return (HPACK_RES_OK);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_limit(struct hpack *hp, size_t len)
 {
 	size_t max;
@@ -213,7 +213,7 @@ hpack_limit(struct hpack *hp, size_t len)
 	return (HPACK_RES_OK);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_trim(struct hpack **hpp)
 {
 	struct hpack *hp;
@@ -272,7 +272,7 @@ hpack_free(struct hpack **hpp)
 		hp->alloc.free(hp, hp->alloc.priv);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx *ctx;
@@ -299,7 +299,7 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 }
 
 const char *
-hpack_strerror(enum hpack_res_e res)
+hpack_strerror(enum hpack_result_e res)
 {
 
 #define HPR(val, cod, txt, rst)	\
@@ -315,7 +315,7 @@ hpack_strerror(enum hpack_res_e res)
  */
 
 static int
-hpack_decode_raw_string(HPACK_CTX, enum hpack_evt_e evt, size_t len)
+hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 {
 	struct hpack_state *hs;
 	hpack_validate_f *val;
@@ -346,7 +346,7 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_evt_e evt, size_t len)
 }
 
 static int
-hpack_decode_string(HPACK_CTX, enum hpack_evt_e evt)
+hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 {
 	struct hpack_state *hs;
 	uint16_t len;
@@ -545,7 +545,7 @@ hpack_decode_update(HPACK_CTX)
 	return (0);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
     hpack_decoded_f cb, void *priv)
 {
@@ -614,7 +614,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
  */
 
 static int
-hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
+hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
 {
 	const char *str;
 	size_t len;
@@ -787,7 +787,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 	return (0);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
     void *priv)
 {
@@ -861,7 +861,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 	return (ctx->res);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 hpack_clean_item(struct hpack_item *itm)
 {
 

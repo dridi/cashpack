@@ -30,13 +30,13 @@
 
 struct hpack;
 
-enum hpack_res_e {
+enum hpack_result_e {
 #define HPR(r, v, d, l)	HPACK_RES_##r	= v,
 #include "tbl/hpack_tbl.h"
 #undef HPR
 };
 
-enum hpack_evt_e {
+enum hpack_event_e {
 #define HPE(e, v, d, l)	HPACK_EVT_##e	= v,
 #include "tbl/hpack_tbl.h"
 #undef HPE
@@ -61,18 +61,19 @@ struct hpack * hpack_decoder(size_t, const struct hpack_alloc *);
 struct hpack * hpack_encoder(size_t, const struct hpack_alloc *);
 void hpack_free(struct hpack **);
 
-enum hpack_res_e hpack_resize(struct hpack **, size_t);
-enum hpack_res_e hpack_limit(struct hpack *, size_t);
-enum hpack_res_e hpack_trim(struct hpack **);
+enum hpack_result_e hpack_resize(struct hpack **, size_t);
+enum hpack_result_e hpack_limit(struct hpack *, size_t);
+enum hpack_result_e hpack_trim(struct hpack **);
 
-const char * hpack_strerror(enum hpack_res_e);
+const char * hpack_strerror(enum hpack_result_e);
 
 /* hpack_decode */
 
-typedef void hpack_decoded_f(void *, enum hpack_evt_e, const char *, size_t);
+typedef void hpack_decoded_f(void *, enum hpack_event_e, const char *,
+    size_t);
 
-enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t, unsigned,
-    hpack_decoded_f, void *);
+enum hpack_result_e hpack_decode(struct hpack *, const void *, size_t,
+    unsigned, hpack_decoded_f, void *);
 
 /* hpack_encode */
 
@@ -106,13 +107,14 @@ struct hpack_item {
 	enum hpack_field_e		typ;
 };
 
-typedef void hpack_encoded_f(void *, enum hpack_evt_e, const void *, size_t);
+typedef void hpack_encoded_f(void *, enum hpack_event_e, const void *,
+    size_t);
 
-enum hpack_res_e hpack_encode(struct hpack *, const struct hpack_item *,
+enum hpack_result_e hpack_encode(struct hpack *, const struct hpack_item *,
     size_t, hpack_encoded_f, void *);
 
-enum hpack_res_e hpack_clean_item(struct hpack_item *);
+enum hpack_result_e hpack_clean_item(struct hpack_item *);
 
 /* hpack_foreach */
 
-enum hpack_res_e hpack_foreach(struct hpack *, hpack_decoded_f, void *);
+enum hpack_result_e hpack_foreach(struct hpack *, hpack_decoded_f, void *);

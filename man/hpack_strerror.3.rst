@@ -39,9 +39,9 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **enum hpack_res_e;**
+| **enum hpack_result_e;**
 |
-| **const char * hpack_strerror(enum hpack_res_e** *res*\ **);**
+| **const char * hpack_strerror(enum hpack_result_e** *res*\ **);**
 
 DESCRIPTION
 ===========

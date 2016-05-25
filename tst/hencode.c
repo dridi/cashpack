@@ -56,11 +56,11 @@ struct enc_ctx {
 	size_t			cnt;
 	char			*line;
 	size_t			line_sz;
-	enum hpack_res_e	res;
+	enum hpack_result_e	res;
 };
 
 static void
-write_data(void *priv, enum hpack_evt_e evt, const void *buf, size_t len)
+write_data(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
 {
 
 #ifdef NDEBUG
@@ -257,7 +257,7 @@ struct hpack *hp = NULL;
 int
 main(int argc, char **argv)
 {
-	enum hpack_res_e exp;
+	enum hpack_result_e exp;
 	struct enc_ctx ctx;
 	int tbl_sz;
 

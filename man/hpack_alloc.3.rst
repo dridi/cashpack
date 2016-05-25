@@ -60,11 +60,11 @@ SYNOPSIS
     const struct hpack_alloc** *\*alloc*\ **);**
 | **void hpack_free(struct hpack** *\**hpackp*\ **);**
 |
-| **enum hpack_res_e hpack_resize(struct hpack** *\*\*hpackp*\ **, size_t** \
+| **enum hpack_result_e hpack_resize(struct hpack** *\*\*hpackp*\ **,** \
+    **size_t** *max*\ **);**
+| **enum hpack_result_e hpack_limit(struct hpack** *\*hpack*\ **, size_t** \
     *max*\ **);**
-| **enum hpack_res_e hpack_limit(struct hpack** *\*hpack*\ **, size_t** \
-    *max*\ **);**
-| **enum hpack_res_e hpack_trim(struct hpack** *\*\*hpackp*\ **);**
+| **enum hpack_result_e hpack_trim(struct hpack** *\*\*hpackp*\ **);**
 
 DESCRIPTION
 ===========

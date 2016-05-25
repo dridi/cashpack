@@ -87,7 +87,7 @@ print_error(const char *func, int retval)
 /* callback for cashpack */
 
 static void
-print_headers(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+print_headers(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 {
 
 	(void)priv;

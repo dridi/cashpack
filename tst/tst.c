@@ -53,7 +53,7 @@ struct dyn_ctx {
 };
 
 static void
-tst_print_cb(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+tst_print_cb(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 {
 	struct dyn_ctx *ctx;
 	char str[sizeof "\n[IDX] (s = LEN) "];
@@ -175,7 +175,7 @@ TST_decode(struct dec_ctx *ctx)
 	return (res);
 }
 
-enum hpack_res_e
+enum hpack_result_e
 TST_translate_error(const char *str)
 {
 #define HPR_ERRORS_ONLY

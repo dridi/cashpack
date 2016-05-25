@@ -181,7 +181,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
  */
 
 static unsigned
-hpt_notify(struct hpt_priv *priv, enum hpack_evt_e evt, const char *buf,
+hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
     size_t len)
 {
 	struct hpack *hp;
@@ -370,7 +370,7 @@ hpt_copy_evicted(struct hpt_priv *priv, const char *buf, size_t len)
 }
 
 void
-HPT_insert(void *priv, enum hpack_evt_e evt, const char *buf, size_t len)
+HPT_insert(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;

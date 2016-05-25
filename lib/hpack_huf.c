@@ -45,7 +45,7 @@
  */
 
 int
-HPH_decode(HPACK_CTX, enum hpack_evt_e evt, size_t len)
+HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 {
 	const struct hph_entry *he;
 	struct hpack_state *hs;

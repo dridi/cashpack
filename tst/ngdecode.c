@@ -163,7 +163,7 @@ int
 main(int argc, char **argv)
 {
 	nghttp2_hd_inflater *inf;
-	enum hpack_res_e exp;
+	enum hpack_result_e exp;
 	struct dec_ctx ctx;
 	struct stat st;
 	void *buf;

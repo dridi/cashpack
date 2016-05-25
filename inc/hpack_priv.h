@@ -95,7 +95,7 @@ struct hpack_ctx {
 		hpack_encoded_f	*cb; /* dirty covariance hack */
 	};
 	void			*priv;
-	enum hpack_res_e	res;
+	enum hpack_result_e	res;
 	unsigned		can_upd;
 };
 
@@ -233,7 +233,7 @@ void HPE_send(HPACK_CTX);
 int  HPI_decode(HPACK_CTX, size_t, uint16_t *);
 void HPI_encode(HPACK_CTX, size_t, uint8_t, uint16_t);
 
-int  HPH_decode(HPACK_CTX, enum hpack_evt_e, size_t);
+int  HPH_decode(HPACK_CTX, enum hpack_event_e, size_t);
 void HPH_encode(HPACK_CTX, const char *);
 void HPH_size(const char *, size_t *);
 

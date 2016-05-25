@@ -164,19 +164,19 @@ subset. There are two callback signatures for callbacks, almost identical:
 |
 | **typedef void hpack_decoded_f(**
 | **\     void** *\*priv*\ **,**
-| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     enum hpack_event_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **);**
 |
 | **typedef void hpack_encoded_f(**
 | **\     void** *\*priv*\ **,**
-| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     enum hpack_event_e** *evt*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 
 When not ``NULL``, The *buf* argument always point to non-persistent memory
 that should only be considered valid (unless documented otherwise) until the
 callback returns.
 
-The type ``enum hpack_evt_e`` may take the following values:
+The type ``enum hpack_event_e`` may take the following values:
 
 .. include:: hpe2rst.rst
 

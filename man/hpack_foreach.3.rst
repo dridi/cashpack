@@ -41,10 +41,10 @@ SYNOPSIS
 |
 | **typedef void hpack_decoded_f(**
 | **\     void** *\*priv*\ **,**
-| **\     enum hpack_evt_e** *evt*\ **,**
+| **\     enum hpack_event_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **enum hpack_res_e hpack_foreach(**
+| **enum hpack_result_e hpack_foreach(**
 | **\     struct hpack** *\*hpack*\ **,**
 | **\     hpack_decoded_f** *cb*, **void** *\*priv*\ **);**
 
