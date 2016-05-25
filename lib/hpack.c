@@ -577,7 +577,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	while (ctx->len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->buf;
-		if ((hp->state.typ & HPACK_UPDATE) != HPACK_UPDATE) {
+		if ((hp->state.typ & HPACK_PAT_UPDATE) != HPACK_PAT_UPDATE) {
 			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
 				return (HPACK_RES_RSZ);
@@ -585,9 +585,9 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 			assert(hp->sz.min < 0);
 			ctx->can_upd = 0;
 		}
-#define HPACK_DECODE(l, U, or) 					\
-		if ((hp->state.typ & HPACK_##U) == HPACK_##U)	\
-			retval = hpack_decode_##l(ctx); 	\
+#define HPACK_DECODE(l, U, or) 						\
+		if ((hp->state.typ & HPACK_PAT_##U) == HPACK_PAT_##U)	\
+			retval = hpack_decode_##l(ctx); 		\
 		or
 		HPACK_DECODE(indexed, INDEXED, else)
 		HPACK_DECODE(dynamic, DYNAMIC, else)
@@ -650,7 +650,7 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_evt_e evt)
 }
 
 static int
-hpack_encode_field(HPACK_CTX, HPACK_ITM, size_t pfx)
+hpack_encode_field(HPACK_CTX, HPACK_ITM, enum hpack_pattern_e pat, size_t pfx)
 {
 	uint16_t idx;
 
@@ -662,7 +662,7 @@ hpack_encode_field(HPACK_CTX, HPACK_ITM, size_t pfx)
 	else
 		idx = 0;
 
-	HPI_encode(ctx, pfx, itm->typ, idx);
+	HPI_encode(ctx, pfx, pat, idx);
 
 	if (idx == 0)
 		CALL(hpack_encode_string, ctx, itm, HPACK_EVT_NAME);
@@ -677,7 +677,7 @@ hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
 	EXPECT(ctx, IDX, itm->idx > 0 &&
 	    itm->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 
-	HPI_encode(ctx, HPACK_PFX_INDEXED, itm->typ, itm->idx);
+	HPI_encode(ctx, HPACK_PFX_INDEXED, HPACK_PAT_INDEXED, itm->idx);
 	return (0);
 }
 
@@ -692,7 +692,8 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	struct hpt_entry tmp;
 #endif
 
-	CALL(hpack_encode_field, ctx, itm, HPACK_PFX_DYNAMIC);
+	CALL(hpack_encode_field, ctx, itm, HPACK_PAT_DYNAMIC,
+	    HPACK_PFX_DYNAMIC);
 
 	hp = ctx->hp;
 
@@ -735,14 +736,16 @@ static int
 hpack_encode_literal(HPACK_CTX, HPACK_ITM)
 {
 
-	return (hpack_encode_field(ctx, itm, HPACK_PFX_LITERAL));
+	return (hpack_encode_field(ctx, itm, HPACK_PAT_LITERAL,
+	    HPACK_PFX_LITERAL));
 }
 
 static int
 hpack_encode_never(HPACK_CTX, HPACK_ITM)
 {
 
-	return (hpack_encode_field(ctx, itm, HPACK_PFX_NEVER));
+	return (hpack_encode_field(ctx, itm, HPACK_PAT_NEVER,
+	    HPACK_PFX_NEVER));
 }
 
 static int
@@ -765,7 +768,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 	ctx->hp->sz.lim = lim;
 
 	HPT_adjust(ctx, ctx->hp->sz.len);
-	HPI_encode(ctx, HPACK_PFX_UPDATE, HPACK_UPDATE, lim);
+	HPI_encode(ctx, HPACK_PFX_UPDATE, HPACK_PAT_UPDATE, lim);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
 
 	if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
@@ -829,16 +832,13 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	while (len > 0) {
 #define HPACK_ENCODE(l, U, or) 					\
-		if (itm->typ == HPACK_##U)			\
+		if (itm->typ == HPACK_FLD_##U)			\
 			retval = hpack_encode_##l(ctx, itm); 	\
 		or
 		HPACK_ENCODE(indexed, INDEXED, else)
 		HPACK_ENCODE(dynamic, DYNAMIC, else)
 		HPACK_ENCODE(literal, LITERAL, else)
-		HPACK_ENCODE(never,   NEVER,   /* last type of field */)
-		else if (itm->typ == HPACK_UPDATE) {
-			WRONG("no longer possible");
-		}
+		HPACK_ENCODE(never,   NEVER,   /* that was the last */)
 		else {
 			hp->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_ARG);
@@ -869,12 +869,12 @@ hpack_clean_item(struct hpack_item *itm)
 		return (HPACK_RES_ARG);
 
 	switch (itm->typ) {
-	case HPACK_INDEXED:
+	case HPACK_FLD_INDEXED:
 		itm->idx = 0;
 		break;
-	case HPACK_DYNAMIC:
-	case HPACK_LITERAL:
-	case HPACK_NEVER:
+	case HPACK_FLD_DYNAMIC:
+	case HPACK_FLD_LITERAL:
+	case HPACK_FLD_NEVER:
 		if (itm->fld.flg & HPACK_IDX) {
 			itm->fld.idx = 0;
 			itm->fld.flg &= ~HPACK_IDX;

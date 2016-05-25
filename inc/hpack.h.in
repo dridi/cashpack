@@ -76,12 +76,11 @@ enum hpack_res_e hpack_decode(struct hpack *, const void *, size_t, unsigned,
 
 /* hpack_encode */
 
-enum hpack_type_e {
-	HPACK_INDEXED	= 0x80, /* Section 6.1 */
-	HPACK_DYNAMIC	= 0x40, /* Section 6.2.1 */
-	HPACK_LITERAL	= 0x00, /* Section 6.2.2 */
-	HPACK_NEVER	= 0x10, /* Section 6.2.3 */
-	HPACK_UPDATE	= 0x20, /* Section 6.3 */
+enum hpack_field_e {
+	HPACK_FLD_INDEXED	= 0,
+	HPACK_FLD_DYNAMIC	= 1,
+	HPACK_FLD_LITERAL	= 2,
+	HPACK_FLD_NEVER		= 3,
 };
 
 enum hpack_compress_e {
@@ -104,7 +103,7 @@ struct hpack_item {
 		uint16_t		idx;
 		struct hpack_field	fld;
 	};
-	enum hpack_type_e		typ;
+	enum hpack_field_e		typ;
 };
 
 typedef void hpack_encoded_f(void *, enum hpack_evt_e, const void *, size_t);

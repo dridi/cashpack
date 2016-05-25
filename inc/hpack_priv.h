@@ -37,6 +37,14 @@ enum hpack_encoding_e { /* Section 5.2 */
 	HPACK_RAW	= 0x00,
 };
 
+enum hpack_pattern_e {
+	HPACK_PAT_INDEXED	= 0x80, /* Section 6.1 */
+	HPACK_PAT_DYNAMIC	= 0x40, /* Section 6.2.1 */
+	HPACK_PAT_LITERAL	= 0x00, /* Section 6.2.2 */
+	HPACK_PAT_NEVER		= 0x10, /* Section 6.2.3 */
+	HPACK_PAT_UPDATE	= 0x20, /* Section 6.3 */
+};
+
 enum hpack_stp_e {
 	HPACK_STP_FLD_INT = 0,
 	HPACK_STP_NAM_LEN = 1,

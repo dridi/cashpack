@@ -83,11 +83,11 @@ free_item(struct hpack_item *itm)
 {
 
 	switch (itm->typ) {
-	case HPACK_INDEXED:
+	case HPACK_FLD_INDEXED:
 		break;
-	case HPACK_DYNAMIC:
-	case HPACK_LITERAL:
-	case HPACK_NEVER:
+	case HPACK_FLD_DYNAMIC:
+	case HPACK_FLD_LITERAL:
+	case HPACK_FLD_NEVER:
 		if (~itm->fld.flg & HPACK_IDX)
 			free((char *)itm->fld.nam);
 		free((char *)itm->fld.val);
@@ -226,23 +226,23 @@ parse_commands(struct enc_ctx *ctx)
 	if (!TOKCMP(ctx->line, "indexed")) {
 		args = TOK_ARGS(ctx->line, "indexed");
 		itm->idx = atoi(args);
-		itm->typ = HPACK_INDEXED;
+		itm->typ = HPACK_FLD_INDEXED;
 	}
 	else if (!TOKCMP(ctx->line, "dynamic")) {
 		args = TOK_ARGS(ctx->line, "dynamic");
-		itm->typ = HPACK_DYNAMIC;
+		itm->typ = HPACK_FLD_DYNAMIC;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
 	else if (!TOKCMP(ctx->line, "never")) {
 		args = TOK_ARGS(ctx->line, "never");
-		itm->typ = HPACK_NEVER;
+		itm->typ = HPACK_FLD_NEVER;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}
 	else if (!TOKCMP(ctx->line, "literal")) {
 		args = TOK_ARGS(ctx->line, "literal");
-		itm->typ = HPACK_LITERAL;
+		itm->typ = HPACK_FLD_LITERAL;
 		parse_name(itm, &args);
 		parse_value(itm, &args);
 	}

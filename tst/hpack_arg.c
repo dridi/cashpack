@@ -73,7 +73,7 @@ static const uint8_t junk_block[] = { 0x80 };
 static const uint8_t update_block[] = { 0x20 };
 
 static const struct hpack_item basic_item = {
-	.typ = HPACK_INDEXED,
+	.typ = HPACK_FLD_INDEXED,
 	.idx = 1,
 };
 
@@ -268,17 +268,17 @@ main(int argc, char **argv)
 	hpack_clean_item(&itm);
 
 	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_INDEXED;
+	itm.typ = HPACK_FLD_INDEXED;
 	itm.fld.nam = "";
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
 	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_INDEXED;
+	itm.typ = HPACK_FLD_INDEXED;
 	itm.fld.val = "";
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
 	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_INDEXED;
+	itm.typ = HPACK_FLD_INDEXED;
 	itm.fld.flg = HPACK_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
