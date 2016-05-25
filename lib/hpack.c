@@ -869,9 +869,6 @@ hpack_clean_item(struct hpack_item *itm)
 		return (HPACK_RES_ARG);
 
 	switch (itm->typ) {
-	case HPACK_UPDATE:
-		itm->lim = 0;
-		break;
 	case HPACK_INDEXED:
 		itm->idx = 0;
 		break;
@@ -899,7 +896,6 @@ hpack_clean_item(struct hpack_item *itm)
 		return (HPACK_RES_ARG);
 
 	assert(itm->idx == 0);
-	assert(itm->lim == 0);
 	assert(itm->fld.idx == 0);
 
 	return (HPACK_RES_OK);

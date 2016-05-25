@@ -102,7 +102,6 @@ struct hpack_field {
 struct hpack_item {
 	union {
 		uint16_t		idx;
-		size_t			lim;
 		struct hpack_field	fld;
 	};
 	enum hpack_type_e		typ;
