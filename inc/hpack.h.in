@@ -100,11 +100,9 @@ struct hpack_field {
 };
 
 struct hpack_item {
-	union {
-		uint16_t		idx;
-		struct hpack_field	fld;
-	};
-	enum hpack_field_e		typ;
+	uint16_t		idx;
+	struct hpack_field	fld;
+	enum hpack_field_e	typ;
 };
 
 typedef void hpack_encoded_f(void *, enum hpack_event_e, const void *,
