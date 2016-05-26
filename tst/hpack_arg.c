@@ -72,12 +72,12 @@ static const uint8_t junk_block[] = { 0x80 };
 
 static const uint8_t update_block[] = { 0x20 };
 
-static const struct hpack_item basic_item = {
+static const struct hpack_field basic_field = {
 	.typ = HPACK_FLD_INDEXED,
 	.idx = 1,
 };
 
-static const struct hpack_item unknown_item = {
+static const struct hpack_field unknown_field = {
 	.typ = 0xff,
 	.idx = 1,
 };
@@ -169,7 +169,7 @@ int
 main(int argc, char **argv)
 {
 	struct hpack *hp;
-	struct hpack_item itm;
+	struct hpack_field fld;
 	int retval;
 
 	(void)argc;
@@ -232,17 +232,17 @@ main(int argc, char **argv)
 	CHECK_NOTNULL(hp, hpack_encoder, 0, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_item, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_item, 1, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 1, NULL, NULL);
 
 	/* defunct encoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
 	    noop_enc_cb, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
 	    noop_enc_cb, NULL);
 
 	/* resize/trim defunct encoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_item, 1,
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
 	    noop_enc_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
@@ -261,26 +261,26 @@ main(int argc, char **argv)
 	assert(retval == HPACK_RES_OOM);
 	hpack_free(&hp);
 
-	/* clean broken items */
-	CHECK_RES(retval, ARG, hpack_clean_item, NULL);
+	/* clean broken field */
+	CHECK_RES(retval, ARG, hpack_clean_field, NULL);
 
-	itm = unknown_item;
-	hpack_clean_item(&itm);
+	fld = unknown_field;
+	hpack_clean_field(&fld);
 
-	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_FLD_INDEXED;
-	itm.fld.nam = "";
-	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
+	(void)memset(&fld, 0, sizeof fld);
+	fld.typ = HPACK_FLD_INDEXED;
+	fld.nam = "";
+	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
-	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_FLD_INDEXED;
-	itm.fld.val = "";
-	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
+	(void)memset(&fld, 0, sizeof fld);
+	fld.typ = HPACK_FLD_INDEXED;
+	fld.val = "";
+	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
-	(void)memset(&itm, 0, sizeof itm);
-	itm.typ = HPACK_FLD_INDEXED;
-	itm.fld.flg = HPACK_FLG_NAM_IDX;
-	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
+	(void)memset(&fld, 0, sizeof fld);
+	fld.typ = HPACK_FLD_INDEXED;
+	fld.flg = HPACK_FLG_NAM_IDX;
+	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
 	/* strerror */
 	(void)hpack_strerror(HPACK_RES_OK);

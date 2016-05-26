@@ -52,7 +52,7 @@
 struct enc_ctx {
 	struct hpack		*hp;
 	hpack_encoded_f		*cb;
-	struct hpack_item	*itm;
+	struct hpack_field	*fld;
 	size_t			cnt;
 	char			*line;
 	size_t			line_sz;
@@ -79,18 +79,18 @@ write_data(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
 }
 
 static void
-free_item(struct hpack_item *itm)
+free_field(struct hpack_field *fld)
 {
 
-	switch (itm->typ) {
+	switch (fld->typ) {
 	case HPACK_FLD_INDEXED:
 		break;
 	case HPACK_FLD_DYNAMIC:
 	case HPACK_FLD_LITERAL:
 	case HPACK_FLD_NEVER:
-		if (~itm->fld.flg & HPACK_FLG_NAM_IDX)
-			free((char *)itm->fld.nam);
-		free((char *)itm->fld.val);
+		if (~fld->flg & HPACK_FLG_NAM_IDX)
+			free((char *)fld->nam);
+		free((char *)fld->val);
 		break;
 	default:
 		WRONG("Unknwon type");
@@ -100,27 +100,27 @@ free_item(struct hpack_item *itm)
 static void
 encode_message(struct enc_ctx *ctx)
 {
-	struct hpack_item *itm;
+	struct hpack_field *fld;
 
 	if (ctx->cnt == 0)
 		return;
 
-	ctx->res = hpack_encode(ctx->hp, ctx->itm, ctx->cnt, ctx->cb, NULL);
-	itm = ctx->itm;
+	ctx->res = hpack_encode(ctx->hp, ctx->fld, ctx->cnt, ctx->cb, NULL);
+	fld = ctx->fld;
 
 	while (ctx->cnt > 0) {
-		free_item(itm);
-		hpack_clean_item(itm);
-		itm++;
+		free_field(fld);
+		hpack_clean_field(fld);
+		fld++;
 		ctx->cnt--;
 	}
 
-	free(ctx->itm);
-	ctx->itm = NULL;
+	free(ctx->fld);
+	ctx->fld = NULL;
 }
 
 static void
-parse_name(struct hpack_item *itm, const char **args)
+parse_name(struct hpack_field *fld, const char **args)
 {
 	char *sp;
 
@@ -128,23 +128,23 @@ parse_name(struct hpack_item *itm, const char **args)
 		*args = TOK_ARGS(*args, "str");
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
-		itm->fld.nam = strndup(*args, sp - *args);
+		fld->nam = strndup(*args, sp - *args);
 		*args = sp + 1;
 	}
 	else if (!TOKCMP(*args, "huf")) {
 		*args = TOK_ARGS(*args, "huf");
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
-		itm->fld.nam = strndup(*args, sp - *args);
-		itm->fld.flg = HPACK_FLG_NAM_HUF;
+		fld->nam = strndup(*args, sp - *args);
+		fld->flg = HPACK_FLG_NAM_HUF;
 		*args = sp + 1;
 	}
 	else if (!TOKCMP(*args, "idx")) {
 		*args = TOK_ARGS(*args, "idx");
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
-		itm->fld.nam_idx = atoi(*args);
-		itm->fld.flg = HPACK_FLG_NAM_IDX;
+		fld->nam_idx = atoi(*args);
+		fld->flg = HPACK_FLG_NAM_IDX;
 		*args = sp + 1;
 	}
 	else
@@ -154,7 +154,7 @@ parse_name(struct hpack_item *itm, const char **args)
 }
 
 static void
-parse_value(struct hpack_item *itm, const char **args)
+parse_value(struct hpack_field *fld, const char **args)
 {
 	char *ln;
 
@@ -162,15 +162,15 @@ parse_value(struct hpack_item *itm, const char **args)
 		*args = TOK_ARGS(*args, "str");
 		ln = strchr(*args, '\n');
 		assert(ln != NULL);
-		itm->fld.val = strndup(*args, ln - *args);
+		fld->val = strndup(*args, ln - *args);
 		*args = ln + 1;
 	}
 	else if (!TOKCMP(*args, "huf")) {
 		*args = TOK_ARGS(*args, "huf");
 		ln = strchr(*args, '\n');
 		assert(ln != NULL);
-		itm->fld.val = strndup(*args, ln - *args);
-		itm->fld.flg |= HPACK_FLG_VAL_HUF;
+		fld->val = strndup(*args, ln - *args);
+		fld->flg |= HPACK_FLG_VAL_HUF;
 		*args = ln + 1;
 	}
 	else
@@ -182,7 +182,7 @@ parse_value(struct hpack_item *itm, const char **args)
 static int
 parse_commands(struct enc_ctx *ctx)
 {
-	struct hpack_item *itm;
+	struct hpack_field *fld;
 	const char *args;
 	ssize_t len;
 
@@ -215,36 +215,36 @@ parse_commands(struct enc_ctx *ctx)
 
 	ctx->cnt++;
 
-	ctx->itm = realloc(ctx->itm, ctx->cnt * sizeof *itm);
-	assert(ctx->itm != NULL);
+	ctx->fld = realloc(ctx->fld, ctx->cnt * sizeof *fld);
+	assert(ctx->fld != NULL);
 
-	itm = ctx->itm + ctx->cnt - 1;
-	(void)memset(itm, 0, sizeof *itm);
+	fld = ctx->fld + ctx->cnt - 1;
+	(void)memset(fld, 0, sizeof *fld);
 
 	assert(len >= 0);
 
 	if (!TOKCMP(ctx->line, "indexed")) {
 		args = TOK_ARGS(ctx->line, "indexed");
-		itm->idx = atoi(args);
-		itm->typ = HPACK_FLD_INDEXED;
+		fld->idx = atoi(args);
+		fld->typ = HPACK_FLD_INDEXED;
 	}
 	else if (!TOKCMP(ctx->line, "dynamic")) {
 		args = TOK_ARGS(ctx->line, "dynamic");
-		itm->typ = HPACK_FLD_DYNAMIC;
-		parse_name(itm, &args);
-		parse_value(itm, &args);
+		fld->typ = HPACK_FLD_DYNAMIC;
+		parse_name(fld, &args);
+		parse_value(fld, &args);
 	}
 	else if (!TOKCMP(ctx->line, "never")) {
 		args = TOK_ARGS(ctx->line, "never");
-		itm->typ = HPACK_FLD_NEVER;
-		parse_name(itm, &args);
-		parse_value(itm, &args);
+		fld->typ = HPACK_FLD_NEVER;
+		parse_name(fld, &args);
+		parse_value(fld, &args);
 	}
 	else if (!TOKCMP(ctx->line, "literal")) {
 		args = TOK_ARGS(ctx->line, "literal");
-		itm->typ = HPACK_FLD_LITERAL;
-		parse_name(itm, &args);
-		parse_value(itm, &args);
+		fld->typ = HPACK_FLD_LITERAL;
+		parse_name(fld, &args);
+		parse_value(fld, &args);
 	}
 	else
 		WRONG("Unknown token");

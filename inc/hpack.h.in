@@ -91,25 +91,21 @@ enum hpack_flag_e {
 };
 
 struct hpack_field {
-	uint16_t	nam_idx;
-	const char	*nam;
-	const char	*val;
-	uint8_t		flg;
-};
-
-struct hpack_item {
-	uint16_t		idx;
-	struct hpack_field	fld;
 	enum hpack_field_e	typ;
+	uint16_t		idx;
+	uint16_t		nam_idx;
+	const char		*nam;
+	const char		*val;
+	uint8_t			flg;
 };
 
 typedef void hpack_encoded_f(void *, enum hpack_event_e, const void *,
     size_t);
 
-enum hpack_result_e hpack_encode(struct hpack *, const struct hpack_item *,
+enum hpack_result_e hpack_encode(struct hpack *, const struct hpack_field *,
     size_t, hpack_encoded_f, void *);
 
-enum hpack_result_e hpack_clean_item(struct hpack_item *);
+enum hpack_result_e hpack_clean_field(struct hpack_field *);
 
 /* hpack_foreach */
 

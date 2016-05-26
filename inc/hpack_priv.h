@@ -199,7 +199,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 #define TRUST_ME(ptr)	((void *)(uintptr_t)(ptr))
 
 #define HPACK_CTX	struct hpack_ctx *ctx
-#define HPACK_ITM	const struct hpack_item *itm
+#define HPACK_FLD	const struct hpack_field *fld
 
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))

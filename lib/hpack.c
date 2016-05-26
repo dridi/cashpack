@@ -614,7 +614,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
  */
 
 static int
-hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
+hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 {
 	const char *str;
 	size_t len;
@@ -622,14 +622,14 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
 	hpack_validate_f *val;
 
 	if (evt == HPACK_EVT_NAME) {
-		assert(~itm->fld.flg & HPACK_FLG_NAM_IDX);
-		str = itm->fld.nam;
-		huf = itm->fld.flg & HPACK_FLG_NAM_HUF;
+		assert(~fld->flg & HPACK_FLG_NAM_IDX);
+		str = fld->nam;
+		huf = fld->flg & HPACK_FLG_NAM_HUF;
 		val = HPV_token;
 	}
 	else {
-		str = itm->fld.val;
-		huf = itm->fld.flg & HPACK_FLG_VAL_HUF;
+		str = fld->val;
+		huf = fld->flg & HPACK_FLG_VAL_HUF;
 		val = HPV_value;
 	}
 
@@ -650,12 +650,12 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
 }
 
 static int
-hpack_encode_field(HPACK_CTX, HPACK_ITM, enum hpack_pattern_e pat, size_t pfx)
+hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpack_pattern_e pat, size_t pfx)
 {
 	uint16_t idx;
 
-	if (itm->fld.flg & HPACK_FLG_NAM_IDX) {
-		idx = itm->fld.nam_idx;
+	if (fld->flg & HPACK_FLG_NAM_IDX) {
+		idx = fld->nam_idx;
 		EXPECT(ctx, IDX, idx > 0 &&
 		    idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 	}
@@ -665,24 +665,24 @@ hpack_encode_field(HPACK_CTX, HPACK_ITM, enum hpack_pattern_e pat, size_t pfx)
 	HPI_encode(ctx, pfx, pat, idx);
 
 	if (idx == 0)
-		CALL(hpack_encode_string, ctx, itm, HPACK_EVT_NAME);
+		CALL(hpack_encode_string, ctx, fld, HPACK_EVT_NAME);
 
-	return (hpack_encode_string(ctx, itm, HPACK_EVT_VALUE));
+	return (hpack_encode_string(ctx, fld, HPACK_EVT_VALUE));
 }
 
 static int
-hpack_encode_indexed(HPACK_CTX, HPACK_ITM)
+hpack_encode_indexed(HPACK_CTX, HPACK_FLD)
 {
 
-	EXPECT(ctx, IDX, itm->idx > 0 &&
-	    itm->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
+	EXPECT(ctx, IDX, fld->idx > 0 &&
+	    fld->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 
-	HPI_encode(ctx, HPACK_PFX_INDEXED, HPACK_PAT_INDEXED, itm->idx);
+	HPI_encode(ctx, HPACK_PFX_INDEXED, HPACK_PAT_INDEXED, fld->idx);
 	return (0);
 }
 
 static int
-hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
+hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 {
 	struct hpack *hp;
 	struct hpt_field hf;
@@ -692,7 +692,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	struct hpt_entry tmp;
 #endif
 
-	CALL(hpack_encode_field, ctx, itm, HPACK_PAT_DYNAMIC,
+	CALL(hpack_encode_field, ctx, fld, HPACK_PAT_DYNAMIC,
 	    HPACK_PFX_DYNAMIC);
 
 	hp = ctx->hp;
@@ -701,18 +701,18 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
 
-	if (itm->fld.flg & HPACK_FLG_NAM_IDX) {
-		(void)HPT_search(ctx, itm->fld.nam_idx, &hf);
+	if (fld->flg & HPACK_FLG_NAM_IDX) {
+		(void)HPT_search(ctx, fld->nam_idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
 		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
 	}
 	else {
-		nam_sz = strlen(itm->fld.nam);
-		HPT_insert(&priv, HPACK_EVT_NAME, itm->fld.nam, nam_sz);
+		nam_sz = strlen(fld->nam);
+		HPT_insert(&priv, HPACK_EVT_NAME, fld->nam, nam_sz);
 	}
 
-	val_sz = strlen(itm->fld.val);
-	HPT_insert(&priv, HPACK_EVT_VALUE, itm->fld.val, val_sz);
+	val_sz = strlen(fld->val);
+	HPT_insert(&priv, HPACK_EVT_VALUE, fld->val, val_sz);
 
 	hp->off = 0;
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
@@ -733,18 +733,18 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 }
 
 static int
-hpack_encode_literal(HPACK_CTX, HPACK_ITM)
+hpack_encode_literal(HPACK_CTX, HPACK_FLD)
 {
 
-	return (hpack_encode_field(ctx, itm, HPACK_PAT_LITERAL,
+	return (hpack_encode_field(ctx, fld, HPACK_PAT_LITERAL,
 	    HPACK_PFX_LITERAL));
 }
 
 static int
-hpack_encode_never(HPACK_CTX, HPACK_ITM)
+hpack_encode_never(HPACK_CTX, HPACK_FLD)
 {
 
-	return (hpack_encode_field(ctx, itm, HPACK_PAT_NEVER,
+	return (hpack_encode_field(ctx, fld, HPACK_PAT_NEVER,
 	    HPACK_PFX_NEVER));
 }
 
@@ -788,14 +788,14 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 }
 
 enum hpack_result_e
-hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
+hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
     void *priv)
 {
 	struct hpack_ctx *ctx;
 	uint8_t buf[256];
 	int retval;
 
-	if (hp == NULL || hp->magic != ENCODER_MAGIC || itm == NULL ||
+	if (hp == NULL || hp->magic != ENCODER_MAGIC || fld == NULL ||
 	    len == 0 || cb == NULL)
 		return (HPACK_RES_ARG);
 
@@ -832,8 +832,8 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 
 	while (len > 0) {
 #define HPACK_ENCODE(l, U, or) 					\
-		if (itm->typ == HPACK_FLD_##U)			\
-			retval = hpack_encode_##l(ctx, itm); 	\
+		if (fld->typ == HPACK_FLD_##U)			\
+			retval = hpack_encode_##l(ctx, fld); 	\
 		or
 		HPACK_ENCODE(indexed, INDEXED, else)
 		HPACK_ENCODE(dynamic, DYNAMIC, else)
@@ -850,7 +850,7 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 			hp->magic = DEFUNCT_MAGIC;
 			return (ctx->res);
 		}
-		itm++;
+		fld++;
 		len--;
 	}
 
@@ -862,41 +862,41 @@ hpack_encode(struct hpack *hp, HPACK_ITM, size_t len, hpack_encoded_f cb,
 }
 
 enum hpack_result_e
-hpack_clean_item(struct hpack_item *itm)
+hpack_clean_field(struct hpack_field *fld)
 {
 
-	if (itm == NULL)
+	if (fld == NULL)
 		return (HPACK_RES_ARG);
 
-	switch (itm->typ) {
+	switch (fld->typ) {
 	case HPACK_FLD_INDEXED:
-		itm->idx = 0;
+		fld->idx = 0;
 		break;
 	case HPACK_FLD_DYNAMIC:
 	case HPACK_FLD_LITERAL:
 	case HPACK_FLD_NEVER:
-		if (itm->fld.flg & HPACK_FLG_NAM_IDX) {
-			itm->fld.nam_idx = 0;
-			itm->fld.flg &= ~HPACK_FLG_NAM_IDX;
+		if (fld->flg & HPACK_FLG_NAM_IDX) {
+			fld->nam_idx = 0;
+			fld->flg &= ~HPACK_FLG_NAM_IDX;
 		}
 		else
-			itm->fld.nam = NULL;
-		itm->fld.val = NULL;
-		itm->fld.flg &= ~HPACK_FLG_NAM_HUF;
-		itm->fld.flg &= ~HPACK_FLG_VAL_HUF;
+			fld->nam = NULL;
+		fld->val = NULL;
+		fld->flg &= ~HPACK_FLG_NAM_HUF;
+		fld->flg &= ~HPACK_FLG_VAL_HUF;
 		break;
 		break;
 	default:
 		return (HPACK_RES_ARG);
 	}
 
-	itm->typ = 0;
+	fld->typ = 0;
 
-	if (itm->fld.nam != NULL || itm->fld.val != NULL || itm->fld.flg != 0)
+	if (fld->nam != NULL || fld->val != NULL || fld->flg != 0)
 		return (HPACK_RES_ARG);
 
-	assert(itm->idx == 0);
-	assert(itm->fld.nam_idx == 0);
+	assert(fld->idx == 0);
+	assert(fld->nam_idx == 0);
 
 	return (HPACK_RES_OK);
 }
