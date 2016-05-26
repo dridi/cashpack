@@ -886,7 +886,6 @@ hpack_clean_field(struct hpack_field *fld)
 		fld->flg &= ~HPACK_FLG_NAM_HUF;
 		fld->flg &= ~HPACK_FLG_VAL_HUF;
 		break;
-		break;
 	default:
 		return (HPACK_RES_ARG);
 	}

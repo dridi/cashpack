@@ -168,7 +168,7 @@ TST_decode(struct dec_ctx *ctx)
 		res = cb(ctx->priv, ctx->buf, len, cut);
 
 		if (cb == ctx->dec) {
-			ctx->buf += len;
+			ctx->buf = (uint8_t *)ctx->buf + len;
 			ctx->len -= len;
 		}
 	} while (ctx->len > 0);
@@ -200,7 +200,7 @@ static void
 tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 {
 	uint8_t *buf;
-	ssize_t pos;
+	size_t pos;
 	int i;
 
 	buf = ptr;
@@ -245,7 +245,7 @@ tst_dump(int signo)
 	fprintf(stderr, "\t.sz = {\n");
 	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
 	fprintf(stderr, "\t\t.max = %zu\n", hp->sz.max);
-	fprintf(stderr, "\t\t.lim = %zu\n", hp->sz.lim);
+	fprintf(stderr, "\t\t.lim = %zd\n", hp->sz.lim);
 	fprintf(stderr, "\t\t.cap = %zd\n", hp->sz.cap);
 	fprintf(stderr, "\t\t.len = %zu\n", hp->sz.len);
 	fprintf(stderr, "\t\t.nxt = %zd\n", hp->sz.nxt);
