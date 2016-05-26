@@ -622,14 +622,14 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
 	hpack_validate_f *val;
 
 	if (evt == HPACK_EVT_NAME) {
-		assert(~itm->fld.flg & HPACK_IDX);
+		assert(~itm->fld.flg & HPACK_FLG_IDX);
 		str = itm->fld.nam;
-		huf = itm->fld.flg & HPACK_NAM;
+		huf = itm->fld.flg & HPACK_FLG_NAM;
 		val = HPV_token;
 	}
 	else {
 		str = itm->fld.val;
-		huf = itm->fld.flg & HPACK_VAL;
+		huf = itm->fld.flg & HPACK_FLG_VAL;
 		val = HPV_value;
 	}
 
@@ -654,7 +654,7 @@ hpack_encode_field(HPACK_CTX, HPACK_ITM, enum hpack_pattern_e pat, size_t pfx)
 {
 	uint16_t idx;
 
-	if (itm->fld.flg & HPACK_IDX) {
+	if (itm->fld.flg & HPACK_FLG_IDX) {
 		idx = itm->fld.idx;
 		EXPECT(ctx, IDX, idx > 0 &&
 		    idx <= ctx->hp->cnt + HPT_STATIC_MAX);
@@ -701,7 +701,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_ITM)
 	priv.ctx = ctx;
 	priv.he = hp->tbl;
 
-	if (itm->fld.flg & HPACK_IDX) {
+	if (itm->fld.flg & HPACK_FLG_IDX) {
 		(void)HPT_search(ctx, itm->fld.idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
 		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
@@ -875,15 +875,15 @@ hpack_clean_item(struct hpack_item *itm)
 	case HPACK_FLD_DYNAMIC:
 	case HPACK_FLD_LITERAL:
 	case HPACK_FLD_NEVER:
-		if (itm->fld.flg & HPACK_IDX) {
+		if (itm->fld.flg & HPACK_FLG_IDX) {
 			itm->fld.idx = 0;
-			itm->fld.flg &= ~HPACK_IDX;
+			itm->fld.flg &= ~HPACK_FLG_IDX;
 		}
 		else
 			itm->fld.nam = NULL;
 		itm->fld.val = NULL;
-		itm->fld.flg &= ~HPACK_NAM;
-		itm->fld.flg &= ~HPACK_VAL;
+		itm->fld.flg &= ~HPACK_FLG_NAM;
+		itm->fld.flg &= ~HPACK_FLG_VAL;
 		break;
 		break;
 	default:

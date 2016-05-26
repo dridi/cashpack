@@ -84,10 +84,10 @@ enum hpack_field_e {
 	HPACK_FLD_NEVER		= 3,
 };
 
-enum hpack_compress_e {
-	HPACK_IDX = 0x01,
-	HPACK_NAM = 0x02,
-	HPACK_VAL = 0x04,
+enum hpack_flag_e {
+	HPACK_FLG_IDX = 0x01,
+	HPACK_FLG_NAM = 0x02,
+	HPACK_FLG_VAL = 0x04,
 };
 
 struct hpack_field {

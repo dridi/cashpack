@@ -279,7 +279,7 @@ main(int argc, char **argv)
 
 	(void)memset(&itm, 0, sizeof itm);
 	itm.typ = HPACK_FLD_INDEXED;
-	itm.fld.flg = HPACK_IDX;
+	itm.fld.flg = HPACK_FLG_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_item, &itm);
 
 	/* strerror */

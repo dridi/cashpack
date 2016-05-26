@@ -88,7 +88,7 @@ free_item(struct hpack_item *itm)
 	case HPACK_FLD_DYNAMIC:
 	case HPACK_FLD_LITERAL:
 	case HPACK_FLD_NEVER:
-		if (~itm->fld.flg & HPACK_IDX)
+		if (~itm->fld.flg & HPACK_FLG_IDX)
 			free((char *)itm->fld.nam);
 		free((char *)itm->fld.val);
 		break;
@@ -136,7 +136,7 @@ parse_name(struct hpack_item *itm, const char **args)
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
 		itm->fld.nam = strndup(*args, sp - *args);
-		itm->fld.flg = HPACK_NAM;
+		itm->fld.flg = HPACK_FLG_NAM;
 		*args = sp + 1;
 	}
 	else if (!TOKCMP(*args, "idx")) {
@@ -144,7 +144,7 @@ parse_name(struct hpack_item *itm, const char **args)
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
 		itm->fld.idx = atoi(*args);
-		itm->fld.flg = HPACK_IDX;
+		itm->fld.flg = HPACK_FLG_IDX;
 		*args = sp + 1;
 	}
 	else
@@ -170,7 +170,7 @@ parse_value(struct hpack_item *itm, const char **args)
 		ln = strchr(*args, '\n');
 		assert(ln != NULL);
 		itm->fld.val = strndup(*args, ln - *args);
-		itm->fld.flg |= HPACK_VAL;
+		itm->fld.flg |= HPACK_FLG_VAL;
 		*args = ln + 1;
 	}
 	else
