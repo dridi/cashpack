@@ -73,12 +73,12 @@ static const uint8_t junk_block[] = { 0x80 };
 static const uint8_t update_block[] = { 0x20 };
 
 static const struct hpack_field basic_field = {
-	.typ = HPACK_FLD_INDEXED,
+	.flg = HPACK_FLG_TYP_IDX,
 	.idx = 1,
 };
 
 static const struct hpack_field unknown_field = {
-	.typ = 0xff,
+	.flg = 0xff,
 	.idx = 1,
 };
 
@@ -268,18 +268,17 @@ main(int argc, char **argv)
 	hpack_clean_field(&fld);
 
 	(void)memset(&fld, 0, sizeof fld);
-	fld.typ = HPACK_FLD_INDEXED;
+	fld.flg = HPACK_FLG_TYP_IDX;
 	fld.nam = "";
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
 	(void)memset(&fld, 0, sizeof fld);
-	fld.typ = HPACK_FLD_INDEXED;
+	fld.flg = HPACK_FLG_TYP_IDX;
 	fld.val = "";
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
 	(void)memset(&fld, 0, sizeof fld);
-	fld.typ = HPACK_FLD_INDEXED;
-	fld.flg = HPACK_FLG_NAM_IDX;
+	fld.flg = HPACK_FLG_TYP_IDX | HPACK_FLG_NAM_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 
 	/* strerror */

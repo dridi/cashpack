@@ -82,12 +82,12 @@ static void
 free_field(struct hpack_field *fld)
 {
 
-	switch (fld->typ) {
-	case HPACK_FLD_INDEXED:
+	switch (fld->flg & HPACK_FLG_TYP_MSK) {
+	case HPACK_FLG_TYP_IDX:
 		break;
-	case HPACK_FLD_DYNAMIC:
-	case HPACK_FLD_LITERAL:
-	case HPACK_FLD_NEVER:
+	case HPACK_FLG_TYP_DYN:
+	case HPACK_FLG_TYP_LIT:
+	case HPACK_FLG_TYP_NVR:
 		if (~fld->flg & HPACK_FLG_NAM_IDX)
 			free((char *)fld->nam);
 		free((char *)fld->val);
@@ -136,7 +136,7 @@ parse_name(struct hpack_field *fld, const char **args)
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
 		fld->nam = strndup(*args, sp - *args);
-		fld->flg = HPACK_FLG_NAM_HUF;
+		fld->flg |= HPACK_FLG_NAM_HUF;
 		*args = sp + 1;
 	}
 	else if (!TOKCMP(*args, "idx")) {
@@ -144,7 +144,7 @@ parse_name(struct hpack_field *fld, const char **args)
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
 		fld->nam_idx = atoi(*args);
-		fld->flg = HPACK_FLG_NAM_IDX;
+		fld->flg |= HPACK_FLG_NAM_IDX;
 		*args = sp + 1;
 	}
 	else
@@ -226,23 +226,23 @@ parse_commands(struct enc_ctx *ctx)
 	if (!TOKCMP(ctx->line, "indexed")) {
 		args = TOK_ARGS(ctx->line, "indexed");
 		fld->idx = atoi(args);
-		fld->typ = HPACK_FLD_INDEXED;
+		fld->flg = HPACK_FLG_TYP_IDX;
 	}
 	else if (!TOKCMP(ctx->line, "dynamic")) {
 		args = TOK_ARGS(ctx->line, "dynamic");
-		fld->typ = HPACK_FLD_DYNAMIC;
+		fld->flg = HPACK_FLG_TYP_DYN;
 		parse_name(fld, &args);
 		parse_value(fld, &args);
 	}
 	else if (!TOKCMP(ctx->line, "never")) {
 		args = TOK_ARGS(ctx->line, "never");
-		fld->typ = HPACK_FLD_NEVER;
+		fld->flg = HPACK_FLG_TYP_NVR;
 		parse_name(fld, &args);
 		parse_value(fld, &args);
 	}
 	else if (!TOKCMP(ctx->line, "literal")) {
 		args = TOK_ARGS(ctx->line, "literal");
-		fld->typ = HPACK_FLD_LITERAL;
+		fld->flg = HPACK_FLG_TYP_LIT;
 		parse_name(fld, &args);
 		parse_value(fld, &args);
 	}

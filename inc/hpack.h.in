@@ -77,26 +77,23 @@ enum hpack_result_e hpack_decode(struct hpack *, const void *, size_t,
 
 /* hpack_encode */
 
-enum hpack_field_e {
-	HPACK_FLD_INDEXED	= 0,
-	HPACK_FLD_DYNAMIC	= 1,
-	HPACK_FLD_LITERAL	= 2,
-	HPACK_FLD_NEVER		= 3,
-};
-
 enum hpack_flag_e {
-	HPACK_FLG_NAM_IDX	= 0x01,
-	HPACK_FLG_NAM_HUF	= 0x02,
-	HPACK_FLG_VAL_HUF	= 0x04,
+	HPACK_FLG_TYP_IDX	= 0x01,
+	HPACK_FLG_TYP_DYN	= 0x02,
+	HPACK_FLG_TYP_LIT	= 0x04,
+	HPACK_FLG_TYP_NVR	= 0x08,
+	HPACK_FLG_TYP_MSK	= 0x0f,
+	HPACK_FLG_NAM_IDX	= 0x10,
+	HPACK_FLG_NAM_HUF	= 0x20,
+	HPACK_FLG_VAL_HUF	= 0x40,
 };
 
 struct hpack_field {
-	enum hpack_field_e	typ;
-	uint16_t		idx;
-	uint16_t		nam_idx;
-	const char		*nam;
-	const char		*val;
-	uint8_t			flg;
+	uint32_t	flg;
+	uint16_t	idx;
+	uint16_t	nam_idx;
+	const char	*nam;
+	const char	*val;
 };
 
 typedef void hpack_encoded_f(void *, enum hpack_event_e, const void *,

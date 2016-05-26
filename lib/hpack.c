@@ -831,19 +831,20 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 	}
 
 	while (len > 0) {
-#define HPACK_ENCODE(l, U, or) 					\
-		if (fld->typ == HPACK_FLD_##U)			\
-			retval = hpack_encode_##l(ctx, fld); 	\
-		or
-		HPACK_ENCODE(indexed, INDEXED, else)
-		HPACK_ENCODE(dynamic, DYNAMIC, else)
-		HPACK_ENCODE(literal, LITERAL, else)
-		HPACK_ENCODE(never,   NEVER,   /* that was the last */)
-		else {
+		switch (fld->flg & HPACK_FLG_TYP_MSK) {
+#define HPACK_ENCODE(l, U)					\
+		case HPACK_FLG_TYP_##U:				\
+			retval = hpack_encode_##l(ctx, fld);	\
+			break;
+		HPACK_ENCODE(indexed, IDX)
+		HPACK_ENCODE(dynamic, DYN)
+		HPACK_ENCODE(never,   NVR)
+		HPACK_ENCODE(literal, LIT)
+#undef HPACK_ENCODE
+		default:
 			hp->magic = DEFUNCT_MAGIC;
 			return (HPACK_RES_ARG);
 		}
-#undef HPACK_ENCODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
 			assert(ctx->res != HPACK_RES_BLK);
@@ -868,13 +869,13 @@ hpack_clean_field(struct hpack_field *fld)
 	if (fld == NULL)
 		return (HPACK_RES_ARG);
 
-	switch (fld->typ) {
-	case HPACK_FLD_INDEXED:
+	switch (fld->flg & HPACK_FLG_TYP_MSK) {
+	case HPACK_FLG_TYP_IDX:
 		fld->idx = 0;
 		break;
-	case HPACK_FLD_DYNAMIC:
-	case HPACK_FLD_LITERAL:
-	case HPACK_FLD_NEVER:
+	case HPACK_FLG_TYP_DYN:
+	case HPACK_FLG_TYP_LIT:
+	case HPACK_FLG_TYP_NVR:
 		if (fld->flg & HPACK_FLG_NAM_IDX) {
 			fld->nam_idx = 0;
 			fld->flg &= ~HPACK_FLG_NAM_IDX;
@@ -890,7 +891,7 @@ hpack_clean_field(struct hpack_field *fld)
 		return (HPACK_RES_ARG);
 	}
 
-	fld->typ = 0;
+	fld->flg &= ~HPACK_FLG_TYP_MSK;
 
 	if (fld->nam != NULL || fld->val != NULL || fld->flg != 0)
 		return (HPACK_RES_ARG);
