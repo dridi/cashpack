@@ -86,8 +86,8 @@ enum hpack_field_e {
 
 enum hpack_flag_e {
 	HPACK_FLG_NAM_IDX	= 0x01,
-	HPACK_FLG_NAM		= 0x02,
-	HPACK_FLG_VAL		= 0x04,
+	HPACK_FLG_NAM_HUF	= 0x02,
+	HPACK_FLG_VAL_HUF	= 0x04,
 };
 
 struct hpack_field {

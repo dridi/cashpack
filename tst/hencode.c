@@ -136,7 +136,7 @@ parse_name(struct hpack_item *itm, const char **args)
 		sp = strchr(*args, ' ');
 		assert(sp != NULL);
 		itm->fld.nam = strndup(*args, sp - *args);
-		itm->fld.flg = HPACK_FLG_NAM;
+		itm->fld.flg = HPACK_FLG_NAM_HUF;
 		*args = sp + 1;
 	}
 	else if (!TOKCMP(*args, "idx")) {
@@ -170,7 +170,7 @@ parse_value(struct hpack_item *itm, const char **args)
 		ln = strchr(*args, '\n');
 		assert(ln != NULL);
 		itm->fld.val = strndup(*args, ln - *args);
-		itm->fld.flg |= HPACK_FLG_VAL;
+		itm->fld.flg |= HPACK_FLG_VAL_HUF;
 		*args = ln + 1;
 	}
 	else

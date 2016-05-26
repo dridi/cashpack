@@ -624,12 +624,12 @@ hpack_encode_string(HPACK_CTX, HPACK_ITM, enum hpack_event_e evt)
 	if (evt == HPACK_EVT_NAME) {
 		assert(~itm->fld.flg & HPACK_FLG_NAM_IDX);
 		str = itm->fld.nam;
-		huf = itm->fld.flg & HPACK_FLG_NAM;
+		huf = itm->fld.flg & HPACK_FLG_NAM_HUF;
 		val = HPV_token;
 	}
 	else {
 		str = itm->fld.val;
-		huf = itm->fld.flg & HPACK_FLG_VAL;
+		huf = itm->fld.flg & HPACK_FLG_VAL_HUF;
 		val = HPV_value;
 	}
 
@@ -882,8 +882,8 @@ hpack_clean_item(struct hpack_item *itm)
 		else
 			itm->fld.nam = NULL;
 		itm->fld.val = NULL;
-		itm->fld.flg &= ~HPACK_FLG_NAM;
-		itm->fld.flg &= ~HPACK_FLG_VAL;
+		itm->fld.flg &= ~HPACK_FLG_NAM_HUF;
+		itm->fld.flg &= ~HPACK_FLG_VAL_HUF;
 		break;
 		break;
 	default:
