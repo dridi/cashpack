@@ -183,6 +183,17 @@ tst_encode() {
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }
 
+repeat() {
+	i=1
+	j="$1"
+	shift
+	while [ "$i" -lt "$j" ]
+	do
+		"$@" $i
+		i=$((i + 1))
+	done
+}
+
 _() {
 	if expr "$1" : '^-' >/dev/null
 	then

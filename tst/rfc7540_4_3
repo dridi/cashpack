@@ -420,11 +420,10 @@ EOF
 tst_encode --table-size 256
 tst_decode --table-size 256
 
-p=1
+decode_partial_block() {
+	tst_decode --decoding-spec p$1, --table-size 256
+}
+
 c="$(wc -c <"$TEST_TMP/bin")"
 
-while [ "$p" -lt "$c" ]
-do
-	tst_decode --decoding-spec p$p, --table-size 256
-	p=$((p + 1))
-done
+repeat "$c" decode_partial_block
