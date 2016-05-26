@@ -72,6 +72,8 @@ static const uint8_t junk_block[] = { 0x80 };
 
 static const uint8_t update_block[] = { 0x20 };
 
+static const uint8_t double_block[] = { 0x82, 0x84 };
+
 static const struct hpack_field basic_field = {
 	.flg = HPACK_FLG_TYP_IDX,
 	.idx = 1,
@@ -104,7 +106,7 @@ static hpack_encoded_f *noop_enc_cb = (hpack_encoded_f *)noop_cb;
  * Static allocator
  */
 
-static uint8_t static_buffer[256];
+static uint8_t static_buffer[1024];
 
 static void *
 static_malloc(size_t size, void *priv)
@@ -168,7 +170,7 @@ static const struct hpack_alloc oom_alloc = {
 int
 main(int argc, char **argv)
 {
-	struct hpack *hp;
+	struct hpack *hp, *hp2;
 	struct hpack_field fld;
 	int retval;
 
@@ -190,6 +192,12 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	hpack_free(NULL);
+
+	/* double free */
+	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
+	hp2 = hp;
+	hpack_free(&hp);
+	hpack_free(&hp2);
 
 	/* dynamic table inspection */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
@@ -225,6 +233,41 @@ main(int argc, char **argv)
 	    sizeof junk_block, 0, noop_dec_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_block,
 	    sizeof junk_block, 0, noop_dec_cb, NULL);
+
+	hpack_free(&hp);
+
+	/* busy operations */
+	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
+	CHECK_RES(retval, BLK, hpack_decode, hp, double_block, 1, 1,
+	    (hpack_decoded_f *)noop_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
+	CHECK_RES(retval, BSY, hpack_trim, &hp);
+	CHECK_RES(retval, BSY, hpack_foreach, hp, (hpack_decoded_f *)noop_cb,
+	    NULL);
+
+	/* limit an encoder */
+	CHECK_RES(retval, ARG, hpack_limit, NULL, 0);
+	CHECK_RES(retval, ARG, hpack_limit, /* decoder */ hp, 0);
+
+	hpack_free(&hp);
+
+	CHECK_NOTNULL(hp, hpack_encoder, 0, hpack_default_alloc);
+	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
+
+	hpack_free(&hp);
+
+	CHECK_NOTNULL(hp, hpack_encoder, 0, &static_alloc);
+	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
+
+	hpack_free(&hp);
+
+	/* resize before/after a limit is set */
+	CHECK_NOTNULL(hp, hpack_encoder, 512, &static_alloc);
+	CHECK_RES(retval, OK, hpack_limit, hp, 256);
+	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
+	    NULL);
+	CHECK_RES(retval, OK, hpack_resize, &hp, 2048);
 
 	hpack_free(&hp);
 
