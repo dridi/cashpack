@@ -91,12 +91,10 @@ enum hpack_flag_e {
 };
 
 struct hpack_field {
-	union {
-		uint16_t	nam_idx;
-		const char	*nam;
-	};
-	const char		*val;
-	uint8_t			flg;
+	uint16_t	nam_idx;
+	const char	*nam;
+	const char	*val;
+	uint8_t		flg;
 };
 
 struct hpack_item {
