@@ -130,7 +130,8 @@ TST_decode(struct dec_ctx *ctx)
 	res = 0;
 
 	do {
-		assert(res == 0);
+		if (res != 0)
+			return (res);
 		cut = 0;
 
 		switch (*ctx->spec) {
