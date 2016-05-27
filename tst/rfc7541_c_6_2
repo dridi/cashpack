@@ -27,24 +27,24 @@
 . "$(dirname "$0")"/common.sh
 
 mk_hex <<EOF
-# C.6.1.  First Response
+# Appendix C.6.1.  First Response
 4882 6402 5885 aec3 771a 4b61 96d0 7abe | H.d.X...w.Ka..z.
 9410 54d4 44a8 2005 9504 0b81 66e0 82a6 | ..T.D. .....f...
 2d1b ff6e 919d 29ad 1718 63c7 8f0b 97c8 | -..n..)...c.....
 e9ae 82ae 43d3                          | ....C.
 
-# C.6.2.  Second Response
+# Appendix C.6.2.  Second Response
 4883 640e ffc1 c0bf                     | H.d.....
 EOF
 
 mk_msg <<EOF
-# C.6.1.  First Response
+# Appendix C.6.1.  First Response
 :status: 302
 cache-control: private
 date: Mon, 21 Oct 2013 20:13:21 GMT
 location: https://www.example.com
 
-# C.6.2.  Second Response
+# Appendix C.6.2.  Second Response
 :status: 307
 cache-control: private
 date: Mon, 21 Oct 2013 20:13:21 GMT
@@ -60,14 +60,14 @@ mk_tbl <<EOF
 EOF
 
 mk_enc <<EOF
-# C.6.1.  First Response
+# Appendix C.6.1.  First Response
 dynamic idx 8 huf 302
 dynamic idx 24 huf private
 dynamic idx 33 huf Mon, 21 Oct 2013 20:13:21 GMT
 dynamic idx 46 huf https://www.example.com
 flush
 
-# C.6.2.  Second Response
+# Appendix C.6.2.  Second Response
 dynamic idx 8 huf 307
 indexed 65
 indexed 64

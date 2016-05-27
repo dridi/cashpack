@@ -268,7 +268,7 @@ tst_dump(int signo)
 }
 
 void
-TST_signal()
+TST_signal(void)
 {
 
 	if (signal(SIGABRT, tst_dump) == SIG_ERR) {
