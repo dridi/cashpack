@@ -132,7 +132,6 @@ main(int argc, char **argv)
 
 	/* initialization */
 	first = 1;
-	flg = H2_FLG_END_HEADERS;
 	hp = hpack_decoder(4096, hpack_default_alloc);
 
 	while (read_block(&frm, sizeof frm) == 1) {
