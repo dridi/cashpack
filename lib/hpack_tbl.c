@@ -136,6 +136,8 @@ HPT_foreach(HPACK_CTX)
 		    tmp.val_sz);
 		he = MOVE(he, off);
 	}
+
+	assert(DIFF(tbl, he) == ctx->hp->sz.len);
 }
 
 /**********************************************************************
