@@ -39,15 +39,6 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
-enum hpack_prefix_e {
-	HPACK_PFX_STR	= 7,
-	HPACK_PFX_IDX	= 7,
-	HPACK_PFX_DYN	= 6,
-	HPACK_PFX_LIT	= 4,
-	HPACK_PFX_NVR	= 4,
-	HPACK_PFX_UPD	= 5,
-};
-
 /**********************************************************************
  */
 
@@ -650,7 +641,7 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 }
 
 static int
-hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpack_pattern_e pat, size_t pfx)
+hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpi_pattern_e pat, size_t pfx)
 {
 	uint16_t idx;
 

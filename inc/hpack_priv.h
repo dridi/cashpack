@@ -32,7 +32,16 @@
  * Data Structures
  */
 
-enum hpack_pattern_e {
+enum hpi_prefix_e {
+	HPACK_PFX_STR	= 7, /* Section 5.2 */
+	HPACK_PFX_IDX	= 7, /* Section 6.1 */
+	HPACK_PFX_DYN	= 6, /* Section 6.2.1 */
+	HPACK_PFX_LIT	= 4, /* Section 6.2.2 */
+	HPACK_PFX_NVR	= 4, /* Section 6.2.3 */
+	HPACK_PFX_UPD	= 5, /* Section 6.3 */
+};
+
+enum hpi_pattern_e {
 	HPACK_PAT_HUF	= 0x80, /* Section 5.2 */
 	HPACK_PAT_RAW	= 0x00, /* Section 5.2 */
 	HPACK_PAT_IDX	= 0x80, /* Section 6.1 */
@@ -227,8 +236,8 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 void HPE_push(HPACK_CTX, const void *, size_t);
 void HPE_send(HPACK_CTX);
 
-int  HPI_decode(HPACK_CTX, size_t, uint16_t *);
-void HPI_encode(HPACK_CTX, size_t, uint8_t, uint16_t);
+int  HPI_decode(HPACK_CTX, enum hpi_prefix_e, uint16_t *);
+void HPI_encode(HPACK_CTX, enum hpi_prefix_e, enum hpi_pattern_e, uint16_t);
 
 int  HPH_decode(HPACK_CTX, enum hpack_event_e, size_t);
 void HPH_encode(HPACK_CTX, const char *);

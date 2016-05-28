@@ -42,7 +42,7 @@
 #include "hpack_priv.h"
 
 int
-HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
+HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 {
 	struct hpack_state *hs;
 	uint16_t n;
@@ -91,7 +91,8 @@ HPI_decode(HPACK_CTX, size_t pfx, uint16_t *val)
 }
 
 void
-HPI_encode(HPACK_CTX, size_t pfx, uint8_t pat, uint16_t val)
+HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
+    uint16_t val)
 {
 	uint8_t mask, buf[4];
 	size_t i;
