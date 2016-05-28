@@ -32,17 +32,14 @@
  * Data Structures
  */
 
-enum hpack_encoding_e { /* Section 5.2 */
-	HPACK_HUFFMAN	= 0x80,
-	HPACK_RAW	= 0x00,
-};
-
 enum hpack_pattern_e {
-	HPACK_PAT_INDEXED	= 0x80, /* Section 6.1 */
-	HPACK_PAT_DYNAMIC	= 0x40, /* Section 6.2.1 */
-	HPACK_PAT_LITERAL	= 0x00, /* Section 6.2.2 */
-	HPACK_PAT_NEVER		= 0x10, /* Section 6.2.3 */
-	HPACK_PAT_UPDATE	= 0x20, /* Section 6.3 */
+	HPACK_PAT_HUF	= 0x80, /* Section 5.2 */
+	HPACK_PAT_RAW	= 0x00, /* Section 5.2 */
+	HPACK_PAT_IDX	= 0x80, /* Section 6.1 */
+	HPACK_PAT_DYN	= 0x40, /* Section 6.2.1 */
+	HPACK_PAT_LIT	= 0x00, /* Section 6.2.2 */
+	HPACK_PAT_NVR	= 0x10, /* Section 6.2.3 */
+	HPACK_PAT_UPD	= 0x20, /* Section 6.3 */
 };
 
 enum hpack_stp_e {

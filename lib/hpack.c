@@ -40,12 +40,12 @@
 #include "hpack_priv.h"
 
 enum hpack_prefix_e {
-	HPACK_PFX_STRING	= 7,
-	HPACK_PFX_INDEXED	= 7,
-	HPACK_PFX_DYNAMIC	= 6,
-	HPACK_PFX_LITERAL	= 4,
-	HPACK_PFX_NEVER		= 4,
-	HPACK_PFX_UPDATE	= 5,
+	HPACK_PFX_STR	= 7,
+	HPACK_PFX_IDX	= 7,
+	HPACK_PFX_DYN	= 6,
+	HPACK_PFX_LIT	= 4,
+	HPACK_PFX_NVR	= 4,
+	HPACK_PFX_UPD	= 5,
 };
 
 /**********************************************************************
@@ -358,8 +358,8 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_VAL_LEN:
 		/* decode integer */
-		huf = *ctx->buf & HPACK_HUFFMAN;
-		CALL(HPI_decode, ctx, HPACK_PFX_STRING, &len);
+		huf = *ctx->buf & HPACK_PAT_HUF;
+		CALL(HPI_decode, ctx, HPACK_PFX_STR, &len);
 
 		/* set up string decoding */
 		hs->magic = huf ?  HUF_STATE_MAGIC : STR_STATE_MAGIC;
@@ -426,7 +426,7 @@ hpack_decode_indexed(HPACK_CTX)
 {
 	uint16_t idx;
 
-	CALL(HPI_decode, ctx, HPACK_PFX_INDEXED, &idx);
+	CALL(HPI_decode, ctx, HPACK_PFX_IDX, &idx);
 	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, idx);
 	return (HPT_decode(ctx, idx));
 }
@@ -449,7 +449,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	priv.he = (void *)((uintptr_t)hp->tbl + hp->off);
 
 	if (hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_DYNAMIC, &hp->state.idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 
@@ -494,7 +494,7 @@ hpack_decode_literal(HPACK_CTX)
 {
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_LITERAL, &ctx->hp->state.idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_LIT, &ctx->hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 	return (hpack_decode_field(ctx));
@@ -505,7 +505,7 @@ hpack_decode_never(HPACK_CTX)
 {
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_NEVER, &ctx->hp->state.idx);
+		CALL(HPI_decode, ctx, HPACK_PFX_NVR, &ctx->hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 		CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
 	}
@@ -519,7 +519,7 @@ hpack_decode_update(HPACK_CTX)
 
 	EXPECT(ctx, UPD, ctx->can_upd);
 
-	CALL(HPI_decode, ctx, HPACK_PFX_UPDATE, &sz);
+	CALL(HPI_decode, ctx, HPACK_PFX_UPD, &sz);
 	if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
 		if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
@@ -577,7 +577,7 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 	while (ctx->len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->buf;
-		if ((hp->state.typ & HPACK_PAT_UPDATE) != HPACK_PAT_UPDATE) {
+		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
 			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
 				return (HPACK_RES_RSZ);
@@ -589,11 +589,11 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 		if ((hp->state.typ & HPACK_PAT_##U) == HPACK_PAT_##U)	\
 			retval = hpack_decode_##l(ctx); 		\
 		or
-		HPACK_DECODE(indexed, INDEXED, else)
-		HPACK_DECODE(dynamic, DYNAMIC, else)
-		HPACK_DECODE(update,  UPDATE,  else)
-		HPACK_DECODE(never,   NEVER,   else)
-		HPACK_DECODE(literal, LITERAL, /* out of bits */)
+		HPACK_DECODE(indexed, IDX, else)
+		HPACK_DECODE(dynamic, DYN, else)
+		HPACK_DECODE(update,  UPD, else)
+		HPACK_DECODE(never,   NVR, else)
+		HPACK_DECODE(literal, LIT, /* out of bits */)
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
@@ -638,11 +638,11 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 
 	if (huf != 0) {
 		HPH_size(str, &len);
-		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_HUFFMAN, len);
+		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_HUF, len);
 		HPH_encode(ctx, str);
 	}
 	else {
-		HPI_encode(ctx, HPACK_PFX_STRING, HPACK_RAW, len);
+		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_RAW, len);
 		HPE_push(ctx, str, len);
 	}
 
@@ -677,7 +677,7 @@ hpack_encode_indexed(HPACK_CTX, HPACK_FLD)
 	EXPECT(ctx, IDX, fld->idx > 0 &&
 	    fld->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
 
-	HPI_encode(ctx, HPACK_PFX_INDEXED, HPACK_PAT_INDEXED, fld->idx);
+	HPI_encode(ctx, HPACK_PFX_IDX, HPACK_PAT_IDX, fld->idx);
 	return (0);
 }
 
@@ -692,8 +692,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 	struct hpt_entry tmp;
 #endif
 
-	CALL(hpack_encode_field, ctx, fld, HPACK_PAT_DYNAMIC,
-	    HPACK_PFX_DYNAMIC);
+	CALL(hpack_encode_field, ctx, fld, HPACK_PAT_DYN, HPACK_PFX_DYN);
 
 	hp = ctx->hp;
 
@@ -736,16 +735,14 @@ static int
 hpack_encode_literal(HPACK_CTX, HPACK_FLD)
 {
 
-	return (hpack_encode_field(ctx, fld, HPACK_PAT_LITERAL,
-	    HPACK_PFX_LITERAL));
+	return (hpack_encode_field(ctx, fld, HPACK_PAT_LIT, HPACK_PFX_LIT));
 }
 
 static int
 hpack_encode_never(HPACK_CTX, HPACK_FLD)
 {
 
-	return (hpack_encode_field(ctx, fld, HPACK_PAT_NEVER,
-	    HPACK_PFX_NEVER));
+	return (hpack_encode_field(ctx, fld, HPACK_PAT_NVR, HPACK_PFX_NVR));
 }
 
 static int
@@ -768,7 +765,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 	ctx->hp->sz.lim = lim;
 
 	HPT_adjust(ctx, ctx->hp->sz.len);
-	HPI_encode(ctx, HPACK_PFX_UPDATE, HPACK_PAT_UPDATE, lim);
+	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, lim);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
 
 	if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
