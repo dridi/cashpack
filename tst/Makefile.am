@@ -34,7 +34,9 @@ noinst_PROGRAMS = \
 	hencode
 
 hpack_arg_LDADD = $(top_builddir)/lib/libhpack.la
-hpack_arg_SOURCES = hpack_arg.c
+hpack_arg_SOURCES = \
+	hpack_arg.c \
+	$(top_srcdir)/inc/dbg.h
 
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
