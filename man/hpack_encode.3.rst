@@ -45,44 +45,23 @@ SYNOPSIS
 | **\     enum hpack_event_e** *evt*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **enum hpack_type_e {**
-| \     *HPACK_INDEXED*\ **,**
-| \     *HPACK_DYNAMIC*\ **,**
-| \     *HPACK_LITERAL*\ **,**
-| \     *HPACK_NEVER*\ **,**
-| \     *HPACK_UPDATE*
-| **};**
-|
-| **enum hpack_compress_e {**
-| \     *HPACK_IDX*\ **,**
-| \     *HPACK_NAM*\ **,**
-| \     *HPACK_VAL*
-| **};**
+| **enum hpack_flag_e;**
 |
 | **struct hpack_field {**
-|   **union {**
-|     **uint16_t**   *idx*\ **;**
-|     **const char** *\*nam*\ **;**
-|   **};**
-|   **const char**   *\*val*\ **;**
-|   **uint8_t**      *flg*\ **;**
-| **};**
-|
-| **struct hpack_item {**
-|   **union {**
-|     **uint16_t**           *idx*\ **;**
-|     **size_t**             *lim*\ **;**
-|     **struct hpack_field** *fld*\ **;**
-|   **};**
-|   **enum hpack_type_e**    *typ*\ **;**
+|   **uint32_t**   *flg*\ **;**
+|   **uint16_t**   *idx*\ **;**
+|   **uint16_t**   *nam_idx*\ **;**
+|   **const char** *\*nam*\ **;**
+|   **const char** *\*val*\ **;**
 | **};**
 |
 | **enum hpack_result_e hpack_encode(**
 | **\     struct hpack** *\*hpack*\ **,**
-| **\     const struct hpack_item** *\*items*\ **, size_t** *nb*\ **,**
+| **\     const struct hpack_field** *\*fields*\ **, size_t** *nb*\ **,**
 | **\     hpack_encoded_f** *\*cb*\ **, void** *\*priv*\ **);**
 |
-| **enum hpack_result_e hpack_clean_item(struct hpack_item** *\*item*\ **);**
+| **enum hpack_result_e hpack_clean_field(struct hpack_field** \
+    *\*field*\ **);**
 
 DESCRIPTION
 ===========
@@ -95,10 +74,68 @@ function for the lifetime of the HTTP session.
 
 TODO
 
+ENCODING FLAGS
+==============
+
+TODO
+
 ENCODING STATE MACHINE
 ======================
 
 TODO
+
+::
+
+    (start)     .----.
+       |        v    |
+       +----> EVICT -'
+       |        |
+       |        v
+       +----> TABLE ---.
+       |       | .---. |
+       |       v v   | |
+       +----> EVICT -' |
+       |        |      |
+       |        v      |
+       +----> TABLE <--'
+       |        |
+       |        |      .---.
+       |        v      v   |
+       '----> FIELD    EVICT
+               ^ |       ^
+               | |       |
+               | '--->---+
+               |         | .--.
+               |         v v  |
+               +--<---- DATA -'
+               |         |
+               |         v
+    (end) <----+--<--- INSERT
+
+::
+
+    (start)
+       |
+       +----> EVICT*
+       |        |
+       |        v
+       |      TABLE
+       |        |
+       |        v
+       |      EVICT*
+       |        |
+       |        v
+       |      TABLE?
+       |        |
+       |        v
+       '----> FIELD ---> EVICT*
+                ^          ^
+                |          |
+                |          v
+                |        DATA*
+                |          |
+                |          v
+    (end) <-----+------ INSERT?
 
 RETURN VALUE
 ============
