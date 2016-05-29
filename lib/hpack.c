@@ -576,9 +576,9 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 			assert(hp->sz.min < 0);
 			ctx->can_upd = 0;
 		}
-#define HPACK_DECODE(l, U, or) 						\
+#define HPACK_DECODE(l, U, or)						\
 		if ((hp->state.typ & HPACK_PAT_##U) == HPACK_PAT_##U)	\
-			retval = hpack_decode_##l(ctx); 		\
+			retval = hpack_decode_##l(ctx);			\
 		or
 		HPACK_DECODE(indexed, IDX, else)
 		HPACK_DECODE(dynamic, DYN, else)
