@@ -48,11 +48,11 @@ SYNOPSIS
 | **enum hpack_flag_e;**
 |
 | **struct hpack_field {**
-|   **uint32_t**   *flg*\ **;**
-|   **uint16_t**   *idx*\ **;**
-|   **uint16_t**   *nam_idx*\ **;**
-|   **const char** *\*nam*\ **;**
-|   **const char** *\*val*\ **;**
+|     **uint32_t**   *flg*\ **;**
+|     **uint16_t**   *idx*\ **;**
+|     **uint16_t**   *nam_idx*\ **;**
+|     **const char** *\*nam*\ **;**
+|     **const char** *\*val*\ **;**
 | **};**
 |
 | **enum hpack_result_e hpack_encode(**

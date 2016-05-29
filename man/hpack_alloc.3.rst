@@ -46,10 +46,10 @@ SYNOPSIS
 | **typedef void   hpack_free_f(void** *\*ptr*\ **, void** *\*priv*\ **);**
 |
 | **struct hpack_alloc {**
-|   **hpack_malloc_f**  *\*malloc*\ **;**
-|   **hpack_realloc_f** *\*realloc*\ **;**
-|   **hpack_free_f**    *\*free*\ **;**
-|   **void**            *\*priv*\ **;**
+|     **hpack_malloc_f**  *\*malloc*\ **;**
+|     **hpack_realloc_f** *\*realloc*\ **;**
+|     **hpack_free_f**    *\*free*\ **;**
+|     **void**            *\*priv*\ **;**
 | **};**
 |
 | **extern const struct hpack_alloc** *\*hpack_default_alloc;*
