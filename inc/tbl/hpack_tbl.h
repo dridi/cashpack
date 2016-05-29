@@ -86,6 +86,12 @@ HPE(FIELD, 0, "new field",
 	"\t*len* represents the index of the field in the dynamic table or\n"
 	"\tzero for non indexed fields.\n\n"
 
+	"\tAn encoder sends a FIELD event before its processing. This gives\n"
+	"\tan opportunity to change the field before it is consumed by the\n"
+	"\tencoder. For instance, by the time its turn comes, and index may\n"
+	"\tneed to be incremented or its reference could have been evicted.\n"
+	"\tThe *buf* argument is always ``NULL`` and *len* always zero.\n\n"
+
 	"\tWhen the contents of the dynamic table are listed, a FIELD event\n"
 	"\tis sent for every field, followed by exactly one NAME plus one\n"
 	"\tVALUE events. The *buf* argument is always ``NULL`` and *len* is\n"

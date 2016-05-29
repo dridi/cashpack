@@ -819,6 +819,7 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 	}
 
 	while (len > 0) {
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, NULL);
 		switch (fld->flg & HPACK_FLG_TYP_MSK) {
 #define HPACK_ENCODE(l, U)					\
 		case HPACK_FLG_TYP_##U:				\

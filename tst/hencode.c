@@ -69,7 +69,6 @@ write_data(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
 #endif
 
 	assert(priv == NULL);
-	assert(evt != HPACK_EVT_FIELD);
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_NAME);
 	assert(evt != HPACK_EVT_VALUE);
