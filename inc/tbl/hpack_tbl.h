@@ -160,3 +160,14 @@ HPE(TABLE, 7, "the table was updated",
 	"\tupdate is decoded or encoded. The *buf* argument is always\n"
 	"\t``NULL`` and *len* is the new table maximum size.\n\n")
 #endif /* HPE */
+
+#ifdef HPF
+HPF(TYP_IDX, 0x01, "TODO")
+HPF(TYP_DYN, 0x02, "TODO")
+HPF(TYP_LIT, 0x04, "TODO")
+HPF(TYP_NVR, 0x08, "TODO")
+HPF(TYP_MSK, 0x0f, "TODO")
+HPF(NAM_IDX, 0x10, "TODO")
+HPF(NAM_HUF, 0x20, "TODO")
+HPF(VAL_HUF, 0x40, "TODO")
+#endif /* HPF */
