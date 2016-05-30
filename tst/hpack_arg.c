@@ -187,47 +187,76 @@ static const struct hpack_alloc oom_alloc = {
 };
 
 /**********************************************************************
+ * Test cases sharing a bunch of global variables
  */
 
-int
-main(int argc, char **argv)
+struct hpack *hp;
+struct hpack_field fld;
+int retval;
+
+static void
+test_null_alloc(void)
 {
-	struct hpack *hp, *hp2;
-	struct hpack_field fld;
-	int retval;
-
-	(void)argc;
-	(void)argv;
-
-	/* codec allocation */
 	CHECK_NULL(hp, hpack_decoder, 0, -1, NULL);
+}
+
+static void
+test_null_malloc(void)
+{
 	CHECK_NULL(hp, hpack_decoder, 0, -1, &null_alloc);
+}
 
-	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, -1, hpack_default_alloc);
-
-	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc);
-
+static void
+test_null_free(void)
+{
 	hp = make_decoder(0, -1, &static_alloc);
 	hpack_free(&hp);
+}
 
-	assert(hp == NULL);
+static void
+test_alloc_overflow(void)
+{
+	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, -1,
+	    hpack_default_alloc);
+}
+
+static void
+test_malloc_failure(void)
+{
+	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc);
+}
+
+static void
+test_free_null_codec(void)
+{
+	hp = NULL;
 	hpack_free(&hp);
-
 	hpack_free(NULL);
+}
 
-	/* double free */
+static void
+test_double_free(void)
+{
+	struct hpack *hp2;
+
 	hp = make_decoder(0, -1, &static_alloc);
 	hp2 = hp;
 	hpack_free(&hp);
 	hpack_free(&hp2);
+}
 
-	/* dynamic table inspection */
+static void
+test_foreach_null_args(void)
+{
 	hp = make_decoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_foreach, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_foreach, hp, NULL, NULL);
 	hpack_free(&hp);
+}
 
-	/* decoding process */
+static void
+test_decode_null_args(void)
+{
 	hp = make_decoder(0, -1, &static_alloc);
 	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, 0, NULL, NULL);
@@ -235,120 +264,263 @@ main(int argc, char **argv)
 	    NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block,
 	    sizeof basic_block, 0, NULL, NULL);
+	hpack_free(&hp);
+}
 
-	/* over-resize/trim decoder with no realloc */
+static void
+test_encode_null_args(void)
+{
+	hp = make_encoder(512, -1, hpack_default_alloc);
+	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 1, NULL, NULL);
+	hpack_free(&hp);
+}
+
+static void
+test_resize_overflow(void)
+{
+	hp = make_decoder(0, -1, &static_alloc);
 	CHECK_RES(retval, LEN, hpack_resize, &hp, UINT16_MAX + 1);
+	hpack_free(&hp);
+}
+
+static void
+test_trim_null_realloc(void)
+{
+	hp = make_decoder(0, -1, &static_alloc);
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
 	hpack_free(&hp);
+}
 
-	/* fail to trim decoder */
+static void
+test_trim_realloc_failure(void)
+{
 	hp = make_decoder(4096, -1, &oom_alloc);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 0);
 	CHECK_RES(retval, OK, hpack_decode, hp, update_block,
 	    sizeof update_block, 0, noop_dec_cb, NULL);
 	CHECK_RES(retval, OOM, hpack_trim, &hp);
 	hpack_free(&hp);
+}
 
-	/* defunct decoder */
+static void
+test_use_defunct_decoder(void)
+{
 	hp = make_decoder(0, -1, hpack_default_alloc);
+
+	/* break the decoder */
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_block,
 	    sizeof junk_block, 0, noop_dec_cb, NULL);
+
+	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_block,
 	    sizeof junk_block, 0, noop_dec_cb, NULL);
 
 	hpack_free(&hp);
+}
 
-	/* busy operations */
+static void
+test_use_busy_decoder(void)
+{
 	hp = make_decoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, BLK, hpack_decode, hp, double_block, 1, 1,
 	    noop_dec_cb, NULL);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
 	CHECK_RES(retval, BSY, hpack_foreach, hp, noop_dec_cb, NULL);
-
-	/* limit an encoder */
-	CHECK_RES(retval, ARG, hpack_limit, NULL, 0);
-	CHECK_RES(retval, ARG, hpack_limit, /* decoder */ hp, 0);
-
 	hpack_free(&hp);
+}
 
+static void
+test_limit_null_encoder(void)
+{
+	CHECK_RES(retval, ARG, hpack_limit, NULL, 0);
+}
+
+static void
+test_limit_decoder(void)
+{
+	hp = make_decoder(4096, -1, hpack_default_alloc);
+	CHECK_RES(retval, ARG, hpack_limit, hp, 0);
+	hpack_free(&hp);
+}
+
+static void
+test_limit_overflow(void)
+{
 	hp = make_encoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
-
 	hpack_free(&hp);
+}
 
+static void
+test_limit_overflow_no_realloc(void)
+{
 	hp = make_encoder(0, -1, &static_alloc);
 	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
-
 	hpack_free(&hp);
+}
 
-	/* resize before/after a limit is set */
+static void
+test_limit_between_two_resizes(void)
+{
 	hp = make_encoder(512, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_limit, hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
 	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
 	    NULL);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 2048);
-
 	hpack_free(&hp);
+}
 
-	/* encoding process */
-	hp = make_encoder(512, -1, hpack_default_alloc);
-	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 1, NULL, NULL);
+static void
+test_use_defunct_encoder(void)
+{
+	hp = make_encoder(4096, -1, hpack_default_alloc);
 
-	/* defunct encoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
-	    noop_enc_cb, NULL);
+	/* break the decoder */
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
 	    noop_enc_cb, NULL);
 
-	/* resize/trim defunct encoder */
+	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_field, 1,
 	    noop_enc_cb, NULL);
+
+	/* try resizing it */
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
+
+	/* try trimming it */
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
 	hpack_free(&hp);
+}
 
-	/* resize/trim null encoder */
+static void
+test_resize_null_codec(void)
+{
+	hp = NULL;
 	CHECK_RES(retval, ARG, hpack_resize, NULL, 0);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
+}
 
+static void
+test_trim_null_codec(void)
+{
+	hp = NULL;
 	CHECK_RES(retval, ARG, hpack_trim, NULL);
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
+}
 
-	/* fail to resize when out of memory */
+static void
+test_resize_realloc_failure(void)
+{
 	hp = make_decoder(0, -1, &oom_alloc);
-	retval = hpack_resize(&hp, UINT16_MAX);
-	assert(retval == HPACK_RES_OOM);
+	CHECK_RES(retval, OOM, hpack_resize, &hp, UINT16_MAX);
 	hpack_free(&hp);
+}
 
-	/* clean broken field */
+static void
+test_clean_null_field(void)
+{
 	CHECK_RES(retval, ARG, hpack_clean_field, NULL);
+}
 
+static void
+test_clean_unknown_field(void)
+{
 	fld = unknown_field;
 	hpack_clean_field(&fld);
+}
 
+static void
+test_clean_indexed_field_with_name(void)
+{
 	(void)memset(&fld, 0, sizeof fld);
 	fld.flg = HPACK_FLG_TYP_IDX;
 	fld.nam = "";
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
+}
 
+static void
+test_clean_indexed_field_with_value(void)
+{
 	(void)memset(&fld, 0, sizeof fld);
 	fld.flg = HPACK_FLG_TYP_IDX;
 	fld.val = "";
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
+}
 
+static void
+test_clean_indexed_field_with_indexed_name(void)
+{
 	(void)memset(&fld, 0, sizeof fld);
 	fld.flg = HPACK_FLG_TYP_IDX | HPACK_FLG_NAM_IDX;
 	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
+}
 
-	/* strerror */
-	(void)hpack_strerror(HPACK_RES_OK);
-	(void)hpack_strerror(HPACK_RES_OOM);
-	(void)hpack_strerror(UINT16_MAX);
+static void
+test_strerror(void)
+{
+	const char *str;
+
+	CHECK_NOTNULL(str, hpack_strerror, HPACK_RES_OK);
+	CHECK_NOTNULL(str, hpack_strerror, HPACK_RES_OOM);
+	CHECK_NULL(str, hpack_strerror, UINT16_MAX);
+}
+
+#undef TEST
+
+/**********************************************************************
+ */
+
+int
+main(int argc, char **argv)
+{
+
+	(void)argc;
+	(void)argv;
+
+	test_null_alloc();
+	test_null_malloc();
+	test_null_free();
+	test_alloc_overflow();
+	test_malloc_failure();
+	test_free_null_codec();
+	test_double_free();
+
+	test_foreach_null_args();
+	test_decode_null_args();
+	test_encode_null_args();
+
+	test_resize_overflow();
+	test_trim_null_realloc();
+	test_trim_realloc_failure();
+
+	test_use_defunct_decoder();
+	test_use_busy_decoder();
+
+	test_limit_null_encoder();
+	test_limit_decoder();
+	test_limit_overflow();
+	test_limit_overflow_no_realloc();
+	test_limit_between_two_resizes();
+
+	test_use_defunct_encoder();
+
+	test_resize_null_codec();
+	test_trim_null_codec();
+
+	test_resize_realloc_failure();
+
+	test_clean_null_field();
+	test_clean_unknown_field();
+
+	test_clean_indexed_field_with_name();
+	test_clean_indexed_field_with_value();
+	test_clean_indexed_field_with_indexed_name();
+
+	test_strerror();
 
 	return (0);
 }
