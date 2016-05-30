@@ -79,26 +79,28 @@ const struct hpack_alloc *hpack_default_alloc = &hpack_libc_alloc;
  */
 
 static struct hpack *
-hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
+hpack_new(uint32_t magic, size_t mem, size_t max,
+    const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
-	size_t max_init;
+	size_t mem_init;
 
-	if (ha == NULL || ha->malloc == NULL || max > UINT16_MAX)
+	if (ha == NULL || ha->malloc == NULL || mem > UINT16_MAX ||
+	    max > UINT16_MAX || mem < max)
 		return (NULL);
 
-	hp = ha->malloc(sizeof *hp + max, ha->priv);
+	hp = ha->malloc(sizeof *hp + mem, ha->priv);
 	if (hp == NULL)
 		return (NULL);
 
-	max_init = sizeof *hp->tbl;
-	if (max_init > max)
-		max_init = max;
+	mem_init = sizeof *hp->tbl;
+	if (mem_init > mem)
+		mem_init = mem;
 
-	(void)memset(hp, 0, sizeof *hp + max_init);
+	(void)memset(hp, 0, sizeof *hp + mem_init);
 	hp->magic = magic;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
-	hp->sz.mem = max;
+	hp->sz.mem = mem;
 	hp->sz.max = max;
 	hp->sz.lim = -1;
 	hp->sz.cap = -1;
@@ -108,17 +110,30 @@ hpack_new(uint32_t magic, size_t max, const struct hpack_alloc *ha)
 }
 
 struct hpack *
-hpack_encoder(size_t max, const struct hpack_alloc *ha)
+hpack_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 {
+	enum hpack_result_e res;
+	struct hpack *hp;
+	size_t mem;
 
-	return (hpack_new(ENCODER_MAGIC, max, ha));
+	mem = lim >= 0 ? (size_t)lim : max;
+	hp = hpack_new(ENCODER_MAGIC, mem, max, ha);
+	if (lim >= 0 && hp != NULL) {
+		res = hpack_limit(hp, lim);
+		(void)res;
+		assert(res == HPACK_RES_OK);
+		assert(hp->sz.cap == lim);
+	}
+	return (hp);
 }
 
 struct hpack *
-hpack_decoder(size_t max, const struct hpack_alloc *ha)
+hpack_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
 {
+	size_t mem;
 
-	return (hpack_new(DECODER_MAGIC, max, ha));
+	mem = rsz >= 0 ? (size_t)rsz : max;
+	return (hpack_new(DECODER_MAGIC, mem, max, ha));
 }
 
 enum hpack_result_e

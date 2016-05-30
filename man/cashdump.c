@@ -132,7 +132,7 @@ main(int argc, char **argv)
 
 	/* initialization */
 	first = 1;
-	hp = hpack_decoder(4096, hpack_default_alloc);
+	hp = hpack_decoder(4096, -1, hpack_default_alloc);
 
 	while (read_block(&frm, sizeof frm) == 1) {
 		if (!first)

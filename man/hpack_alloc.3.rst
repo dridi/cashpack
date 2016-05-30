@@ -54,10 +54,10 @@ SYNOPSIS
 |
 | **extern const struct hpack_alloc** *\*hpack_default_alloc;*
 |
-| **struct hpack * hpack_encoder(size_t** *max*\ **, \
-    const struct hpack_alloc** *\*alloc*\ **);**
-| **struct hpack * hpack_decoder(size_t** *max*\ **, \
-    const struct hpack_alloc** *\*alloc*\ **);**
+| **struct hpack * hpack_encoder(size_t** *max*\ **, ssize_t** *mem*\ **,**
+| **\     const struct hpack_alloc** *\*alloc*\ **);**
+| **struct hpack * hpack_decoder(size_t** *max*\ **, ssize_t** *mem*\ **,**
+| **\     const struct hpack_alloc** *\*alloc*\ **);**
 | **void hpack_free(struct hpack** *\**hpackp*\ **);**
 |
 | **enum hpack_result_e hpack_resize(struct hpack** *\*\*hpackp*\ **,** \

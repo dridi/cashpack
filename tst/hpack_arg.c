@@ -182,14 +182,14 @@ main(int argc, char **argv)
 	(void)argv;
 
 	/* codec allocation */
-	CHECK_NULL(hp, hpack_decoder, 0, NULL);
-	CHECK_NULL(hp, hpack_decoder, 0, &null_alloc);
+	CHECK_NULL(hp, hpack_decoder, 0, -1, NULL);
+	CHECK_NULL(hp, hpack_decoder, 0, -1, &null_alloc);
 
-	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, hpack_default_alloc);
+	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, -1, hpack_default_alloc);
 
-	CHECK_NULL(hp, hpack_decoder, 4096, &static_alloc);
+	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc);
 
-	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, &static_alloc);
 	hpack_free(&hp);
 
 	assert(hp == NULL);
@@ -198,19 +198,19 @@ main(int argc, char **argv)
 	hpack_free(NULL);
 
 	/* double free */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, &static_alloc);
 	hp2 = hp;
 	hpack_free(&hp);
 	hpack_free(&hp2);
 
 	/* dynamic table inspection */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_foreach, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_foreach, hp, NULL, NULL);
 	hpack_free(&hp);
 
 	/* decoding process */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, &static_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, &static_alloc);
 	CHECK_RES(retval, ARG, hpack_decode, NULL, NULL, 0, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, basic_block, 0, 0, NULL,
@@ -224,7 +224,7 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	/* fail to trim decoder */
-	CHECK_NOTNULL(hp, hpack_decoder, 4096, &oom_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 4096, -1, &oom_alloc);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 0);
 	CHECK_RES(retval, OK, hpack_decode, hp, update_block,
 	    sizeof update_block, 0, noop_dec_cb, NULL);
@@ -232,7 +232,7 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	/* defunct decoder */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, IDX, hpack_decode, hp, junk_block,
 	    sizeof junk_block, 0, noop_dec_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_decode, hp, junk_block,
@@ -241,7 +241,7 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	/* busy operations */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, BLK, hpack_decode, hp, double_block, 1, 1,
 	    (hpack_decoded_f *)noop_cb, NULL);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
@@ -255,18 +255,18 @@ main(int argc, char **argv)
 
 	hpack_free(&hp);
 
-	CHECK_NOTNULL(hp, hpack_encoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
 
 	hpack_free(&hp);
 
-	CHECK_NOTNULL(hp, hpack_encoder, 0, &static_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 0, -1, &static_alloc);
 	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
 
 	hpack_free(&hp);
 
 	/* resize before/after a limit is set */
-	CHECK_NOTNULL(hp, hpack_encoder, 512, &static_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 512, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_limit, hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
 	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
@@ -276,7 +276,7 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	/* encoding process */
-	CHECK_NOTNULL(hp, hpack_encoder, 0, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_encode, hp, &basic_field, 0, NULL, NULL);
@@ -303,7 +303,7 @@ main(int argc, char **argv)
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
 
 	/* fail to resize when out of memory */
-	CHECK_NOTNULL(hp, hpack_decoder, 0, &oom_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, &oom_alloc);
 	retval = hpack_resize(&hp, UINT16_MAX);
 	assert(retval == HPACK_RES_OOM);
 	hpack_free(&hp);

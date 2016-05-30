@@ -224,7 +224,7 @@ main(int argc, char **argv)
 
 	ctx.buf = buf;
 
-	hp = hpack_decoder(tbl_sz, hpack_default_alloc);
+	hp = hpack_decoder(tbl_sz, -1, hpack_default_alloc);
 	assert(hp != NULL);
 
 	priv.hp = hp;

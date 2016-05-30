@@ -305,7 +305,7 @@ main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ctx.hp = hpack_encoder(tbl_sz, hpack_default_alloc);
+	ctx.hp = hpack_encoder(tbl_sz, -1, hpack_default_alloc);
 	assert(ctx.hp != NULL);
 
 	hp = ctx.hp;
