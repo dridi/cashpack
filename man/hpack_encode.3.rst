@@ -77,7 +77,12 @@ TODO
 ENCODING FLAGS
 ==============
 
-TODO
+The encoding process of a header list is driven by flags that explain how to
+interpret a ``struct hpack_field`` instance. Some flags can be combined and
+others are mutual exclusive. Combining flags that aren't documented as working
+together results in undefined behavior:
+
+.. include:: hpf2rst.rst
 
 ENCODING STATE MACHINE
 ======================

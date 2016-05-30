@@ -162,12 +162,36 @@ HPE(TABLE, 7, "the table was updated",
 #endif /* HPE */
 
 #ifdef HPF
-HPF(TYP_IDX, 0x01, "TODO")
-HPF(TYP_DYN, 0x02, "TODO")
-HPF(TYP_LIT, 0x04, "TODO")
-HPF(TYP_NVR, 0x08, "TODO")
-HPF(TYP_MSK, 0x0f, "TODO")
-HPF(NAM_IDX, 0x10, "TODO")
-HPF(NAM_HUF, 0x20, "TODO")
-HPF(VAL_HUF, 0x40, "TODO")
+HPF(TYP_IDX, 0x01,
+	"\tThe field is indexed, the *idx* member MUST be a valid index.\n\n")
+
+HPF(TYP_DYN, 0x02,
+	"\tThe field will be inserted in the dynamic table, if it fits.\n"
+	"\tThe members *nam* and *val* are expected to point to the name\n"
+	"\tvalue strings.\n\n")
+
+HPF(TYP_LIT, 0x04,
+	"\tA literal field without indexing. The members *nam* and *val*\n"
+	"\tare expected to point to the name value strings.\n\n")
+
+HPF(TYP_NVR, 0x08,
+	"\tA literal field that should never be indexed. The members *nam*\n"
+	"\tand *val* are expected to point to the name value strings.\n\n")
+
+HPF(TYP_MSK, 0x0f,
+	"\tThe bit mask to extract the type-of-field flag. Not an actual\n"
+	"\tflag.\n\n")
+
+HPF(NAM_IDX, 0x10,
+	"\tThe field name is indexed. The member *nam_idx* MUST be a valid\n"
+	"\tindex. It supersedes the *nam* pointer, and can be used for any\n"
+	"\ttype of field expect ``TYP_IDX``.")
+
+HPF(NAM_HUF, 0x20,
+	"\tThe field name shall be Huffman-encoded. It can be used for any\n"
+	"\ttype of field expect ``TYP_IDX`` or fields with ``NAM_IDX``.\n\n")
+
+HPF(VAL_HUF, 0x40,
+	"\tThe field value shall be Huffman-encoded. It can be used for any\n"
+	"\ttype of field expect ``TYP_IDX``.\n\n")
 #endif /* HPF */

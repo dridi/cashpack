@@ -52,12 +52,14 @@ examples_DATA = cashdump.c
 noinst_PROGRAMS = \
 	cashdump \
 	hpe2rst.gen \
+	hpf2rst.gen \
 	hpr2rst.gen
 
 cashdump_LDADD = $(top_builddir)/lib/libhpack.la
 cashdump_SOURCES = cashdump.c
 
 hpe2rst_gen_SOURCES = hpe2rst.c
+hpf2rst_gen_SOURCES = hpf2rst.c
 hpr2rst_gen_SOURCES = hpr2rst.c
 
 .gen.rst:
@@ -88,6 +90,8 @@ SUFFIXES = .3.rst .3
 	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst >$@
 
 cashpack.3: hpe2rst.rst cashdump.src cashdump.hex cashdump.out
+
+hpack_encode.3: hpf2rst.rst
 
 hpack_strerror.3: hpr2rst.rst
 
