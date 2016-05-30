@@ -26,9 +26,8 @@ include_HEADERS = hpack.h
 BUILT_SOURCES = hpack.h
 CLEANFILES = hpack.h
 
-hpack.h: hpack.h.in tbl/hpack_tbl.h
-	$(AM_V_GEN) cpp -o hpack.h $(srcdir)/hpack.h.in
-	@$(SED) -i "/^#/d" hpack.h
+hpack.h: hpack.h.in tbl/hpack_tbl.h uncrustify.cfg
+	$(AM_V_GEN) cpp -P -o hpack.h $(srcdir)/hpack.h.in
 	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) hpack.h
 
 EXTRA_DIST = \

@@ -36,11 +36,7 @@ enum hpack_result_e {
 #undef HPR
 };
 
-enum hpack_event_e {
-#define HPE(e, v, d, l)	HPACK_EVT_##e	= v,
-#include "tbl/hpack_tbl.h"
-#undef HPE
-};
+const char * hpack_strerror(enum hpack_result_e);
 
 /* hpack_alloc */
 
@@ -65,9 +61,13 @@ enum hpack_result_e hpack_resize(struct hpack **, size_t);
 enum hpack_result_e hpack_limit(struct hpack *, size_t);
 enum hpack_result_e hpack_trim(struct hpack **);
 
-const char * hpack_strerror(enum hpack_result_e);
-
 /* hpack_decode */
+
+enum hpack_event_e {
+#define HPE(e, v, d, l)	HPACK_EVT_##e	= v,
+#include "tbl/hpack_tbl.h"
+#undef HPE
+};
 
 typedef void hpack_decoded_f(void *, enum hpack_event_e, const char *,
     size_t);
