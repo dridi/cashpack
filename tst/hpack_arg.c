@@ -243,11 +243,10 @@ main(int argc, char **argv)
 	/* busy operations */
 	CHECK_NOTNULL(hp, hpack_decoder, 0, -1, hpack_default_alloc);
 	CHECK_RES(retval, BLK, hpack_decode, hp, double_block, 1, 1,
-	    (hpack_decoded_f *)noop_cb, NULL);
+	    noop_dec_cb, NULL);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_foreach, hp, (hpack_decoded_f *)noop_cb,
-	    NULL);
+	CHECK_RES(retval, BSY, hpack_foreach, hp, noop_dec_cb, NULL);
 
 	/* limit an encoder */
 	CHECK_RES(retval, ARG, hpack_limit, NULL, 0);
