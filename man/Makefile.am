@@ -113,6 +113,7 @@ hpack_clean_item.3:
 CLEANFILES = \
 	$(dist_man_MANS) \
 	hpe2rst.rst \
+	hpf2rst.rst \
 	hpr2rst.rst \
 	cashdump.hex \
 	cashdump.out \
