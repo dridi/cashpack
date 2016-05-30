@@ -157,8 +157,11 @@ hpack_resize(struct hpack **hpp, size_t len)
 	}
 
 	if (mem > hp->sz.mem) {
-		assert(hp->alloc.realloc != NULL);
 		assert(hp->sz.len <= mem);
+		if (hp->alloc.realloc == NULL) {
+			(*hpp)->magic = DEFUNCT_MAGIC;
+			return (HPACK_RES_ARG); /* XXX: dedicated error? */
+		}
 		hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
 		if (hp == NULL) {
 			(*hpp)->magic = DEFUNCT_MAGIC;
