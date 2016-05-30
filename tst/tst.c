@@ -228,6 +228,7 @@ tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 static void
 tst_dump(int signo)
 {
+	const char *magic;
 	uint8_t *ptr;
 
 	(void)signo;
@@ -235,8 +236,15 @@ tst_dump(int signo)
 	if (hp == NULL)
 		return;
 
+	switch (hp->magic) {
+	case DECODER_MAGIC: magic = "DECODER"; break;
+	case ENCODER_MAGIC: magic = "ENCODER"; break;
+	case DEFUNCT_MAGIC: magic = "DEFUNCT"; break;
+	default: magic = "UNKNOWN";
+	}
+
 	fprintf(stderr, "*hp = %p {\n", hp);
-	fprintf(stderr, "\t.magic = %08x\n", hp->magic);
+	fprintf(stderr, "\t.magic = %08x (%s)\n", hp->magic, magic);
 	fprintf(stderr, "\t.alloc = {\n");
 	fprintf(stderr, "\t\t.malloc = %p\n", hp->alloc.malloc);
 	fprintf(stderr, "\t\t.realloc = %p\n", hp->alloc.realloc);
