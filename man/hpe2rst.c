@@ -10,9 +10,7 @@ int
 main(int argc, const char **argv)
 {
 
-#define HPE(e, v, d, l)					\
-	printf("``HPACK_EVT_%s`` (%s)\n\n", #e, d);	\
-	printf("%s\n\n", l);
+#define HPE(e, v, d, l) printf("``HPACK_EVT_%s`` (%s)\n\n%s", #e, d, l);
 #include "tbl/hpack_tbl.h"
 #undef HPE
 

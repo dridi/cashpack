@@ -10,9 +10,7 @@ int
 main(int argc, const char **argv)
 {
 
-#define HPR(r, v, d, l)					\
-	printf("``HPACK_RES_%s`` (%s)\n\n", #r, d);	\
-	printf("%s\n\n", l);
+#define HPR(r, v, d, l) printf("``HPACK_RES_%s`` (%s)\n\n%s", #r, d, l);
 #include "tbl/hpack_tbl.h"
 #undef HPR
 

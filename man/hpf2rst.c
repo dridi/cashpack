@@ -10,9 +10,7 @@ int
 main(int argc, const char **argv)
 {
 
-#define HPF(f, v, l)				\
-	printf("``HPACK_FLG_%s``\n\n", #f);	\
-	printf("%s\n\n", l);
+#define HPF(f, v, l) printf("``HPACK_FLG_%s``\n\n%s", #f, l);
 #include "tbl/hpack_tbl.h"
 #undef HPF
 
