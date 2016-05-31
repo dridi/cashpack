@@ -54,14 +54,13 @@
 		(void)res;			\
 	} while (0)
 
-#define CHECK_RES(res, exp, call, args...)				\
-	do {								\
-		res = call(args);					\
-		if (res != HPACK_RES_##exp)				\
-			DBG("expected %s, got %d (%s)", #exp, res,	\
-			    hpack_strerror(res));			\
-		assert(res == HPACK_RES_##exp);				\
-		(void)res;						\
+#define CHECK_RES(res, exp, call, args...)			\
+	do {							\
+		res = call(args);				\
+		DBG("expected %s, got %d (%s)", #exp, res,	\
+		    hpack_strerror(res));			\
+		assert(res == HPACK_RES_##exp);			\
+		(void)res;					\
 	} while (0)
 
 /**********************************************************************
