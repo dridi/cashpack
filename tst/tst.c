@@ -191,7 +191,7 @@ TST_translate_error(const char *str)
 }
 
 /**********************************************************************
- * Signal handling
+ * Debugging
  */
 
 extern struct hpack *hp;
@@ -226,12 +226,10 @@ tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 }
 
 static void
-tst_dump(int signo)
+tst_dump(struct hpack *hp)
 {
 	const char *magic;
 	uint8_t *ptr;
-
-	(void)signo;
 
 	if (hp == NULL)
 		return;
@@ -275,11 +273,23 @@ tst_dump(int signo)
 	fprintf(stderr, "}\n");
 }
 
+/**********************************************************************
+ * Signal handling
+ */
+
+static void
+tst_sighandler(int signo)
+{
+
+	(void)signo;
+	tst_dump(hp);
+}
+
 void
 TST_signal(void)
 {
 
-	if (signal(SIGABRT, tst_dump) == SIG_ERR) {
+	if (signal(SIGABRT, tst_sighandler) == SIG_ERR) {
 		ERR("%s", "Failed to install signal handler");
 		exit(EXIT_FAILURE);
 	}
