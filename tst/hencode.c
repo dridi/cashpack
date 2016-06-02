@@ -258,13 +258,14 @@ main(int argc, char **argv)
 {
 	enum hpack_result_e exp;
 	struct enc_ctx ctx;
-	int tbl_sz;
+	int tbl_sz, tbl_mem;
 
 	TST_signal();
 
 	(void)memset(&ctx, 0, sizeof ctx);
 
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
+	tbl_mem = -1;
 	exp = HPACK_RES_OK;
 	ctx.cb = write_data;
 
@@ -277,6 +278,14 @@ main(int argc, char **argv)
 		assert(argc >= 2);
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
+		argc -= 2;
+		argv += 2;
+	}
+
+	if (argc > 0 && !strcmp("--table-limit", *argv)) {
+		assert(argc >= 2);
+		tbl_mem = atoi(argv[1]);
+		assert(tbl_mem > 0);
 		argc -= 2;
 		argv += 2;
 	}
@@ -305,7 +314,7 @@ main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ctx.hp = hpack_encoder(tbl_sz, -1, hpack_default_alloc);
+	ctx.hp = hpack_encoder(tbl_sz, tbl_mem, hpack_default_alloc);
 	assert(ctx.hp != NULL);
 
 	hp = ctx.hp;
