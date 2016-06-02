@@ -135,6 +135,8 @@ hpack_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
 	size_t mem;
 
 	mem = rsz >= 0 ? (size_t)rsz : max;
+	if (mem < max)
+		mem = max;
 	return (hpack_new(DECODER_MAGIC, mem, max, ha));
 }
 
