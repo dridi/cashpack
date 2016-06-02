@@ -809,39 +809,42 @@ hpack_cap(struct hpack *hp, size_t lim, ssize_t max)
 static int
 hpack_encode_update(HPACK_CTX, size_t lim)
 {
+	struct hpack *hp;
 
 	assert(ctx->can_upd);
 	assert(lim <= UINT16_MAX);
 
-	if (ctx->hp->sz.min >= 0) {
-		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
-		ctx->hp->sz.max = lim;
-		if (ctx->hp->sz.min < ctx->hp->sz.nxt)
-			assert(lim == (size_t)ctx->hp->sz.min);
+	hp = ctx->hp;
+
+	if (hp->sz.min >= 0) {
+		assert(hp->sz.min <= hp->sz.nxt);
+		hp->sz.max = lim;
+		if (hp->sz.min < hp->sz.nxt)
+			assert(lim == (size_t)hp->sz.min);
 		else
-			lim = hpack_cap(ctx->hp, lim, ctx->hp->sz.nxt);
+			lim = hpack_cap(hp, lim, hp->sz.nxt);
 	}
 	else {
-		lim = hpack_cap(ctx->hp, lim, ctx->hp->sz.max);
-		assert(lim == (size_t)ctx->hp->sz.lim);
+		lim = hpack_cap(hp, lim, hp->sz.max);
+		assert(lim == (size_t)hp->sz.lim);
 	}
 
-	HPT_adjust(ctx, ctx->hp->sz.len);
+	HPT_adjust(ctx, hp->sz.len);
 	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, lim);
 	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
 
-	if (ctx->hp->sz.min < ctx->hp->sz.nxt) {
-		assert(ctx->hp->sz.min >= 0);
-		ctx->hp->sz.min = ctx->hp->sz.nxt;
+	if (hp->sz.min < hp->sz.nxt) {
+		assert(hp->sz.min >= 0);
+		hp->sz.min = hp->sz.nxt;
 	}
-	else if (ctx->hp->sz.min >= 0) {
-		assert(ctx->hp->sz.min == ctx->hp->sz.nxt);
-		ctx->hp->sz.min = -1;
-		ctx->hp->sz.nxt = -1;
+	else if (hp->sz.min >= 0) {
+		assert(hp->sz.min == hp->sz.nxt);
+		hp->sz.min = -1;
+		hp->sz.nxt = -1;
 		ctx->can_upd = 0;
 	}
 
-	assert(lim <= ctx->hp->sz.max);
+	assert(lim <= hp->sz.max);
 	return (0);
 }
 
