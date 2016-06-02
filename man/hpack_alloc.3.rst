@@ -73,9 +73,8 @@ This is an overview of memory management in cashpack, a stateless event-driven
 HPACK codec written in C. cashpack offers a great deal of control over memory
 management and follows a single-allocation principle. Under very specific
 circumstances, the dynamic table is effectively resized and that may trigger a
-reallocation.
-
-.. TODO: once possible, document how to fully prevent reallocations
+reallocation. It is possible to allocate static or pseudo-static memory from
+some sort of memory pool or even on the stack.
 
 MEMORY MANAGEMENT
 =================
@@ -98,6 +97,10 @@ it is both persistent and self-contained. The only references outside of the
 data structure are the pointers for the memory manager's functions and state,
 they need to be persistent too and can't be changed once allocated.
 
+One way to achieve single-allocation despite a resize of the table is to
+allocate the desired eventual size with the ``malloc()`` operation and turn
+the ``realloc()`` one into a no-op.
+
 ALLOCATION
 ==========
 
@@ -109,6 +112,17 @@ For instance, the initial size for HTTP/2 is 4096 octets. The *alloc* argument
 points to the memory manager that performs actual memory allocations.
 
 The absolute maximum size for the dynamic table is 65535 octets.
+
+The *mem* argument allows you to define the initial allocation size for the
+dynamic table. This is the safest way to guarantee a single allocation. A
+decoder that plans to resize the dynamic table must to defer the actual resize
+operation, in HTTP/2 it happens after a settings acknowledgement. An encoder
+on the other hand must obey the size changes mandated by its peer decoder, so
+setting *mem* to a non-negative value is the single-allocation equivalent to::
+
+    /* omitting error handling */
+    hp = hpack_encoder(max, -1, hpack_default_alloc);
+    hpack_limit(&hp, mem);
 
 The ``hpack_free()`` function frees the space allocated to HPACK codecs. The
 memory manager may not provide a free operation, but it may still be useful to
