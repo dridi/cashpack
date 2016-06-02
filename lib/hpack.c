@@ -647,11 +647,11 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 
 	if (huf != 0) {
 		HPH_size(str, &len);
-		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_HUF, len);
+		HPI_encode(ctx, HPACK_PFX_HUF, HPACK_PAT_HUF, len);
 		HPH_encode(ctx, str);
 	}
 	else {
-		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_RAW, len);
+		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_STR, len);
 		HPE_push(ctx, str, len);
 	}
 

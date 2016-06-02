@@ -33,22 +33,15 @@
  */
 
 enum hpi_prefix_e {
-	HPACK_PFX_STR	= 7, /* Section 5.2 */
-	HPACK_PFX_IDX	= 7, /* Section 6.1 */
-	HPACK_PFX_DYN	= 6, /* Section 6.2.1 */
-	HPACK_PFX_LIT	= 4, /* Section 6.2.2 */
-	HPACK_PFX_NVR	= 4, /* Section 6.2.3 */
-	HPACK_PFX_UPD	= 5, /* Section 6.3 */
+#define HPP(nam, pfx, pat) HPACK_PFX_##nam = pfx,
+#include "tbl/hpack_tbl.h"
+#undef HPP
 };
 
 enum hpi_pattern_e {
-	HPACK_PAT_HUF	= 0x80, /* Section 5.2 */
-	HPACK_PAT_RAW	= 0x00, /* Section 5.2 */
-	HPACK_PAT_IDX	= 0x80, /* Section 6.1 */
-	HPACK_PAT_DYN	= 0x40, /* Section 6.2.1 */
-	HPACK_PAT_LIT	= 0x00, /* Section 6.2.2 */
-	HPACK_PAT_NVR	= 0x10, /* Section 6.2.3 */
-	HPACK_PAT_UPD	= 0x20, /* Section 6.3 */
+#define HPP(nam, pfx, pat) HPACK_PAT_##nam = pat,
+#include "tbl/hpack_tbl.h"
+#undef HPP
 };
 
 enum hpack_stp_e {

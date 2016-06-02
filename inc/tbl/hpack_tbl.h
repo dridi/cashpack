@@ -195,3 +195,13 @@ HPF(VAL_HUF, 0x40,
 	"\tThe field value shall be Huffman-encoded. It can be used for any\n"
 	"\ttype of field expect ``TYP_IDX``.\n\n")
 #endif /* HPF */
+
+#ifdef HPP
+HPP(STR, 7, 0x00) /* Section 5.2 */
+HPP(HUF, 7, 0x80) /* Section 5.2 */
+HPP(IDX, 7, 0x80) /* Section 6.1 */
+HPP(DYN, 6, 0x40) /* Section 6.2.1 */
+HPP(LIT, 4, 0x00) /* Section 6.2.2 */
+HPP(NVR, 4, 0x10) /* Section 6.2.3 */
+HPP(UPD, 5, 0x20) /* Section 6.3 */
+#endif
