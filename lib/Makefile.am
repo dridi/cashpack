@@ -49,4 +49,10 @@ libhpack_la_SOURCES = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(PACKAGE).pc
 
+noinst_PROGRAMS = hpiencode
+
+hpiencode_LDADD = \
+	hpack_enc.$(OBJEXT) \
+	hpack_int.$(OBJEXT)
+
 EXTRA_DIST = $(PACKAGE).pc.in
