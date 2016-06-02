@@ -342,7 +342,7 @@ static void
 test_limit_decoder(void)
 {
 	hp = make_decoder(4096, -1, hpack_default_alloc);
-	CHECK_RES(retval, ARG, hpack_limit, hp, 0);
+	CHECK_RES(retval, ARG, hpack_limit, &hp, 0);
 	hpack_free(&hp);
 }
 
@@ -350,7 +350,7 @@ static void
 test_limit_overflow(void)
 {
 	hp = make_encoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
+	CHECK_RES(retval, LEN, hpack_limit, &hp, UINT16_MAX + 1);
 	hpack_free(&hp);
 }
 
@@ -358,7 +358,7 @@ static void
 test_limit_overflow_no_realloc(void)
 {
 	hp = make_encoder(0, -1, &static_alloc);
-	CHECK_RES(retval, LEN, hpack_limit, hp, UINT16_MAX + 1);
+	CHECK_RES(retval, LEN, hpack_limit, &hp, UINT16_MAX + 1);
 	hpack_free(&hp);
 }
 
@@ -366,7 +366,7 @@ static void
 test_limit_between_two_resizes(void)
 {
 	hp = make_encoder(512, -1, &static_alloc);
-	CHECK_RES(retval, OK, hpack_limit, hp, 256);
+	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
 	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
 	    NULL);

@@ -208,7 +208,7 @@ parse_commands(struct enc_ctx *ctx)
 	else if (!TOKCMP(ctx->line, "update")) {
 		args = TOK_ARGS(ctx->line, "update");
 		len = atoi(args);
-		ctx->res = hpack_limit(ctx->hp, len);
+		ctx->res = hpack_limit(&ctx->hp, len);
 		return (0);
 	}
 

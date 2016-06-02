@@ -62,8 +62,8 @@ SYNOPSIS
 |
 | **enum hpack_result_e hpack_resize(struct hpack** *\*\*hpackp*\ **,** \
     **size_t** *max*\ **);**
-| **enum hpack_result_e hpack_limit(struct hpack** *\*hpack*\ **, size_t** \
-    *max*\ **);**
+| **enum hpack_result_e hpack_limit(struct hpack** *\*\*hpackp*\ **,** \
+    **size_t** *max*\ **);**
 | **enum hpack_result_e hpack_trim(struct hpack** *\*\*hpackp*\ **);**
 
 DESCRIPTION
@@ -131,7 +131,7 @@ encoder automatically includes table updates in the next block encoded with
 the ``hpack_encode()`` function.
 
 The ``hpack_limit()`` function allows an encoder to limit to *max* the size of
-the dynamic table for *hpack* below the maximum decided by the peer decoder.
+the dynamic table for *hpackp* below the maximum decided by the peer decoder.
 The limit is then sent as a table update when the next header list is encoded,
 and overrides any subsequent calls to ``hpack_resize()``. Once applied, the
 limit doesn't need to be reapplied every time the decoder decides to change
@@ -165,9 +165,6 @@ defunct codec.
 
 ``HPACK_RES_LEN``: the new size exceeds 65535 or the memory manager has no
 ``realloc`` operation to grow the table.
-
-The ``hpack_resize()`` and ``hpack_trim()`` functions can fail with the
-following error:
 
 ``HPACK_RES_OOM``: the reallocation failed.
 
