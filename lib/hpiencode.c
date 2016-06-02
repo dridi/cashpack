@@ -53,6 +53,7 @@ main(int argc, const char **argv)
 	assert(argc == 2);
 
 	pfx = 0;
+	pat = 0;
 
 #define HPP(nm, px, pt)				\
 	if (!strcasecmp(#nm, argv[1])) {	\

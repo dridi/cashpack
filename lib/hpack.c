@@ -146,18 +146,19 @@ hpack_realloc(struct hpack **hpp, size_t mem)
 	struct hpack *hp;
 
 	hp = *hpp;
-	if (mem > hp->sz.mem) {
-		assert(hp->sz.len <= mem);
-		if (hp->alloc.realloc == NULL)
-			return (HPACK_RES_ARG); /* XXX: dedicated error? */
+	if (mem <= hp->sz.mem)
+		return (HPACK_RES_OK);
 
-		hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
-		if (hp == NULL)
-			return (HPACK_RES_OOM);
+	assert(hp->sz.len <= mem);
+	if (hp->alloc.realloc == NULL)
+		return (HPACK_RES_ARG); /* XXX: dedicated error? */
 
-		hp->sz.mem = mem;
-		*hpp = hp;
-	}
+	hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
+	if (hp == NULL)
+		return (HPACK_RES_OOM);
+
+	hp->sz.mem = mem;
+	*hpp = hp;
 	return (HPACK_RES_OK);
 }
 
