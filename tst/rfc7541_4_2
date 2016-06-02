@@ -251,3 +251,123 @@ EOF
 
 HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
 tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
+
+_ ----------------------------------
+_ Set a limit above the maximum size
+_ ----------------------------------
+
+mk_hex <<EOF
+# no update received
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 6669 656c 64                  | her.field
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) other: field
+      Table size:  42
+EOF
+
+mk_enc <<EOF
+update 4096
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode --table-size 42
+
+# the same test with the limit set during allocation
+mk_enc <<EOF
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode --table-limit 4096 --table-size 42
+
+_ ---------------------------------------
+_ Resize above the limit after it was set
+_ ---------------------------------------
+
+mk_hex <<EOF
+# no update, yet
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 6669 656c 64                  | her.field
+
+# table update to 0
+20
+
+# table update to 4096
+3fe1 1f
+
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 6669 656c 64                  | her.field
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) other: field
+[  2] (s =  41) name: value
+      Table size:  83
+EOF
+
+mk_enc <<EOF
+update 4096
+dynamic str name str value
+dynamic str other str field
+flush
+
+resize 0
+resize 8192
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode
+
+# the same test with the limit set during allocation
+mk_enc <<EOF
+dynamic str name str value
+dynamic str other str field
+flush
+
+resize 0
+resize 8192
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode --table-limit 4096
+
+_ ----------------------
+_ Resize below the limit
+_ ----------------------
+
+mk_hex <<EOF
+# table update to 4096
+3fe1 1f
+
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 6669 656c 64                  | her.field
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) other: field
+[  2] (s =  41) name: value
+      Table size:  83
+EOF
+
+mk_enc <<EOF
+update 8192
+resize 4096
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode --table-size 42
+
+# the same test with the limit set during allocation
+mk_enc <<EOF
+resize 4096
+dynamic str name str value
+dynamic str other str field
+EOF
+
+tst_encode --table-limit 8192 --table-size 42

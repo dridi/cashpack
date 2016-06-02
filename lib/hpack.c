@@ -754,6 +754,22 @@ hpack_encode_never(HPACK_CTX, HPACK_FLD)
 	return (hpack_encode_field(ctx, fld, HPACK_PAT_NVR, HPACK_PFX_NVR));
 }
 
+static size_t
+hpack_cap(struct hpack *hp, size_t lim, ssize_t max)
+{
+
+	if (hp->sz.cap < 0)
+		return (lim);
+
+	if (hp->sz.cap > max) {
+		hp->sz.lim = -1;
+		return (lim);
+	}
+
+	hp->sz.lim = hp->sz.cap;
+	return (hp->sz.lim);
+}
+
 static int
 hpack_encode_update(HPACK_CTX, size_t lim)
 {
@@ -763,15 +779,16 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 
 	if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min <= ctx->hp->sz.nxt);
+		ctx->hp->sz.max = lim;
 		if (ctx->hp->sz.min < ctx->hp->sz.nxt)
 			assert(lim == (size_t)ctx->hp->sz.min);
-		else if (ctx->hp->sz.cap >= 0) {
-			lim = ctx->hp->sz.cap;
-			ctx->hp->sz.cap = -1;
-		}
+		else
+			lim = hpack_cap(ctx->hp, lim, ctx->hp->sz.nxt);
 	}
-
-	ctx->hp->sz.lim = lim;
+	else {
+		lim = hpack_cap(ctx->hp, lim, ctx->hp->sz.max);
+		assert(lim == (size_t)ctx->hp->sz.lim);
+	}
 
 	HPT_adjust(ctx, ctx->hp->sz.len);
 	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, lim);
@@ -783,7 +800,6 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 	}
 	else if (ctx->hp->sz.min >= 0) {
 		assert(ctx->hp->sz.min == ctx->hp->sz.nxt);
-		ctx->hp->sz.max = ctx->hp->sz.nxt;
 		ctx->hp->sz.min = -1;
 		ctx->hp->sz.nxt = -1;
 		ctx->can_upd = 0;
@@ -826,14 +842,16 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 			retval = hpack_encode_update(ctx, hp->sz.nxt);
 			assert(retval == 0);
 		}
-		assert(ctx->hp->sz.cap < 0);
 		assert(!ctx->can_upd);
 	}
 
-	if (ctx->hp->sz.cap >= 0) {
-		retval = hpack_encode_update(ctx, hp->sz.cap);
-		assert(retval == 0);
-		hp->sz.cap = -1;
+	if (ctx->can_upd && ctx->hp->sz.cap >= 0) {
+		assert(ctx->hp->sz.lim == -1);
+		if ((size_t)ctx->hp->sz.cap < ctx->hp->sz.max) {
+			retval = hpack_encode_update(ctx, hp->sz.cap);
+			assert(retval == 0);
+			hp->sz.cap = -1;
+		}
 	}
 
 	while (len > 0) {

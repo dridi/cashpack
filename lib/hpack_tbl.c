@@ -153,7 +153,8 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	size_t sz, lim;
 
 	hp = ctx->hp;
-	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
+	assert(hp->sz.lim <= (ssize_t)hp->sz.max ||
+	    hp->sz.nxt > (ssize_t)hp->sz.max);
 
 	if (hp->cnt == 0)
 		return;
