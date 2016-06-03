@@ -83,7 +83,6 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
     const struct hpack_alloc *ha)
 {
 	struct hpack *hp;
-	size_t mem_init;
 
 	if (ha == NULL || ha->malloc == NULL || max > UINT16_MAX ||
 	    mem > UINT16_MAX)
@@ -95,11 +94,7 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 	if (hp == NULL)
 		return (NULL);
 
-	mem_init = sizeof *hp->tbl;
-	if (mem_init > mem)
-		mem_init = mem;
-
-	(void)memset(hp, 0, sizeof *hp + mem_init);
+	(void)memset(hp, 0, sizeof *hp + mem);
 	hp->magic = magic;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->sz.mem = mem;
