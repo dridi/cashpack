@@ -511,8 +511,6 @@ test_strerror(void)
 	CHECK_NULL(str, hpack_strerror, UINT16_MAX);
 }
 
-#undef TEST
-
 /**********************************************************************
  */
 
