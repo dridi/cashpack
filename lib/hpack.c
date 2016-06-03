@@ -85,9 +85,11 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 	struct hpack *hp;
 	size_t mem_init;
 
-	if (ha == NULL || ha->malloc == NULL || mem > UINT16_MAX ||
-	    max > UINT16_MAX || mem < max)
+	if (ha == NULL || ha->malloc == NULL || max > UINT16_MAX ||
+	    mem > UINT16_MAX)
 		return (NULL);
+
+	assert(mem >= max || magic == ENCODER_MAGIC);
 
 	hp = ha->malloc(sizeof *hp + mem, ha->priv);
 	if (hp == NULL)
@@ -245,7 +247,7 @@ hpack_limit(struct hpack **hpp, size_t len)
 		return (HPACK_RES_LEN); /* the codec is NOT defunct */
 
 	mem = hp->sz.mem;
-	if (len > hp->sz.max && mem < hp->sz.max)
+	if (len >= hp->sz.max && mem < hp->sz.max)
 		mem = hp->sz.max;
 
 	res = hpack_realloc(&hp, mem);
@@ -282,7 +284,7 @@ hpack_trim(struct hpack **hpp)
 	}
 
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
-	if (hp->magic != ENCODER_MAGIC)
+	if (hp->magic == ENCODER_MAGIC)
 		max = HPACK_LIMIT(hp);
 	else
 		max = hp->sz.max;

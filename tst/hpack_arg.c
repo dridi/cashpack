@@ -217,18 +217,28 @@ test_alloc_overflow(void)
 {
 	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, -1,
 	    hpack_default_alloc);
+	CHECK_NULL(hp, hpack_decoder, 4096, UINT16_MAX + 1,
+	    hpack_default_alloc);
+}
+
+static void
+test_alloc_underflow(void)
+{
+	CHECK_NOTNULL(hp, hpack_decoder, 4096, 2048, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 4096, 2048, hpack_default_alloc);
 }
 
 static void
 test_malloc_failure(void)
 {
 	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc);
+	CHECK_NULL(hp, hpack_encoder, 0,  4096, &static_alloc);
 }
 
 static void
 test_free_null_codec(void)
 {
-	hp = NULL;
+	assert(hp == NULL);
 	hpack_free(&hp);
 	hpack_free(NULL);
 }
@@ -286,6 +296,26 @@ test_resize_overflow(void)
 }
 
 static void
+test_limit_null_realloc(void)
+{
+	hp = make_encoder(4096, 0, &static_alloc);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
+	    NULL);
+	CHECK_RES(retval, ARG, hpack_limit, &hp, 4096);
+	hpack_free(&hp);
+}
+
+static void
+test_limit_realloc_failure(void)
+{
+	hp = make_encoder(4096, 2048, &oom_alloc);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
+	    NULL);
+	CHECK_RES(retval, OOM, hpack_limit, &hp, 4096);
+	hpack_free(&hp);
+}
+
+static void
 test_trim_null_realloc(void)
 {
 	hp = make_decoder(0, -1, &static_alloc);
@@ -335,6 +365,8 @@ test_use_busy_decoder(void)
 static void
 test_limit_null_encoder(void)
 {
+	assert(hp == NULL);
+	CHECK_RES(retval, ARG, hpack_limit, &hp, 0);
 	CHECK_RES(retval, ARG, hpack_limit, NULL, 0);
 }
 
@@ -398,7 +430,7 @@ test_use_defunct_encoder(void)
 static void
 test_resize_null_codec(void)
 {
-	hp = NULL;
+	assert(hp == NULL);
 	CHECK_RES(retval, ARG, hpack_resize, NULL, 0);
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
 }
@@ -406,9 +438,20 @@ test_resize_null_codec(void)
 static void
 test_trim_null_codec(void)
 {
-	hp = NULL;
+	assert(hp == NULL);
 	CHECK_RES(retval, ARG, hpack_trim, NULL);
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
+}
+
+static void
+test_trim_to_limit(void)
+{
+	hp = make_encoder(512, -1, hpack_default_alloc);
+	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_field, 1, noop_enc_cb,
+	    NULL);
+	CHECK_RES(retval, OK, hpack_trim, &hp);
+	hpack_free(&hp);
 }
 
 static void
@@ -484,6 +527,7 @@ main(int argc, char **argv)
 	test_null_malloc();
 	test_null_free();
 	test_alloc_overflow();
+	test_alloc_underflow();
 	test_malloc_failure();
 	test_free_null_codec();
 	test_double_free();
@@ -493,6 +537,8 @@ main(int argc, char **argv)
 	test_encode_null_args();
 
 	test_resize_overflow();
+	test_limit_null_realloc();
+	test_limit_realloc_failure();
 	test_trim_null_realloc();
 	test_trim_realloc_failure();
 
@@ -509,6 +555,7 @@ main(int argc, char **argv)
 
 	test_resize_null_codec();
 	test_trim_null_codec();
+	test_trim_to_limit();
 
 	test_resize_realloc_failure();
 
