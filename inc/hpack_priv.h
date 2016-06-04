@@ -28,6 +28,9 @@
 
 #define HPT_STATIC_MAX 61
 
+#define HPT_FLG_STATIC	0x01
+#define HPT_FLG_DYNAMIC	0x02
+
 /**********************************************************************
  * Data Structures
  */
@@ -242,6 +245,6 @@ hpack_validate_f HPV_value;
 hpack_decoded_f HPT_insert;
 void HPT_adjust(struct hpack_ctx *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
-void HPT_foreach(HPACK_CTX);
+void HPT_foreach(HPACK_CTX, int);
 int  HPT_decode(HPACK_CTX, size_t);
 int  HPT_decode_name(HPACK_CTX);

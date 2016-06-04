@@ -345,7 +345,7 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 	ctx->dec = cb;
 	ctx->priv = priv;
 
-	HPT_foreach(ctx);
+	HPT_foreach(ctx, HPT_FLG_DYNAMIC);
 	return (HPACK_RES_OK);
 }
 

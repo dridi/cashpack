@@ -111,12 +111,18 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 }
 
 void
-HPT_foreach(HPACK_CTX)
+HPT_foreach(HPACK_CTX, int flg)
 {
 	const struct hpt_entry *he, *tbl;
 	struct hpt_entry tmp;
 	ptrdiff_t off;
 	size_t i;
+
+	if (flg & HPT_FLG_STATIC)
+		INCOMPL();
+
+	if (~flg & HPT_FLG_DYNAMIC)
+		return;
 
 	assert(ctx->hp->off == 0);
 
