@@ -105,6 +105,7 @@ hpack_alloc_links = \
 	hpack_encoder.3 \
 	hpack_free.3 \
 	hpack_resize.3 \
+	hpack_limit.3 \
 	hpack_trim.3
 
 hpack_foreach_links = \
@@ -118,7 +119,7 @@ $(hpack_alloc_links):
 $(hpack_foreach_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_foreach.3 >$@
 
-hpack_clean_item.3:
+hpack_clean_field.3:
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_encode.3 >$@
 
 CLEANFILES = \

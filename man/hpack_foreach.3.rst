@@ -121,6 +121,7 @@ SEE ALSO
 **hpack_encode**\(3),
 **hpack_encoder**\(3),
 **hpack_free**\(3),
+**hpack_limit**\(3),
 **hpack_resize**\(3),
 **hpack_strerror**\(3)
 **hpack_tables**\(3),

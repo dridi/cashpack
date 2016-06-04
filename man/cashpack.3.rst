@@ -242,6 +242,7 @@ SEE ALSO
 **hpack_encoder**\(3),
 **hpack_foreach**\(3),
 **hpack_free**\(3),
+**hpack_limit**\(3),
 **hpack_resize**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
