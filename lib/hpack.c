@@ -868,17 +868,24 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 
 	ctx = &hp->ctx;
 
-	ctx->res = HPACK_RES_BLK;
-	ctx->hp = hp;
+	if (ctx->res == HPACK_RES_BLK) {
+		assert(ctx->hp == hp);
+	}
+	else {
+		assert(ctx->res == HPACK_RES_OK);
+		ctx->hp = hp;
+		ctx->can_upd = 1;
+		ctx->res = HPACK_RES_BLK;
+	}
+
 	ctx->buf = buf;
 	ctx->cur = TRUST_ME(ctx->buf);
 	ctx->len = 0;
 	ctx->max = sizeof buf;
 	ctx->enc = cb;
 	ctx->priv = priv;
-	ctx->can_upd = 1;
 
-	if (hp->sz.min >= 0) {
+	if (ctx->can_upd && hp->sz.min >= 0) {
 		assert(hp->sz.min <= hp->sz.nxt);
 		retval = hpack_encode_update(ctx, hp->sz.min);
 		assert(retval == 0);
@@ -898,6 +905,8 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 			hp->sz.cap = -1;
 		}
 	}
+
+	ctx->can_upd = 0;
 
 	while (len > 0) {
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
