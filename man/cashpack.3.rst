@@ -235,17 +235,17 @@ These are subject to difference depending on local installation conventions.
 SEE ALSO
 ========
 
+**hpack_decode**\(3),
 **hpack_decoder**\(3),
+**hpack_dynamic**\(3),
+**hpack_encode**\(3),
 **hpack_encoder**\(3),
+**hpack_foreach**\(3),
 **hpack_free**\(3),
 **hpack_resize**\(3),
-**hpack_trim**\(3),
-**hpack_decode**\(3),
-**hpack_encode**\(3),
-**hpack_foreach**\(3),
-**hpack_dynamic**\(3),
-**hpack_tables**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
+**hpack_tables**\(3),
+**hpack_trim**\(3),
 **pkg-config**\(1),
 **libtool**\(1)

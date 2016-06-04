@@ -187,12 +187,12 @@ SEE ALSO
 
 **cashpack**\(3),
 **hpack_decode**\(3),
+**hpack_dynamic**\(3),
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
-**hpack_dynamic**\(3),
-**hpack_tables**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
+**hpack_tables**\(3),
 **malloc**\(3),
 **realloc**\(3),
 **free**\(3)
