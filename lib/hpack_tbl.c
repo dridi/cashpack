@@ -114,12 +114,17 @@ void
 HPT_foreach(HPACK_CTX, int flg)
 {
 	const struct hpt_entry *he, *tbl;
+	const struct hpt_field *hf;
 	struct hpt_entry tmp;
 	ptrdiff_t off;
 	size_t i;
 
 	if (flg & HPT_FLG_STATIC)
-		INCOMPL();
+		for (i = 0, hf = hpt_static; i < HPT_STATIC_MAX; i++, hf++) {
+			CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+			CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+			CALLBACK(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);
+		}
 
 	if (~flg & HPT_FLG_DYNAMIC)
 		return;

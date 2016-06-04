@@ -323,6 +323,26 @@ hpack_free(struct hpack **hpp)
 		hp->alloc.free(hp, hp->alloc.priv);
 }
 
+/**********************************************************************
+ * Tables probing
+ */
+
+enum hpack_result_e
+hpack_static(hpack_decoded_f cb, void *priv)
+{
+	struct hpack_ctx ctx;
+
+	if (cb == NULL)
+		return (HPACK_RES_ARG);
+
+	(void)memset(&ctx, 0, sizeof ctx);
+	ctx.dec = cb;
+	ctx.priv = priv;
+
+	HPT_foreach(&ctx, HPT_FLG_STATIC);
+	return (HPACK_RES_OK);
+}
+
 enum hpack_result_e
 hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
@@ -348,6 +368,9 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
 	HPT_foreach(ctx, HPT_FLG_DYNAMIC);
 	return (HPACK_RES_OK);
 }
+
+/**********************************************************************
+ */
 
 const char *
 hpack_strerror(enum hpack_result_e res)

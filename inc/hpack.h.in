@@ -102,4 +102,5 @@ enum hpack_result_e hpack_clean_field(struct hpack_field *);
 
 /* hpack_foreach */
 
+enum hpack_result_e hpack_static(hpack_decoded_f, void *);
 enum hpack_result_e hpack_foreach(struct hpack *, hpack_decoded_f, void *);
