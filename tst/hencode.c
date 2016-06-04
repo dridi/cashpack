@@ -333,7 +333,7 @@ main(int argc, char **argv)
 	ctx.res = HPACK_RES_OK;
 
 	do {
-		assert(ctx.res == HPACK_RES_OK);
+		assert(ctx.res == HPACK_RES_OK || ctx.res == HPACK_RES_BLK);
 	} while (parse_commands(&ctx) == 0);
 
 	encode_message(&ctx);

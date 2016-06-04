@@ -96,7 +96,7 @@ EOF
 tst_encode --table-size 42
 
 _ ---------------------------------
-_ Partial decoding of a header list
+_ Partial encoding of a header list
 _ ---------------------------------
 
 
