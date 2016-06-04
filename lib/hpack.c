@@ -184,10 +184,16 @@ hpack_resize(struct hpack **hpp, size_t len)
 	mem = len;
 
 	if (hp->magic == ENCODER_MAGIC) {
-		if (hp->sz.lim >= 0 && (size_t)hp->sz.lim < mem)
+		if (hp->sz.lim >= 0) {
+			assert(hp->sz.lim == hp->sz.cap);
+			assert((size_t)hp->sz.lim <= hp->sz.mem);
+			assert((size_t)hp->sz.lim >= hp->sz.len);
 			mem = hp->sz.lim;
-		if (hp->sz.cap >= 0 && (size_t)hp->sz.cap < mem)
-			mem = hp->sz.lim >= 0 ? hp->sz.lim : hp->sz.cap;
+		}
+		else if (hp->sz.cap >= 0) {
+			assert((size_t)hp->sz.cap <= max);
+			mem = hp->sz.cap;
+		}
 	}
 
 	if (mem > max) {
