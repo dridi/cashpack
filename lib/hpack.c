@@ -343,8 +343,8 @@ hpack_static(hpack_decoded_f cb, void *priv)
 	return (HPACK_RES_OK);
 }
 
-enum hpack_result_e
-hpack_dynamic(struct hpack *hp, hpack_decoded_f cb, void *priv)
+static enum hpack_result_e
+hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv, int flg)
 {
 	struct hpack_ctx *ctx;
 
@@ -365,9 +365,24 @@ hpack_dynamic(struct hpack *hp, hpack_decoded_f cb, void *priv)
 	ctx->dec = cb;
 	ctx->priv = priv;
 
-	HPT_foreach(ctx, HPT_FLG_DYNAMIC);
+	HPT_foreach(ctx, flg);
 	return (HPACK_RES_OK);
 }
+
+enum hpack_result_e
+hpack_dynamic(struct hpack *hp, hpack_decoded_f cb, void *priv)
+{
+
+	return (hpack_foreach(hp, cb, priv, HPT_FLG_DYNAMIC));
+}
+
+enum hpack_result_e
+hpack_tables(struct hpack *hp, hpack_decoded_f cb, void *priv)
+{
+
+	return (hpack_foreach(hp, cb, priv, HPT_FLG_STATIC|HPT_FLG_DYNAMIC));
+}
+
 
 /**********************************************************************
  */

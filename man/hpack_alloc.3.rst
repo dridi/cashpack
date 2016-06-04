@@ -190,6 +190,7 @@ SEE ALSO
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
 **hpack_dynamic**\(3),
+**hpack_tables**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
 **malloc**\(3),

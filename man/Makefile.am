@@ -36,6 +36,9 @@ dist_man_MANS = \
 	hpack_encode.3 \
 	hpack_encoder.3 \
 	hpack_foreach.3 \
+	hpack_static.3 \
+	hpack_dynamic.3 \
+	hpack_tables.3 \
 	hpack_free.3 \
 	hpack_resize.3 \
 	hpack_strerror.3 \
@@ -104,8 +107,16 @@ hpack_alloc_links = \
 	hpack_resize.3 \
 	hpack_trim.3
 
+hpack_foreach_links = \
+	hpack_static.3 \
+	hpack_dynamic.3 \
+	hpack_tables.3
+
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
+
+$(hpack_foreach_links):
+	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_foreach.3 >$@
 
 hpack_clean_item.3:
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_encode.3 >$@

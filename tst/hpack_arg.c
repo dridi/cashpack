@@ -255,12 +255,23 @@ test_double_free(void)
 }
 
 static void
+test_foreach(void)
+{
+	hp = make_decoder(0, -1, &static_alloc);
+	CHECK_RES(retval, OK, hpack_static, noop_dec_cb, NULL);
+	CHECK_RES(retval, OK, hpack_dynamic, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, OK, hpack_tables, hp, noop_dec_cb, NULL);
+	hpack_free(&hp);
+}
+
+static void
 test_foreach_null_args(void)
 {
 	hp = make_decoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_dynamic, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_dynamic, hp, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_static, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_tables, NULL, NULL, NULL);
 	hpack_free(&hp);
 }
 
@@ -546,6 +557,7 @@ main(int argc, char **argv)
 	test_free_null_codec();
 	test_double_free();
 
+	test_foreach();
 	test_foreach_null_args();
 	test_decode_null_args();
 	test_encode_null_args();

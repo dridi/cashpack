@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-===========================
-hpack_static, hpack_dynamic
-===========================
+=========================================
+hpack_static, hpack_dynamic, hpack_tables
+=========================================
 
 ----------------------------------
 probe the contents of HPACK tables
@@ -50,6 +50,9 @@ SYNOPSIS
 |
 | **enum hpack_result_e hpack_dynamic(struct hpack** *\*hpack*\ **,**
 | **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+|
+| **enum hpack_result_e hpack_tables(struct hpack** *\*hpack*\ **,**
+| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
@@ -64,7 +67,9 @@ HPACK block if ``EVICT`` or ``INSERT`` events occurred.
 The ``hpack_static()`` and ``hpack_dynamic()`` functions walk respectively the
 static table and the dynamic table of *hpack* and calls *cb* for all entries
 events, passing a *priv* pointer that can be used to maintain state. The
-``hpack_static()`` function ALWAYS emits the same sequence of events.
+``hpack_static()`` function ALWAYS emits the same sequence of events. The
+``hpack_tables()`` function probes both the static and dynamic table for its
+*hpack* argument.
 
 FOREACH STATE MACHINE
 =====================
@@ -89,8 +94,9 @@ semantics. Static entries are always safe to dereference.
 RETURN VALUE
 ============
 
-The ``hpack_static()`` and ``hpack_dynamic()`` functions return
-``HPACK_RES_OK``. On error, these functions returns one of the listed errors.
+The ``hpack_static()`` ``hpack_dynamic()`` and  ``hpack_tables()`` functions
+return ``HPACK_RES_OK``. On error, these functions returns one of the listed
+errors.
 
 ERRORS
 ======
@@ -99,7 +105,8 @@ The ``hpack_static()`` function can fail with the following errors:
 
 ``HPACK_RES_ARG``: *cb* is ``NULL``.
 
-The ``hpack_dynamic()`` function can fail with the following errors:
+The ``hpack_dynamic()`` and ``hpack_tables()`` functions can fail with the
+following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid codec or *cb* is ``NULL``.
 
@@ -118,5 +125,6 @@ SEE ALSO
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
 **hpack_dynamic**\(3),
+**hpack_tables**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3)

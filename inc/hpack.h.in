@@ -104,3 +104,4 @@ enum hpack_result_e hpack_clean_field(struct hpack_field *);
 
 enum hpack_result_e hpack_static(hpack_decoded_f, void *);
 enum hpack_result_e hpack_dynamic(struct hpack *, hpack_decoded_f, void *);
+enum hpack_result_e hpack_tables(struct hpack *, hpack_decoded_f, void *);

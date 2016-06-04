@@ -165,5 +165,6 @@ SEE ALSO
 **hpack_decode**\(3),
 **hpack_foreach**\(3),
 **hpack_dynamic**\(3),
+**hpack_tables**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3)
