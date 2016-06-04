@@ -40,9 +40,8 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_encoded_f(**
-| **\     void** *\*priv*\ **,**
-| **\     enum hpack_event_e** *evt*\ **,**
+| **typedef void hpack_encoded_f(void** *\*priv*\ **,** \
+    **enum hpack_event_e** *evt*\ **,**
 | **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
 | **enum hpack_flag_e;**
@@ -55,8 +54,7 @@ SYNOPSIS
 |     **const char** *\*val*\ **;**
 | **};**
 |
-| **enum hpack_result_e hpack_encode(**
-| **\     struct hpack** *\*hpack*\ **,**
+| **enum hpack_result_e hpack_encode(struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_field** *\*fields*\ **, size_t** *nb*\ **,**
 | **\     unsigned** *cut*\ **, hpack_encoded_f** *\*cb*\ **,**
 | **\     void** *\*priv*\ **);**

@@ -40,9 +40,8 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_decoded_f(**
-| **\     void** *\*priv*\ **,**
-| **\     enum hpack_event_e** *evt*\ **,**
+| **typedef void hpack_decoded_f(void** *\*priv*\ **,** \
+    **enum hpack_event_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **);**
 |
 | **enum hpack_result_e hpack_static(hpack_decoded_f** *cb*\ **,** \
