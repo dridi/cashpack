@@ -258,8 +258,9 @@ static void
 test_foreach_null_args(void)
 {
 	hp = make_decoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, ARG, hpack_foreach, NULL, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_foreach, hp, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_dynamic, NULL, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_dynamic, hp, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_static, NULL, NULL);
 	hpack_free(&hp);
 }
 
@@ -360,7 +361,7 @@ test_use_busy_decoder(void)
 	    noop_dec_cb, NULL);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_foreach, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_dec_cb, NULL);
 	hpack_free(&hp);
 }
 
@@ -438,7 +439,7 @@ test_use_busy_encoder(void)
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_foreach, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_dec_cb, NULL);
 	hpack_free(&hp);
 }
 

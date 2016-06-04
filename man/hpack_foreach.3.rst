@@ -22,14 +22,15 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-=============
-hpack_foreach
-=============
+===========================
+hpack_static, hpack_dynamic
+===========================
 
----------------------------------------
-probe the contents of the dynamic table
----------------------------------------
+----------------------------------
+probe the contents of HPACK tables
+----------------------------------
 
+:Title upper: hpack_foreach
 :Manual section: 3
 
 SYNOPSIS
@@ -44,9 +45,11 @@ SYNOPSIS
 | **\     enum hpack_event_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **);**
 |
-| **enum hpack_result_e hpack_foreach(**
-| **\     struct hpack** *\*hpack*\ **,**
-| **\     hpack_decoded_f** *cb*, **void** *\*priv*\ **);**
+| **enum hpack_result_e hpack_static(hpack_decoded_f** *cb*\ **,** \
+    **void** *\*priv*\ **);**
+|
+| **enum hpack_result_e hpack_dynamic(struct hpack** *\*hpack*\ **,**
+| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
@@ -58,9 +61,10 @@ the contents of the dynamic table. However, the dynamic table entries are not
 persistent and MUST be considered stale after the decoding or encoding of an
 HPACK block if ``EVICT`` or ``INSERT`` events occurred.
 
-The ``hpack_foreach()`` function walks the dynamic table of *hpack* and calls
-*cb* for all entries events, passing a *priv* pointer that can be used to
-maintain state.
+The ``hpack_static()`` and ``hpack_dynamic()`` functions walk respectively the
+static table and the dynamic table of *hpack* and calls *cb* for all entries
+events, passing a *priv* pointer that can be used to maintain state. The
+``hpack_static()`` function ALWAYS emits the same sequence of events.
 
 FOREACH STATE MACHINE
 =====================
@@ -80,18 +84,22 @@ events are emitted in this order: ``FIELD``, ``NAME`` and ``VALUE``.
 The ``NAME`` and ``VALUE`` events provide null-terminated character strings
 pointing directly inside the dynamic table. Dereferencing stale pointers is
 undefined behavior. See ``cashpack``\ (3) for more details on the events
-semantics.
+semantics. Static entries are always safe to dereference.
 
 RETURN VALUE
 ============
 
-The ``hpack_foreach()`` function returns ``HPACK_RES_OK``. On error, this
-function returns one of the listed errors.
+The ``hpack_static()`` and ``hpack_dynamic()`` functions return
+``HPACK_RES_OK``. On error, these functions returns one of the listed errors.
 
 ERRORS
 ======
 
-The ``hpack_decode()`` function can fail with the following errors:
+The ``hpack_static()`` function can fail with the following errors:
+
+``HPACK_RES_ARG``: *cb* is ``NULL``.
+
+The ``hpack_dynamic()`` function can fail with the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid codec or *cb* is ``NULL``.
 
@@ -109,4 +117,6 @@ SEE ALSO
 **hpack_decode**\(3),
 **hpack_encode**\(3),
 **hpack_foreach**\(3),
+**hpack_dynamic**\(3),
+**hpack_static**\(3),
 **hpack_strerror**\(3)

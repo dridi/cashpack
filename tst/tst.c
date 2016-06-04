@@ -98,7 +98,7 @@ TST_print_table(struct hpack *hp)
 
 	OUT("Dynamic Table (after decoding):");
 
-	(void)hpack_foreach(hp, tst_print_cb, &ctx);
+	(void)hpack_dynamic(hp, tst_print_cb, &ctx);
 
 	if (ctx.cnt == 0) {
 		assert(ctx.len == 0);

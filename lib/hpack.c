@@ -344,7 +344,7 @@ hpack_static(hpack_decoded_f cb, void *priv)
 }
 
 enum hpack_result_e
-hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv)
+hpack_dynamic(struct hpack *hp, hpack_decoded_f cb, void *priv)
 {
 	struct hpack_ctx *ctx;
 
