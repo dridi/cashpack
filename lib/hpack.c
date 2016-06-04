@@ -855,8 +855,8 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 }
 
 enum hpack_result_e
-hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
-    void *priv)
+hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, unsigned cut,
+    hpack_encoded_f cb, void *priv)
 {
 	struct hpack_ctx *ctx;
 	uint8_t buf[256];
@@ -937,7 +937,9 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, hpack_encoded_f cb,
 	HPE_send(ctx);
 
 	assert(ctx->res == HPACK_RES_BLK);
-	ctx->res = HPACK_RES_OK;
+	if (!cut)
+		ctx->res = HPACK_RES_OK;
+
 	return (ctx->res);
 }
 

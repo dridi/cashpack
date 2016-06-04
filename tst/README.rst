@@ -227,6 +227,7 @@ be last so it works by sheer luck.
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
     flush         = "flush" LF
+    push          = "push" LF
     resize        = "resize" SP size LF
     update        = "update" SP size LF
 

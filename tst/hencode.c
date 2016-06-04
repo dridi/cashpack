@@ -56,6 +56,7 @@ struct enc_ctx {
 	size_t			cnt;
 	char			*line;
 	size_t			line_sz;
+	unsigned		cut;
 	enum hpack_result_e	res;
 };
 
@@ -104,7 +105,8 @@ encode_message(struct enc_ctx *ctx)
 	if (ctx->cnt == 0)
 		return;
 
-	ctx->res = hpack_encode(ctx->hp, ctx->fld, ctx->cnt, ctx->cb, NULL);
+	ctx->res = hpack_encode(ctx->hp, ctx->fld, ctx->cnt, ctx->cut,
+	    ctx->cb, NULL);
 	fld = ctx->fld;
 
 	while (ctx->cnt > 0) {
@@ -185,11 +187,20 @@ parse_commands(struct enc_ctx *ctx)
 	const char *args;
 	ssize_t len;
 
+	ctx->cut = 0;
+
 	len = getline(&ctx->line, &ctx->line_sz, stdin);
 	if (len == -1)
 		return (-1);
 
 	if (!LINECMP(ctx->line, "flush")) {
+		assert(ctx->cnt > 0);
+		encode_message(ctx);
+		return (0);
+	}
+	else if (!LINECMP(ctx->line, "push")) {
+		assert(ctx->cnt > 0);
+		ctx->cut = 1;
 		encode_message(ctx);
 		return (0);
 	}

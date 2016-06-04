@@ -96,7 +96,7 @@ typedef void hpack_encoded_f(void *, enum hpack_event_e, const void *,
     size_t);
 
 enum hpack_result_e hpack_encode(struct hpack *, const struct hpack_field *,
-    size_t, hpack_encoded_f, void *);
+    size_t, unsigned, hpack_encoded_f, void *);
 
 enum hpack_result_e hpack_clean_field(struct hpack_field *);
 

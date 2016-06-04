@@ -280,10 +280,12 @@ static void
 test_encode_null_args(void)
 {
 	hp = make_encoder(512, -1, hpack_default_alloc);
-	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 1, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, 0, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 0, 0, NULL,
+	    NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 1, 0, NULL,
+	    NULL);
 	hpack_free(&hp);
 }
 
@@ -299,8 +301,8 @@ static void
 test_limit_null_realloc(void)
 {
 	hp = make_encoder(4096, 0, &static_alloc);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, noop_enc_cb,
-	    NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
+	    noop_enc_cb, NULL);
 	CHECK_RES(retval, ARG, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -309,8 +311,8 @@ static void
 test_limit_realloc_failure(void)
 {
 	hp = make_encoder(4096, 2048, &oom_alloc);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, noop_enc_cb,
-	    NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
+	    noop_enc_cb, NULL);
 	CHECK_RES(retval, OOM, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -400,8 +402,8 @@ test_limit_between_two_resizes(void)
 	hp = make_encoder(512, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, noop_enc_cb,
-	    NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
+	    noop_enc_cb, NULL);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 2048);
 	hpack_free(&hp);
 }
@@ -412,11 +414,11 @@ test_use_defunct_encoder(void)
 	hp = make_encoder(4096, -1, hpack_default_alloc);
 
 	/* break the decoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1,
+	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1, 0,
 	    noop_enc_cb, NULL);
 
 	/* try using it again */
-	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1,
+	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1, 0,
 	    noop_enc_cb, NULL);
 
 	/* try resizing it */
@@ -424,6 +426,19 @@ test_use_defunct_encoder(void)
 
 	/* try trimming it */
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
+	hpack_free(&hp);
+}
+
+static void
+test_use_busy_encoder(void)
+{
+	hp = make_encoder(0, -1, hpack_default_alloc);
+	CHECK_RES(retval, BLK, hpack_encode, hp, basic_field, 1, 1,
+	    noop_enc_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
+	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
+	CHECK_RES(retval, BSY, hpack_trim, &hp);
+	CHECK_RES(retval, BSY, hpack_foreach, hp, noop_dec_cb, NULL);
 	hpack_free(&hp);
 }
 
@@ -448,8 +463,8 @@ test_trim_to_limit(void)
 {
 	hp = make_encoder(512, -1, hpack_default_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, noop_enc_cb,
-	    NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
+	    noop_enc_cb, NULL);
 	CHECK_RES(retval, OK, hpack_trim, &hp);
 	hpack_free(&hp);
 }
@@ -550,6 +565,7 @@ main(int argc, char **argv)
 	test_limit_between_two_resizes();
 
 	test_use_defunct_encoder();
+	test_use_busy_encoder();
 
 	test_resize_null_codec();
 	test_trim_null_codec();

@@ -58,7 +58,8 @@ SYNOPSIS
 | **enum hpack_result_e hpack_encode(**
 | **\     struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_field** *\*fields*\ **, size_t** *nb*\ **,**
-| **\     hpack_encoded_f** *\*cb*\ **, void** *\*priv*\ **);**
+| **\     unsigned** *cut*\ **, hpack_encoded_f** *\*cb*\ **,**
+| **\     void** *\*priv*\ **);**
 |
 | **enum hpack_result_e hpack_clean_field(struct hpack_field** \
     *\*field*\ **);**

@@ -94,3 +94,27 @@ dynamic idx 20 str localhost
 EOF
 
 tst_encode --table-size 42
+
+_ ---------------------------------
+_ Partial decoding of a header list
+_ ---------------------------------
+
+
+mk_hex <<EOF
+0004 6e61 6d65 0576 616c 7565 0005 6f74 | ..name.value..ot
+6865 7205 6669 656c 64                  | her.field
+EOF
+
+mk_msg <<EOF
+name: value
+other: field
+EOF
+
+mk_enc <<EOF
+literal str name str value
+push
+literal str other str field
+flush
+EOF
+
+tst_encode
