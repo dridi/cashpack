@@ -189,6 +189,7 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
     size_t len)
 {
 	struct hpack *hp;
+	size_t lim;
 	char *c;
 
 	hp = priv->ctx->hp;
@@ -199,8 +200,9 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
 		assert(len > 0);
 
 		priv->ctx->ins = HPT_HEADERSZ + 1;
-		if (HPACK_LIMIT(hp) <= HPT_OVERHEAD ||
-		    HPACK_LIMIT(hp) < priv->ctx->ins)
+		lim = HPACK_LIMIT(hp);
+
+		if (lim <= HPT_OVERHEAD)
 			break;
 
 		assert(priv->he == hp->tbl);
