@@ -217,7 +217,8 @@ be last so it works by sheer luck.
 
     statement = block-statement / resize / update
 
-    block-statement = 1*( header-statement LF ) flush
+    block-statement = 1*( header-statement LF ) flush-statement
+    flush-statement = send / push
 
     header-statement = indexed-field / dynamic-field / literal-field /
         never-field
@@ -226,7 +227,7 @@ be last so it works by sheer luck.
     dynamic-field = "dynamic" SP field-name SP field-value
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
-    flush         = "flush" LF
+    send          = "send" LF
     push          = "push" LF
     resize        = "resize" SP size LF
     update        = "update" SP size LF

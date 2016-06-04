@@ -330,7 +330,7 @@ indexed 2
 indexed 6
 indexed 4
 dynamic idx 1 str www.example.com
-flush
+send
 
 # RFC 7541 Appendix C.3.2.  Second Request
 indexed 2
@@ -338,7 +338,7 @@ indexed 6
 indexed 4
 indexed 62
 dynamic idx 24 str no-cache
-flush
+send
 
 # RFC 7541 Appendix C.3.3.  Third Request
 indexed 2
@@ -346,14 +346,14 @@ indexed 7
 indexed 5
 indexed 63
 dynamic str custom-key str custom-value
-flush
+send
 
 # RFC 7541 Appendix C.4.1.  First Request
 indexed 2
 indexed 6
 indexed 4
 dynamic idx 1 huf www.example.com
-flush
+send
 
 # RFC 7541 Appendix C.4.2.  Second Request
 indexed 2
@@ -361,7 +361,7 @@ indexed 6
 indexed 4
 indexed 62
 dynamic idx 24 huf no-cache
-flush
+send
 
 # RFC 7541 Appendix C.4.3.  Third Request
 indexed 2
@@ -369,21 +369,21 @@ indexed 7
 indexed 5
 indexed 63
 dynamic huf custom-key huf custom-value
-flush
+send
 
 # RFC 7541 Appendix C.5.1.  First Response
 dynamic idx 8 str 302
 dynamic idx 24 str private
 dynamic idx 33 str Mon, 21 Oct 2013 20:13:21 GMT
 dynamic idx 46 str https://www.example.com
-flush
+send
 
 # RFC 7541 Appendix C.5.2.  Second Response
 dynamic idx 8 str 307
 indexed 65
 indexed 64
 indexed 63
-flush
+send
 
 # RFC 7541 Appendix C.5.3.  Third Response
 indexed 8
@@ -392,21 +392,21 @@ dynamic idx 33 str Mon, 21 Oct 2013 20:13:22 GMT
 indexed 64
 dynamic idx 26 str gzip
 dynamic idx 55 str foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1
-flush
+send
 
 # RFC 7541 Appendix C.6.1.  First Response
 dynamic idx 8 huf 302
 dynamic idx 24 huf private
 dynamic idx 33 huf Mon, 21 Oct 2013 20:13:21 GMT
 dynamic idx 46 huf https://www.example.com
-flush
+send
 
 # RFC 7541 Appendix C.6.2.  Second Response
 dynamic idx 8 huf 307
 indexed 65
 indexed 64
 indexed 63
-flush
+send
 
 # RFC 7541 Appendix C.6.3.  Third Response
 indexed 8

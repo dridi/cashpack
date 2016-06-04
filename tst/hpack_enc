@@ -114,7 +114,7 @@ mk_enc <<EOF
 literal str name str value
 push
 literal str other str field
-flush
+send
 EOF
 
 tst_encode

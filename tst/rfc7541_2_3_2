@@ -56,7 +56,7 @@ EOF
 
 mk_enc <<EOF
 dynamic str name str value
-flush
+send
 
 dynamic str name str value
 EOF

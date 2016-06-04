@@ -132,7 +132,7 @@ trim
 
 # trigger update and trim
 literal str dummy str header
-flush
+send
 trim
 EOF
 

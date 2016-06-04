@@ -193,7 +193,7 @@ parse_commands(struct enc_ctx *ctx)
 	if (len == -1)
 		return (-1);
 
-	if (!LINECMP(ctx->line, "flush")) {
+	if (!LINECMP(ctx->line, "send")) {
 		assert(ctx->cnt > 0);
 		encode_message(ctx);
 		return (0);

@@ -74,7 +74,7 @@ indexed 2
 indexed 6
 indexed 4
 dynamic idx 1 str www.example.com
-flush
+send
 
 # Appendix C.3.2.  Second Request
 indexed 2
@@ -82,7 +82,7 @@ indexed 6
 indexed 4
 indexed 62
 dynamic idx 24 str no-cache
-flush
+send
 
 # Appendix C.3.3.  Third Request
 indexed 2
