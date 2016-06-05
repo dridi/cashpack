@@ -48,20 +48,23 @@ dist_man_MANS = \
 
 examplesdir = $(pkgdatadir)/examples
 
-examples_DATA = cashdump.c
+examples_DATA = \
+	cashdumb.c \
+	cashdump.c
 
 if DOCS
 
 # doc generators
 
 noinst_PROGRAMS = \
+	cashdumb \
 	cashdump \
 	hpe2rst.gen \
 	hpf2rst.gen \
 	hpr2rst.gen
 
+cashdumb_LDADD = $(top_builddir)/lib/libhpack.la
 cashdump_LDADD = $(top_builddir)/lib/libhpack.la
-cashdump_SOURCES = cashdump.c
 
 hpe2rst_gen_SOURCES = hpe2rst.c
 hpf2rst_gen_SOURCES = hpf2rst.c
