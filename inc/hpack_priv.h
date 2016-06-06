@@ -47,7 +47,7 @@ enum hpi_pattern_e {
 #undef HPP
 };
 
-enum hpack_stp_e {
+enum hpack_step_e {
 	HPACK_STP_FLD_INT = 0,
 	HPACK_STP_NAM_LEN = 1,
 	HPACK_STP_NAM_STR = 2,
@@ -142,7 +142,7 @@ struct hpack_state {
 #define INT_STATE_MAGIC			0x494E5453
 #define STR_STATE_MAGIC			0x53545253
 #define HUF_STATE_MAGIC			0x48554653
-	enum hpack_stp_e		stp;
+	enum hpack_step_e		stp;
 	int				bsy;
 	uint16_t			idx;
 	uint8_t				typ;
