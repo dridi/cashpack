@@ -13,6 +13,9 @@ cashpack.
 .. image:: https://scan.coverity.com/projects/7758/badge.svg
    :alt: Coverity Scan badge
    :target: https://scan.coverity.com/projects/dridi-cashpack/
+.. image:: https://codecov.io/gh/Dridi/cashpack/branch/master/graph/badge.svg
+   :alt: Codecov badge
+   :target: https://codecov.io/gh/Dridi/cashpack
 
 How to use
 -----------
