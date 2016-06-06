@@ -58,10 +58,11 @@ the decoding state, including the dynamic table updates, across multiple calls
 of the ``hpack_decode()`` function for the lifetime of the HTTP session.
 
 The ``hpack_decode()`` function reads *size* octets from *buf* and calls the
-*cb* callback for every decoding event. All the events are described in the
-``cashpack``\ (3) manual. The *priv* pointer is passed to the callback for all
-the events. If *cut* is zero, the HPACK block being decoded is expected to end
-with the *size* octets.
+*cb* callback for every decoding event. All input octets are always consumed
+before requiring new input, allowing the caller to reuse its buffer. All the
+events are described in the ``cashpack``\ (3) manual. The *priv* pointer is
+passed to the callback for all the events. If *cut* is zero, the HPACK block
+being decoded is expected to end with the *size* octets.
 
 DECODING STATE MACHINE
 ======================
