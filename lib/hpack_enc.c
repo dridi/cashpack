@@ -37,8 +37,22 @@
 #include "hpack.h"
 #include "hpack_priv.h"
 
+inline void
+HPE_putb(HPACK_CTX, uint8_t b)
+{
+
+	assert(ctx->len < ctx->max);
+
+	*ctx->cur = b;
+	ctx->cur++;
+	ctx->len++;
+
+	if (ctx->len == ctx->max)
+		HPE_send(ctx);
+}
+
 void
-HPE_push(HPACK_CTX, const void *buf, size_t len)
+HPE_bcat(HPACK_CTX, const void *buf, size_t len)
 {
 	size_t sz;
 

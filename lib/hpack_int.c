@@ -94,34 +94,23 @@ void
 HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
     uint16_t val)
 {
-	uint8_t mask, buf[4];
-	size_t i;
-
-	buf[0] = pat;
+	uint8_t mask;
 
 	assert(pfx >= 4 && pfx <= 7);
 	assert(ctx->len < ctx->max);
 
 	mask = (1 << pfx) - 1;
 	if (val < mask) {
-		buf[0] |= (uint8_t)val;
-		HPE_push(ctx, buf, 1);;
+		HPE_putb(ctx, (uint8_t)(pat | val));
 		return;
 	}
 
-	buf[0] |= mask;
+	HPE_putb(ctx, pat | mask);
 	val -= mask;
-	i = 1;
 	while (val >= 0x80) {
-		assert(i < sizeof buf);
-		buf[i] = 0x80 | (val & 0x7f);
+		HPE_putb(ctx, 0x80 | (val & 0x7f));
 		val >>= 7;
-		i++;
 	}
 
-	assert(i < sizeof buf);
-	buf[i] = val;
-	i++;
-
-	HPE_push(ctx, buf, i);
+	HPE_putb(ctx, (uint8_t)val);
 }

@@ -146,13 +146,10 @@ void
 HPH_encode(HPACK_CTX, const char *str)
 {
 	uint64_t bits;
-	uint8_t buf[256], *cur;
-	size_t sz, len, i;
+	size_t sz, i;
 
 	bits = 0;
-	cur = buf;
 	sz = 0;
-	len = 0;
 
 	while (*str != '\0') {
 		i = hph_idx[(uint8_t)*str];
@@ -161,13 +158,7 @@ HPH_encode(HPACK_CTX, const char *str)
 
 		while (sz >= 8) {
 			sz -= 8;
-			*cur = (uint8_t)(bits >> sz);
-			cur++;
-			if (++len == sizeof buf) {
-				HPE_push(ctx, buf, sizeof buf);
-				cur = buf;
-				len = 0;
-			}
+			HPE_putb(ctx, (uint8_t)(bits >> sz));
 		}
 
 		str++;
@@ -178,11 +169,8 @@ HPH_encode(HPACK_CTX, const char *str)
 		sz = 8 - sz; /* padding bits */
 		bits <<= sz;
 		bits |= (1 << sz) - 1;
-		*cur = (uint8_t)bits;
-		len++;
+		HPE_putb(ctx, (uint8_t)bits);
 	}
-
-	HPE_push(ctx, buf, len);
 }
 
 void

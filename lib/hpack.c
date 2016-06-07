@@ -732,7 +732,7 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 	}
 	else {
 		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_STR, len);
-		HPE_push(ctx, str, len);
+		HPE_bcat(ctx, str, len);
 	}
 
 	return (0);
