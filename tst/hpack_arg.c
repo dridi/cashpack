@@ -102,8 +102,8 @@ noop_cb(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
 	(void)len;
 }
 
-static hpack_decoded_f *noop_dec_cb = (hpack_decoded_f *)noop_cb;
-static hpack_encoded_f *noop_enc_cb = (hpack_encoded_f *)noop_cb;
+#define noop_dec_cb ((const hpack_decoded_f *)noop_cb)
+#define noop_enc_cb ((const hpack_encoded_f *)noop_cb)
 
 static struct hpack *
 make_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
@@ -191,7 +191,26 @@ static const struct hpack_alloc oom_alloc = {
 
 struct hpack *hp;
 struct hpack_field fld;
+char wrk_buf[256];
 int retval;
+
+const struct hpack_encoding basic_encoding = {
+	.fld = basic_field,
+	.fld_cnt = 1,
+	.buf = wrk_buf,
+	.buf_len = sizeof wrk_buf,
+	.cb = noop_enc_cb,
+	.priv = NULL,
+};
+
+const struct hpack_encoding unknown_encoding = {
+	.fld = unknown_field,
+	.fld_cnt = 1,
+	.buf = wrk_buf,
+	.buf_len = sizeof wrk_buf,
+	.cb = noop_enc_cb,
+	.priv = NULL,
+};
 
 static void
 test_null_alloc(void)
@@ -291,13 +310,24 @@ test_decode_null_args(void)
 static void
 test_encode_null_args(void)
 {
+	struct hpack_encoding enc;
+
 	hp = make_encoder(512, -1, hpack_default_alloc);
-	CHECK_RES(retval, ARG, hpack_encode, NULL, NULL, 0, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0, 0, NULL, NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 0, 0, NULL,
-	    NULL);
-	CHECK_RES(retval, ARG, hpack_encode, hp, basic_field, 1, 0, NULL,
-	    NULL);
+
+	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0);
+
+	/* make null members and populate them one by one */
+	memset(&enc, 0, sizeof enc);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	enc.fld = basic_field;
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	enc.fld_cnt = 1;
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	enc.buf = wrk_buf;
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	enc.buf_len = sizeof wrk_buf;
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+
 	hpack_free(&hp);
 }
 
@@ -313,8 +343,8 @@ static void
 test_limit_null_realloc(void)
 {
 	hp = make_encoder(4096, 0, &static_alloc);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
-	    noop_enc_cb, NULL);
+
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
 	CHECK_RES(retval, ARG, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -323,8 +353,7 @@ static void
 test_limit_realloc_failure(void)
 {
 	hp = make_encoder(4096, 2048, &oom_alloc);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
 	CHECK_RES(retval, OOM, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -414,8 +443,7 @@ test_limit_between_two_resizes(void)
 	hp = make_encoder(512, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 2048);
 	hpack_free(&hp);
 }
@@ -426,12 +454,10 @@ test_use_defunct_encoder(void)
 	hp = make_encoder(4096, -1, hpack_default_alloc);
 
 	/* break the decoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1, 0,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding, 0);
 
 	/* try using it again */
-	CHECK_RES(retval, ARG, hpack_encode, hp, unknown_field, 1, 0,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding, 0);
 
 	/* try resizing it */
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
@@ -445,8 +471,7 @@ static void
 test_use_busy_encoder(void)
 {
 	hp = make_encoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, BLK, hpack_encode, hp, basic_field, 1, 1,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, BLK, hpack_encode, hp, &basic_encoding, 1);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
@@ -475,8 +500,7 @@ test_trim_to_limit(void)
 {
 	hp = make_encoder(512, -1, hpack_default_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
-	CHECK_RES(retval, OK, hpack_encode, hp, basic_field, 1, 0,
-	    noop_enc_cb, NULL);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
 	CHECK_RES(retval, OK, hpack_trim, &hp);
 	hpack_free(&hp);
 }

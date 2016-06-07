@@ -100,13 +100,21 @@ free_field(struct hpack_field *fld)
 static void
 encode_message(struct enc_ctx *ctx)
 {
+	struct hpack_encoding enc;
 	struct hpack_field *fld;
+	char buf[256];
 
 	if (ctx->cnt == 0)
 		return;
 
-	ctx->res = hpack_encode(ctx->hp, ctx->fld, ctx->cnt, ctx->cut,
-	    ctx->cb, NULL);
+	enc.fld = ctx->fld;
+	enc.fld_cnt = ctx->cnt;
+	enc.buf = buf;
+	enc.buf_len = sizeof buf;
+	enc.cb = ctx->cb;
+	enc.priv = NULL;
+
+	ctx->res = hpack_encode(ctx->hp, &enc, ctx->cut);
 	fld = ctx->fld;
 
 	while (ctx->cnt > 0) {

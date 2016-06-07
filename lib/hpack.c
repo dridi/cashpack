@@ -893,15 +893,16 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 }
 
 enum hpack_result_e
-hpack_encode(struct hpack *hp, HPACK_FLD, size_t cnt, unsigned cut,
-    hpack_encoded_f cb, void *priv)
+hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 {
+	const struct hpack_field *fld;
 	struct hpack_ctx *ctx;
-	uint8_t buf[256];
+	size_t cnt;
 	int retval;
 
-	if (hp == NULL || hp->magic != ENCODER_MAGIC || fld == NULL ||
-	    cnt == 0 || cb == NULL)
+	if (hp == NULL || hp->magic != ENCODER_MAGIC || enc == NULL ||
+	    enc->fld == NULL || enc->fld_cnt == 0 || enc->buf == NULL ||
+	    enc->buf_len == 0 || enc->cb == NULL)
 		return (HPACK_RES_ARG);
 
 	ctx = &hp->ctx;
@@ -916,12 +917,12 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t cnt, unsigned cut,
 		ctx->res = HPACK_RES_BLK;
 	}
 
-	ctx->buf = buf;
-	ctx->cur = TRUST_ME(ctx->buf);
+	ctx->buf = enc->buf;
+	ctx->cur = enc->buf;
 	ctx->len = 0;
-	ctx->max = sizeof buf;
-	ctx->enc = cb;
-	ctx->priv = priv;
+	ctx->max = enc->buf_len;
+	ctx->enc = enc->cb;
+	ctx->priv = enc->priv;
 
 	if (ctx->can_upd && hp->sz.min >= 0) {
 		assert(hp->sz.min <= hp->sz.nxt);
@@ -945,6 +946,8 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t cnt, unsigned cut,
 	}
 
 	ctx->can_upd = 0;
+	cnt = enc->fld_cnt;
+	fld = enc->fld;
 
 	while (cnt > 0) {
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
