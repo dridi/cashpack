@@ -893,7 +893,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 }
 
 enum hpack_result_e
-hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, unsigned cut,
+hpack_encode(struct hpack *hp, HPACK_FLD, size_t cnt, unsigned cut,
     hpack_encoded_f cb, void *priv)
 {
 	struct hpack_ctx *ctx;
@@ -901,7 +901,7 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, unsigned cut,
 	int retval;
 
 	if (hp == NULL || hp->magic != ENCODER_MAGIC || fld == NULL ||
-	    len == 0 || cb == NULL)
+	    cnt == 0 || cb == NULL)
 		return (HPACK_RES_ARG);
 
 	ctx = &hp->ctx;
@@ -946,7 +946,7 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, unsigned cut,
 
 	ctx->can_upd = 0;
 
-	while (len > 0) {
+	while (cnt > 0) {
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 		switch (fld->flg & HPACK_FLG_TYP_MSK) {
 #define HPACK_ENCODE(l, U)					\
@@ -969,7 +969,7 @@ hpack_encode(struct hpack *hp, HPACK_FLD, size_t len, unsigned cut,
 			return (ctx->res);
 		}
 		fld++;
-		len--;
+		cnt--;
 	}
 
 	HPE_send(ctx);
