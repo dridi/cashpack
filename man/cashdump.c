@@ -119,7 +119,7 @@ main(int argc, char **argv)
 {
 	struct h2frame frm;
 	struct hpack *hp;
-	uint8_t buf[4096], flg, pad;
+	uint8_t blk[4096], flg, pad;
 	uint32_t str;
 	unsigned first;
 	size_t len;
@@ -145,16 +145,16 @@ main(int argc, char **argv)
 		str = frm.str[0] << 24 | frm.str[1] << 16 | frm.str[2] << 8 |
 		    frm.str[3];
 
-		if (len > sizeof buf)
+		if (len > sizeof blk)
 			return (EXIT_FAILURE); /* DIY */
 
 		flg = frm.flg;
 		if (flg & H2_FLG_PADDED)
 			skip_block(&pad, 1);
 		if (flg & H2_FLG_PRIORITY)
-			skip_block(buf, 5);
+			skip_block(blk, 5);
 
-		skip_block(buf, len);
+		skip_block(blk, len);
 		if (frm.typ == H2_TYP_PUSH_PROMISE ||
 		    frm.typ == H2_TYP_CONTINUATION)
 			return (EXIT_FAILURE); /* DIY */
@@ -167,12 +167,12 @@ main(int argc, char **argv)
 			printf("=== stream %u", str);
 
 		cut = ~flg & H2_FLG_END_HEADERS;
-		retval = hpack_decode(hp, buf, len, cut, print_headers, NULL);
+		retval = hpack_decode(hp, blk, len, cut, print_headers, NULL);
 		if (retval != 0)
 			print_error("hpack_decode", retval);
 
 		if (flg & H2_FLG_PADDED)
-			skip_block(buf, pad);
+			skip_block(blk, pad);
 	}
 
 	if (!feof(stdin)) {
