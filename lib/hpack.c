@@ -635,14 +635,14 @@ hpack_decode_update(HPACK_CTX)
 }
 
 enum hpack_result_e
-hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
-    hpack_decoded_f cb, void *priv)
+hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 {
 	struct hpack_ctx *ctx;
 	int retval;
 
-	if (hp == NULL || hp->magic != DECODER_MAGIC || buf == NULL ||
-	    len == 0 || cb == NULL)
+	if (hp == NULL || hp->magic != DECODER_MAGIC || dec == NULL ||
+	    dec->blk == NULL || dec->blk_len == 0 || dec->buf == NULL ||
+	    dec->buf_len == 0 || dec->cb == NULL)
 		return (HPACK_RES_ARG);
 
 	ctx = &hp->ctx;
@@ -657,10 +657,10 @@ hpack_decode(struct hpack *hp, const void *buf, size_t len, unsigned cut,
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
-	ctx->buf = buf;
-	ctx->len = len;
-	ctx->dec = cb;
-	ctx->priv = priv;
+	ctx->buf = dec->blk;
+	ctx->len = dec->blk_len;
+	ctx->dec = dec->cb;
+	ctx->priv = dec->priv;
 	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->len > 0) {

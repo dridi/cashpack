@@ -119,7 +119,8 @@ main(int argc, char **argv)
 {
 	struct h2frame frm;
 	struct hpack *hp;
-	uint8_t blk[4096], flg, pad;
+	struct hpack_decoding dec;
+	uint8_t blk[4096], buf[1024], flg, pad;
 	uint32_t str;
 	unsigned first;
 	size_t len;
@@ -133,6 +134,12 @@ main(int argc, char **argv)
 	/* initialization */
 	first = 1;
 	hp = hpack_decoder(4096, -1, hpack_default_alloc);
+	dec.blk = blk;
+	dec.blk_len = 0;
+	dec.buf = buf;
+	dec.buf_len = sizeof buf;
+	dec.cb = print_headers;
+	dec.priv = NULL;
 
 	while (read_block(&frm, sizeof frm) == 1) {
 		if (!first)
@@ -167,7 +174,8 @@ main(int argc, char **argv)
 			printf("=== stream %u", str);
 
 		cut = ~flg & H2_FLG_END_HEADERS;
-		retval = hpack_decode(hp, blk, len, cut, print_headers, NULL);
+		dec.blk_len = len;
+		retval = hpack_decode(hp, &dec, cut);
 		if (retval != 0)
 			print_error("hpack_decode", retval);
 

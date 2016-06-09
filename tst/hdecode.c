@@ -105,14 +105,22 @@ print_headers(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 }
 
 static int
-decode_block(void *priv, const void *buf, size_t len, unsigned cut)
+decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
+	struct hpack_decoding dec;
+	uint8_t buf[256];
 	int retval;
 
 	priv2 = priv;
-	retval = hpack_decode(priv2->hp, buf, len, cut, priv2->cb, NULL);
+	dec.blk = blk;
+	dec.blk_len = len;
+	dec.buf = buf;
+	dec.buf_len = sizeof buf;
+	dec.cb = priv2->cb;
+	dec.priv = NULL;
 
+	retval = hpack_decode(priv2->hp, &dec, cut);
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
 		retval = 0;

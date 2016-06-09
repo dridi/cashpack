@@ -72,8 +72,17 @@ enum hpack_event_e {
 typedef void hpack_decoded_f(void *, enum hpack_event_e, const char *,
     size_t);
 
-enum hpack_result_e hpack_decode(struct hpack *, const void *, size_t,
-    unsigned, hpack_decoded_f, void *);
+struct hpack_decoding {
+	const void		*blk;
+	size_t			blk_len;
+	void			*buf;
+	size_t			buf_len;
+	hpack_decoded_f		*cb;
+	void			*priv;
+};
+
+enum hpack_result_e hpack_decode(struct hpack *,
+    const struct hpack_decoding *, unsigned);
 
 /* hpack_encode */
 
