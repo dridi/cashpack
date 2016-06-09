@@ -45,8 +45,8 @@
 #include "tst.h"
 
 struct dec_priv {
-	struct hpack	*hp;
-	hpack_decoded_f	*cb;
+	struct hpack		*hp;
+	hpack_callback_f	*cb;
 };
 
 static void
@@ -146,7 +146,7 @@ int
 main(int argc, char **argv)
 {
 	enum hpack_result_e res, exp;
-	hpack_decoded_f *cb;
+	hpack_callback_f *cb;
 	struct dec_ctx ctx;
 	struct dec_priv priv;
 	struct stat st;

@@ -328,7 +328,7 @@ hpack_free(struct hpack **hpp)
  */
 
 enum hpack_result_e
-hpack_static(hpack_decoded_f cb, void *priv)
+hpack_static(hpack_callback_f cb, void *priv)
 {
 	struct hpack_ctx ctx;
 
@@ -336,7 +336,7 @@ hpack_static(hpack_decoded_f cb, void *priv)
 		return (HPACK_RES_ARG);
 
 	(void)memset(&ctx, 0, sizeof ctx);
-	ctx.dec = cb;
+	ctx.cb = cb;
 	ctx.priv = priv;
 
 	HPT_foreach(&ctx, HPT_FLG_STATIC);
@@ -344,7 +344,7 @@ hpack_static(hpack_decoded_f cb, void *priv)
 }
 
 static enum hpack_result_e
-hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv, int flg)
+hpack_foreach(struct hpack *hp, hpack_callback_f cb, void *priv, int flg)
 {
 	struct hpack_ctx *ctx;
 
@@ -362,7 +362,7 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv, int flg)
 
 	(void)memset(ctx, 0, sizeof *ctx);
 	ctx->hp = hp;
-	ctx->dec = cb;
+	ctx->cb = cb;
 	ctx->priv = priv;
 
 	HPT_foreach(ctx, flg);
@@ -370,14 +370,14 @@ hpack_foreach(struct hpack *hp, hpack_decoded_f cb, void *priv, int flg)
 }
 
 enum hpack_result_e
-hpack_dynamic(struct hpack *hp, hpack_decoded_f cb, void *priv)
+hpack_dynamic(struct hpack *hp, hpack_callback_f cb, void *priv)
 {
 
 	return (hpack_foreach(hp, cb, priv, HPT_FLG_DYNAMIC));
 }
 
 enum hpack_result_e
-hpack_tables(struct hpack *hp, hpack_decoded_f cb, void *priv)
+hpack_tables(struct hpack *hp, hpack_callback_f cb, void *priv)
 {
 
 	return (hpack_foreach(hp, cb, priv, HPT_FLG_STATIC|HPT_FLG_DYNAMIC));
@@ -543,7 +543,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	}
 
 	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
-	tbl_ctx.dec = HPT_insert;
+	tbl_ctx.cb = HPT_insert;
 	tbl_ctx.priv = &priv;
 
 	if (hpack_decode_field(&tbl_ctx) != 0) {
@@ -659,7 +659,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 
 	ctx->buf = dec->blk;
 	ctx->len = dec->blk_len;
-	ctx->dec = dec->cb;
+	ctx->cb = dec->cb;
 	ctx->priv = dec->priv;
 	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
@@ -921,7 +921,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 	ctx->cur = enc->buf;
 	ctx->len = 0;
 	ctx->max = enc->buf_len;
-	ctx->enc = enc->cb;
+	ctx->cb = enc->cb;
 	ctx->priv = enc->priv;
 
 	if (ctx->can_upd && hp->sz.min >= 0) {

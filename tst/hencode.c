@@ -51,7 +51,7 @@
 
 struct enc_ctx {
 	struct hpack		*hp;
-	hpack_encoded_f		*cb;
+	hpack_callback_f	*cb;
 	struct hpack_field	*fld;
 	size_t			cnt;
 	char			*line;
@@ -61,7 +61,7 @@ struct enc_ctx {
 };
 
 static void
-write_data(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
+write_data(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 {
 
 #ifdef NDEBUG

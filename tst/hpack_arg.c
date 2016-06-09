@@ -92,7 +92,7 @@ static const struct hpack_field unknown_field[] = {{
  */
 
 static void
-noop_cb(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
+noop_cb(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 {
 
 	assert(priv == NULL);
@@ -101,9 +101,6 @@ noop_cb(void *priv, enum hpack_event_e evt, const void *buf, size_t len)
 	(void)buf;
 	(void)len;
 }
-
-#define noop_dec_cb ((const hpack_decoded_f *)noop_cb)
-#define noop_enc_cb ((const hpack_encoded_f *)noop_cb)
 
 static struct hpack *
 make_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
@@ -200,7 +197,7 @@ const struct hpack_decoding nam##_decoding = {	\
 	.blk_len = sizeof nam##_block,		\
 	.buf = wrk_buf,				\
 	.buf_len = sizeof wrk_buf,		\
-	.cb = noop_dec_cb,			\
+	.cb = noop_cb,				\
 	.priv = NULL,				\
 }
 DECODING(update);
@@ -213,7 +210,7 @@ const struct hpack_encoding basic_encoding = {
 	.fld_cnt = 1,
 	.buf = wrk_buf,
 	.buf_len = sizeof wrk_buf,
-	.cb = noop_enc_cb,
+	.cb = noop_cb,
 	.priv = NULL,
 };
 
@@ -222,7 +219,7 @@ const struct hpack_encoding unknown_encoding = {
 	.fld_cnt = 1,
 	.buf = wrk_buf,
 	.buf_len = sizeof wrk_buf,
-	.cb = noop_enc_cb,
+	.cb = noop_cb,
 	.priv = NULL,
 };
 
@@ -291,9 +288,9 @@ static void
 test_foreach(void)
 {
 	hp = make_decoder(0, -1, &static_alloc);
-	CHECK_RES(retval, OK, hpack_static, noop_dec_cb, NULL);
-	CHECK_RES(retval, OK, hpack_dynamic, hp, noop_dec_cb, NULL);
-	CHECK_RES(retval, OK, hpack_tables, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, OK, hpack_static, noop_cb, NULL);
+	CHECK_RES(retval, OK, hpack_dynamic, hp, noop_cb, NULL);
+	CHECK_RES(retval, OK, hpack_tables, hp, noop_cb, NULL);
 	hpack_free(&hp);
 }
 
@@ -422,7 +419,7 @@ test_use_busy_decoder(void)
 	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 0);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
 	hpack_free(&hp);
 }
 
@@ -496,7 +493,7 @@ test_use_busy_encoder(void)
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_dec_cb, NULL);
+	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
 	hpack_free(&hp);
 }
 

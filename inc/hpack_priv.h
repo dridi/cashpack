@@ -91,11 +91,7 @@ struct hpack_ctx {
 	size_t			len;
 	size_t			max;
 	size_t			ins;
-	union {
-		hpack_decoded_f	*dec;
-		hpack_encoded_f	*enc;
-		hpack_encoded_f	*cb; /* dirty covariance hack */
-	};
+	hpack_callback_f	*cb;
 	void			*priv;
 	enum hpack_result_e	res;
 	unsigned		can_upd;
@@ -243,7 +239,7 @@ void HPH_size(const char *, size_t *);
 hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;
 
-hpack_decoded_f HPT_insert;
+hpack_callback_f HPT_insert;
 void HPT_adjust(struct hpack_ctx *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX, int);
