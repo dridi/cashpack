@@ -69,8 +69,8 @@ enum hpack_event_e {
 #undef HPE
 };
 
-typedef void hpack_callback_f(void *, enum hpack_event_e, const char *,
-    size_t);
+typedef void hpack_callback_f(enum hpack_event_e, const char *, size_t,
+    void *);
 
 /* hpack_decode */
 

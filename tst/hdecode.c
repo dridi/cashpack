@@ -50,7 +50,7 @@ struct dec_priv {
 };
 
 static void
-print_nothing(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+print_nothing(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
 	assert(priv == NULL);
@@ -65,7 +65,7 @@ print_nothing(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
 }
 
 static void
-print_headers(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
 	assert(priv == NULL);

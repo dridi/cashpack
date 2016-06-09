@@ -92,7 +92,7 @@ static const struct hpack_field unknown_field[] = {{
  */
 
 static void
-noop_cb(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+noop_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
 	assert(priv == NULL);

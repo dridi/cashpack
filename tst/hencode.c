@@ -61,7 +61,7 @@ struct enc_ctx {
 };
 
 static void
-write_data(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+write_data(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
 #ifdef NDEBUG

@@ -792,21 +792,21 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 	if (fld->flg & HPACK_FLG_NAM_IDX) {
 		(void)HPT_search(ctx, fld->nam_idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
-		HPT_insert(&priv, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
+		HPT_insert(HPACK_EVT_NAME, hf.nam, hf.nam_sz, &priv);
 	}
 	else {
 		nam_sz = strlen(fld->nam);
-		HPT_insert(&priv, HPACK_EVT_NAME, fld->nam, nam_sz);
+		HPT_insert(HPACK_EVT_NAME, fld->nam, nam_sz, &priv);
 	}
 
 	val_sz = strlen(fld->val);
-	HPT_insert(&priv, HPACK_EVT_VALUE, fld->val, val_sz);
+	HPT_insert(HPACK_EVT_VALUE, fld->val, val_sz, &priv);
 
 	hp->off = 0;
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
 	if (ctx->ins <= HPACK_LIMIT(hp)) {
-		HPT_insert(&priv, HPACK_EVT_INDEX, NULL, 0);
+		HPT_insert(HPACK_EVT_INDEX, NULL, 0, &priv);
 		hp->sz.len += ctx->ins;
 		if (++ctx->hp->cnt > 1) {
 #ifndef NDEBUG

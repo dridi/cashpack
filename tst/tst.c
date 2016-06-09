@@ -53,7 +53,7 @@ struct dyn_ctx {
 };
 
 static void
-tst_print_cb(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+tst_print_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 	struct dyn_ctx *ctx;
 	char str[sizeof "\n[IDX] (s = LEN) "];

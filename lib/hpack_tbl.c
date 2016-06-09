@@ -387,7 +387,7 @@ hpt_copy_evicted(struct hpt_priv *priv, const char *buf, size_t len)
 }
 
 void
-HPT_insert(void *priv, enum hpack_event_e evt, const char *buf, size_t len)
+HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 	struct hpt_priv *priv2;
 	struct hpack *hp;

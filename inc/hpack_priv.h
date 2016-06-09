@@ -208,9 +208,9 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 			return (-1);			\
 	} while (0)
 
-#define CALLBACK(ctx, args...)				\
+#define CALLBACK(ctx, evt, buf, len)			\
 	do {						\
-		(ctx)->cb((ctx)->priv, args);		\
+		(ctx)->cb(evt, buf, len, (ctx)->priv);	\
 	} while (0)
 
 #define EXPECT(ctx, err, cond)				\
