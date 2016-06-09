@@ -416,7 +416,7 @@ static void
 test_use_busy_decoder(void)
 {
 	hp = make_decoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 0);
+	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 1);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
 	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
