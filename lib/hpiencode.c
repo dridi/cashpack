@@ -69,7 +69,7 @@ main(int argc, const char **argv)
 
 	memset(&ctx, 0, sizeof ctx);
 	ctx.buf = buf;
-	ctx.cur = TRUST_ME(buf);
+	ctx.cur = buf;
 	ctx.max = sizeof buf;
 
 	HPI_encode(&ctx, pfx, pat, val);
