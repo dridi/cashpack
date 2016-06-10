@@ -30,7 +30,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-cmd_check hexdump xxd
+cmd_check cut sed xxd
 
 rfcdmp="$TEST_TMP/rfcdmp"
 hexdmp="$TEST_TMP/hexdmp"
