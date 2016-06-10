@@ -348,8 +348,8 @@ main(int argc, char **argv)
 	free(ctx.line);
 
 	if (ctx.res == HPACK_RES_OK) {
-		fclose(stdout);
-		stdout = fdopen(3, "a");
+		fflush(stdout);
+		dup2(3, STDOUT_FILENO);
 		TST_print_table(ctx.hp);
 	}
 
