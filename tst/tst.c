@@ -129,6 +129,10 @@ TST_decode(struct dec_ctx *ctx)
 	OUT("Decoded header list:\n");
 	res = 0;
 
+	/* some compilers fail to see their proper initialization */
+	len = 0;
+	cb = NULL;
+
 	do {
 		if (res != 0)
 			return (res);
