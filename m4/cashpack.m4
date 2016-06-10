@@ -242,3 +242,15 @@ AC_DEFUN([CASHPACK_WITH_LCOV], [
 		[])
 
 ])
+
+# CASHPACK_ENABLE_DOCS
+# --------------------
+AC_DEFUN([CASHPACK_ENABLE_DOCS], [
+
+	AC_ARG_ENABLE([docs],
+		AS_HELP_STRING(
+			[--enable-docs],
+			[Man pages can be omitted if built from a dist tarball]))
+
+	AM_CONDITIONAL([DOCS], [test "$enable_docs" != "no"])
+])

@@ -50,6 +50,8 @@ examplesdir = $(pkgdatadir)/examples
 
 examples_DATA = cashdump.c
 
+if DOCS
+
 # doc generators
 
 noinst_PROGRAMS = \
@@ -131,6 +133,8 @@ CLEANFILES = \
 	cashdump.out \
 	cashdump.src
 
+endif
+
 EXTRA_DIST = \
 	$(dist_man_MANS) \
 	cashpack.3.rst \
@@ -138,5 +142,4 @@ EXTRA_DIST = \
 	hpack_decode.3.rst \
 	hpack_encode.3.rst \
 	hpack_foreach.3.rst \
-	hpack_strerror.3.rst \
-	frames.hex
+	hpack_strerror.3.rst
