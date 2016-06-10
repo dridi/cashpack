@@ -204,9 +204,9 @@ lcov: all
 	@\$(GENHTML) -o lcov cashpack.info
 	@echo file://\$(abs_builddir)/lcov/index.html
 
-lcov-clean:
-
 clean: lcov-clean
+
+lcov-clean:
 	@find \$(abs_builddir) -depth '(' \
 		-name '*.gcda' -o \
 		-name '*.gcov' -o \
