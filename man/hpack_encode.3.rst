@@ -30,7 +30,7 @@ hpack_encode, hpack_clean_field
 encode an HPACK block
 ---------------------
 
-:Title upper: hpack_encode
+:Title upper: HPACK_ENCODE
 :Manual section: 3
 
 SYNOPSIS
@@ -39,10 +39,6 @@ SYNOPSIS
 | **#include <stdint.h>**
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
-|
-| **typedef void hpack_encoded_f(void** *\*priv*\ **,** \
-    **enum hpack_event_e** *evt*\ **,**
-| **\     const void** *\*buf*\ **, size_t** *size*\ **);**
 |
 | **enum hpack_flag_e;**
 |
@@ -54,10 +50,17 @@ SYNOPSIS
 |     **const char** *\*val*\ **;**
 | **};**
 |
+| **struct hpack_encoding {**
+|    **const struct hpack_field** *\*fld*\ **;**
+|    **size_t**                   *fld_cnt*\ **;**
+|    **void**                     *\*buf*\ **;**
+|    **size_t**                   *buf_len*\ **;**
+|    **hpack_callback_f**         *\*cb*\ **;**
+|    **void**                     *\*priv*\ **;**
+| **};**
+|
 | **enum hpack_result_e hpack_encode(struct hpack** *\*hpack*\ **,**
-| **\     const struct hpack_field** *\*fields*\ **, size_t** *nb*\ **,**
-| **\     unsigned** *cut*\ **, hpack_encoded_f** *\*cb*\ **,**
-| **\     void** *\*priv*\ **);**
+| **\     const struct hpack_encoding** *\*dec*\ **, unsigned** *cut*\ **);**
 |
 | **enum hpack_result_e hpack_clean_field(struct hpack_field** \
     *\*field*\ **);**
@@ -164,6 +167,6 @@ SEE ALSO
 **hpack_limit**\(3),
 **hpack_resize**\(3),
 **hpack_static**\(3),
-**hpack_strerror**\(3)
+**hpack_strerror**\(3),
 **hpack_tables**\(3),
-**hpack_trim**\(3),
+**hpack_trim**\(3)

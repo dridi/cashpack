@@ -118,7 +118,7 @@ LOCKING
 
 There is absolutely no locking in cashpack, a ``struct hpack *`` is left
 completely unguarded. The only thread-safe operation for this data structure
-is its allocation.
+is its allocation if you use the default allocator.
 
 You shouldn't need to lock an HPACK structure because HTTP's transport must be
 ordered. In HTTP/2 streams are multiplexed but header frames (and for what
@@ -159,18 +159,12 @@ EVENTS
 ======
 
 The list of events is the same for all event drivers, some of them only use a
-subset. There are two callback signatures for callbacks, almost identical:
+subset. An event handler has the following signature:
 
 |
-| **typedef void hpack_decoded_f(**
-| **\     void** *\*priv*\ **,**
-| **\     enum hpack_event_e** *evt*\ **,**
-| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
-|
-| **typedef void hpack_encoded_f(**
-| **\     void** *\*priv*\ **,**
-| **\     enum hpack_event_e** *evt*\ **,**
-| **\     const void** *\*buf*\ **, size_t** *size*\ **);**
+| **typedef void hpack_callback_f(enum hpack_event_e** *evt*\ **,**
+| **\     const char** *\*buf*\ **, size_t** *size*\ **,** \
+    **void** *\*priv*\ **);**
 
 When not ``NULL``, The *buf* argument always point to non-persistent memory
 that should only be considered valid (unless documented otherwise) until the
@@ -248,5 +242,5 @@ SEE ALSO
 **hpack_strerror**\(3),
 **hpack_tables**\(3),
 **hpack_trim**\(3),
-**pkg-config**\(1),
-**libtool**\(1)
+**libtool**\(1),
+**pkg-config**\(1)

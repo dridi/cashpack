@@ -39,14 +39,17 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_decoded_f(void** *\*priv*\ **,** \
-    **enum hpack_event_e** *evt*\ **,**
-| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
+| **struct hpack_decoding {**
+|    **const void**       *\*blk*\ **;**
+|    **size_t**           *blk_len*\ **;**
+|    **void**             *\*buf*\ **;**
+|    **size_t**           *buf_len*\ **;**
+|    **hpack_callback_f** *\*cb*\ **;**
+|    **void**             *\*priv*\ **;**
+| **};**
 |
 | **enum hpack_result_e hpack_decode(struct hpack** *\*hpack*\ **,**
-| **\     const void** *\*buf*\ **, size_t** *size*\ **,**
-| **\     unsigned** *cut*\ **, hpack_decoded_f** *\*cb*\ **,**
-| **\     void** *\*priv*\ **);**
+| **\     const struct hpack_decoding** *\*dec*\ **, unsigned** *cut*\ **);**
 
 DESCRIPTION
 ===========
@@ -55,14 +58,20 @@ This is an overview of decoding with cashpack, a stateless event-driven HPACK
 codec written in C. HPACK is a stateful protocol, but cashpack implements
 decoding using a stateless event driver. The *hpack* parameter keeps track of
 the decoding state, including the dynamic table updates, across multiple calls
-of the ``hpack_decode()`` function for the lifetime of the HTTP session.
+of the ``hpack_decode()`` function for the lifetime of the HTTP session. The
+*dec* parameter contains the decoding context for the block or partial block
+being decoded.
 
-The ``hpack_decode()`` function reads *size* octets from *buf* and calls the
-*cb* callback for every decoding event. All input octets are always consumed
-before requiring new input, allowing the caller to reuse its buffer. All the
+The *blk* field is a pointer to the block or partial block memory of *blk_len*
+octets. All block input octets are always consumed before requiring new input,
+allowing the caller to reuse its buffer. Decoding is performed in a working
+memory buffer *buf* of *buf_len* octets, the working buffer doesn't need to be
+larger than the block and can safely be reused in subsequent calls. All the
 events are described in the ``cashpack``\ (3) manual. The *priv* pointer is
-passed to the callback for all the events. If *cut* is zero, the HPACK block
-being decoded is expected to end with the *size* octets.
+passed to the *cb* callback for all the events.
+
+If *cut* is zero, the HPACK block being decoded is expected to end with the
+*dec->blk_len* octets.
 
 DECODING STATE MACHINE
 ======================
@@ -220,6 +229,6 @@ SEE ALSO
 **hpack_limit**\(3),
 **hpack_resize**\(3),
 **hpack_static**\(3),
-**hpack_strerror**\(3)
+**hpack_strerror**\(3),
 **hpack_tables**\(3),
-**hpack_trim**\(3),
+**hpack_trim**\(3)

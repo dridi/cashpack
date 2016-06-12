@@ -30,7 +30,7 @@ hpack_decoder, hpack_encoder, hpack_free, hpack_resize, hpack_limit, hpack_trim
 allocate, resize and free HPACK codecs
 --------------------------------------
 
-:Title upper: hpack_alloc
+:Title upper: HPACK_ALLOC
 :Manual section: 3
 
 SYNOPSIS

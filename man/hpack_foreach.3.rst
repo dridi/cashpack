@@ -30,7 +30,7 @@ hpack_static, hpack_dynamic, hpack_tables
 probe the contents of HPACK tables
 ----------------------------------
 
-:Title upper: hpack_foreach
+:Title upper: HPACK_FOREACH
 :Manual section: 3
 
 SYNOPSIS
@@ -40,18 +40,14 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
-| **typedef void hpack_decoded_f(void** *\*priv*\ **,** \
-    **enum hpack_event_e** *evt*\ **,**
-| **\     const char** *\*buf*\ **, size_t** *size*\ **);**
-|
-| **enum hpack_result_e hpack_static(hpack_decoded_f** *cb*\ **,** \
+| **enum hpack_result_e hpack_static(hpack_callback_f** *cb*\ **,** \
     **void** *\*priv*\ **);**
 |
 | **enum hpack_result_e hpack_dynamic(struct hpack** *\*hpack*\ **,**
-| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+| **\     hpack_callback_f** *cb*\ **, void** *\*priv*\ **);**
 |
 | **enum hpack_result_e hpack_tables(struct hpack** *\*hpack*\ **,**
-| **\     hpack_decoded_f** *cb*\ **, void** *\*priv*\ **);**
+| **\     hpack_callback_f** *cb*\ **, void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
@@ -122,6 +118,6 @@ SEE ALSO
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),
-**hpack_strerror**\(3)
+**hpack_strerror**\(3),
 **hpack_tables**\(3),
-**hpack_trim**\(3),
+**hpack_trim**\(3)
