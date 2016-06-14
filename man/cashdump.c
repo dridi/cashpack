@@ -191,7 +191,7 @@ main(int argc, char **argv)
 	printf("\n\n=== dynamic table");
 	retval = hpack_dynamic(hp, print_headers, NULL);
 	if (retval < 0)
-		print_error("hpack_decode", retval);
+		print_error("hpack_dynamic", retval);
 
 	hpack_free(&hp);
 
