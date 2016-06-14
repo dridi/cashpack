@@ -176,7 +176,7 @@ main(int argc, char **argv)
 		cut = ~flg & H2_FLG_END_HEADERS;
 		dec.blk_len = len;
 		retval = hpack_decode(hp, &dec, cut);
-		if (retval != 0)
+		if (retval < 0)
 			print_error("hpack_decode", retval);
 
 		if (flg & H2_FLG_PADDED)
@@ -190,7 +190,7 @@ main(int argc, char **argv)
 
 	printf("\n\n=== dynamic table");
 	retval = hpack_dynamic(hp, print_headers, NULL);
-	if (retval != 0)
+	if (retval < 0)
 		print_error("hpack_decode", retval);
 
 	hpack_free(&hp);
