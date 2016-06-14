@@ -185,15 +185,15 @@ HPF(TYP_MSK, 0x0f,
 HPF(NAM_IDX, 0x10,
 	"\tThe field name is indexed. The member *nam_idx* MUST be a valid\n"
 	"\tindex. It supersedes the *nam* pointer, and can be used for any\n"
-	"\ttype of field expect ``TYP_IDX``.")
+	"\ttype of field except ``TYP_IDX``.\n\n")
 
 HPF(NAM_HUF, 0x20,
 	"\tThe field name shall be Huffman-encoded. It can be used for any\n"
-	"\ttype of field expect ``TYP_IDX`` or fields with ``NAM_IDX``.\n\n")
+	"\ttype of field except ``TYP_IDX`` or fields with ``NAM_IDX``.\n\n")
 
 HPF(VAL_HUF, 0x40,
 	"\tThe field value shall be Huffman-encoded. It can be used for any\n"
-	"\ttype of field expect ``TYP_IDX``.\n\n")
+	"\ttype of field except ``TYP_IDX``.\n\n")
 #endif /* HPF */
 
 #ifdef HPP

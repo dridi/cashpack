@@ -72,15 +72,29 @@ This is an overview of encoding with cashpack, a stateless event-driven HPACK
 codec written in C. HPACK is a stateful protocol, but cashpack implements
 encoding using a stateless event driver. The *hpack* parameter keeps track of
 the dynamic table updates across multiple calls of the ``hpack_encode()``
-function for the lifetime of the HTTP session.
+function for the lifetime of the HTTP session. The *enc* parameter contains
+the encoding context for the block or partial block being encoded.
 
-TODO
+The *fld* field is a pointer to an array of *fld_cnt* HPACK fields. All fields
+are always encoded before requiring new input, allowing the caller to reuse
+its array. Encoding is performed in a working memory buffer *buf* of *buf_len*
+octets, the working buffer can safely be reused in subsequent calls. All the
+events are described in the ``cashpack``\ (3) manual. The *priv* pointer is
+passed to the *cb* callback for all the events.
+
+If *cut* is zero, the HPACK block being encoded is expected to end with the
+*enc->fld_cnt* fields.
 
 ENCODING FLAGS
 ==============
 
-The encoding process of a header list is driven by flags that explain how to
-interpret a ``struct hpack_field`` instance. Some flags can be combined and
+A header list is a set of key/values referenced by the fields *nam* and *val*
+in ``struct hpack_field``. Those values may be omitted depending on the flags
+set in the *flg* field. Indexed fields rely on the *idx* field instead, and
+literal fields with an indexed name rely on *nam_idx*.
+
+The encoding process of a header list is thus driven by flags that explain how
+to interpret a ``struct hpack_field`` instance. Some flags can be combined and
 others are mutual exclusive. Combining flags that aren't documented as working
 together results in undefined behavior:
 
@@ -89,9 +103,15 @@ together results in undefined behavior:
 ENCODING STATE MACHINE
 ======================
 
-TODO
+The encoding process produces events matching the following state machine. The
+detailed state machine describes the possible encoding events of a complete
+HPACK block. If the block is encoded in more than one pass, the event driver
+resumes where it left, strictly adhering to the possible transitions. It can
+however only resume at a FIELD event.
 
-::
+The state machine is laid out so that moving down means making progress in the
+decoding process, and moving right implies a hierarchical relationship between
+events. For instance a NAME event belongs after a FIELD event::
 
     (start)     .----.
        |        v    |
@@ -119,7 +139,17 @@ TODO
                |         v
     (end) <----+--<--- INSERT
 
-::
+If you are familiar with regular expressions, here is a translation of the
+encoding state machine to a regular expressions using the initials of the
+events names::
+
+    ^(E*T(E*T)?)?(F(E*D+)+I?)+$
+
+The state machine may look complex, but this is mainly due to dynamic table
+events that *might* be emitted on many occasions. Here is the same state
+machine, but ``FOO?`` ``BAR*`` and ``BAZ+`` events regex-like notations mean
+that event ``FOO`` can happen zero to one time, ``BAR`` can happen zero to
+many times and ``BAZ`` events can happen one to many times::
 
     (start)
        |
@@ -139,13 +169,39 @@ TODO
                 ^          ^
                 |          |
                 |          v
-                |        DATA*
+                |        DATA+
                 |          |
                 |          v
     (end) <-----+------ INSERT?
 
+But the role of the dynamic table events is not directly related to the HTTP
+message that is being decoded. If you focus on the events that help you build
+an HPACK block, it becomes a lot simpler::
+
+    (start)
+       |
+       '----> FIELD ---> DATA+
+                ^          |
+                |          |
+    (end) <-----+----------'
+
+The FIELD event is merely here to allow changes before a header gets encoded.
+You can for instance use table events to detect that fields with indexed flags
+no longer reference valid indices, and turn them into field literals that may
+or may not be inserted in the table. It is the mechanism that empowers caching
+policies.
+
+CLEANUP
+=======
+
+TODO
+
 RETURN VALUE
 ============
+
+The ``hpack_encode()`` function returns ``HPACK_RES_OK`` if *cut* is zero,
+otherwise ``HPACK_RES_BLK``. On error, this function returns one of the listed
+errors and makes the *hpack* argument improper for further use.
 
 TODO
 
