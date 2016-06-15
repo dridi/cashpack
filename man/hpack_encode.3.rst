@@ -194,7 +194,12 @@ policies.
 CLEANUP
 =======
 
-TODO
+Once encoding is done, fields can be cleaned using the ``hpack_clean_field()``
+function. It is equivalent to zeroing the *fld* parameter, except that checks
+are performed and only fields relevant to the flags are cleaned. It is a means
+for double-checking proper usage of the library. The *nam* and *val* pointers
+may be set to ``NULL``, but if they point to memory that needs to be freed, it
+MUST be done prior to calling ``hpack_clean_field()``.
 
 RETURN VALUE
 ============
@@ -203,12 +208,19 @@ The ``hpack_encode()`` function returns ``HPACK_RES_OK`` if *cut* is zero,
 otherwise ``HPACK_RES_BLK``. On error, this function returns one of the listed
 errors and makes the *hpack* argument improper for further use.
 
-TODO
+The ``hpack_clean_field()`` function returns ``HPACK_RES_OK`` if the field's
+structure was properly zeroed, otherwise ``HPACK_RES_ARG``.
 
 ERRORS
 ======
 
-TODO
+The ``hpack_encode()`` function can fail with the following errors:
+
+``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *dec* contains
+``NULL`` pointers or zero lengths, except *dec->priv* which is optional.
+
+All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
+details of all possible errors.
 
 EXAMPLE
 =======

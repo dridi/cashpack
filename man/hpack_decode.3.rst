@@ -210,8 +210,8 @@ ERRORS
 
 The ``hpack_decode()`` function can fail with the following errors:
 
-``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *buf* is
-``NULL`` or *len* is zero or *cb* is ``NULL``.
+``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *dec* contains
+``NULL`` pointers or zero lengths, except *dec->priv* which is optional.
 
 All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
 details of all possible errors.
