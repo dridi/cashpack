@@ -26,8 +26,6 @@
  * SUCH DAMAGE.
  */
 
-#define HPT_STATIC_MAX 61
-
 #define HPT_FLG_STATIC	0x01
 #define HPT_FLG_DYNAMIC	0x02
 

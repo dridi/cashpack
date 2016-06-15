@@ -746,7 +746,7 @@ hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpi_pattern_e pat, size_t pfx)
 	if (fld->flg & HPACK_FLG_NAM_IDX) {
 		idx = fld->nam_idx;
 		EXPECT(ctx, IDX, idx > 0 &&
-		    idx <= ctx->hp->cnt + HPT_STATIC_MAX);
+		    idx <= ctx->hp->cnt + HPACK_STATIC);
 	}
 	else
 		idx = 0;
@@ -764,7 +764,7 @@ hpack_encode_indexed(HPACK_CTX, HPACK_FLD)
 {
 
 	EXPECT(ctx, IDX, fld->idx > 0 &&
-	    fld->idx <= ctx->hp->cnt + HPT_STATIC_MAX);
+	    fld->idx <= ctx->hp->cnt + HPACK_STATIC);
 
 	HPI_encode(ctx, HPACK_PFX_IDX, HPACK_PAT_IDX, fld->idx);
 	return (0);

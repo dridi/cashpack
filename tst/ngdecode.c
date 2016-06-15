@@ -91,7 +91,7 @@ print_entries(nghttp2_hd_inflater *inf)
 	int l;
 
 	sz = 0;
-	idx = 62;
+	idx = HPACK_STATIC + 1;
 
 	while (1) {
 		nv = nghttp2_hd_inflate_get_table_entry(inf, idx);
@@ -103,7 +103,7 @@ print_entries(nghttp2_hd_inflater *inf)
 
 		len = 32 + nv->namelen + nv->valuelen;
 		l = snprintf(str, sizeof str, "\n[%3zu] (s = %3zu) ",
-		    idx - 61, len);
+		    idx - HPACK_STATIC, len);
 		assert(l + 1 == sizeof str);
 
 		WRT(str, l);

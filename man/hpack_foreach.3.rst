@@ -40,6 +40,8 @@ SYNOPSIS
 | **#include <stdlib.h>**
 | **#include <hpack.h>**
 |
+| **#define** *HPACK_STATIC* **61**
+|
 | **enum hpack_result_e hpack_static(hpack_callback_f** *cb*\ **,** \
     **void** *\*priv*\ **);**
 |

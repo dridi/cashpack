@@ -93,12 +93,12 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	struct hpt_entry tmp;
 
 	assert(idx != 0);
-	if (idx <= HPT_STATIC_MAX) {
+	if (idx <= HPACK_STATIC) {
 		(void)memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
 		return (0);
 	}
 
-	idx -= HPT_STATIC_MAX;
+	idx -= HPACK_STATIC;
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
 	he = hpt_dynamic(ctx->hp, idx);
@@ -120,7 +120,7 @@ HPT_foreach(HPACK_CTX, int flg)
 	size_t i;
 
 	if (flg & HPT_FLG_STATIC)
-		for (i = 0, hf = hpt_static; i < HPT_STATIC_MAX; i++, hf++) {
+		for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++) {
 			CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 			CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
 			CALLBACK(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);

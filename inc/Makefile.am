@@ -29,6 +29,7 @@ CLEANFILES = hpack.h
 hpack.h: hpack.h.in tbl/hpack_tbl.h uncrustify.cfg
 	$(AM_V_GEN) cpp -P -o hpack.h $(srcdir)/hpack.h.in
 	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) hpack.h
+	@$(SED) -i 's/##/#/' hpack.h
 
 EXTRA_DIST = \
 	hpack.h.in \
