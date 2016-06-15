@@ -225,7 +225,30 @@ details of all possible errors.
 EXAMPLE
 =======
 
-TODO
+The following example shows how to keep track of insertions and evictions in
+order to maintain proper indexed fields, in case they become stale as encoding
+makes progress. The strategy used in this example is far from optimal, fields
+are either taken from the index, or inserted in the dynamic table.
+
+Header lists are read from the standard input, separated by blank lines. The
+encoded header blocks are written on the standard output, without anything to
+indicate the boundaries between blocks. Information about the encoding process
+is logged to the standard error.
+
+.. include:: cashdumb.src
+    :literal:
+
+In this example the header lists will be read from a file:
+
+.. include:: cashdumb.txt
+    :literal:
+
+Assuming a standard installation of cashpack, the program can be compiled and
+will produce the following logs, the binary output being ignored:
+
+
+.. include:: cashdumb.out
+    :literal:
 
 SEE ALSO
 ========

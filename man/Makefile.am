@@ -77,6 +77,15 @@ hpr2rst_gen_SOURCES = hpr2rst.c
 	@echo '$$ cat' $$(basename '$<') >$@
 	$(AM_V_GEN) $(SED) '1,28d' <$< >>$@
 
+cashdumb.txt: requests.txt
+	@echo '$$ cat requests.txt' >$@
+	$(AM_V_GEN) cat $(srcdir)/requests.txt >$@
+
+cashdumb.out: cashdumb requests.txt
+	@echo '$$ gcc -lhpack -o cashdumb cashdumb.c' >$@
+	@echo '$$ ./cashdumb <requests.txt >/dev/null' >>$@
+	$(AM_V_GEN) ./cashdumb <$(srcdir)/requests.txt >/dev/null 2>>$@
+
 cashdump.hex: frames.hex
 	@echo '$$ hexdump -C frames.bin' >$@
 	$(AM_V_GEN) $(top_srcdir)/tst/hex_decode <$(srcdir)/frames.hex | \
@@ -99,7 +108,7 @@ SUFFIXES = .3.rst .3
 
 cashpack.3: hpe2rst.rst cashdump.src cashdump.hex cashdump.out
 
-hpack_encode.3: hpf2rst.rst
+hpack_encode.3: hpf2rst.rst cashdumb.src cashdumb.txt cashdumb.out
 
 hpack_strerror.3: hpr2rst.rst
 
@@ -132,8 +141,11 @@ CLEANFILES = \
 	hpe2rst.rst \
 	hpf2rst.rst \
 	hpr2rst.rst \
+	cashdumb.txt \
+	cashdumb.out \
 	cashdump.hex \
 	cashdump.out \
+	cashdumb.src \
 	cashdump.src
 
 endif
@@ -146,4 +158,5 @@ EXTRA_DIST = \
 	hpack_encode.3.rst \
 	hpack_foreach.3.rst \
 	hpack_strerror.3.rst \
-	frames.hex
+	frames.hex \
+	requests.txt

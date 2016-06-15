@@ -1,0 +1,18 @@
+# First request
+:method: GET
+:path: /
+:scheme: http
+:authority: example.com
+user-agent: cashdumb
+accept: */*
+accept-encoding: gzip
+
+# Second request
+:method: HEAD
+:path: /status
+:scheme: http
+:authority: example.com
+user-agent: cashdumb
+accept: */*
+accept-encoding: gzip
+cookie: foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU
