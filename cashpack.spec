@@ -1,6 +1,6 @@
 Name:           cashpack
 Version:        0.1
-Release:        0.dev%{?dist}
+Release:        1%{?dist}
 Summary:        The C Anti-State HPACK library
 
 License:        BSD
