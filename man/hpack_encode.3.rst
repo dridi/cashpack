@@ -137,7 +137,7 @@ events. For instance a NAME event belongs after a FIELD event::
                +--<---- DATA -'
                |         |
                |         v
-    (end) <----+--<--- INSERT
+    (end) <----+--<--- INDEX
 
 If you are familiar with regular expressions, here is a translation of the
 encoding state machine to a regular expressions using the initials of the
@@ -172,7 +172,7 @@ many times and ``BAZ`` events can happen one to many times::
                 |        DATA+
                 |          |
                 |          v
-    (end) <-----+------ INSERT?
+    (end) <-----+------- INDEX?
 
 But the role of the dynamic table events is not directly related to the HTTP
 message that is being decoded. If you focus on the events that help you build

@@ -195,7 +195,7 @@ a header list, it becomes a lot simpler::
 
 This last state machine describes the events where ordering is key. If you
 follow arrows in the detailed state machines, you will find that a ``NEVER``
-event may be followed by an ``INSERT`` event. That is never the case, but in
+event may be followed by an ``INDEX`` event. That is never the case, but in
 order to keep the detailed state machines *simpler* this detail is omitted.
 
 RETURN VALUE

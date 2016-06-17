@@ -59,7 +59,7 @@ event-driven HPACK codec written in C. Both HPACK decoders and encoders share
 a dynamic table in sync, it is possible outside of block processing to probe
 the contents of the dynamic table. However, the dynamic table entries are not
 persistent and MUST be considered stale after the decoding or encoding of an
-HPACK block if ``EVICT`` or ``INSERT`` events occurred.
+HPACK block if ``EVICT`` or ``INDEX`` events occurred.
 
 The ``hpack_static()`` and ``hpack_dynamic()`` functions walk respectively the
 static table and the dynamic table of *hpack* and calls *cb* for all entries
