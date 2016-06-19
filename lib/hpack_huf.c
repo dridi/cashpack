@@ -79,9 +79,9 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 			if (hs->blen < he->len) {
 				if (len == 0)
 					break;
-				hs->bits = (hs->bits << 8) | *ctx->buf;
+				hs->bits = (hs->bits << 8) | *ctx->blk;
 				hs->blen += 8;
-				ctx->buf++;
+				ctx->blk++;
 				ctx->len--;
 				hs->len--;
 				len--;

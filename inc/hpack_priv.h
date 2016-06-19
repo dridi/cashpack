@@ -89,7 +89,7 @@ struct hpack_ctx {
 		const struct hpack_encoding	*enc;
 	};
 	union {
-		const uint8_t			*buf;
+		const uint8_t			*blk;
 		uint8_t				*cur;
 	};
 	size_t					len;

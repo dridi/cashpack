@@ -61,8 +61,8 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	EXPECT(ctx, BUF, ctx->len > 0);
 	if (!hs->bsy) {
 		mask = (1 << pfx) - 1;
-		hs->v = *ctx->buf & mask;
-		ctx->buf++;
+		hs->v = *ctx->blk & mask;
+		ctx->blk++;
 		ctx->len--;
 
 		if (hs->v < mask) {
@@ -76,12 +76,12 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	do {
 		EXPECT(ctx, BUF, ctx->len > 0);
 		EXPECT(ctx, INT, hs->m < 32);
-		b = *ctx->buf;
+		b = *ctx->blk;
 		n = hs->v + (b & 0x7f) * (1 << hs->m);
 		EXPECT(ctx, INT, hs->v <= n);
 		hs->v = n;
 		hs->m += 7;
-		ctx->buf++;
+		ctx->blk++;
 		ctx->len--;
 	} while (b & 0x80);
 

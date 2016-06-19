@@ -415,17 +415,17 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	if (len > ctx->len)
 		len = ctx->len;
 
-	CALL(val, ctx, (char *)ctx->buf, len, hs->first);
+	CALL(val, ctx, (char *)ctx->blk, len, hs->first);
 	if (hs->len <= len || !hs->first) {
 		if (hs->first)
 			CALLBACK(ctx, evt, NULL, hs->len);
 		if (len > 0)
-			CALLBACK(ctx, HPACK_EVT_DATA, (char *)ctx->buf, len);
+			CALLBACK(ctx, HPACK_EVT_DATA, (char *)ctx->blk, len);
 	}
 	else
-		CALLBACK(ctx, evt, (char *)ctx->buf, len);
+		CALLBACK(ctx, evt, (char *)ctx->blk, len);
 
-	ctx->buf += len;
+	ctx->blk += len;
 	ctx->len -= len;
 	hs->len -= len;
 	hs->first = 0;
@@ -447,7 +447,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_VAL_LEN:
 		/* decode integer */
-		huf = *ctx->buf & HPACK_PAT_HUF;
+		huf = *ctx->blk & HPACK_PAT_HUF;
 		CALL(HPI_decode, ctx, HPACK_PFX_STR, &len);
 
 		/* set up string decoding */
@@ -553,7 +553,7 @@ hpack_decode_dynamic(HPACK_CTX)
 	}
 
 	assert(tbl_ctx.res == ctx->res);
-	ctx->buf = tbl_ctx.buf;
+	ctx->blk = tbl_ctx.blk;
 	ctx->len = tbl_ctx.len;
 	hp->off = 0;
 
@@ -657,7 +657,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
-	ctx->buf = dec->blk;
+	ctx->blk = dec->blk;
 	ctx->len = dec->blk_len;
 	ctx->cb = dec->cb;
 	ctx->priv = dec->priv;
@@ -665,7 +665,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 
 	while (ctx->len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
-			hp->state.typ = *ctx->buf;
+			hp->state.typ = *ctx->blk;
 		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
 			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
