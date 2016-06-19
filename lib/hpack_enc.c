@@ -80,7 +80,7 @@ HPE_send(HPACK_CTX)
 	if (ctx->len == 0)
 		return;
 
-	CALLBACK(ctx, HPACK_EVT_DATA, TRUST_ME(ctx->buf), ctx->len);
-	ctx->cur = TRUST_ME(ctx->buf);
+	CALLBACK(ctx, HPACK_EVT_DATA, ctx->enc->buf, ctx->len);
+	ctx->cur = ctx->enc->buf;
 	ctx->len = 0;
 }

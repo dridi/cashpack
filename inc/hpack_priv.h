@@ -83,16 +83,22 @@ struct hpt_priv {
 };
 
 struct hpack_ctx {
-	struct hpack		*hp;
-	const uint8_t		*buf;
-	uint8_t			*cur;
-	size_t			len;
-	size_t			max;
-	size_t			ins;
-	hpack_callback_f	*cb;
-	void			*priv;
-	enum hpack_result_e	res;
-	unsigned		can_upd;
+	struct hpack				*hp;
+	union {
+		const struct hpack_decoding	*dec;
+		const struct hpack_encoding	*enc;
+	};
+	union {
+		const uint8_t			*buf;
+		uint8_t				*cur;
+	};
+	size_t					len;
+	size_t					max;
+	size_t					ins;
+	hpack_callback_f			*cb;
+	void					*priv;
+	enum hpack_result_e			res;
+	unsigned				can_upd;
 };
 
 struct hpack_size {
@@ -191,8 +197,6 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
 /**********************************************************************
  * Utility Macros
  */
-
-#define TRUST_ME(ptr)	((void *)(uintptr_t)(ptr))
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 #define HPACK_FLD	const struct hpack_field *fld

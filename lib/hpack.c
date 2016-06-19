@@ -917,7 +917,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 		ctx->res = HPACK_RES_BLK;
 	}
 
-	ctx->buf = enc->buf;
+	ctx->enc = enc;
 	ctx->cur = enc->buf;
 	ctx->len = 0;
 	ctx->max = enc->buf_len;

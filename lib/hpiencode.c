@@ -41,6 +41,7 @@
 int
 main(int argc, const char **argv)
 {
+	struct hpack_encoding enc;
 	struct hpack_ctx ctx;
 	enum hpi_prefix_e pfx;
 	enum hpi_pattern_e pat;
@@ -67,8 +68,12 @@ main(int argc, const char **argv)
 
 	val = atoi(argv[2]);
 
+	memset(&enc, 0, sizeof enc);
+	enc.buf = buf;
+	enc.buf_len = sizeof buf;
+
 	memset(&ctx, 0, sizeof ctx);
-	ctx.buf = buf;
+	ctx.enc = &enc;
 	ctx.cur = buf;
 	ctx.max = sizeof buf;
 
@@ -77,8 +82,8 @@ main(int argc, const char **argv)
 	assert(ctx.len > 0);
 
 	while (ctx.len > 0) {
-		printf("%02x", *ctx.buf);
-		ctx.buf++;
+		printf("%02x", *(uint8_t *)enc.buf);
+		enc.buf++;
 		ctx.len--;
 	}
 	puts("");
