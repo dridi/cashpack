@@ -41,7 +41,7 @@ inline void
 HPE_putb(HPACK_CTX, uint8_t b)
 {
 
-	assert(ctx->len < ctx->max);
+	assert(ctx->len < ctx->enc->buf_len);
 
 	*ctx->cur = b;
 	ctx->cur++;

@@ -97,7 +97,7 @@ HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
 	uint8_t mask;
 
 	assert(pfx >= 4 && pfx <= 7);
-	assert(ctx->len < ctx->max);
+	assert(ctx->len < ctx->enc->buf_len);
 
 	mask = (1 << pfx) - 1;
 	if (val < mask) {
