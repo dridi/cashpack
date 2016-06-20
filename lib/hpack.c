@@ -657,6 +657,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
+	ctx->dec = dec;
 	ctx->blk = dec->blk;
 	ctx->len = dec->blk_len;
 	ctx->cb = dec->cb;

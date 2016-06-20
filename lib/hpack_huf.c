@@ -50,10 +50,11 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	const struct hph_entry *he;
 	struct hpack_state *hs;
 	hpack_validate_f *val;
-	char buf[256];
+	char *buf;
 	unsigned eos, l;
 
 	hs = &ctx->hp->state;
+	buf = ctx->dec->buf;
 
 	if (hs->first) {
 		CALLBACK(ctx, evt, NULL, len);
@@ -102,10 +103,10 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		he -= he->cod - hs->cod;
 		assert(he->cod == hs->cod);
 
-		assert(l < sizeof buf);
+		assert(l < ctx->dec->buf_len);
 		buf[l] = he->chr;
-		if (++l == sizeof buf) {
-			CALL(val, ctx, (char *)buf, l, hs->first);
+		if (++l == ctx->enc->buf_len) {
+			CALL(val, ctx, buf, l, hs->first);
 			CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 			l = 0;
 			hs->first = 0;
@@ -119,7 +120,7 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	}
 
 	if (l > 0) {
-		CALL(val, ctx, (char *)buf, l, hs->first);
+		CALL(val, ctx, buf, l, hs->first);
 		CALLBACK(ctx, HPACK_EVT_DATA, buf, l);
 		hs->first = 0;
 	}
