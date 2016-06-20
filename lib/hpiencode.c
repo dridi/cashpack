@@ -75,7 +75,6 @@ main(int argc, const char **argv)
 	memset(&ctx, 0, sizeof ctx);
 	ctx.enc = &enc;
 	ctx.cur = buf;
-	ctx.max = sizeof buf;
 
 	HPI_encode(&ctx, pfx, pat, val);
 

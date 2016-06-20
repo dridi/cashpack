@@ -93,7 +93,6 @@ struct hpack_ctx {
 		uint8_t				*cur;
 	};
 	size_t					len;
-	size_t					max;
 	size_t					ins;
 	hpack_callback_f			*cb;
 	void					*priv;

@@ -47,7 +47,7 @@ HPE_putb(HPACK_CTX, uint8_t b)
 	ctx->cur++;
 	ctx->len++;
 
-	if (ctx->len == ctx->max)
+	if (ctx->len == ctx->enc->buf_len)
 		HPE_send(ctx);
 }
 
@@ -59,7 +59,7 @@ HPE_bcat(HPACK_CTX, const void *buf, size_t len)
 	assert(buf != NULL);
 
 	while (len > 0) {
-		sz = ctx->max - ctx->len;
+		sz = ctx->enc->buf_len - ctx->len;
 		if (sz > len)
 			sz = len;
 
@@ -68,7 +68,7 @@ HPE_bcat(HPACK_CTX, const void *buf, size_t len)
 		ctx->len += sz;
 		len -= sz;
 
-		if (ctx->len == ctx->max)
+		if (ctx->len == ctx->enc->buf_len)
 			HPE_send(ctx);
 	}
 }
