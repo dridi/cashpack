@@ -61,7 +61,12 @@ ngdecode_SOURCES = \
 	ngdecode.c
 endif
 
-check: $(noinst_PROGRAMS)
+clean-memcheck:
+	find $(builddir) -name 'memcheck-*.log' -delete
+
+clean-local: clean-memcheck
+
+check: clean-memcheck $(noinst_PROGRAMS)
 
 RFC_TESTS = \
 	rfc7541_2_3_2 \

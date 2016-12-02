@@ -52,8 +52,6 @@ set |
 grep '^NGHTTP2=' >/dev/null ||
 NGHTTP2=no
 
-[ "$MEMCHECK" = yes ] && rm -f memcheck-${TEST_NAM}-*.log*
-
 memcheck() {
 	if [ "$MEMCHECK" = yes ]
 	then
