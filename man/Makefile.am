@@ -28,21 +28,28 @@ AM_CPPFLAGS = -I$(top_srcdir)/inc -I$(top_builddir)/inc
 BUILD_MAN_PAGE = $(RST2MAN) --strict --strip-comments
 BUILD_MAN_LINK = printf ".so man3/%s\n"
 
+hpack_alloc_links = \
+	hpack_decoder.3 \
+	hpack_encoder.3 \
+	hpack_free.3 \
+	hpack_resize.3 \
+	hpack_limit.3 \
+	hpack_trim.3
+
+hpack_foreach_links = \
+	hpack_static.3 \
+	hpack_dynamic.3 \
+	hpack_tables.3
+
 dist_man_MANS = \
 	cashpack.3 \
 	hpack_alloc.3 \
 	hpack_decode.3 \
-	hpack_decoder.3 \
 	hpack_encode.3 \
-	hpack_encoder.3 \
 	hpack_foreach.3 \
-	hpack_static.3 \
-	hpack_dynamic.3 \
-	hpack_tables.3 \
-	hpack_free.3 \
-	hpack_resize.3 \
 	hpack_strerror.3 \
-	hpack_trim.3
+	$(hpack_alloc_links) \
+	$(hpack_foreach_links)
 
 # code examples
 
@@ -114,19 +121,6 @@ hpack_strerror.3: hpr2rst.rst
 
 # man links
 
-hpack_alloc_links = \
-	hpack_decoder.3 \
-	hpack_encoder.3 \
-	hpack_free.3 \
-	hpack_resize.3 \
-	hpack_limit.3 \
-	hpack_trim.3
-
-hpack_foreach_links = \
-	hpack_static.3 \
-	hpack_dynamic.3 \
-	hpack_tables.3
-
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
 
@@ -157,7 +151,6 @@ CLEANFILES = \
 endif
 
 EXTRA_DIST = \
-	$(dist_man_MANS) \
 	cashpack.3.rst \
 	hpack_alloc.3.rst \
 	hpack_decode.3.rst \
