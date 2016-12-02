@@ -124,7 +124,7 @@ TST_decode(struct dec_ctx *ctx)
 	unsigned cut;
 	int res;
 
-	assert(ctx->len > 0);
+	assert(ctx->blk_len > 0);
 
 	OUT("Decoded header list:\n");
 	res = 0;
@@ -141,7 +141,7 @@ TST_decode(struct dec_ctx *ctx)
 		switch (*ctx->spec) {
 		case '\0':
 			cb = ctx->dec;
-			len = ctx->len;
+			len = ctx->blk_len;
 			break;
 		case 'p':
 			cut = 1;
@@ -151,7 +151,7 @@ TST_decode(struct dec_ctx *ctx)
 
 			cb = ctx->dec;
 			len = atoi(ctx->spec);
-			assert(len <= ctx->len);
+			assert(len <= ctx->blk_len);
 			break;
 		case 'r':
 			ctx->spec++;
@@ -169,13 +169,13 @@ TST_decode(struct dec_ctx *ctx)
 			ctx->spec++;
 		}
 
-		res = cb(ctx->priv, ctx->buf, len, cut);
+		res = cb(ctx->priv, ctx->blk, len, cut);
 
 		if (cb == ctx->dec) {
-			ctx->buf = (uint8_t *)ctx->buf + len;
-			ctx->len -= len;
+			ctx->blk = (uint8_t *)ctx->blk + len;
+			ctx->blk_len -= len;
 		}
-	} while (ctx->len > 0);
+	} while (ctx->blk_len > 0);
 
 	return (res);
 }

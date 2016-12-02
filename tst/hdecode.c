@@ -150,7 +150,7 @@ main(int argc, char **argv)
 	struct dec_ctx ctx;
 	struct dec_priv priv;
 	struct stat st;
-	void *buf;
+	void *blk;
 	int fd, retval, tbl_sz;
 
 	TST_signal();
@@ -221,16 +221,16 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
-	ctx.len = st.st_size;
+	ctx.blk_len = st.st_size;
 
 #ifdef NDEBUG
 	(void)retval;
 #endif
 
-	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	assert(buf != MAP_FAILED);
+	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	assert(blk != MAP_FAILED);
 
-	ctx.buf = buf;
+	ctx.blk = blk;
 
 	hp = hpack_decoder(tbl_sz, -1, hpack_default_alloc);
 	assert(hp != NULL);
@@ -244,7 +244,7 @@ main(int argc, char **argv)
 
 	hpack_free(&hp);
 
-	retval = munmap(buf, st.st_size);
+	retval = munmap(blk, st.st_size);
 	assert(retval == 0);
 
 	retval = close(fd);

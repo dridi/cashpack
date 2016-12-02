@@ -165,7 +165,7 @@ main(int argc, char **argv)
 	nghttp2_hd_inflater *inf;
 	struct dec_ctx ctx;
 	struct stat st;
-	void *buf;
+	void *blk;
 	int fd, retval, tbl_sz, res, exp;
 
 	ctx.dec = decode_block;
@@ -234,16 +234,16 @@ main(int argc, char **argv)
 
 	retval = fstat(fd, &st);
 	assert(retval == 0);
-	ctx.len = st.st_size;
+	ctx.blk_len = st.st_size;
 
 #ifdef NDEBUG
 	(void)retval;
 #endif
 
-	buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	assert(buf != MAP_FAILED);
+	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	assert(blk != MAP_FAILED);
 
-	ctx.buf = buf;
+	ctx.blk = blk;
 
 	retval = nghttp2_hd_inflate_new(&inf);
 	assert(retval == 0);
@@ -269,7 +269,7 @@ main(int argc, char **argv)
 
 	nghttp2_hd_inflate_del(inf);
 
-	retval = munmap(buf, st.st_size);
+	retval = munmap(blk, st.st_size);
 	assert(retval == 0);
 
 	retval = close(fd);

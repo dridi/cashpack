@@ -39,8 +39,8 @@ struct dec_ctx {
 	tst_decode_f	*dec;
 	tst_decode_f	*rsz;
 	const char	*spec;
-	const void	*buf;
-	size_t		len;
+	const void	*blk;
+	size_t		blk_len;
 };
 
 struct hpack;
