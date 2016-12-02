@@ -173,6 +173,7 @@ main(int argc, char **argv)
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
+	inf = NULL;
 
 	/* ignore the command name */
 	argc--;
