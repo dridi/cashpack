@@ -313,6 +313,7 @@ main(int argc, const char **argv)
 		send_fields(hp, fld, n_fld, 0);
 
 	hpack_free(&hp);
+	free(lineptr);
 
 	return (0);
 }

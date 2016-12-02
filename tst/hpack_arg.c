@@ -255,7 +255,9 @@ static void
 test_alloc_underflow(void)
 {
 	CHECK_NOTNULL(hp, hpack_decoder, 4096, 2048, hpack_default_alloc);
+	hpack_free(&hp);
 	CHECK_NOTNULL(hp, hpack_encoder, 4096, 2048, hpack_default_alloc);
+	hpack_free(&hp);
 }
 
 static void
