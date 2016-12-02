@@ -136,6 +136,12 @@ $(hpack_foreach_links):
 hpack_clean_field.3:
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_encode.3 >$@
 
+# cleanup
+
+clean-local:
+	@test "$(abs_srcdir)" = "$(abs_builddir)" || \
+		rm -f $(builddir)/*.rst
+
 CLEANFILES = \
 	$(dist_man_MANS) \
 	hpe2rst.rst \

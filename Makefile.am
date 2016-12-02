@@ -40,3 +40,9 @@ SUBDIRS = \
 	tst
 
 @LCOV_RULES@
+
+clean-local:
+	find $(builddir) -name '*.gcda' -delete
+	find $(builddir) -name '*.gcno' -delete
+	find $(builddir) -name '*.info' -delete
+	rm -rf $(builddir)/lcov
