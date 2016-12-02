@@ -53,6 +53,7 @@ CASHPACK_SANITY_CHECK
 
 AC_CONFIG_FILES([
 	Makefile
+	cashpack.spec
 	gen/Makefile
 	inc/Makefile
 	lib/Makefile
