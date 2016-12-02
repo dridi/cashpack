@@ -57,12 +57,16 @@ _ ----------------------------------------------------
 #
 # - 01     -> literal field with name index 1 (:authority)
 # - ffa105 -> Huffman string of length 800
+#
+# This results in somewhat unbalanced capabilities between encoders and
+# decoders, where only one can deal with it.
 
 mk_chars 0 "01 ffa105 %1600s"           | mk_hex
 mk_chars 0 ":authority: %1280s\n"       | mk_msg
 mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 
-tst_decode
+# XXX: nghttp2 will decode the large value
+HDECODE=hdecode tst_decode --expect-error BIG --buffer-size 256
 tst_encode
 
 _ ----------------------------------------------------

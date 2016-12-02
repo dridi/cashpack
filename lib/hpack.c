@@ -408,11 +408,13 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 {
 	struct hpack_state *hs;
 	hpack_validate_f *val;
+	unsigned fit;
 
 	hs = &ctx->hp->state;
 	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
 
-	if (len > ctx->len)
+	fit = len <= ctx->len;
+	if (!fit)
 		len = ctx->len;
 
 	CALL(val, ctx, (char *)ctx->blk, len, hs->first);
@@ -424,6 +426,18 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	}
 	else
 		CALLBACK(ctx, evt, (char *)ctx->blk, len);
+
+	EXPECT(ctx, BIG, ctx->buf_len > len);
+	(void)memcpy(ctx->buf, ctx->blk, len);
+	ctx->buf += len;
+	ctx->buf_len -= len;
+
+	if (fit) {
+		EXPECT(ctx, BIG, ctx->buf_len > 0);
+		*ctx->buf = '\0';
+		ctx->buf++;
+		ctx->buf_len--;
+	}
 
 	ctx->blk += len;
 	ctx->len -= len;
@@ -648,11 +662,16 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 	ctx = &hp->ctx;
 
 	if (ctx->res == HPACK_RES_BLK) {
-		assert(ctx->hp == hp);
+		EXPECT(ctx, ARG, ctx->hp == hp);
+		assert(ctx->buf != NULL);
+		EXPECT(ctx, ARG,
+		    dec->buf + dec->buf_len == ctx->buf + ctx->buf_len);
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
 		ctx->hp = hp;
+		ctx->buf = dec->buf;
+		ctx->buf_len = dec->buf_len;
 		ctx->can_upd = 1;
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}

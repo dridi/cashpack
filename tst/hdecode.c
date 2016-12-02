@@ -47,6 +47,8 @@
 struct dec_priv {
 	struct hpack		*hp;
 	hpack_callback_f	*cb;
+	void			*buf;
+	size_t			len;
 };
 
 static void
@@ -109,14 +111,13 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
 	struct hpack_decoding dec;
-	uint8_t buf[256];
 	int retval;
 
 	priv2 = priv;
 	dec.blk = blk;
 	dec.blk_len = len;
-	dec.buf = buf;
-	dec.buf_len = sizeof buf;
+	dec.buf = priv2->buf;
+	dec.buf_len = priv2->len;
 	dec.cb = priv2->cb;
 	dec.priv = NULL;
 
@@ -150,10 +151,14 @@ main(int argc, char **argv)
 	struct dec_ctx ctx;
 	struct dec_priv priv;
 	struct stat st;
+	char buf[4096];
 	void *blk;
 	int fd, retval, tbl_sz;
 
 	TST_signal();
+
+	priv.buf = buf;
+	priv.len = sizeof buf;
 
 	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
@@ -189,6 +194,15 @@ main(int argc, char **argv)
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
+		argc -= 2;
+		argv += 2;
+	}
+
+	if (argc > 0 && !strcmp("--buffer-size", *argv)) {
+		assert(argc > 2);
+		priv.len = atoi(argv[1]);
+		assert(priv.len > 0);
+		assert(priv.len < sizeof buf);
 		argc -= 2;
 		argv += 2;
 	}

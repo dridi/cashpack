@@ -76,6 +76,10 @@ HPR(OOM, -10, "out of memory",
 HPR(BSY, -11, "codec busy",
 	"\tSome operations such as listing the contents of the dynamic\n"
 	"\ttable can't be performed while a block is being decoded.\n\n")
+
+HPR(BIG, -12, "message too big",
+	"\tThe request or response being decoded doesn't fit in the output\n"
+	"\tbuffer.\n\n")
 #endif /* HPR */
 
 #ifdef HPE
