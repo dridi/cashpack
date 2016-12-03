@@ -111,8 +111,8 @@ struct hpack_size {
 	size_t			mem;
 	/* NB: max represents the maximum table size defined by the decoder,
 	 * conveyed out of band with for example HTTP/2 settings. The lim
-	 * field represents the soft limit chosen the encoder and it must not
-	 * exceed the maximum.
+	 * field represents the soft limit chosen by the encoder and it must
+	 * not exceed the maximum.
 	 *
 	 * See RFC 7541 section 4.2. for the details.
 	 */
