@@ -50,6 +50,7 @@ HPV_value(HPACK_CTX, const char *str, size_t len, unsigned first)
 	assert(str != NULL);
 	while (len > 0) {
 		c = (uint8_t)*str;
+		/* RFC 7230 3.2.  Header Fields */
 		EXPECT(ctx, CHR, c == '\t' || (c >= ' ' && c != 0x7f));
 		assert(IS_FIELD_VALUE(c));
 		str++;
