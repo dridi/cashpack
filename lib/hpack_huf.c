@@ -100,10 +100,7 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		he -= he->cod - hs->cod;
 		assert(he->cod == hs->cod);
 
-		EXPECT(ctx, BIG, ctx->buf_len > 0);
-		*ctx->buf = he->chr;
-		ctx->buf++;
-		ctx->buf_len--;
+		CALL(HPD_putc, ctx, he->chr);
 
 		assert(hs->blen >= he->len);
 		hs->blen -= he->len;
@@ -134,11 +131,8 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		assert(hs->blen == 0);
 	}
 
-	EXPECT(ctx, BIG, ctx->buf_len > 0);
-	*ctx->buf = '\0';
-	CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str);
-	ctx->buf++;
-	ctx->buf_len--;
+	CALL(HPD_putc, ctx, '\0');
+	CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str - 1);
 	ctx->buf_str = NULL;
 
 	return (0);

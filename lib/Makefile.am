@@ -37,6 +37,7 @@ lib_LTLIBRARIES = libhpack.la
 
 libhpack_la_SOURCES = \
 	hpack.c \
+	hpack_dec.c \
 	hpack_enc.c \
 	hpack_huf.c \
 	hpack_int.c \

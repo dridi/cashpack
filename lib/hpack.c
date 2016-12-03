@@ -417,19 +417,11 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	if (!fit)
 		len = ctx->len;
 
-	CALL(val, ctx, (char *)ctx->blk, len, hs->first);
-
-	EXPECT(ctx, BIG, ctx->buf_len > len);
-	(void)memcpy(ctx->buf, ctx->blk, len);
-	ctx->buf += len;
-	ctx->buf_len -= len;
-
+	CALL(val, ctx, (const char *)ctx->blk, len, hs->first);
+	CALL(HPD_cat, ctx, (const char *)ctx->blk, len);
 	if (fit) {
-		EXPECT(ctx, BIG, ctx->buf_len > 0);
-		*ctx->buf = '\0';
-		CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str);
-		ctx->buf++;
-		ctx->buf_len--;
+		CALL(HPD_putc, ctx, '\0');
+		CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str - 1);
 		ctx->buf_str = NULL;
 	}
 
