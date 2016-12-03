@@ -102,9 +102,7 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		printf(": ");
 		/* fall through */
 	case HPACK_EVT_NAME:
-	case HPACK_EVT_DATA:
-		if (buf != NULL)
-			fwrite(buf, len, 1, stdout);
+		fwrite(buf, len, 1, stdout);
 		/* fall through */
 	default:
 		/* ignore other events */

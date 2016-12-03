@@ -418,14 +418,6 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		len = ctx->len;
 
 	CALL(val, ctx, (char *)ctx->blk, len, hs->first);
-	if (hs->len <= len || !hs->first) {
-		if (hs->first)
-			CALLBACK(ctx, evt, NULL, hs->len);
-		if (len > 0)
-			CALLBACK(ctx, HPACK_EVT_DATA, (char *)ctx->blk, len);
-	}
-	else
-		CALLBACK(ctx, evt, (char *)ctx->blk, len);
 
 	EXPECT(ctx, BIG, ctx->buf_len > len);
 	(void)memcpy(ctx->buf, ctx->blk, len);
@@ -435,8 +427,10 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	if (fit) {
 		EXPECT(ctx, BIG, ctx->buf_len > 0);
 		*ctx->buf = '\0';
+		CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str);
 		ctx->buf++;
 		ctx->buf_len--;
+		ctx->buf_str = NULL;
 	}
 
 	ctx->blk += len;
@@ -503,6 +497,7 @@ hpack_decode_field(HPACK_CTX)
 	switch (ctx->hp->state.stp) {
 	case HPACK_STP_FLD_INT:
 		ctx->hp->state.stp = HPACK_STP_NAM_LEN;
+		ctx->buf_str = ctx->buf;
 		/* fall through */
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_NAM_STR:
@@ -511,6 +506,7 @@ hpack_decode_field(HPACK_CTX)
 		else
 			CALL(HPT_decode_name, ctx);
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
+		ctx->buf_str = ctx->buf;
 		/* fall through */
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
@@ -563,12 +559,18 @@ hpack_decode_dynamic(HPACK_CTX)
 	if (hpack_decode_field(&tbl_ctx) != 0) {
 		assert(tbl_ctx.res != ctx->res);
 		ctx->res = tbl_ctx.res;
+		ctx->buf = tbl_ctx.buf;
+		ctx->buf_len = tbl_ctx.buf_len;
+		ctx->buf_str = tbl_ctx.buf_str;
 		return (-1);
 	}
 
 	assert(tbl_ctx.res == ctx->res);
 	ctx->blk = tbl_ctx.blk;
 	ctx->len = tbl_ctx.len;
+	ctx->buf = tbl_ctx.buf;
+	ctx->buf_len = tbl_ctx.buf_len;
+	ctx->buf_str = tbl_ctx.buf_str;
 	hp->off = 0;
 
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);

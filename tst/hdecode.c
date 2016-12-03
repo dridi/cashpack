@@ -93,14 +93,11 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		OUT(": ");
 		/* fall through */
 	case HPACK_EVT_NAME:
-		if (buf != NULL)
-			WRT(buf, len);
-		break;
-	case HPACK_EVT_DATA:
 		assert(buf != NULL);
-		assert(len > 0);
+		assert(len == strlen(buf));
 		WRT(buf, len);
 		break;
+	case HPACK_EVT_DATA:
 	default:
 		WRONG("Unknown event");
 	}

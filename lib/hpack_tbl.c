@@ -245,10 +245,6 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
 		}
 		priv->nam = 0;
 		break;
-	case HPACK_EVT_DATA:
-		assert(buf != NULL);
-		assert(len > 0);
-		break;
 	case HPACK_EVT_INDEX:
 		assert(buf == NULL);
 		assert(len == 0);
@@ -268,15 +264,14 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
 }
 
 static unsigned
-hpt_fit(struct hpt_priv *priv, const char *buf, size_t len)
+hpt_fit(struct hpt_priv *priv, size_t len)
 {
 	struct hpack *hp;
 
 	hp = priv->ctx->hp;
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
-	if (buf != NULL)
-		priv->ctx->ins += len;
+	priv->ctx->ins += len;
 
 	/* fitting the new field may require eviction */
 	HPT_adjust(priv->ctx, hp->sz.len + priv->ctx->ins);
@@ -320,6 +315,7 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 	struct hpt_entry tmp;
 	void *ptr;
 
+	assert(buf != NULL);
 	hp = priv->ctx->hp;
 
 	if (hp->cnt > 0) {
@@ -336,8 +332,7 @@ hpt_copy(struct hpt_priv *priv, const char *buf, size_t len)
 	if (hpt_overlap(hp, buf, len))
 		buf += priv->ctx->ins;
 
-	if (buf != NULL)
-		(void)memcpy(priv->wrt, buf, len);
+	(void)memcpy(priv->wrt, buf, len);
 }
 
 static void
@@ -399,6 +394,7 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_EVICT);
 	assert(evt != HPACK_EVT_TABLE);
+	assert(evt != HPACK_EVT_DATA);
 
 	priv2 = priv;
 	hp = priv2->ctx->hp;
@@ -409,7 +405,7 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(hp->cnt > 0);
 	}
 
-	if (!hpt_notify(priv2, evt, buf, len) || !hpt_fit(priv2, buf, len))
+	if (!hpt_notify(priv2, evt, buf, len) || !hpt_fit(priv2, len))
 		return;
 
 	priv2->wrt = evt == HPACK_EVT_NAME ?
@@ -445,9 +441,6 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		(void)memset(hp->tbl, 0, HPT_HEADERSZ);
 		hp->tbl->magic = HPT_ENTRY_MAGIC;
 	}
-
-	if (buf == NULL)
-		return;
 
 	if (priv2->nam)
 		hp->tbl->nam_sz += len;

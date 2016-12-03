@@ -94,6 +94,7 @@ struct hpack_ctx {
 	};
 	size_t					len;
 	char					*buf;
+	char					*buf_str;
 	size_t					buf_len;
 	size_t					ins;
 	hpack_callback_f			*cb;

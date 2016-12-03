@@ -140,13 +140,9 @@ HPE(VALUE, 4, "field Value",
 	"\tfield's name, it signals its value.\n\n")
 
 HPE(DATA,  5, "raw data",
-	"\tA decoder sends DATA events for every chunks of Huffman octets\n"
-	"\tsuccessfully decoded. It may send DATA events when the HPACK\n"
-	"\tblock expects a continuation in the middle of the string.\n\n"
-
 	"\tAn encoder sends DATA events when the encoding buffer is full,\n"
 	"\tor when the encoding process is over and there are remaining\n"
-	"\toctets\n\n"
+	"\toctets.\n\n"
 
 	"\tIn both cases *buf* points to *len* octets of data.\n\n")
 

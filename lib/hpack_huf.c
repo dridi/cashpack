@@ -50,14 +50,13 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	const struct hph_entry *he;
 	struct hpack_state *hs;
 	hpack_validate_f *val;
-	char *buf;
+	char *ptr;
 	unsigned eos, l;
 
 	hs = &ctx->hp->state;
-	buf = ctx->buf;
+	ptr = ctx->buf;
 
 	if (hs->first) {
-		CALLBACK(ctx, evt, NULL, len);
 		hs->blen = 0;
 		hs->bits = 0;
 		hs->cod = UINT16_MAX;
@@ -102,8 +101,8 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		assert(he->cod == hs->cod);
 
 		EXPECT(ctx, BIG, ctx->buf_len > 0);
-		*buf = he->chr;
-		buf++;
+		*ctx->buf = he->chr;
+		ctx->buf++;
 		ctx->buf_len--;
 
 		assert(hs->blen >= he->len);
@@ -113,12 +112,10 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		hs->pos = 9;
 	}
 
-	assert(buf >= ctx->buf);
-	l = buf - ctx->buf;
+	assert(ctx->buf >= ptr);
+	l = ctx->buf - ptr;
 	if (l > 0) {
-		CALL(val, ctx, ctx->buf, l, hs->first);
-		CALLBACK(ctx, HPACK_EVT_DATA, ctx->buf, l);
-		ctx->buf = buf;
+		CALL(val, ctx, ptr, l, hs->first);
 		hs->first = 0;
 	}
 
@@ -130,16 +127,19 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 		assert(hs->blen > 0);
 		EXPECT(ctx, HUF, hs->blen < 8);
 		EXPECT(ctx, HUF, hs->bits + 1 == (uint64_t)(1 << hs->blen));
-		EXPECT(ctx, BIG, ctx->buf_len > 0);
-		*buf = '\0';
-		buf++;
-		ctx->buf_len--;
 	}
 	else {
 		/* no padding */
 		assert(hs->bits == 0);
 		assert(hs->blen == 0);
 	}
+
+	EXPECT(ctx, BIG, ctx->buf_len > 0);
+	*ctx->buf = '\0';
+	CALLBACK(ctx, evt, ctx->buf_str, ctx->buf - ctx->buf_str);
+	ctx->buf++;
+	ctx->buf_len--;
+	ctx->buf_str = NULL;
 
 	return (0);
 }
