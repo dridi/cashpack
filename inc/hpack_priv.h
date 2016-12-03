@@ -94,8 +94,11 @@ struct hpack_ctx {
 	};
 	size_t					len;
 	char					*buf;
-	char					*buf_str;
 	size_t					buf_len;
+	struct {
+		const char			*nam_str;
+		const char			*val_str;
+	} fld;
 	size_t					ins;
 	hpack_callback_f			*cb;
 	void					*priv;
