@@ -456,14 +456,23 @@ int
 HPT_decode(HPACK_CTX, size_t idx)
 {
 	struct hpt_field hf;
+	const char *str;
+
+	assert(ctx->buf_str == NULL);
 
 	EXPECT(ctx, IDX, idx > 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, idx, &hf);
 	assert(hf.nam != NULL);
 	assert(hf.val != NULL);
-	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
-	CALLBACK(ctx, HPACK_EVT_VALUE, hf.val, hf.val_sz);
+
+	str = ctx->buf;
+	CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
+	CALLBACK(ctx, HPACK_EVT_NAME, str, hf.nam_sz);
+
+	str = ctx->buf;
+	CALL(HPD_puts, ctx, hf.val, hf.val_sz);
+	CALLBACK(ctx, HPACK_EVT_VALUE, str, hf.val_sz);
 
 	return (0);
 }
@@ -473,11 +482,14 @@ HPT_decode_name(HPACK_CTX)
 {
 	struct hpt_field hf;
 
+	assert(ctx->buf_str == ctx->buf);
 	assert(ctx->hp->state.idx != 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, ctx->hp->state.idx, &hf);
 	assert(hf.nam != NULL);
-	CALLBACK(ctx, HPACK_EVT_NAME, hf.nam, hf.nam_sz);
+
+	CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
+	CALLBACK(ctx, HPACK_EVT_NAME, ctx->buf_str, hf.nam_sz);
 
 	return (0);
 }
