@@ -166,6 +166,11 @@ requires to build empty files for the HTTP message and the dynamic table::
 
     tst_encode --expect-error IDX # expect an invalid index
 
+For the specific needs of decoding, another option handled by ``hdecode`` only
+can lower the decoding buffer below its default value::
+
+    tst_decode --expect-error BIG --buffer-size 256
+
 When several header blocks are decoded at once, the size of all blocks are
 passed as a comma-separated list. The last size is omitted and instead deduced
 from the total size::
@@ -309,7 +314,8 @@ Of course all this extra-tooling comes after the very first testing facility
 in cashpack: ``assert``. What unit tests often do besides checking computation
 results is the verification that invariants are met. Instead of outsourcing
 invariant checks, they are closer to potential faults origins: the source code
-itself. About 5% of the code is dedicated to that.
+itself. About 5% of the whole C code base is dedicated to that, but it's about
+8% for the library itself.
 
 Reporting
 ---------
@@ -415,16 +421,16 @@ like this::
     tst/common.sh: line 57: 16044 Aborted                 (core dumped) "$@"
     FAIL rfc7541_c_6_3 (exit status: 134)
 
-If that's really not enough, then all hail the mighty debugger.
+If that's really not enough, then all hail the mighty interactive debugger.
 
 Closing words
 -------------
 
 There are no unit tests in cashpack, and yet the library had a decent coverage
-of 90% at the time of the writing of this documentation's first revision. That
-would be some average of lines of code functions and branches coverage if that
-even means anything. The code coverage of a test suite doesn't even necessary
-reflect the quality of the tests.
+of 90% [1]_ at the time of the writing of this documentation's first revision.
+That would be some average of lines of code functions and branches coverage if
+that even means anything. The code coverage of a test suite doesn't even
+necessary reflect the quality of the tests.
 
 It's just a numbers game and some kinds of *wossname* coverage are quite hard
 to quantify, like for example the infinite possibilities of decodable input,
@@ -433,8 +439,8 @@ State is probably one of the hardest thing to cover in general, and setting up
 the system under test can be a lot easier with unit testing. It also means
 introducing heavy coupling, whereas raising the level of abstraction may allow
 testing even if the internals radically change, as it is done with ``nghttp2``
-today and may be done for a hypothetical redesign of cashpack or the addition
-of more interoperability checks.
+today and may be done for a (not so [2]_) hypothetical redesign of cashpack or
+the addition of more interoperability checks.
 
 Finally, some things can't be tested easily without making shell parts more
 complex or less portable by sticking to something like ``bash``. In all cases,
@@ -442,3 +448,7 @@ unless I come up with a satisfying solution, I won't automate testing and most
 definitely not resort to unit tests.
 
 That being said, Happy Testing!
+
+.. [1] The coverage peaked at 99% for the library and should stay there
+.. [2] The transition from zero-copy to single-copy was painless with almost
+       no changes to the test suite

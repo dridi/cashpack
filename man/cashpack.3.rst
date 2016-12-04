@@ -146,9 +146,10 @@ DECODER VS ENCODER
 
 The only difference between a decoder and an encoder are the operations they
 each perform. A decoder and an encoder sharing both ends of an HPACK session
-maintain a single dynamic table in sync. They share the same state (HTTP is
-otherwise a stateless protocol) and this reflects on the type system as both
-decoders and encoders have the same ``struct hpack *`` type.
+logically maintain a single dynamic table in sync, of which both maintain a
+local copy on their ends. They share the same state (HTTP is otherwise a
+stateless protocol) and this reflects on the type system as both decoders and
+encoders have the same ``struct hpack *`` type.
 
 When performing an HTTP/2 session, you will need to allocate both an encoder
 and a decoder, one of each being either for requests or responses. Both HPACK

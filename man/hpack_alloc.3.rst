@@ -87,7 +87,7 @@ pointer's destination MUST outlive HPACK codecs created using it.
 The memory management functions, if specified, MUST follow the same semantics
 as **malloc**\(3) **realloc**\(3) and **free**\(3). Especially, the ``malloc``
 operation is responsible for meeting platform-specific alignment requirements.
-It is NOT necessary to initialize memory like ``calloc(3)`` would do, cashpack
+It's NOT necessary to initialize memory like **calloc**\(3) would do, cashpack
 will always write to memory before reading it. *hpack_default_alloc* is here
 to provide a thin wrapper on top of the libc standard functions.
 
@@ -115,7 +115,7 @@ The absolute maximum size for the dynamic table is 65535 octets.
 
 The *mem* argument allows you to define the initial allocation size for the
 dynamic table. This is the safest way to guarantee a single allocation. A
-decoder that plans to resize the dynamic table must to defer the actual resize
+decoder that plans to resize the dynamic table must defer the actual resize
 operation, in HTTP/2 it happens after a settings acknowledgement. An encoder
 on the other hand must obey the size changes mandated by its peer decoder, so
 setting *mem* to a non-negative value is the single-allocation equivalent to::

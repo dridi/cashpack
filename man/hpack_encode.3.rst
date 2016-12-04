@@ -113,37 +113,36 @@ The state machine is laid out so that moving down means making progress in the
 decoding process, and moving right implies a hierarchical relationship between
 events. For instance a NAME event belongs after a FIELD event::
 
-    (start)     .----.
-       |        v    |
-       +----> EVICT -'
+    (start)
+       |
+       +----> EVICT
        |        |
        |        v
        +----> TABLE ---.
-       |       | .---. |
-       |       v v   | |
-       +----> EVICT -' |
+       |        |      |
+       |        v      |
+       +----> EVICT    |
        |        |      |
        |        v      |
        +----> TABLE <--'
        |        |
-       |        |      .---.
-       |        v      v   |
-       '----> FIELD    EVICT
-               ^ |       ^
-               | |       |
-               | '--->---+
-               |         | .--.
-               |         v v  |
-               +--<---- DATA -'
-               |         |
-               |         v
-    (end) <----+--<--- INDEX
+       |        |
+       |        v
+       '----> FIELD ---> EVICT
+               ^ |         |
+               | '---->----+
+               |           | .--.
+               |           v v  |
+               +----<---- DATA -'
+               |           |
+               |           v
+    (end) <----+----<--- INDEX
 
 If you are familiar with regular expressions, here is a translation of the
 encoding state machine to a regular expressions using the initials of the
 events names::
 
-    ^(E*T(E*T)?)?(F(E*D+)+I?)+$
+    ^(E?T(E?T)?)?(FE?D+I?)+$
 
 The state machine may look complex, but this is mainly due to dynamic table
 events that *might* be emitted on many occasions. Here is the same state
@@ -153,26 +152,25 @@ many times and ``BAZ`` events can happen one to many times::
 
     (start)
        |
-       +----> EVICT*
+       +----> EVICT?
        |        |
        |        v
        |      TABLE
        |        |
        |        v
-       |      EVICT*
+       |      EVICT?
        |        |
        |        v
        |      TABLE?
        |        |
        |        v
-       '----> FIELD ---> EVICT*
-                ^          ^
-                |          |
+       '----> FIELD ---> EVICT?
+                ^          |
                 |          v
                 |        DATA+
                 |          |
                 |          v
-    (end) <-----+------- INDEX?
+    (end) <-----+---<--- INDEX?
 
 But the role of the dynamic table events is not directly related to the HTTP
 message that is being decoded. If you focus on the events that help you build
@@ -181,9 +179,9 @@ an HPACK block, it becomes a lot simpler::
     (start)
        |
        '----> FIELD ---> DATA+
-                ^          |
-                |          |
-    (end) <-----+----------'
+                ^         |
+                |         |
+    (end) <-----+----<----'
 
 The FIELD event is merely here to allow changes before a header gets encoded.
 You can for instance use table events to detect that fields with indexed flags
@@ -245,7 +243,6 @@ In this example the header lists will be read from a file:
 
 Assuming a standard installation of cashpack, the program can be compiled and
 will produce the following logs, the binary output being ignored:
-
 
 .. include:: cashdumb.out
     :literal:

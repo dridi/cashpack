@@ -64,11 +64,20 @@ being decoded.
 
 The *blk* field is a pointer to the block or partial block memory of *blk_len*
 octets. All block input octets are always consumed before requiring new input,
-allowing the caller to reuse its buffer. Decoding is performed in a working
-memory buffer *buf* of *buf_len* octets, the working buffer doesn't need to be
-larger than the block and can safely be reused in subsequent calls. All the
-events are described in the ``cashpack``\ (3) manual. The *priv* pointer is
-passed to the *cb* callback for all the events.
+allowing the caller to reuse its buffer.
+
+Decoding is performed in a working memory buffer *buf* of *buf_len* octets.
+The buffer needs to be large enough to contain a fully decoded header list.
+While this may not (rightly) be much stateless in your book, this single copy
+in the buffer enables simpler internals for the library and a simpler usage.
+
+At the end of a block, all headers names and values are written consecutively
+as null-terminated character strings. It also means that NAME and VALUE yield
+persistent strings in a message's lifetime. When an HPACK block is decoded in
+several passes, the exact same *buf* and *buf_len* must be passed to all calls
+to ``hpack_decode()``.
+
+The *priv* pointer is passed to the *cb* callback for all the events.
 
 If *cut* is zero, the HPACK block being decoded is expected to end with the
 *dec->blk_len* octets.
@@ -85,47 +94,35 @@ The state machine is laid out so that moving down means making progress in the
 decoding process, and moving right implies a hierarchical relationship between
 events. For instance a NAME event belongs after a FIELD event::
 
-    (start)     .----.
-       |        v    |
-       +----> EVICT -'
+    (start)
+       |
+       +----> EVICT
        |        |
        |        v
        +----> TABLE ---.
-       |       | .---. |
-       |       v v   | |
-       +----> EVICT -' |
+       |        |      |
+       |        v      |
+       +----> EVICT    |
        |        |      |
        |        v      |
        +----> TABLE <--'
        |        |
        |        v
        '----> FIELD ---> NEVER ---.
-               ^ |        | .---. |
-               | |        v v   | |
-               | +-----> EVICT -' |
-               | |       |        |
+               ^ |        |       |
+               | |        v       |
+               | +-----> EVICT    |
                | |       |  .-----'
                | |       |  |
-               | |       |  |      .---.
-               | |       v  v      v   |
-               | '-----> NAME -+-> EVICT
-               |         | |   |     ^
-               |   .-----' |   '---. |
-               |   |       |       | |
-               |   |       |       v v
-               |   |  .--. | .---- DATA
-               |   |  |  v v v       |
-               |   |  '- EVICT       |
-               |   '-----. | .-------'
-               |         | | |      .---.
-               |         v v v      v   |
-               |         VALUE -+-> EVICT
-               |           |    |     ^
-               |           v    '---. |
-               |           |        v v
-    (end) <----+-----<-----+---<--- DATA -.
-               ^           |         ^    |
-               |           v         '----'
+               | |       v  v
+               | '-----> NAME
+               |           |
+               |           v
+               |         VALUE
+               |           |
+    (end) <----+-----<-----+
+               ^           |
+               |           v
                '-------- INDEX
 
 If you are familiar with regular expressions, here is a translation of the
@@ -133,7 +130,7 @@ decoding state machine to a regular expressions using the initials of the
 events names. ``NEVER`` is translated to lowercase ``n`` and ``NAME`` to
 uppercase ``N``::
 
-    ^(E*T(E*T)?)?(Fn?E*N(E*D+)*E*V(E*D+)*I?)+$
+    ^(E?T(E?T)?)?(Fn?E?NVI?)+$
 
 The state machine may look complex, but this is mainly due to dynamic table
 events that *might* be emitted on many occasions. Here is the same state
@@ -143,13 +140,13 @@ many times and ``BAZ`` events can happen one to many times::
 
     (start)
        |
-       +----> EVICT*
+       +----> EVICT?
        |        |
        |        v
        |      TABLE
        |        |
        |        v
-       |      EVICT*
+       |      EVICT?
        |        |
        |        v
        |      TABLE?
@@ -158,24 +155,15 @@ many times and ``BAZ`` events can happen one to many times::
        '----> FIELD ---> NEVER?
                 ^          |
                 |          v
-                |        EVICT*
+                |        EVICT?
                 |          |
                 |          v
-                |        NAME ---> EVICT*
-                |         |          ^
-                |         |          |
-                |         |          v
-                |         | .----- DATA+
-                |         v v
-                |        EVICT*
+                |        NAME
                 |          |
                 |          v
-                |        VALUE ---> EVICT*
-                |         |           ^
-                |         |           |
-                |         |           v
-                |         | .------ DATA+
-                |         v v
+                |        VALUE
+                |          |
+                |          v
     (end) <-----+---<--- INDEX?
 
 But the role of the dynamic table events is not directly related to the HTTP
@@ -184,14 +172,12 @@ a header list, it becomes a lot simpler::
 
     (start)
        |
-       '---> FIELD ---> NAME ---> DATA*
-               ^                    |
-               |         .----------'
-               |         |
+       '---> FIELD ---> NAME
+               ^         |
                |         v
-               |       VALUE ---> DATA*
-               |                    |
-    (end) <----+-----<--------------'
+               |       VALUE
+               |         |
+    (end) <----+-----<---'
 
 This last state machine describes the events where ordering is key. If you
 follow arrows in the detailed state machines, you will find that a ``NEVER``

@@ -17,6 +17,12 @@ cashpack.
    :alt: Codecov badge
    :target: https://codecov.io/gh/Dridi/cashpack
 
+It started as a research project and became the basis for Varnish's HPACK
+implementation. To learn more about its origins, you can watch this talk_
+from the first edition of VarnishCon.
+
+.. _talk: https://www.infoq.com/fr/presentations/varnishcon-dridi-boukelmoune-hpack-vs-varnish-cache
+
 How to use
 -----------
 
@@ -79,12 +85,16 @@ single reallocation too.
 
 By default cashpack relies on malloc(3), realloc(3) and free(3).
 
-3. Zero-copy in the library code
+3. Single-copy in the library code
 
 Except when a field needs to be inserted in the dynamic table, cashpack may
-not copy data around. However an insertion in the dynamic table requires to
-move the existing contents to make room for the new field. Evictions on the
-other hand are cheap.
+copy, decode, or encode data exactly once. The goal used to be zero-copy but
+proved to be harder to implement and less efficient. Insertions in the dynamic
+tables copy data a second "single" time, but contents need to be moved prior
+to that. Under certain circumstances, data may need to be moved in several
+steps, but only during encoding. This is no longer a DOS vector for decoding.
+
+Evictions from the dynamic table on the other hand are very cheap.
 
 4. Self-contained
 
