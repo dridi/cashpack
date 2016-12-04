@@ -262,20 +262,20 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
 }
 
 static unsigned
-hpt_fit(struct hpt_priv *priv, size_t len)
+hpt_fit(HPACK_CTX, size_t len)
 {
 	struct hpack *hp;
 
-	hp = priv->ctx->hp;
+	hp = ctx->hp;
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
-	priv->ctx->ins += len;
+	ctx->ins += len;
 
 	/* fitting the new field may require eviction */
-	HPT_adjust(priv->ctx, hp->sz.len + priv->ctx->ins);
+	HPT_adjust(ctx, hp->sz.len + ctx->ins);
 
 	/* does the new field even fit alone? */
-	if (priv->ctx->ins > HPACK_LIMIT(hp)) {
+	if (ctx->ins > HPACK_LIMIT(hp)) {
 		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 		return (0);
@@ -403,7 +403,7 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(hp->cnt > 0);
 	}
 
-	if (!hpt_notify(priv2, evt, buf, len) || !hpt_fit(priv2, len))
+	if (!hpt_notify(priv2, evt, buf, len) || !hpt_fit(priv2->ctx, len))
 		return;
 
 	priv2->wrt = evt == HPACK_EVT_NAME ?
