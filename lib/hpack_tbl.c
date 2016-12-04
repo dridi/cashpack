@@ -447,11 +447,44 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 }
 
 void
+hpt_move_evicted(HPACK_CTX, const char *nam, size_t nam_sz, size_t len)
+{
+	struct hpack *hp;
+	char tmp[64], *nam_ptr;
+	void *tbl_ptr;
+	size_t sz, mv;
+
+	hp = ctx->hp;
+	tbl_ptr = hp->tbl;
+	nam_ptr = JUMP(hp->tbl, 0);
+	nam_sz++; /* null character */
+	mv = 0;
+
+	while (nam_sz > 0) {
+		sz = nam_sz < sizeof tmp ? nam_sz : sizeof tmp;
+		mv += sz;
+
+		(void)memcpy(tmp, nam, sz);
+		(void)memmove(MOVE(hp->tbl, mv), tbl_ptr, hp->sz.len);
+		(void)memcpy(nam_ptr, tmp, sz);
+
+		len -= sz;
+		nam += sz;
+		nam_sz -= sz;
+		tbl_ptr = MOVE(tbl_ptr, sz);
+	}
+
+	assert(len > HPT_HEADERSZ);
+	(void)memmove(MOVE(tbl_ptr, len), tbl_ptr, hp->sz.len);
+}
+
+void
 HPT_index(HPACK_CTX)
 {
 	struct hpack *hp;
 	void *nam_ptr, *val_ptr;
 	size_t len, nam_sz, val_sz;
+	unsigned ovl;
 
 	assert(ctx->fld.nam != NULL);
 	assert(ctx->fld.val != NULL);
@@ -462,20 +495,29 @@ HPT_index(HPACK_CTX)
 	assert(ctx->fld.nam[nam_sz] == '\0');
 	assert(ctx->fld.val[val_sz] == '\0');
 
+	hp = ctx->hp;
+	ovl = hpt_overlap(hp, ctx->fld.nam, nam_sz);
+	assert(!hpt_overlap(hp, ctx->fld.val, val_sz));
+
 	len = HPT_OVERHEAD + nam_sz + val_sz;
 	ctx->ins = 0; /* XXX: to be removed */
 	if (!hpt_fit(ctx, len))
 		return;
 
-	hp = ctx->hp;
-	if (hp->cnt > 0) {
-		hp->tbl->pre_sz = len;
-		(void)memmove(MOVE(hp->tbl, len), hp->tbl, hp->sz.len);
-	}
+	if (hp->cnt == 0)
+		ovl = 0;
 
 	nam_ptr = JUMP(hp->tbl, 0);
 	val_ptr = JUMP(hp->tbl,  nam_sz + 1);
-	(void)memcpy(nam_ptr, ctx->fld.nam, nam_sz + 1);
+	hp->tbl->pre_sz = len;
+
+	if (ovl)
+		hpt_move_evicted(ctx, ctx->fld.nam, nam_sz, len);
+	else if (hp->cnt > 0)
+		(void)memmove(MOVE(hp->tbl, len), hp->tbl, hp->sz.len);
+
+	if (!ovl)
+		(void)memcpy(nam_ptr, ctx->fld.nam, nam_sz + 1);
 	(void)memcpy(val_ptr, ctx->fld.val, val_sz + 1);
 
 	hp->tbl->magic = HPT_ENTRY_MAGIC;

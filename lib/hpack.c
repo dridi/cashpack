@@ -735,49 +735,18 @@ hpack_encode_indexed(HPACK_CTX, HPACK_FLD)
 static int
 hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 {
-	struct hpack *hp;
 	struct hpt_field hf;
-	struct hpt_priv priv;
-	size_t nam_sz, val_sz;
-#ifndef NDEBUG
-	struct hpt_entry tmp;
-#endif
 
 	CALL(hpack_encode_field, ctx, fld, HPACK_PAT_DYN, HPACK_PFX_DYN);
-
-	hp = ctx->hp;
-
-	(void)memset(&priv, 0, sizeof priv);
-	priv.ctx = ctx;
-	priv.he = hp->tbl;
-
 	if (fld->flg & HPACK_FLG_NAM_IDX) {
 		(void)HPT_search(ctx, fld->nam_idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
-		HPT_insert(HPACK_EVT_NAME, hf.nam, hf.nam_sz, &priv);
+		ctx->fld.nam = hf.nam;
 	}
-	else {
-		nam_sz = strlen(fld->nam);
-		HPT_insert(HPACK_EVT_NAME, fld->nam, nam_sz, &priv);
-	}
-
-	val_sz = strlen(fld->val);
-	HPT_insert(HPACK_EVT_VALUE, fld->val, val_sz, &priv);
-
-	hp->off = 0;
-	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
-
-	if (ctx->ins <= HPACK_LIMIT(hp)) {
-		HPT_insert(HPACK_EVT_INDEX, NULL, 0, &priv);
-		hp->sz.len += ctx->ins;
-		if (++ctx->hp->cnt > 1) {
-#ifndef NDEBUG
-			(void)memcpy(&tmp, priv.he, sizeof tmp);
-			assert(tmp.pre_sz > 0);
-			assert((size_t)tmp.pre_sz == ctx->ins);
-#endif
-		}
-	}
+	else
+		ctx->fld.nam = fld->nam;
+	ctx->fld.val = fld->val;
+	HPT_index(ctx);
 
 	return (0);
 }
