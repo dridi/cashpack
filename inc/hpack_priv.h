@@ -128,7 +128,7 @@ struct hpack_size {
 	size_t			len;
 	/* NB: When the size is updated out of band by the decoder, it must be
 	 * signalled by the encoder in an HPACK block. However, this change is
-	 * deferred until the encode acknowledges the change happening out of
+	 * deferred until the encoder acknowledges the change happening out of
 	 * band. The decoder may also resize the table more than once in which
 	 * case we keep track of the last (nxt) change and the smallest (min)
 	 * one.
