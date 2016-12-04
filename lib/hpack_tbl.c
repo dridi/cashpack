@@ -461,10 +461,10 @@ HPT_decode(HPACK_CTX, size_t idx)
 	assert(hf.nam != NULL);
 	assert(hf.val != NULL);
 
-	ctx->fld.nam_str = ctx->buf;
+	ctx->fld.nam = ctx->buf;
 	CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
 
-	ctx->fld.val_str = ctx->buf;
+	ctx->fld.val = ctx->buf;
 	CALL(HPD_puts, ctx, hf.val, hf.val_sz);
 
 	HPD_notify(ctx);
@@ -476,7 +476,7 @@ HPT_decode_name(HPACK_CTX)
 {
 	struct hpt_field hf;
 
-	assert(ctx->fld.nam_str == ctx->buf);
+	assert(ctx->fld.nam == ctx->buf);
 	assert(ctx->hp->state.idx != 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, ctx->hp->state.idx, &hf);

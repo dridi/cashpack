@@ -72,8 +72,8 @@ HPD_notify(HPACK_CTX)
 {
 
 	/* XXX: don't recompute the length */
-	CALLBACK(ctx, HPACK_EVT_NAME, ctx->fld.nam_str,
-	    strlen(ctx->fld.nam_str));
-	CALLBACK(ctx, HPACK_EVT_VALUE, ctx->fld.val_str,
-	    strlen(ctx->fld.val_str));
+	CALLBACK(ctx, HPACK_EVT_NAME, ctx->fld.nam,
+	    strlen(ctx->fld.nam));
+	CALLBACK(ctx, HPACK_EVT_VALUE, ctx->fld.val,
+	    strlen(ctx->fld.val));
 }

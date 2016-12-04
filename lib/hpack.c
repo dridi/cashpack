@@ -486,7 +486,7 @@ hpack_decode_field(HPACK_CTX)
 	switch (ctx->hp->state.stp) {
 	case HPACK_STP_FLD_INT:
 		ctx->hp->state.stp = HPACK_STP_NAM_LEN;
-		ctx->fld.nam_str = ctx->buf;
+		ctx->fld.nam = ctx->buf;
 		/* fall through */
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_NAM_STR:
@@ -495,7 +495,7 @@ hpack_decode_field(HPACK_CTX)
 		else
 			CALL(HPT_decode_name, ctx);
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
-		ctx->fld.val_str = ctx->buf;
+		ctx->fld.val = ctx->buf;
 		/* fall through */
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
@@ -550,11 +550,11 @@ hpack_decode_dynamic(HPACK_CTX)
 
 	/* XXX: temp hack */
 	priv.nam = 1;
-	CALLBACK(&tbl_ctx, HPACK_EVT_NAME, ctx->fld.nam_str,
-	    strlen(ctx->fld.nam_str));
+	CALLBACK(&tbl_ctx, HPACK_EVT_NAME, ctx->fld.nam,
+	    strlen(ctx->fld.nam));
 	priv.nam = 0;
-	CALLBACK(&tbl_ctx, HPACK_EVT_VALUE, ctx->fld.val_str,
-	    strlen(ctx->fld.val_str));
+	CALLBACK(&tbl_ctx, HPACK_EVT_VALUE, ctx->fld.val,
+	    strlen(ctx->fld.val));
 
 	assert(tbl_ctx.res == ctx->res);
 	hp->off = 0;

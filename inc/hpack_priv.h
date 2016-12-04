@@ -96,8 +96,8 @@ struct hpack_ctx {
 	char					*buf;
 	size_t					buf_len;
 	struct {
-		const char			*nam_str;
-		const char			*val_str;
+		const char			*nam;
+		const char			*val;
 	} fld;
 	size_t					ins;
 	hpack_callback_f			*cb;
