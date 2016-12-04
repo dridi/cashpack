@@ -174,10 +174,6 @@ struct hpack {
 	struct hpack_state	state;
 	/* NB: cnt is the entries counter. */
 	size_t			cnt;
-	/* NB: off keep tracks of the table offset when an entry is inserted
-	 * and the whole table is moved in a FIFO fashion.
-	 */
-	ptrdiff_t		off;
 	/* NB: Decoding is inherently stateful, so the context might as well
 	 * be part of the whole data structure. It is still a separate data
 	 * structure because it is possible to chain contexts.

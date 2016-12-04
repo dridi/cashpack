@@ -233,7 +233,6 @@ static void
 tst_dump(struct hpack *hp)
 {
 	const char *magic;
-	uint8_t *ptr;
 
 	if (hp == NULL)
 		return;
@@ -268,11 +267,9 @@ tst_dump(struct hpack *hp)
 	// XXX: do when bored
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
-	fprintf(stderr, "\t.off = %zd\n", hp->off);
 
-	ptr = (uint8_t *)hp->tbl + hp->off;
-	fprintf(stderr, "\t.tbl = %p <<EOF\n", ptr);
-	tst_hexdump(ptr, hp->sz.len, "\t");
+	fprintf(stderr, "\t.tbl = %p <<EOF\n", hp->tbl);
+	tst_hexdump(hp->tbl, hp->sz.len, "\t");
 	fprintf(stderr, "\tEOF\n");
 	fprintf(stderr, "}\n");
 }

@@ -67,14 +67,14 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 	struct hpt_entry *he, tmp;
 	ptrdiff_t off;
 
-	he = MOVE(hp->tbl, hp->off);
-	(void)memcpy(&tmp, he, HPT_HEADERSZ);
-	off = tmp.pre_sz;
+	he = hp->tbl;
+	off = 0;
 
 	assert(idx > 0);
 	assert(idx <= hp->cnt);
 
 	while (1) {
+		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.pre_sz == off);
 		assert(tmp.nam_sz > 0);
@@ -82,7 +82,6 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 			return (he);
 		off = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		he = MOVE(he, off);
-		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 	}
 }
 
@@ -128,8 +127,6 @@ HPT_foreach(HPACK_CTX, int flg)
 
 	if (~flg & HPT_FLG_DYNAMIC)
 		return;
-
-	assert(ctx->hp->off == 0);
 
 	off = 0;
 	tbl = ctx->hp->tbl;
