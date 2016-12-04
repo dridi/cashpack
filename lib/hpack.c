@@ -523,12 +523,6 @@ hpack_decode_indexed(HPACK_CTX)
 static int
 hpack_decode_dynamic(HPACK_CTX)
 {
-	struct hpack *hp;
-	struct hpack_ctx tbl_ctx;
-	struct hpt_priv priv;
-#ifndef NDEBUG
-	struct hpt_entry tmp;
-#endif
 
 	/* XXX: regular decoding */
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
@@ -536,47 +530,7 @@ hpack_decode_dynamic(HPACK_CTX)
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 	CALL(hpack_decode_field, ctx);
-
-	/* XXX: legacy indirect insertion */
-	hp = ctx->hp;
-
-	(void)memset(&priv, 0, sizeof priv);
-	priv.ctx = ctx;
-	priv.he = (void *)((uintptr_t)hp->tbl + hp->off);
-
-	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
-	tbl_ctx.cb = HPT_insert;
-	tbl_ctx.priv = &priv;
-
-	/* XXX: temp hack */
-	priv.nam = 1;
-	CALLBACK(&tbl_ctx, HPACK_EVT_NAME, ctx->fld.nam,
-	    strlen(ctx->fld.nam));
-	priv.nam = 0;
-	CALLBACK(&tbl_ctx, HPACK_EVT_VALUE, ctx->fld.val,
-	    strlen(ctx->fld.val));
-
-	assert(tbl_ctx.res == ctx->res);
-	hp->off = 0;
-
-	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
-
-	if (ctx->ins <= HPACK_LIMIT(hp)) {
-		CALLBACK(&tbl_ctx, HPACK_EVT_INDEX, NULL, 0);
-		hp->sz.len += ctx->ins;
-		if (++ctx->hp->cnt > 1) {
-#ifndef NDEBUG
-			(void)memcpy(&tmp, priv.he, sizeof tmp);
-			assert(tmp.pre_sz > 0);
-			assert((size_t)tmp.pre_sz == ctx->ins);
-#endif
-		}
-	}
-	else {
-		assert(hp->sz.len == 0);
-		assert(hp->cnt == 0);
-	}
-
+	HPT_index(ctx);
 	return (0);
 }
 

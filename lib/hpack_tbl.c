@@ -446,6 +446,48 @@ HPT_insert(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		hp->tbl->val_sz += len;
 }
 
+void
+HPT_index(HPACK_CTX)
+{
+	struct hpack *hp;
+	void *nam_ptr, *val_ptr;
+	size_t len, nam_sz, val_sz;
+
+	assert(ctx->fld.nam != NULL);
+	assert(ctx->fld.val != NULL);
+	/* XXX: don't recompute the length */
+	nam_sz = strlen(ctx->fld.nam);
+	val_sz = strlen(ctx->fld.val);
+
+	assert(ctx->fld.nam[nam_sz] == '\0');
+	assert(ctx->fld.val[val_sz] == '\0');
+
+	len = HPT_OVERHEAD + nam_sz + val_sz;
+	ctx->ins = 0; /* XXX: to be removed */
+	if (!hpt_fit(ctx, len))
+		return;
+
+	hp = ctx->hp;
+	if (hp->cnt > 0) {
+		hp->tbl->pre_sz = len;
+		(void)memmove(MOVE(hp->tbl, len), hp->tbl, hp->sz.len);
+	}
+
+	nam_ptr = JUMP(hp->tbl, 0);
+	val_ptr = JUMP(hp->tbl,  nam_sz + 1);
+	(void)memcpy(nam_ptr, ctx->fld.nam, nam_sz + 1);
+	(void)memcpy(val_ptr, ctx->fld.val, val_sz + 1);
+
+	hp->tbl->magic = HPT_ENTRY_MAGIC;
+	hp->tbl->pre_sz = 0;
+	hp->tbl->nam_sz = nam_sz;
+	hp->tbl->val_sz = val_sz;
+	hp->sz.len += len;
+	hp->cnt++;
+
+	CALLBACK(ctx, HPACK_EVT_INDEX, NULL, 0);
+}
+
 /**********************************************************************
  * Decode
  */
