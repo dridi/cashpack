@@ -91,6 +91,8 @@ struct hpack_ctx {
 	struct {
 		const char			*nam;
 		const char			*val;
+		size_t				nam_sz;
+		size_t				val_sz;
 	} fld;
 	hpack_callback_f			*cb;
 	void					*priv;

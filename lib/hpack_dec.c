@@ -71,9 +71,12 @@ void
 HPD_notify(HPACK_CTX)
 {
 
-	/* XXX: don't recompute the length */
-	CALLBACK(ctx, HPACK_EVT_NAME, ctx->fld.nam,
-	    strlen(ctx->fld.nam));
-	CALLBACK(ctx, HPACK_EVT_VALUE, ctx->fld.val,
-	    strlen(ctx->fld.val));
+	assert(ctx->fld.nam != NULL);
+	assert(ctx->fld.val != NULL);
+	assert(ctx->fld.nam_sz > 0);
+	assert(ctx->fld.nam[ctx->fld.nam_sz] == '\0');
+	assert(ctx->fld.val[ctx->fld.val_sz] == '\0');
+
+	CALLBACK(ctx, HPACK_EVT_NAME,  ctx->fld.nam, ctx->fld.nam_sz);
+	CALLBACK(ctx, HPACK_EVT_VALUE, ctx->fld.val, ctx->fld.val_sz);
 }

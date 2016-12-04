@@ -278,10 +278,10 @@ HPT_index(HPACK_CTX)
 
 	assert(ctx->fld.nam != NULL);
 	assert(ctx->fld.val != NULL);
-	/* XXX: don't recompute the length */
-	nam_sz = strlen(ctx->fld.nam);
-	val_sz = strlen(ctx->fld.val);
+	assert(ctx->fld.nam_sz > 0);
 
+	nam_sz = ctx->fld.nam_sz;
+	val_sz = ctx->fld.val_sz;
 	assert(ctx->fld.nam[nam_sz] == '\0');
 	assert(ctx->fld.val[val_sz] == '\0');
 
@@ -335,9 +335,11 @@ HPT_decode(HPACK_CTX, size_t idx)
 	assert(hf.val != NULL);
 
 	ctx->fld.nam = ctx->buf;
+	ctx->fld.nam_sz = hf.nam_sz;
 	CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
 
 	ctx->fld.val = ctx->buf;
+	ctx->fld.val_sz = hf.val_sz;
 	CALL(HPD_puts, ctx, hf.val, hf.val_sz);
 
 	HPD_notify(ctx);

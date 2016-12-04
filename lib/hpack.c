@@ -495,11 +495,13 @@ hpack_decode_field(HPACK_CTX)
 		else
 			CALL(HPT_decode_name, ctx);
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
+		ctx->fld.nam_sz = ctx->buf - ctx->fld.nam - 1;
 		ctx->fld.val = ctx->buf;
 		/* fall through */
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
 		CALL(hpack_decode_string, ctx, HPACK_EVT_VALUE);
+		ctx->fld.val_sz = ctx->buf - ctx->fld.val - 1;
 		HPD_notify(ctx);
 		ctx->hp->state.stp = HPACK_STP_FLD_INT;
 		break;
@@ -741,10 +743,14 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 		(void)HPT_search(ctx, fld->nam_idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
 		ctx->fld.nam = hf.nam;
+		ctx->fld.nam_sz = hf.nam_sz;
 	}
-	else
+	else {
 		ctx->fld.nam = fld->nam;
+		ctx->fld.nam_sz = strlen(fld->nam);
+	}
 	ctx->fld.val = fld->val;
+	ctx->fld.val_sz = strlen(fld->val);
 	HPT_index(ctx);
 
 	return (0);
