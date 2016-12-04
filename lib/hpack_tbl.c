@@ -251,13 +251,11 @@ hpt_notify(struct hpt_priv *priv, enum hpack_event_e evt, const char *buf,
 		/* write the value null byte */
 		c = MOVE(hp->tbl, priv->ctx->ins - 1);
 		*c = '\0';
+		CALLBACK(priv->ctx, evt, NULL, 0);
 		break;
 	default:
 		WRONG("Unexpected event");
 	}
-
-	if (priv->ctx->hp->magic == DECODER_MAGIC || evt == HPACK_EVT_INDEX)
-		CALLBACK(priv->ctx, evt, buf, len);
 
 	/* is there anything to copy in the table? */
 	return (evt == HPACK_EVT_NAME || (buf != NULL && len > 0));

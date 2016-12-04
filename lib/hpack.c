@@ -530,37 +530,33 @@ hpack_decode_dynamic(HPACK_CTX)
 	struct hpt_entry tmp;
 #endif
 
+	/* XXX: regular decoding */
+	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
+		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &ctx->hp->state.idx);
+		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+	}
+	CALL(hpack_decode_field, ctx);
+
+	/* XXX: legacy indirect insertion */
 	hp = ctx->hp;
 
 	(void)memset(&priv, 0, sizeof priv);
 	priv.ctx = ctx;
-	priv.nam = hp->state.stp <= HPACK_STP_NAM_STR;
 	priv.he = (void *)((uintptr_t)hp->tbl + hp->off);
-
-	if (hp->state.stp == HPACK_STP_FLD_INT) {
-		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &hp->state.idx);
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
-	}
 
 	(void)memcpy(&tbl_ctx, ctx, sizeof tbl_ctx);
 	tbl_ctx.cb = HPT_insert;
 	tbl_ctx.priv = &priv;
 
-	if (hpack_decode_field(&tbl_ctx) != 0) {
-		assert(tbl_ctx.res != ctx->res);
-		ctx->res = tbl_ctx.res;
-		ctx->buf = tbl_ctx.buf;
-		ctx->buf_len = tbl_ctx.buf_len;
-		ctx->fld = tbl_ctx.fld;
-		return (-1);
-	}
+	/* XXX: temp hack */
+	priv.nam = 1;
+	CALLBACK(&tbl_ctx, HPACK_EVT_NAME, ctx->fld.nam_str,
+	    strlen(ctx->fld.nam_str));
+	priv.nam = 0;
+	CALLBACK(&tbl_ctx, HPACK_EVT_VALUE, ctx->fld.val_str,
+	    strlen(ctx->fld.val_str));
 
 	assert(tbl_ctx.res == ctx->res);
-	ctx->blk = tbl_ctx.blk;
-	ctx->len = tbl_ctx.len;
-	ctx->buf = tbl_ctx.buf;
-	ctx->buf_len = tbl_ctx.buf_len;
-	ctx->fld = tbl_ctx.fld;
 	hp->off = 0;
 
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
