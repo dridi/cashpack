@@ -75,13 +75,6 @@ struct hpt_entry {
 	uint16_t	unused;
 };
 
-struct hpt_priv {
-	struct hpack_ctx	*ctx;
-	struct hpt_entry	*he;
-	void			*wrt;
-	unsigned		nam;
-};
-
 struct hpack_ctx {
 	struct hpack				*hp;
 	union {
