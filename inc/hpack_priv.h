@@ -99,7 +99,6 @@ struct hpack_ctx {
 		const char			*nam;
 		const char			*val;
 	} fld;
-	size_t					ins;
 	hpack_callback_f			*cb;
 	void					*priv;
 	enum hpack_result_e			res;

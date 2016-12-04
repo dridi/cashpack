@@ -203,13 +203,11 @@ hpt_fit(HPACK_CTX, size_t len)
 	hp = ctx->hp;
 	assert(hp->sz.lim <= (ssize_t) hp->sz.max);
 
-	ctx->ins += len;
-
 	/* fitting the new field may require eviction */
-	HPT_adjust(ctx, hp->sz.len + ctx->ins);
+	HPT_adjust(ctx, hp->sz.len + len);
 
 	/* does the new field even fit alone? */
-	if (ctx->ins > HPACK_LIMIT(hp)) {
+	if (len > HPACK_LIMIT(hp)) {
 		assert(hp->sz.len == 0);
 		assert(hp->cnt == 0);
 		return (0);
@@ -294,7 +292,6 @@ HPT_index(HPACK_CTX)
 	assert(!hpt_overlap(hp, ctx->fld.val, val_sz));
 
 	len = HPT_OVERHEAD + nam_sz + val_sz;
-	ctx->ins = 0; /* XXX: to be removed */
 	if (!hpt_fit(ctx, len))
 		return;
 
