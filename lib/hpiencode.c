@@ -68,11 +68,11 @@ main(int argc, const char **argv)
 
 	val = atoi(argv[2]);
 
-	memset(&enc, 0, sizeof enc);
+	(void)memset(&enc, 0, sizeof enc);
 	enc.buf = buf;
 	enc.buf_len = sizeof buf;
 
-	memset(&ctx, 0, sizeof ctx);
+	(void)memset(&ctx, 0, sizeof ctx);
 	ctx.enc = &enc;
 	ctx.cur = buf;
 

@@ -317,7 +317,7 @@ test_decode_null_args(void)
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0);
 
 	/* make null members and populate them one by one */
-	memset(&dec, 0, sizeof dec);
+	(void)memset(&dec, 0, sizeof dec);
 	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
 	dec.blk = basic_block;
 	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
@@ -341,7 +341,7 @@ test_encode_null_args(void)
 	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0);
 
 	/* make null members and populate them one by one */
-	memset(&enc, 0, sizeof enc);
+	(void)memset(&enc, 0, sizeof enc);
 	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
 	enc.fld = basic_field;
 	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);

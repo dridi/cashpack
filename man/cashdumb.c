@@ -215,7 +215,7 @@ make_field(struct hpack_field *fld, const char *line)
 	char *nam, *tmp;
 	size_t idx;
 
-	memset(fld, 0, sizeof *fld);
+	(void)memset(fld, 0, sizeof *fld);
 
 	sep = strchr(line + 1, ':');
 	val = sep + 1;
