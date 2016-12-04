@@ -146,14 +146,14 @@ HPE(DATA,  5, "raw data",
 
 	"\tIn both cases *buf* points to *len* octets of data.\n\n")
 
-HPE(EVICT, 6, "a field was evicted",
+HPE(EVICT, 6, "fields were evicted",
 	"\tA decoder or an encoder sends an EVICT event to notify that a\n"
 	"\tfield was evicted from the dynamic table during the processing\n"
 	"\tof a header list.\n\n"
 
 	"\tThe role of this event is to inform that the dynamic table\n"
-	"\tchanged during an operation. Both *buf* and *len* are\n"
-	"\tunused and respectively ``NULL`` and zero.\n\n")
+	"\tchanged during an operation. *buf* is unused and always ``NULL``\n"
+	"\tand *len* is the number of evicted fields.\n\n")
 
 HPE(TABLE, 7, "the table was updated",
 	"\tA decoder or an encoder sends a TABLE event when a dynamic table\n"

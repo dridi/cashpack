@@ -158,7 +158,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	struct hpack *hp;
 	struct hpt_entry *he;
 	struct hpt_entry tmp;
-	size_t sz, lim;
+	size_t sz, lim, n;
 
 	hp = ctx->hp;
 	assert(hp->sz.lim <= (ssize_t)hp->sz.max ||
@@ -170,6 +170,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	he = hpt_dynamic(hp, hp->cnt);
 	lim = HPACK_LIMIT(hp);
 
+	n = 0;
 	while (hp->cnt > 0 && len > lim) {
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
@@ -179,8 +180,11 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 		hp->sz.len -= sz;
 		hp->cnt--;
 		he = MOVE(he, -tmp.pre_sz);
-		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, 0);
+		n++;
 	}
+
+	if (n > 0)
+		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, n);
 
 	if (hp->cnt == 0)
 		assert(hp->sz.len == 0);
