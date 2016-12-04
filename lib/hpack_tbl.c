@@ -221,9 +221,6 @@ hpt_overlap(const struct hpack *hp, const char *buf, size_t len)
 {
 	uintptr_t bgn, end, pos;
 
-	if (buf == NULL)
-		return (0);
-
 	bgn = (uintptr_t)hp->tbl;
 	pos = (uintptr_t)buf;
 	end = bgn + hp->sz.len;
