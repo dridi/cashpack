@@ -232,9 +232,10 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
  * Function Signatures
  */
 
-int HPD_putc(HPACK_CTX, char);
-int HPD_puts(HPACK_CTX, const char *, size_t);
-int HPD_cat(HPACK_CTX, const char *, size_t);
+int  HPD_putc(HPACK_CTX, char);
+int  HPD_puts(HPACK_CTX, const char *, size_t);
+int  HPD_cat(HPACK_CTX, const char *, size_t);
+void HPD_notify(HPACK_CTX);
 
 void HPE_putb(HPACK_CTX, uint8_t);
 void HPE_bcat(HPACK_CTX, const void *, size_t);

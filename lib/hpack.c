@@ -408,19 +408,10 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 {
 	struct hpack_state *hs;
 	hpack_validate_f *val;
-	const char **str;
 	unsigned fit;
 
 	hs = &ctx->hp->state;
-	if (evt == HPACK_EVT_NAME) {
-		val = HPV_token;
-		str = &ctx->fld.nam_str;
-	}
-	else {
-		assert(evt == HPACK_EVT_VALUE);
-		val = HPV_value;
-		str = &ctx->fld.val_str;
-	}
+	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
 
 	fit = len <= ctx->len;
 	if (!fit)
@@ -428,11 +419,8 @@ hpack_decode_raw_string(HPACK_CTX, enum hpack_event_e evt, size_t len)
 
 	CALL(val, ctx, (const char *)ctx->blk, len, hs->first);
 	CALL(HPD_cat, ctx, (const char *)ctx->blk, len);
-	if (fit) {
+	if (fit)
 		CALL(HPD_putc, ctx, '\0');
-		CALLBACK(ctx, evt, *str, ctx->buf - *str - 1);
-		*str = NULL;
-	}
 
 	ctx->blk += len;
 	ctx->len -= len;
@@ -512,6 +500,7 @@ hpack_decode_field(HPACK_CTX)
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
 		CALL(hpack_decode_string, ctx, HPACK_EVT_VALUE);
+		HPD_notify(ctx);
 		ctx->hp->state.stp = HPACK_STP_FLD_INT;
 		break;
 	default:

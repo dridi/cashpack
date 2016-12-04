@@ -50,13 +50,11 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	const struct hph_entry *he;
 	struct hpack_state *hs;
 	hpack_validate_f *val;
-	const char **str;
 	char *ptr;
 	unsigned eos, l;
 
 	hs = &ctx->hp->state;
 	ptr = ctx->buf;
-	str = evt == HPACK_EVT_NAME ? &ctx->fld.nam_str : &ctx->fld.val_str;
 
 	if (hs->first) {
 		hs->blen = 0;
@@ -134,8 +132,6 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	}
 
 	CALL(HPD_putc, ctx, '\0');
-	CALLBACK(ctx, evt, *str, ctx->buf - *str - 1);
-	*str = NULL;
 
 	return (0);
 }

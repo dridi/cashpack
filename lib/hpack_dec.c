@@ -66,3 +66,14 @@ HPD_cat(HPACK_CTX, const char *str, size_t len)
 	ctx->buf_len -= len;
 	return (0);
 }
+
+void
+HPD_notify(HPACK_CTX)
+{
+
+	/* XXX: don't recompute the length */
+	CALLBACK(ctx, HPACK_EVT_NAME, ctx->fld.nam_str,
+	    strlen(ctx->fld.nam_str));
+	CALLBACK(ctx, HPACK_EVT_VALUE, ctx->fld.val_str,
+	    strlen(ctx->fld.val_str));
+}
