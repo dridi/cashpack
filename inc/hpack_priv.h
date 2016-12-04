@@ -251,7 +251,6 @@ void HPH_size(const char *, size_t *);
 hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;
 
-hpack_callback_f HPT_insert;
 void HPT_adjust(struct hpack_ctx *, size_t);
 int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX, int);
