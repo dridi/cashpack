@@ -147,8 +147,8 @@ HPE(DATA,  5, "raw data",
 	"\tIn both cases *buf* points to *len* octets of data.\n\n")
 
 HPE(EVICT, 6, "fields were evicted",
-	"\tA decoder or an encoder sends an EVICT event to notify that a\n"
-	"\tfield was evicted from the dynamic table during the processing\n"
+	"\tA decoder or an encoder sends an EVICT event to notify that some\n"
+	"\tfields were evicted from the dynamic table during the processing\n"
 	"\tof a header list.\n\n"
 
 	"\tThe role of this event is to inform that the dynamic table\n"
