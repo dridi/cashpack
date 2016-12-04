@@ -524,7 +524,6 @@ static int
 hpack_decode_dynamic(HPACK_CTX)
 {
 
-	/* XXX: regular decoding */
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &ctx->hp->state.idx);
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
