@@ -66,7 +66,7 @@ clean-memcheck:
 
 clean-local: clean-memcheck
 
-check: clean-memcheck $(noinst_PROGRAMS)
+check-local: clean-memcheck $(noinst_PROGRAMS)
 
 RFC_TESTS = \
 	rfc7541_2_3_2 \
