@@ -435,8 +435,8 @@ necessary reflect the quality of the tests.
 It's just a numbers game and some kinds of *wossname* coverage are quite hard
 to quantify, like for example the infinite possibilities of decodable input,
 or interoperability in the absence of a proper technology compatibility kit.
-State is probably one of the hardest thing to cover in general, and setting up
-the system under test can be a lot easier with unit testing. It also means
+State is probably one of the hardest things to cover in general, and setting
+up the system under test can be a lot easier with unit testing. It also means
 introducing heavy coupling, whereas raising the level of abstraction may allow
 testing even if the internals radically change, as it is done with ``nghttp2``
 today and may be done for a (not so [2]_) hypothetical redesign of cashpack or
