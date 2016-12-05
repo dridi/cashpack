@@ -17,9 +17,9 @@ cashpack.
    :alt: Codecov badge
    :target: https://codecov.io/gh/Dridi/cashpack
 
-It started as a research project and became the basis for Varnish's HPACK
-implementation. To learn more about its origins, you can watch this talk_
-from the first edition of VarnishCon.
+It started as a research project and became the basis for Varnish Cache's
+HPACK implementation. To learn more about its origins, you can watch this
+talk_ from the first edition of VarnishCon.
 
 .. _talk: https://www.infoq.com/fr/presentations/varnishcon-dridi-boukelmoune-hpack-vs-varnish-cache
 

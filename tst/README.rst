@@ -451,4 +451,4 @@ That being said, Happy Testing!
 
 .. [1] The coverage peaked at 99% for the library and should stay there
 .. [2] The transition from zero-copy to single-copy was painless with almost
-       no changes to the test suite
+       no changes to the test suite despite many changes in the library
