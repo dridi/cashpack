@@ -26,7 +26,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
 	README.rst \
-	cashpack.spec
+	$(PACKAGE).spec
 
 dist_doc_DATA = \
 	LICENSE \
