@@ -244,6 +244,9 @@ main(int argc, char **argv)
 	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(blk != MAP_FAILED);
 
+	retval = close(fd);
+	assert(retval == 0);
+
 	ctx.blk = blk;
 
 	hp = hpack_decoder(tbl_sz, -1, hpack_default_alloc);
@@ -259,9 +262,6 @@ main(int argc, char **argv)
 	hpack_free(&hp);
 
 	retval = munmap(blk, st.st_size);
-	assert(retval == 0);
-
-	retval = close(fd);
 	assert(retval == 0);
 
 	if (res != HPACK_RES_OK)

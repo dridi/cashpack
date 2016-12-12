@@ -243,6 +243,9 @@ main(int argc, char **argv)
 	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(blk != MAP_FAILED);
 
+	retval = close(fd);
+	assert(retval == 0);
+
 	ctx.blk = blk;
 
 	retval = nghttp2_hd_inflate_new(&inf);
@@ -270,9 +273,6 @@ main(int argc, char **argv)
 	nghttp2_hd_inflate_del(inf);
 
 	retval = munmap(blk, st.st_size);
-	assert(retval == 0);
-
-	retval = close(fd);
 	assert(retval == 0);
 
 	if (res != 0)
