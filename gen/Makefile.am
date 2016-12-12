@@ -33,13 +33,19 @@ BUILT_SOURCES = \
 	hpack_huf_dec.h
 
 hpack_huf_idx.h: hphidx
-	$(AM_V_GEN) ./hphidx >hpack_huf_idx.h
+	@rm -f .hpack_huf_idx.h
+	$(AM_V_GEN) ./hphidx >.hpack_huf_idx.h
+	@mv .hpack_huf_idx.h hpack_huf_idx.h
 
 hpack_huf_tbl.h: hphtbl
-	$(AM_V_GEN) ./hphtbl >hpack_huf_tbl.h
+	@rm -f .hpack_huf_tbl.h
+	$(AM_V_GEN) ./hphtbl >.hpack_huf_tbl.h
+	@mv .hpack_huf_tbl.h hpack_huf_tbl.h
 
 hpack_huf_dec.h: hphdec
-	$(AM_V_GEN) ./hphdec >hpack_huf_dec.h
+	@rm -f .hpack_huf_dec.h
+	$(AM_V_GEN) ./hphdec >.hpack_huf_dec.h
+	@mv .hpack_huf_dec.h hpack_huf_dec.h
 
 EXTRA_DIST = $(BUILT_SOURCES) gen.h
 CLEANFILES = $(BUILT_SOURCES)
