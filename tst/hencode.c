@@ -277,7 +277,11 @@ main(int argc, char **argv)
 {
 	enum hpack_result_e exp;
 	struct enc_ctx ctx;
-	int tbl_sz, tbl_mem;
+	int tbl_sz, tbl_mem, retval;
+
+#ifdef NDEBUG
+	(void)retval;
+#endif
 
 	TST_signal();
 
@@ -348,9 +352,16 @@ main(int argc, char **argv)
 	free(ctx.line);
 
 	if (ctx.res == HPACK_RES_OK) {
-		fflush(stdout);
-		dup2(3, STDOUT_FILENO);
+		retval = fflush(stdout);
+		assert(retval == 0);
+
+		retval = dup2(3, STDOUT_FILENO);
+		assert(retval == STDOUT_FILENO);
+
 		TST_print_table(ctx.hp);
+
+		retval = fclose(stdout);
+		assert(retval == 0);
 	}
 
 	hpack_free(&ctx.hp);
