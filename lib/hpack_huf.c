@@ -39,96 +39,98 @@
 #include "hpack_priv.h"
 #include "hpack_huf_idx.h"
 #include "hpack_huf_tbl.h"
+#include "hpack_huf_dec.h"
 
 /**********************************************************************
  * Decode
  */
 
+static int
+hph_decode_lookup(HPACK_CTX, int *eos)
+{
+	struct hpack_state *hs;
+	uint8_t cod;
+
+	hs = &ctx->hp->state;
+
+	assert(hs->blen >= 8);
+	while (hs->blen >= hs->oct->len) {
+		cod = hs->bits >> (16 - hs->dec->len);
+		EXPECT(ctx, HUF, hs->oct[cod].len > 0); /* premature EOS */
+
+		if (hs->blen < hs->oct[cod].len)
+			break; /* more bits needed */
+
+		*eos = 1;
+		hs->dec = hs->oct[cod].nxt;
+		if (hs->dec == NULL) {
+			CALL(HPD_putc, ctx, hs->oct[cod].chr);
+			hs->dec = &hph_dec0;
+			*eos = 0;
+		}
+
+		hs->blen -= hs->oct[cod].len;
+		hs->bits <<= hs->oct[cod].len;
+		hs->oct = hs->dec->oct;
+	}
+	return (0);
+}
+
 int
 HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 {
-	const struct hph_entry *he;
 	struct hpack_state *hs;
 	hpack_validate_f *val;
 	char *ptr;
-	unsigned eos, l;
+	int eos, l;
 
 	hs = &ctx->hp->state;
 	ptr = ctx->buf;
+	eos = 0;
 
 	if (hs->first) {
+		assert(len == hs->len);
+		hs->dec = &hph_dec0;
+		hs->oct = hph_oct0;
 		hs->blen = 0;
 		hs->bits = 0;
-		hs->cod = UINT16_MAX;
-		hs->pos = 9; /* the last 5-bit code */
+		hs->first = 0;
 	}
 
 	if (len > ctx->len)
 		len = ctx->len;
 
-	val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
-	eos = 0;
+	while (hs->len > 0) {
+		EXPECT(ctx, BUF, len > 0);
+		assert(hs->blen < 8);
+		hs->bits |= *ctx->blk << (8 - hs->blen);
+		hs->blen += 8;
+		ctx->blk++;
+		ctx->len--;
+		hs->len--;
+		len--;
 
-	while (len > 0 || hs->blen > 0) {
-		he = &hph_tbl[hs->pos];
-		eos = 1;
-
-		while (he != hph_tbl) {
-			if (hs->blen < he->len) {
-				if (len == 0)
-					break;
-				hs->bits = (hs->bits << 8) | *ctx->blk;
-				hs->blen += 8;
-				ctx->blk++;
-				ctx->len--;
-				hs->len--;
-				len--;
-			}
-			hs->cod = hs->bits >> (hs->blen - he->len);
-			if (hs->cod <= he->cod) {
-				eos = 0;
-				break;
-			}
-			hs->pos = he->nxt;
-			he = &hph_tbl[he->nxt];
-		}
-
-		if (eos)
-			break;
-
-		assert(he->cod >= hs->cod);
-		he -= he->cod - hs->cod;
-		assert(he->cod == hs->cod);
-
-		CALL(HPD_putc, ctx, he->chr);
-
-		assert(hs->blen >= he->len);
-		hs->blen -= he->len;
-		hs->bits &= (1 << hs->blen) - 1;
-		hs->cod = UINT16_MAX;
-		hs->pos = 9;
+		CALL(hph_decode_lookup, ctx, &eos);
 	}
+
+	EXPECT(ctx, HUF, eos == 0); /* spurious EOS */
 
 	assert(ctx->buf >= ptr);
 	l = ctx->buf - ptr;
 	if (l > 0) {
-		CALL(val, ctx, ptr, l, hs->first);
-		hs->first = 0;
+		val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
+		CALL(val, ctx, ptr, l, 1);
 	}
 
-	EXPECT(ctx, HUF, len == 0); /* premature EOS */
-	EXPECT(ctx, BUF, hs->len == 0);
-
-	if (eos) {
+	if (hs->blen > 0) {
 		/* check padding */
-		assert(hs->blen > 0);
-		EXPECT(ctx, HUF, hs->blen < 8);
-		EXPECT(ctx, HUF, hs->bits + 1 == (uint64_t)(1 << hs->blen));
+		assert(hs->blen < 8);
+		EXPECT(ctx, HUF,
+		    hs->bits == (uint16_t)(0xffff << (16 - hs->blen)));
 	}
 	else {
 		/* no padding */
 		assert(hs->bits == 0);
-		assert(hs->blen == 0);
 	}
 
 	CALL(HPD_putc, ctx, '\0');

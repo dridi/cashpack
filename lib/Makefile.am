@@ -45,7 +45,8 @@ libhpack_la_SOURCES = \
 	hpack_val.c \
 	$(top_builddir)/inc/hpack.h \
 	$(top_builddir)/gen/hpack_huf_idx.h \
-	$(top_builddir)/gen/hpack_huf_tbl.h
+	$(top_builddir)/gen/hpack_huf_tbl.h \
+	$(top_builddir)/gen/hpack_huf_dec.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(PACKAGE).pc
