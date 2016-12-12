@@ -35,7 +35,8 @@ test -x ./ngdecode && HDECODE+=' ngdecode'
 
 trap "rm -fr $TEST_TMP" EXIT
 
-MEMCHECK_CMD="valgrind			\
+MEMCHECK_CMD="libtool --mode=execute	\
+	valgrind			\
 	--tool=memcheck			\
 	--leak-check=full		\
 	--show-leak-kinds=all		\
