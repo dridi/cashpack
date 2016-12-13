@@ -45,13 +45,8 @@ MEMCHECK_CMD="libtool --mode=execute	\
 	--error-exitcode=99		\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
 
-set |
-grep '^MEMCHECK=' >/dev/null ||
-MEMCHECK=no
-
-set |
-grep '^NGHTTP2=' >/dev/null ||
-NGHTTP2=no
+MEMCHECK=${MEMCHECK:-no}
+NGHTTP2=${NGHTTP2:-no}
 
 memcheck() {
 	if [ "$MEMCHECK" = yes ]
