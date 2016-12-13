@@ -73,10 +73,6 @@ noinst_PROGRAMS = \
 cashdumb_LDADD = $(top_builddir)/lib/libhpack.la
 cashdump_LDADD = $(top_builddir)/lib/libhpack.la
 
-hpe2rst_gen_SOURCES = hpe2rst.c
-hpf2rst_gen_SOURCES = hpf2rst.c
-hpr2rst_gen_SOURCES = hpr2rst.c
-
 .gen.rst:
 	$(AM_V_GEN) ./$< >$@
 
