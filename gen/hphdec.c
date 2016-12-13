@@ -53,6 +53,8 @@ static const struct hph tbl[] = {
 	{0, 0, 33, 0} /* EOS */
 };
 
+static const struct hph *eos = &tbl[256];
+
 static void dec_generate(const struct hph *, const struct hph *, uint32_t,
     int, int, const char *);
 
@@ -106,28 +108,12 @@ dec_make_hit(const struct hph *hph, struct hph_dec *dec, unsigned n,
 }
 
 static int
-dec_make_eos_misses(struct hph_dec *dec, int n)
-{
-
-	while (n < 256) {
-		dec[n].len = 0;
-		dec[n].chr = 0;
-		(void)snprintf(dec[n].nxt, sizeof dec->nxt, "NULL");
-		n++;
-	}
-	return (n);
-}
-
-static int
 dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 {
 	const struct hph *max;
 	char buf[sizeof "_pfxXXXX"];
 	uint32_t msk, sub_msk;
 	int sz, msk_len, sub_tbl, bits, ref;
-
-	if (oct == 4)
-		return dec_make_eos_misses(dec, n);
 
 	sz = dec_rndpow2(n, +1);
 	sub_tbl = sz - n;
@@ -152,7 +138,14 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			msk_len = 8 * (oct + 1);
 			assert(msk_len > hph->len);
 			msk = 0xffffffff << (40 - msk_len);
-			max = NULL;
+			max = eos;
+			if (msk_len > 30)
+				msk_len = 30;
+		}
+		else if (oct == 4) {
+			dec[n].len = 0;
+			(void)sprintf(dec[n].nxt, "NULL");
+			break;
 		}
 		else {
 			/* help finish the next octect */
@@ -170,7 +163,7 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			msk = hph->msb;
 		}
 
-		assert(max == NULL || max > hph);
+		assert(max > hph);
 		dec_generate(hph, max, msk, msk_len, oct, buf);
 		hph = max;
 
@@ -201,12 +194,17 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 	}
 	assert(n > 0);
 
-	if (max == NULL)
+	if (max == eos)
 		sz = dec_make_misses(hph, dec, n, oct + 1);
 	else {
 		assert(hph == max);
 		sz = n;
 	}
+
+	if (dec[n].len == 0)
+		n--;
+	len = dec[n].len;
+	assert(len > 0);
 
 	OUT("");
 	GEN("static const struct hph_oct hph_oct%d%s[] = {", oct, pfx);
@@ -214,9 +212,6 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 		GEN("\t/* 0x%02x */ {%d, 0x%02x, %s},",
 		    n, dec[n].len, dec[n].chr, dec[n].nxt);
 	OUT("};");
-
-	len = n == 256 ? 8 : dec[n - 1].len;
-
 	OUT("");
 	GEN("static const struct hph_dec hph_dec%d%s = {%d, hph_oct%d%s};",
 	    oct, pfx, len, oct, pfx);
@@ -240,7 +235,7 @@ main(int argc, const char **argv)
 	OUT("\tconst struct hph_dec\t*nxt;");
 	OUT("};");
 
-	dec_generate(tbl, NULL, 0x00000000, 8, 0, "");
+	dec_generate(tbl, eos, 0x00000000, 8, 0, "");
 
 	(void)argc;
 	(void)argv;
