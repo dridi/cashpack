@@ -25,21 +25,18 @@
 AM_CFLAGS = -Wall -Werror -Wextra
 AM_CPPFLAGS = -I$(top_srcdir)/inc
 
-noinst_PROGRAMS = hphdec hphenc
+noinst_PROGRAMS = \
+	hpack_huf_dec.gen \
+	hpack_huf_enc.gen
 
 BUILT_SOURCES = \
 	hpack_huf_dec.h \
 	hpack_huf_enc.h
 
-hpack_huf_dec.h: hphdec
-	@rm -f .hpack_huf_dec.h
-	$(AM_V_GEN) ./hphdec >.hpack_huf_dec.h
-	@mv .hpack_huf_dec.h hpack_huf_dec.h
-
-hpack_huf_enc.h: hphenc
-	@rm -f .hpack_huf_enc.h
-	$(AM_V_GEN) ./hphenc >.hpack_huf_enc.h
-	@mv .hpack_huf_enc.h hpack_huf_enc.h
+.gen.h:
+	@rm -f .$@
+	$(AM_V_GEN) ./$< >.$@
+	@mv .$@ $@
 
 EXTRA_DIST = $(BUILT_SOURCES) gen.h
 CLEANFILES = $(BUILT_SOURCES)
