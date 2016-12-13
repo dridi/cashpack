@@ -43,7 +43,7 @@
 #define IS_FIELD_VALUE(c)	(c == ' ' || c == '\t' || IS_FIELD_VCHAR(c))
 
 int
-HPV_value(HPACK_CTX, const char *str, size_t len, unsigned first)
+HPV_value(HPACK_CTX, const char *str, size_t len)
 {
 	uint8_t c;
 
@@ -56,12 +56,11 @@ HPV_value(HPACK_CTX, const char *str, size_t len, unsigned first)
 		str++;
 		len--;
 	}
-	(void)first;
 	return (0);
 }
 
 int
-HPV_token(HPACK_CTX, const char *str, size_t len, unsigned first)
+HPV_token(HPACK_CTX, const char *str, size_t len)
 {
 
 	assert(str != NULL);
@@ -69,9 +68,9 @@ HPV_token(HPACK_CTX, const char *str, size_t len, unsigned first)
 
 	/* RFC 7540 Section 8.1.2.1.  Pseudo-Header Fields */
 	if (*str == ':') {
-		EXPECT(ctx, CHR, first);
 		str++;
 		len--;
+		EXPECT(ctx, CHR, len > 0);
 	}
 
 	while (len > 0) {

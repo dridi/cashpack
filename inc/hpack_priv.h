@@ -184,7 +184,7 @@ struct hpack {
 	struct hpt_entry	tbl[0];
 };
 
-typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t, unsigned);
+typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 
 /**********************************************************************
  * Utility Macros
@@ -231,7 +231,7 @@ void HPE_send(HPACK_CTX);
 int  HPI_decode(HPACK_CTX, enum hpi_prefix_e, uint16_t *);
 void HPI_encode(HPACK_CTX, enum hpi_prefix_e, enum hpi_pattern_e, uint16_t);
 
-int  HPH_decode(HPACK_CTX, enum hpack_event_e, size_t);
+int  HPH_decode(HPACK_CTX, size_t);
 void HPH_encode(HPACK_CTX, const char *);
 void HPH_size(const char *, size_t *);
 

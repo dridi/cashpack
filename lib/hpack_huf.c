@@ -76,15 +76,12 @@ hph_decode_lookup(HPACK_CTX, int *eos)
 }
 
 int
-HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
+HPH_decode(HPACK_CTX, size_t len)
 {
 	struct hpack_state *hs;
-	hpack_validate_f *val;
-	char *ptr;
-	int eos, l;
+	int eos;
 
 	hs = &ctx->hp->state;
-	ptr = ctx->buf;
 	eos = 0;
 
 	if (hs->first) {
@@ -113,13 +110,6 @@ HPH_decode(HPACK_CTX, enum hpack_event_e evt, size_t len)
 	}
 
 	EXPECT(ctx, HUF, eos == 0); /* spurious EOS */
-
-	assert(ctx->buf >= ptr);
-	l = ctx->buf - ptr;
-	if (l > 0) {
-		val = evt == HPACK_EVT_NAME ? HPV_token : HPV_value;
-		CALL(val, ctx, ptr, l, 1);
-	}
 
 	if (hs->blen > 0) {
 		/* check padding */
