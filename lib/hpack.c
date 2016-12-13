@@ -421,7 +421,6 @@ hpack_decode_raw_string(HPACK_CTX, size_t len)
 	ctx->blk += len;
 	ctx->len -= len;
 	hs->len -= len;
-	hs->first = 0;
 	EXPECT(ctx, BUF, hs->len == 0);
 
 	return (0);
@@ -446,8 +445,14 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 		/* set up string decoding */
 		hs->magic = huf ?  HUF_STATE_MAGIC : STR_STATE_MAGIC;
 		hs->len = len;
-		hs->first = 1;
 		hs->stp++;
+
+		if (huf) {
+			hs->dec = NULL;
+			hs->oct = NULL;
+			hs->blen = 0;
+			hs->bits = 0;
+		}
 
 		if (evt == HPACK_EVT_NAME)
 			EXPECT(ctx, LEN, len > 0);

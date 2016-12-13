@@ -158,7 +158,6 @@ struct hpack_state {
 			uint16_t		len;
 			uint16_t		bits;
 			uint8_t			blen;
-			uint8_t			first;
 		};
 	};
 };

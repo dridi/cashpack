@@ -84,13 +84,9 @@ HPH_decode(HPACK_CTX, size_t len)
 	hs = &ctx->hp->state;
 	eos = 0;
 
-	if (hs->first) {
-		assert(len == hs->len);
+	if (hs->dec == NULL) {
 		hs->dec = &hph_dec0;
 		hs->oct = hph_oct0;
-		hs->blen = 0;
-		hs->bits = 0;
-		hs->first = 0;
 	}
 
 	if (len > ctx->len)
