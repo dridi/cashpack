@@ -161,12 +161,13 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			msk |= ref << (32 - msk_len + bits);
 
 			max = hph;
-			while ((max->msb & msk) == (hph->msb & msk))
+			while ((max->msb & msk) == (hph->msb & msk)) {
+				msk_len = max->len;
 				max++;
+			}
 			assert(max > hph);
 
 			msk = hph->msb;
-			msk_len = max->len;
 		}
 
 		assert(max == NULL || max > hph);
