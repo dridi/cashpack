@@ -129,6 +129,36 @@ EOF
 tst_decode --table-size 42
 tst_encode --table-size 42
 
+_ ------------------------------------------------------------
+_ Use the indexed name of an evicted field, clearing the table
+_ ------------------------------------------------------------
+
+mk_hex <<EOF
+4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
+6865 7205 656e 7472 797f 000b 6c6f 6e67 | her.entry...long
+2075 7064 6174 65                       |  update
+EOF
+
+mk_msg <<EOF
+name: value
+other: entry
+name: long update
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  47) name: long update
+      Table size:  47
+EOF
+
+mk_enc <<EOF
+dynamic str name str value
+dynamic str other str entry
+dynamic idx 63 str long update
+EOF
+
+tst_decode --table-size 84
+tst_encode --table-size 84
+
 _ -------------------------------------------------------------
 _ Use the indexed name of an evicted field in a non-empty table
 _ -------------------------------------------------------------

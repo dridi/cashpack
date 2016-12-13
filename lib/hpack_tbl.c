@@ -293,11 +293,8 @@ HPT_index(HPACK_CTX)
 	if (!hpt_fit(ctx, len))
 		return;
 
-	if (hp->cnt == 0)
-		ovl = 0;
-
 	nam_ptr = JUMP(hp->tbl, 0);
-	val_ptr = JUMP(hp->tbl,  nam_sz + 1);
+	val_ptr = JUMP(hp->tbl, nam_sz + 1);
 	hp->tbl->pre_sz = len;
 
 	if (ovl)
