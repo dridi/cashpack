@@ -40,6 +40,7 @@
 #include "hpack_huf_idx.h"
 #include "hpack_huf_tbl.h"
 #include "hpack_huf_dec.h"
+#include "hpack_huf_enc.h"
 
 /**********************************************************************
  * Decode
@@ -142,15 +143,16 @@ void
 HPH_encode(HPACK_CTX, const char *str)
 {
 	uint64_t bits;
-	size_t sz, i;
+	size_t sz;
+	uint8_t c;
 
 	bits = 0;
 	sz = 0;
 
 	while (*str != '\0') {
-		i = hph_idx[(uint8_t)*str];
-		bits = (bits << hph_tbl[i].len) | hph_tbl[i].cod;
-		sz += hph_tbl[i].len;
+		c = *str;
+		bits = (bits << hph_enc[c].len) | hph_enc[c].cod;
+		sz += hph_enc[c].len;
 
 		while (sz >= 8) {
 			sz -= 8;
@@ -172,14 +174,12 @@ HPH_encode(HPACK_CTX, const char *str)
 void
 HPH_size(const char *str, size_t *res)
 {
-	uint16_t i;
 	size_t sz;
 
 	sz = 0;
 
 	while (*str != '\0') {
-		i = hph_idx[(uint16_t)*str];
-		sz += hph_tbl[i].len;
+		sz += hph_enc[(uint8_t)*str].len;
 		str++;
 	}
 
