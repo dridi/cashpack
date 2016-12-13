@@ -22,42 +22,26 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-AM_CFLAGS = -Wall -Werror -Wextra
+CASHPACK_0.2 {
+  global:
+    # functions
+    hpack_clean_field;
+    hpack_decode;
+    hpack_decoder;
+    hpack_dynamic;
+    hpack_encode;
+    hpack_encoder;
+    hpack_free;
+    hpack_limit;
+    hpack_resize;
+    hpack_static;
+    hpack_strerror;
+    hpack_tables;
+    hpack_trim;
 
-AM_CPPFLAGS = \
-	-I $(top_srcdir)/inc \
-	-I $(top_builddir)/inc \
-	-I $(top_builddir)/gen
+    # variables
+    hpack_default_alloc;
 
-lib_LTLIBRARIES = libhpack.la
-
-if HAVE_LD_VERSION_SCRIPT
-libhpack_la_LDFLAGS = -Wl,--version-script=$(srcdir)/$(PACKAGE).map
-else
-libhpack_la_LDFLAGS = -export-symbols-regex '^hpack_'
-endif
-
-libhpack_la_SOURCES = \
-	hpack.c \
-	hpack_dec.c \
-	hpack_enc.c \
-	hpack_huf.c \
-	hpack_int.c \
-	hpack_tbl.c \
-	hpack_val.c \
-	$(top_builddir)/inc/hpack.h \
-	$(top_builddir)/gen/hpack_huf_dec.h \
-	$(top_builddir)/gen/hpack_huf_enc.h
-
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = $(PACKAGE).pc
-
-noinst_PROGRAMS = hpiencode
-
-hpiencode_LDADD = \
-	hpack_enc.$(OBJEXT) \
-	hpack_int.$(OBJEXT)
-
-EXTRA_DIST = \
-	$(PACKAGE).pc.in \
-	$(PACKAGE).map
+  local:
+    *;
+};
