@@ -37,8 +37,6 @@
 
 #include "hpack.h"
 #include "hpack_priv.h"
-#include "hpack_huf_idx.h"
-#include "hpack_huf_tbl.h"
 #include "hpack_huf_dec.h"
 #include "hpack_huf_enc.h"
 

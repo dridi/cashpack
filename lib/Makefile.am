@@ -44,8 +44,6 @@ libhpack_la_SOURCES = \
 	hpack_tbl.c \
 	hpack_val.c \
 	$(top_builddir)/inc/hpack.h \
-	$(top_builddir)/gen/hpack_huf_idx.h \
-	$(top_builddir)/gen/hpack_huf_tbl.h \
 	$(top_builddir)/gen/hpack_huf_dec.h \
 	$(top_builddir)/gen/hpack_huf_enc.h
 
