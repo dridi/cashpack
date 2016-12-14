@@ -62,7 +62,7 @@ readonly MEMCHECK_CMD
 
 setopt shwordsplit >/dev/null 2>&1 || :
 
-# Test fixtures
+# Internal functions
 
 memcheck() {
 	if [ "$MEMCHECK" = yes ]
@@ -75,6 +75,32 @@ memcheck() {
 		"$@"
 	fi
 }
+
+rm_comments() {
+	sed -e '/^#/d'
+}
+
+rm_blanks() {
+	sed -e '/^$/d'
+}
+
+skip_diff() {
+	for opt
+	do
+		[ "$opt" = --expect-error ] && return
+	done
+	return 1
+}
+
+skip_cmd() {
+	for tst in $HIGNORE
+	do
+		[ "$tst" = "$1" ] && return
+	done
+	return 1
+}
+
+# Test fixtures
 
 cmd_check() {
 	missing=
@@ -90,14 +116,6 @@ cmd_check() {
 		echo "program not found:$missing" >&2
 		return 1
 	fi
-}
-
-rm_comments() {
-	sed -e '/^#/d'
-}
-
-rm_blanks() {
-	sed -e '/^$/d'
 }
 
 mk_hex() {
@@ -160,26 +178,10 @@ hpack_encode() {
 		3>"$TEST_TMP/enc_tbl"
 }
 
-skip_diff() {
-	for opt
-	do
-		[ "$opt" = --expect-error ] && return
-	done
-	return 1
-}
-
-tst_ignore() {
-	for tst in $HIGNORE
-	do
-		[ "$tst" = "$1" ] && return
-	done
-	return 1
-}
-
 tst_decode() {
 	for dec in $HDECODE
 	do
-		tst_ignore "$dec" && continue
+		skip_cmd "$dec" && continue
 
 		hpack_decode "./$dec" "$@"
 
