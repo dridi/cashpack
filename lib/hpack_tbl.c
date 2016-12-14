@@ -353,6 +353,7 @@ HPT_decode_name(HPACK_CTX)
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_search, ctx, ctx->hp->state.idx, &hf);
 	assert(hf.nam != NULL);
+	assert(hf.nam_sz > 0);
 
 	return (HPD_puts(ctx, hf.nam, hf.nam_sz));
 }
