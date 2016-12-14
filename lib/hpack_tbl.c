@@ -236,7 +236,7 @@ hpt_overlap(const struct hpack *hp, const char *buf, size_t len)
 	return (0);
 }
 
-void
+static void
 hpt_move_evicted(HPACK_CTX, const char *nam, size_t nam_sz, size_t len)
 {
 	struct hpack *hp;
