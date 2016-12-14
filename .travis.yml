@@ -46,6 +46,11 @@ before_install:
   - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
 script:
   - test $TRAVIS_BRANCH != coverity_scan || exit 0
+
+  # Help antique software cope with the test suite
+  - sed -i s/AM_TESTS_ENVIRONMENT/TESTS_ENVIRONMENT/ tst/Makefile.am
+  - sed -i /leak-kinds/d tst/common.sh
+
   - mkdir build
   - cd build
   - ../bootstrap $BUILD_FLAGS
