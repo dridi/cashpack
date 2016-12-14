@@ -388,6 +388,12 @@ compared (``diff -u``) with the expected results::
            Table size: 215
     FAIL rfc7541_c_6_3 (exit status: 1)
 
+Sometimes, it might be useful to inspect the output files in the tests temp
+directories. Keeping those files around is only a matter of adding a parameter
+to the ``make`` command line::
+
+    make check KEEP_TMP=yes
+
 Finally, if an invariant is not met and triggers an assert, a dump of the data
 structure is printed in the standard error. The C programs used in testing may
 abort on regular errors for convenience, in both cases the output may look

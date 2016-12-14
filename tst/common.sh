@@ -29,9 +29,18 @@ set -u
 
 readonly TEST_NAM="$(basename "$0")"
 readonly TEST_DIR="$(dirname "$0")"
-readonly TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
+readonly TEST_TMP="$(mktemp -d "cashpack.${TEST_NAM}.XXXXXXXX")"
 
-trap 'rm -fr $TEST_TMP' EXIT
+keep_tmp() {
+	[ "${KEEP_TMP:-no}" = yes ] &&
+	mv "$TEST_TMP" "failed-${TEST_TMP}"
+	echo >&2 "Temp directory kept as failed-${TEST_TMP}"
+}
+
+# The ERR trap is an extension allowed by
+# POSIX. It is not supported by dash(1)...
+trap 'keep_tmp' ERR || :
+trap 'rm -fr "$TEST_TMP"' EXIT
 
 # Test conditionals
 

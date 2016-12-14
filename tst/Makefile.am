@@ -61,12 +61,15 @@ ngdecode_SOURCES = \
 	ngdecode.c
 endif
 
+clean-failed:
+	rm -rf $(builddir)/failed-cashpack.*/
+
 clean-memcheck:
 	find $(builddir) -name 'memcheck-*.log' -delete
 
-clean-local: clean-memcheck
+clean-local: clean-failed clean-memcheck
 
-check-local: clean-memcheck $(noinst_PROGRAMS)
+check-local: clean-failed clean-memcheck $(noinst_PROGRAMS)
 
 RFC_TESTS = \
 	rfc7541_2_3_2 \
@@ -111,6 +114,7 @@ REG_TESTS = \
 	afl_fuzz
 
 AM_TESTS_ENVIRONMENT = \
+	KEEP_TMP="$(KEEP_TMP)" \
 	MEMCHECK="$(MEMCHECK)" \
 	NGHTTP2="$(NGHTTP2)"
 
