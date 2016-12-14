@@ -129,9 +129,16 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 		dec[n].len = 8;
 		dec[n].chr = 0;
 
-		(void)sprintf(buf, "_pfx");
-		dec_pfxcat(buf, ref, bits - 1);
-		(void)sprintf(dec[n].nxt, "&hph_dec%d%s", oct, buf);
+		if (oct == 4) {
+			dec[n].len = 0;
+			(void)sprintf(dec[n].nxt, "NULL");
+			break;
+		}
+		else {
+			(void)sprintf(buf, "_pfx");
+			dec_pfxcat(buf, ref, bits - 1);
+			(void)sprintf(dec[n].nxt, "&hph_dec%d%s", oct, buf);
+		}
 
 		if (n == 0xff) {
 			/* start the next full octet */
@@ -141,11 +148,6 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			max = eos;
 			if (msk_len > 30)
 				msk_len = 30;
-		}
-		else if (oct == 4) {
-			dec[n].len = 0;
-			(void)sprintf(dec[n].nxt, "NULL");
-			break;
 		}
 		else {
 			/* help finish the next octect */
@@ -201,6 +203,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 		sz = n;
 	}
 
+	n = sz - 1;
 	if (dec[n].len == 0)
 		n--;
 	len = dec[n].len;
