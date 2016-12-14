@@ -33,18 +33,32 @@ tags
 *.swp
 
 # built programs
-hphidx
-hphtbl
+*.gen
+cashdumb
+cashdump
 hdecode
 hencode
 hpack_arg
+hpiencode
 ngdecode
 
 # generated headers
 hpack.h
-hpack_huf_idx.h
-hpack_huf_tbl.h
+hpack_huf_dec.h
+hpack_huf_enc.h
 
 # manual pages
 *.3
-hpe2rst.rst
+*.hex
+*.out
+*.src
+*.txt
+*2rst.rst
+
+# test suite
+cashpack.*/
+failed-cashpack.*/
+
+# packaging
+*.pc
+*.spec
