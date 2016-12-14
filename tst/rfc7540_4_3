@@ -426,7 +426,7 @@ decode_partial_block() {
 
 c="$(wc -c <"$TEST_TMP/bin")"
 
-repeat "$c" decode_partial_block
+tst_repeat "$c" decode_partial_block
 
 _ ----------------------------------
 _ Brute force broken block splitting
@@ -453,4 +453,4 @@ decode_partial_broken_block() {
 
 c="$(wc -c <"$TEST_TMP/bin")"
 
-repeat "$c" decode_partial_broken_block
+tst_repeat "$c" decode_partial_broken_block

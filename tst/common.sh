@@ -25,16 +25,24 @@
 set -e
 set -u
 
-TEST_NAM="$(basename "$0")"
-TEST_DIR="$(dirname "$0")"
-TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
+# Test environment
+
+readonly TEST_NAM="$(basename "$0")"
+readonly TEST_DIR="$(dirname "$0")"
+readonly TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
+
+trap 'rm -fr $TEST_TMP' EXIT
+
+# Test conditionals
 
 HDECODE=hdecode
 HIGNORE=
 
-test -x ./ngdecode && HDECODE+=' ngdecode'
+test -x "./ngdecode" && HDECODE="$HDECODE ngdecode"
 
-trap "rm -fr $TEST_TMP" EXIT
+readonly HDECODE
+
+# Valgrind setup
 
 MEMCHECK=${MEMCHECK:-no}
 MEMCHECK_CMD="libtool --mode=execute	\
@@ -46,6 +54,15 @@ MEMCHECK_CMD="libtool --mode=execute	\
 	--track-fds=yes			\
 	--error-exitcode=99		\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
+
+readonly MEMCHECK
+readonly MEMCHECK_CMD
+
+# ZSH quirks
+
+setopt shwordsplit >/dev/null 2>&1 || :
+
+# Test fixtures
 
 memcheck() {
 	if [ "$MEMCHECK" = yes ]
@@ -126,6 +143,7 @@ mk_enc() {
 
 mk_chars() {
 	fmt="$(printf %s "$2" | tr ' ' '\t')"
+	# shellcheck disable=SC2059
 	printf "$fmt" ' ' |
 	tr '\t ' " $1"
 }
@@ -163,7 +181,7 @@ tst_decode() {
 	do
 		tst_ignore "$dec" && continue
 
-		hpack_decode ./$dec "$@"
+		hpack_decode "./$dec" "$@"
 
 		skip_diff "$@" && continue
 
@@ -185,7 +203,7 @@ tst_encode() {
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }
 
-repeat() {
+tst_repeat() {
 	i=1
 	j="$1"
 	shift
