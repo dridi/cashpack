@@ -61,6 +61,6 @@ mk_enc <<EOF
 literal str Name str value
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
-tst_decode --expect-error CHR
+# XXX: nghttp2 1.7.1 fails this test
+HIGNORE=ngdecode tst_decode --expect-error CHR
 tst_encode --expect-error CHR

@@ -30,11 +30,13 @@ TEST_DIR="$(dirname "$0")"
 TEST_TMP="$(mktemp -d cashpack.XXXXXXXX)"
 
 HDECODE=hdecode
+HIGNORE=
 
 test -x ./ngdecode && HDECODE+=' ngdecode'
 
 trap "rm -fr $TEST_TMP" EXIT
 
+MEMCHECK=${MEMCHECK:-no}
 MEMCHECK_CMD="libtool --mode=execute	\
 	valgrind			\
 	--tool=memcheck			\
@@ -44,9 +46,6 @@ MEMCHECK_CMD="libtool --mode=execute	\
 	--track-fds=yes			\
 	--error-exitcode=99		\
 	--log-file=memcheck-${TEST_NAM}-%p.log"
-
-MEMCHECK=${MEMCHECK:-no}
-NGHTTP2=${NGHTTP2:-no}
 
 memcheck() {
 	if [ "$MEMCHECK" = yes ]
@@ -151,10 +150,19 @@ skip_diff() {
 	return 1
 }
 
+tst_ignore() {
+	for tst in $HIGNORE
+	do
+		[ "$tst" = "$1" ] && return
+	done
+	return 1
+}
+
 tst_decode() {
-	[ "$NGHTTP2" = yes ] || HDECODE=hdecode
 	for dec in $HDECODE
 	do
+		tst_ignore "$dec" && continue
+
 		hpack_decode ./$dec "$@"
 
 		skip_diff "$@" && continue

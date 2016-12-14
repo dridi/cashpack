@@ -62,7 +62,7 @@ mk_hex <<EOF
 ff81 8000
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test and those below
+HIGNORE=ngdecode # XXX: nghttp2 1.7.1 fails this test and those below
 
 tst_decode --expect-error IDX
 

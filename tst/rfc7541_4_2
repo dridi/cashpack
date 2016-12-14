@@ -249,8 +249,8 @@ mk_hex <<EOF
 34                                      | 4
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 1.7.1 fails this test
-tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
+# XXX: nghttp2 1.7.1 fails this test
+HIGNORE=ngdecode tst_decode --decoding-spec d12,r0,r4096, --expect-error UPD
 
 _ ----------------------------------
 _ Set a limit above the maximum size

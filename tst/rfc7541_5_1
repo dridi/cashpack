@@ -92,5 +92,6 @@ mk_bin <<EOF
 00000000 | fail decoding.
 EOF
 
-HDECODE=hdecode # XXX: nghttp2 accepts this
-tst_decode --expect-error INT --table-size 1024
+# XXX: nghttp2 accepts this, following the robustness principle
+HIGNORE=ngdecode tst_decode --expect-error INT --table-size 1024
+HIGNORE=hdecode  tst_decode --table-size 1024
