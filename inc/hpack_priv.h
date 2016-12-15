@@ -172,17 +172,8 @@ struct hpack {
 	struct hpack_alloc	alloc;
 	struct hpack_size	sz;
 	struct hpack_state	state;
-	/* NB: cnt is the entries counter. */
-	size_t			cnt;
-	/* NB: Decoding is inherently stateful, so the context might as well
-	 * be part of the whole data structure. It is still a separate data
-	 * structure because it is possible to chain contexts.
-	 */
+	size_t			cnt; /* number of entries in the table */
 	struct hpack_ctx	ctx;
-	/* NB: This is where the dynamic table starts, it's not actually part
-	 * of this structure.
-	 */
-	struct hpt_entry	tbl[0];
 };
 
 typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
@@ -193,6 +184,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 #define HPACK_FLD	const struct hpack_field *fld
+#define HPACK_TBL(hp)	((struct hpt_entry *)((hp) + 1))
 
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))

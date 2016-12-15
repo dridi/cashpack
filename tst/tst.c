@@ -232,10 +232,13 @@ tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 static void
 tst_dump(struct hpack *hp)
 {
+	struct hpt_entry *tbl_ptr;
 	const char *magic;
 
 	if (hp == NULL)
 		return;
+
+	tbl_ptr = HPACK_TBL(hp);
 
 	switch (hp->magic) {
 	case DECODER_MAGIC: magic = "DECODER"; break;
@@ -268,8 +271,8 @@ tst_dump(struct hpack *hp)
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
 
-	fprintf(stderr, "\t.tbl = %p <<EOF\n", hp->tbl);
-	tst_hexdump(hp->tbl, hp->sz.len, "\t");
+	fprintf(stderr, "\t.tbl = %p <<EOF\n", tbl_ptr);
+	tst_hexdump(tbl_ptr, hp->sz.len, "\t");
 	fprintf(stderr, "\tEOF\n");
 	fprintf(stderr, "}\n");
 }
