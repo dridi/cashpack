@@ -251,6 +251,45 @@ See RFC 7230 for undefined labels in the grammar. The ``idx``, ``str`` and
 ``huf`` tokens announce that their next tokens are expected to be respectively
 an index, a string, or a string that should be Huffman-coded.
 
+Writing hexadecimal soup
+------------------------
+
+Copying hexadecimal sequences from the RFC's appendices is very easy, fair
+enough. Testing encoding is also fairly easy because the encoding DSL is
+literally straightforward, and simple to write. But covering the appendices
+don't even come close to reaching a decent coverage, so most of the test
+suite had to be written by hand. That includes hexadecimal sequences, and
+among them packed integers and Huffman strings.
+
+The most common solution was to write the encoding test case by hand, and
+copy the hexadecimal as-is for the decoding test. This introduces the risk of
+coordinated bugs where both cases are wrong but they look OK to each other.
+However the encoding is a lot simpler and less error-prone than decoding,
+which is essentially the same as serializing vs parsing.
+
+So the risk is low, but not zero. In the case of Huffman coding, the test
+suite survived a complete rewrite without flinching. And since Huffman coding
+exercises most of HPACK features, the risk for coordinated bugs is even lower.
+
+For other tests, mostly the tricky edge cases, the hexadecimal is hand written
+and commented. And a simple command line utility called ``hpiencode`` exists
+in the source tree to avoid making mistakes::
+
+    ./lib/hpiencode HUF 123
+    fb
+    ./lib/hpiencode UPD 4096
+    3fe11f
+
+As a side note, some tests involving lengthy strings were made easily possible
+thanks to two characters: ``'0'`` and ``'3'``. ``'3'`` has the hexadecimal
+code ``33`` in ASCII, it can be used to both represent itself as a character
+or half of itself in hexadecimal.
+
+``'0'`` on the other hand has the Huffman code ``0`` on 5 bits so the Huffman
+string ``"00000000"`` can be represented as ten zeros in hexadecimal. It's
+only a simple matter of basic arithmetics to get reliable long strings for
+some of the edge cases!
+
 Interoperability checks
 -----------------------
 

@@ -82,7 +82,7 @@ main(int argc, const char **argv)
 
 	while (ctx.len > 0) {
 		printf("%02x", *(uint8_t *)enc.buf);
-		enc.buf++;
+		enc.buf = (uint8_t *)enc.buf + 1;
 		ctx.len--;
 	}
 	puts("");
