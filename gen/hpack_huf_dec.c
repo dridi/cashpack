@@ -212,7 +212,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 	OUT("");
 	GEN("static const struct hph_oct hph_oct%d%s[] = {", oct, pfx);
 	for (n = 0; n < sz; n++)
-		GEN("\t/* 0x%02x */ {%d, 0x%02x, %s},",
+		GEN("\t/* 0x%02x */ {%d, (char)0x%02x, %s},",
 		    n, dec[n].len, dec[n].chr, dec[n].nxt);
 	OUT("};");
 	OUT("");
