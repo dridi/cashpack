@@ -420,8 +420,8 @@ hpack_decode_raw_string(HPACK_CTX, size_t len)
 
 	ctx->blk += len;
 	ctx->len -= len;
-	hs->len -= len;
-	EXPECT(ctx, BUF, hs->len == 0);
+	hs->str.len -= len;
+	EXPECT(ctx, BUF, hs->str.len == 0);
 
 	return (0);
 }
@@ -444,14 +444,14 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 
 		/* set up string decoding */
 		hs->magic = huf ?  HUF_STATE_MAGIC : STR_STATE_MAGIC;
-		hs->len = len;
+		hs->str.len = len;
 		hs->stp++;
 
 		if (huf) {
-			hs->dec = NULL;
-			hs->oct = NULL;
-			hs->blen = 0;
-			hs->bits = 0;
+			hs->str.dec = NULL;
+			hs->str.oct = NULL;
+			hs->str.blen = 0;
+			hs->str.bits = 0;
 		}
 
 		if (evt == HPACK_EVT_NAME)
@@ -468,13 +468,13 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 		WRONG("Unknown step");
 	}
 
-	assert(hs->len > 0 || evt != HPACK_EVT_NAME);
+	assert(hs->str.len > 0 || evt != HPACK_EVT_NAME);
 
 	if (hs->magic == HUF_STATE_MAGIC)
-		CALL(HPH_decode, ctx, hs->len);
+		CALL(HPH_decode, ctx, hs->str.len);
 	else {
 		assert(hs->magic == STR_STATE_MAGIC);
-		CALL(hpack_decode_raw_string, ctx, hs->len);
+		CALL(hpack_decode_raw_string, ctx, hs->str.len);
 	}
 
 	return (0);

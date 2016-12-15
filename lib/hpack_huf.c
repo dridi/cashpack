@@ -52,25 +52,25 @@ hph_decode_lookup(HPACK_CTX, int *eos)
 
 	hs = &ctx->hp->state;
 
-	assert(hs->blen >= 8);
-	while (hs->blen >= hs->oct->len) {
-		cod = hs->bits >> (16 - hs->dec->len);
-		EXPECT(ctx, HUF, hs->oct[cod].len > 0); /* premature EOS */
+	assert(hs->str.blen >= 8);
+	while (hs->str.blen >= hs->str.oct->len) {
+		cod = hs->str.bits >> (16 - hs->str.dec->len);
+		EXPECT(ctx, HUF, hs->str.oct[cod].len > 0); /* premature EOS */
 
-		if (hs->blen < hs->oct[cod].len)
+		if (hs->str.blen < hs->str.oct[cod].len)
 			break; /* more bits needed */
 
 		*eos = 1;
-		hs->dec = hs->oct[cod].nxt;
-		if (hs->dec == NULL) {
-			CALL(HPD_putc, ctx, hs->oct[cod].chr);
-			hs->dec = &hph_dec0;
+		hs->str.dec = hs->str.oct[cod].nxt;
+		if (hs->str.dec == NULL) {
+			CALL(HPD_putc, ctx, hs->str.oct[cod].chr);
+			hs->str.dec = &hph_dec0;
 			*eos = 0;
 		}
 
-		hs->blen -= hs->oct[cod].len;
-		hs->bits <<= hs->oct[cod].len;
-		hs->oct = hs->dec->oct;
+		hs->str.blen -= hs->str.oct[cod].len;
+		hs->str.bits <<= hs->str.oct[cod].len;
+		hs->str.oct = hs->str.dec->oct;
 	}
 	return (0);
 }
@@ -84,22 +84,22 @@ HPH_decode(HPACK_CTX, size_t len)
 	hs = &ctx->hp->state;
 	eos = 0;
 
-	if (hs->dec == NULL) {
-		hs->dec = &hph_dec0;
-		hs->oct = hph_oct0;
+	if (hs->str.dec == NULL) {
+		hs->str.dec = &hph_dec0;
+		hs->str.oct = hph_oct0;
 	}
 
 	if (len > ctx->len)
 		len = ctx->len;
 
-	while (hs->len > 0) {
+	while (hs->str.len > 0) {
 		EXPECT(ctx, BUF, len > 0);
-		assert(hs->blen < 8);
-		hs->bits |= *ctx->blk << (8 - hs->blen);
-		hs->blen += 8;
+		assert(hs->str.blen < 8);
+		hs->str.bits |= *ctx->blk << (8 - hs->str.blen);
+		hs->str.blen += 8;
+		hs->str.len--;
 		ctx->blk++;
 		ctx->len--;
-		hs->len--;
 		len--;
 
 		CALL(hph_decode_lookup, ctx, &eos);
@@ -107,15 +107,15 @@ HPH_decode(HPACK_CTX, size_t len)
 
 	EXPECT(ctx, HUF, eos == 0); /* spurious EOS */
 
-	if (hs->blen > 0) {
+	if (hs->str.blen > 0) {
 		/* check padding */
-		assert(hs->blen < 8);
-		EXPECT(ctx, HUF,
-		    hs->bits == (uint16_t)(0xffff << (16 - hs->blen)));
+		assert(hs->str.blen < 8);
+		EXPECT(ctx, HUF, hs->str.bits ==
+		    (uint16_t)(0xffff << (16 - hs->str.blen)));
 	}
 	else {
 		/* no padding */
-		assert(hs->bits == 0);
+		assert(hs->str.bits == 0);
 	}
 
 	CALL(HPD_putc, ctx, '\0');

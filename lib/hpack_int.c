@@ -61,31 +61,31 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	EXPECT(ctx, BUF, ctx->len > 0);
 	if (!hs->bsy) {
 		mask = (1 << pfx) - 1;
-		hs->v = *ctx->blk & mask;
+		hs->hpi.v = *ctx->blk & mask;
 		ctx->blk++;
 		ctx->len--;
 
-		if (hs->v < mask) {
-			*val = hs->v;
+		if (hs->hpi.v < mask) {
+			*val = hs->hpi.v;
 			return (0);
 		}
-		hs->m = 0;
+		hs->hpi.m = 0;
 		hs->bsy = 1;
 	}
 
 	do {
 		EXPECT(ctx, BUF, ctx->len > 0);
-		EXPECT(ctx, INT, hs->m < 32);
+		EXPECT(ctx, INT, hs->hpi.m < 32);
 		b = *ctx->blk;
-		n = hs->v + (b & 0x7f) * (1 << hs->m);
-		EXPECT(ctx, INT, hs->v <= n);
-		hs->v = n;
-		hs->m += 7;
+		n = hs->hpi.v + (b & 0x7f) * (1 << hs->hpi.m);
+		EXPECT(ctx, INT, hs->hpi.v <= n);
+		hs->hpi.v = n;
+		hs->hpi.m += 7;
 		ctx->blk++;
 		ctx->len--;
 	} while (b & 0x80);
 
-	*val = hs->v;
+	*val = hs->hpi.v;
 	hs->bsy = 0;
 	return (0);
 }

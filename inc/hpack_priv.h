@@ -136,6 +136,19 @@ struct hpack_size {
 	ssize_t			min;
 };
 
+struct hpack_int_state {
+	uint16_t	v;
+	uint8_t		m;
+};
+
+struct hpack_str_state {
+	const struct hph_dec	*dec;
+	const struct hph_oct	*oct;
+	uint16_t		len;
+	uint16_t		bits;
+	uint8_t			blen;
+};
+
 struct hpack_state {
 	uint32_t				magic;
 #define INT_STATE_MAGIC				0x494E5453
@@ -146,19 +159,8 @@ struct hpack_state {
 	uint16_t				idx;
 	uint8_t					typ;
 	union {
-		/* integer decoding state */
-		struct {
-			uint16_t		v;
-			uint8_t			m;
-		};
-		/* string decoding state */
-		struct {
-			const struct hph_dec	*dec;
-			const struct hph_oct	*oct;
-			uint16_t		len;
-			uint16_t		bits;
-			uint8_t			blen;
-		};
+		struct hpack_int_state		hpi;
+		struct hpack_str_state		str;
 	};
 };
 
