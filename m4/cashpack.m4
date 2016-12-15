@@ -61,6 +61,15 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
+# CASHPACK_PROG_HEXDUMP
+-----------------------
+AC_DEFUN([CASHPACK_PROG_HEXDUMP], [
+
+	AC_CHECK_PROGS(HEXDUMP, [hexdump], [no])
+	AM_CONDITIONAL([HAVE_HEXDUMP], [test "$HEXDUMP" != no])
+
+])
+
 # CASHPACK_PROG_RST2MAN
 -----------------------
 AC_DEFUN([CASHPACK_PROG_RST2MAN], [

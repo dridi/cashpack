@@ -41,6 +41,7 @@ hpack_foreach_links = \
 	hpack_dynamic.3 \
 	hpack_tables.3
 
+if HAVE_HEXDUMP
 dist_man_MANS = \
 	cashpack.3 \
 	hpack_alloc.3 \
@@ -50,6 +51,7 @@ dist_man_MANS = \
 	hpack_strerror.3 \
 	$(hpack_alloc_links) \
 	$(hpack_foreach_links)
+endif
 
 # code examples
 
