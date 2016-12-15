@@ -47,7 +47,7 @@ struct hph_dec {
 };
 
 static const struct hph tbl[] = {
-#define HPH(c, h, l) { h, (uint32_t)(h << (32 - l)), l, c },
+#define HPH(c, h, l) { h, (uint32_t)h << (32 - l), l, c },
 #include "tbl/hpack_huffman.h"
 #undef HPH
 	{0, 0, 33, 0} /* EOS */
