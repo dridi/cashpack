@@ -598,6 +598,7 @@ enum hpack_result_e
 hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 {
 	struct hpack_ctx *ctx;
+	char *dec_buf;
 	int retval;
 
 	if (hp == NULL || hp->magic != DECODER_MAGIC || dec == NULL ||
@@ -610,8 +611,9 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 	if (ctx->res == HPACK_RES_BLK) {
 		EXPECT(ctx, ARG, ctx->hp == hp);
 		assert(ctx->buf != NULL);
+		dec_buf = dec->buf;
 		EXPECT(ctx, ARG,
-		    dec->buf + dec->buf_len == ctx->buf + ctx->buf_len);
+		    dec_buf + dec->buf_len == ctx->buf + ctx->buf_len);
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
