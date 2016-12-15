@@ -307,7 +307,7 @@ some areas the spec is not always strict::
     10000000 | needed to encode its
     10000000 | rather small value.
     10000000 | For cashpack it must
-    00000000 | work regarless.
+    00000000 | work regardless.
     EOF
 
     tst_decode --table-size 1024

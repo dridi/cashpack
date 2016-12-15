@@ -75,7 +75,6 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 
 	do {
 		EXPECT(ctx, BUF, ctx->len > 0);
-		EXPECT(ctx, INT, hs->hpi.m < 32);
 		b = *ctx->blk;
 		n = hs->hpi.v + (b & 0x7f) * (1 << hs->hpi.m);
 		EXPECT(ctx, INT, hs->hpi.v <= n);
