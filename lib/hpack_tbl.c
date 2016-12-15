@@ -245,11 +245,20 @@ hpt_move_evicted(HPACK_CTX, const char *nam, size_t nam_sz, size_t len)
 	size_t sz, mv;
 
 	hp = ctx->hp;
+	assert(hp->magic == ENCODER_MAGIC);
+
 	tbl_ptr = hp->tbl;
 	nam_ptr = JUMP(hp->tbl, 0);
 	nam_sz++; /* null character */
 	mv = 0;
 
+	/* NB: from RFC 7541 section 4.4.
+	 * A new entry can reference the name of an entry in the dynamic table
+	 * that will be evicted when adding this new entry into the dynamic
+	 * table.  Implementations are cautioned to avoid deleting the
+	 * referenced name if the referenced entry is evicted from the dynamic
+	 * table prior to inserting the new entry.
+	 */
 	while (nam_sz > 0) {
 		sz = nam_sz < sizeof tmp ? nam_sz : sizeof tmp;
 		mv += sz;
