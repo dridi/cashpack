@@ -197,6 +197,12 @@ hpack_encode() {
 		3>"$TEST_TMP/enc_tbl"
 }
 
+tst_ignore() (
+	HIGNORE="$1"
+	shift
+	"$@"
+)
+
 tst_decode() {
 	for dec in $HDECODE
 	do
