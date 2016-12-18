@@ -211,7 +211,7 @@ main(int argc, char **argv)
 	if (argc != 1) {
 		fprintf(stderr, "Usage: hdecode [--expect-error <ERR>] "
 		    "[--decoding-spec <spec>,[...]] [--table-size <size>] "
-		    "<dump file>\n\n"
+		    "[--buffer-size <size>] <dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n\n"
 		    "Spec format: <letter><size>\n"
 		    "  d - decode a block of <size> bytes from the dump\n"
