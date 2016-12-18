@@ -23,10 +23,11 @@
 # SUCH DAMAGE.
 
 AM_CFLAGS = -Wall -Wextra -Werror
-
 AM_CPPFLAGS = \
 	-I $(top_srcdir)/inc \
 	-I $(top_builddir)/inc
+
+# Programs used by the test suite
 
 noinst_PROGRAMS = \
 	hpack_arg \
@@ -61,6 +62,20 @@ ngdecode_SOURCES = \
 	ngdecode.c
 endif
 
+if HAVE_GOLANG
+GO = GOPATH=$(GOPATH) go
+
+noinst_PROGRAMS += godecode
+
+src:
+	$(AM_V_GO)ln -s -f -T $(GOROOT)/lib/golang/src/internal $@
+
+godecode: src godecode.go
+	$(AM_V_GO)$(GO) build $(srcdir)/godecode.go
+endif
+
+# Test droppings cleanup
+
 clean-failed:
 	rm -rf $(builddir)/failed-cashpack.*/
 
@@ -70,6 +85,8 @@ clean-memcheck:
 clean-local: clean-failed clean-memcheck
 
 check-local: clean-failed clean-memcheck $(noinst_PROGRAMS)
+
+# Test suite
 
 RFC_TESTS = \
 	rfc7541_2_3_2 \

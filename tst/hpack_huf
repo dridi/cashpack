@@ -65,9 +65,10 @@ mk_chars 0 "01 ffa105 %1600s"           | mk_hex
 mk_chars 0 ":authority: %1280s\n"       | mk_msg
 mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 
+# Only cashpack will fail, because of its decoding buffer
 # XXX: nghttp2 will decode the large value, it has no decoding buffer
-tst_ignore ngdecode tst_decode --expect-error BIG --buffer-size 256
-tst_ignore hdecode  tst_decode
+tst_ignore "ngdecode godecode" tst_decode --expect-error BIG --buffer-size 256
+tst_ignore hdecode tst_decode
 tst_encode
 
 _ ----------------------------------------------------

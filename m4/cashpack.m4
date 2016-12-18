@@ -61,6 +61,46 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
+# CASHPACK_CHECK_GOLANG
+-----------------------
+AC_DEFUN([CASHPACK_CHECK_GOLANG], [
+
+	AC_MSG_CHECKING([for golang >= 1.6])
+
+	[golang_version="$(
+		go version 2>/dev/null |
+		tr ' ' '\n' |
+		grep '^go[1-9]' |
+		sed s/go//
+	)"]
+
+	AS_VERSION_COMPARE([$golang_version], [1.6],
+		[golang_16=no],
+		[golang_16=yes],
+		[golang_16=yes])
+
+	AC_MSG_RESULT([$golang_16])
+	AM_CONDITIONAL([HAVE_GOLANG], [test "$golang_16" = yes])
+
+	if test "$golang_16" = yes
+	then
+		GOROOT="$(go env GOROOT)"
+		AC_SUBST([GOROOT])
+		AC_SUBST([GOPATH], [$PWD/tst])
+	fi
+
+	dnl Define an automake silent execution for go
+	[am__v_GO_0='@echo "  GO      " $''@;']
+	[am__v_GO_1='']
+	[am__v_GO_='$(am__v_GO_$(AM_DEFAULT_VERBOSITY))']
+	[AM_V_GO='$(am__v_GO_$(V))']
+	AC_SUBST([am__v_GO_0])
+	AC_SUBST([am__v_GO_1])
+	AC_SUBST([am__v_GO_])
+	AC_SUBST([AM_V_GO])
+
+])
+
 # CASHPACK_PROG_HEXDUMP
 -----------------------
 AC_DEFUN([CASHPACK_PROG_HEXDUMP], [

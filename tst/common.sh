@@ -46,9 +46,12 @@ trap 'rm -fr "$TEST_TMP"' EXIT
 
 HDECODE=hdecode
 HIGNORE=
-NOTABLE=
+NOTABLE=godecode
 
-test -x "./ngdecode" && HDECODE="$HDECODE ngdecode"
+for xx in ng go
+do
+	test -x "./${xx}decode" && HDECODE="$HDECODE ${xx}decode"
+done
 
 readonly HDECODE
 readonly NOTABLE
@@ -68,6 +71,8 @@ MEMCHECK_CMD="libtool --mode=execute	\
 
 readonly MEMCHECK
 readonly MEMCHECK_CMD
+
+[ "$MEMCHECK" = yes ] && HIGNORE="godecode"
 
 # ZSH quirks
 
@@ -198,7 +203,7 @@ hpack_encode() {
 }
 
 tst_ignore() (
-	HIGNORE="$1"
+	HIGNORE="$HIGNORE $1"
 	shift
 	"$@"
 )

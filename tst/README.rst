@@ -270,6 +270,8 @@ which is essentially the same as serializing vs parsing.
 So the risk is low, but not zero. In the case of Huffman coding, the test
 suite survived a complete rewrite without flinching. And since Huffman coding
 exercises most of HPACK features, the risk for coordinated bugs is even lower.
+Interoperability checks with other HPACK implementations lowers the risk even
+further (see below).
 
 For other tests, mostly the tricky edge cases, the hexadecimal is hand written
 and commented. And a simple command line utility called ``hpiencode`` exists
@@ -312,12 +314,15 @@ some areas the spec is not always strict::
 
     tst_decode --table-size 1024
 
-If ``nghttp2`` is not available on your system, the interoperability checks
+Later on, a similar ``godecode`` program was added to challenge cashpack with
+Go's native HPACK stack. Go ships with HTTP/2 since Go 1.6, and if ``nghttp2``
+or Go is not available on your system, the relevant interoperability checks
 will be automatically skipped. It is looked up at configure time::
 
     ./configure
     [...]
     checking for NGHTTP2... yes
+    checking for golang >= 1.6... yes
     [...]
 
 Some of ``nghttp2`` tests fail and are deactivated. It may be fixed on newer
@@ -485,7 +490,7 @@ up the system under test can be a lot easier with unit testing. It also means
 introducing heavy coupling, whereas raising the level of abstraction may allow
 testing even if the internals radically change, as it is done with ``nghttp2``
 today and may be done for a (not so [3]_) hypothetical redesign of cashpack or
-the addition of more interoperability checks.
+the addition of more interoperability checks [4]_.
 
 Finally, some things can't be tested easily without making shell parts more
 complex or less portable by sticking to something like ``bash``. In all cases,
@@ -498,3 +503,4 @@ That being said, Happy Testing!
 .. [2] The coverage peaked at 99% for the library and should stay there
 .. [3] The transition from zero-copy to single-copy was painless with almost
        no changes to the test suite despite many changes in the library
+.. [4] Go's HPACK implementation passed all tests right away
