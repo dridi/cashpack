@@ -325,7 +325,7 @@ versions or handled at the HTTP/2 level. It doesn't necessary mean that the
 library is wrong.
 
 Compatibility tests may be extended to other HPACK implementations. For that
-the main requirements are the ability to probe the dynamic table, enough
+the main requirements are the ability to probe [1]_ the dynamic table, enough
 control over the coding process and the ability to write ``hencode``-like and
 ``hdecode``-like programs.
 
@@ -472,7 +472,7 @@ Closing words
 -------------
 
 There are no unit tests in cashpack, and yet the library had a decent coverage
-of 90% [1]_ at the time of the writing of this documentation's first revision.
+of 90% [2]_ at the time of the writing of this documentation's first revision.
 That would be some average of lines of code functions and branches coverage if
 that even means anything. The code coverage of a test suite doesn't even
 necessary reflect the quality of the tests.
@@ -484,7 +484,7 @@ State is probably one of the hardest things to cover in general, and setting
 up the system under test can be a lot easier with unit testing. It also means
 introducing heavy coupling, whereas raising the level of abstraction may allow
 testing even if the internals radically change, as it is done with ``nghttp2``
-today and may be done for a (not so [2]_) hypothetical redesign of cashpack or
+today and may be done for a (not so [3]_) hypothetical redesign of cashpack or
 the addition of more interoperability checks.
 
 Finally, some things can't be tested easily without making shell parts more
@@ -494,6 +494,7 @@ definitely not resort to unit tests.
 
 That being said, Happy Testing!
 
-.. [1] The coverage peaked at 99% for the library and should stay there
-.. [2] The transition from zero-copy to single-copy was painless with almost
+.. [1] The test suite can now skip the dynamic table checks
+.. [2] The coverage peaked at 99% for the library and should stay there
+.. [3] The transition from zero-copy to single-copy was painless with almost
        no changes to the test suite despite many changes in the library

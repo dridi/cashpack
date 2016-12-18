@@ -46,10 +46,12 @@ trap 'rm -fr "$TEST_TMP"' EXIT
 
 HDECODE=hdecode
 HIGNORE=
+NOTABLE=
 
 test -x "./ngdecode" && HDECODE="$HDECODE ngdecode"
 
 readonly HDECODE
+readonly NOTABLE
 
 # Valgrind setup
 
@@ -103,6 +105,14 @@ skip_diff() {
 
 skip_cmd() {
 	for tst in $HIGNORE
+	do
+		[ "$tst" = "$1" ] && return
+	done
+	return 1
+}
+
+skip_tbl() {
+	for tst in $NOTABLE
 	do
 		[ "$tst" = "$1" ] && return
 	done
@@ -197,7 +207,9 @@ tst_decode() {
 		skip_diff "$@" && continue
 
 		printf "Decoded header list:\n\n" |
-		cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/out"
+		cat - "$TEST_TMP/msg" >"$TEST_TMP/out"
+
+		skip_tbl "$dec" || cat "$TEST_TMP/tbl" >>"$TEST_TMP/out"
 
 		diff -u "$TEST_TMP/out" "$TEST_TMP/dec_out"
 	done
