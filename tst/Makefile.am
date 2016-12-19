@@ -70,6 +70,7 @@ noinst_PROGRAMS += godecode
 src:
 	$(AM_V_GO)ln -s -f -T $(GOROOT)/lib/golang/src/internal $@
 
+godecode_SOURCES =
 godecode: src godecode.go
 	$(AM_V_GO)$(GO) build $(srcdir)/godecode.go
 endif
@@ -142,4 +143,5 @@ EXTRA_DIST = \
 	bincheck \
 	hex_decode \
 	hex_encode \
-	common.sh
+	common.sh \
+	godecode.go
