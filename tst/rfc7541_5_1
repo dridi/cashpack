@@ -77,9 +77,9 @@ EOF
 
 tst_decode --expect-error INT
 
-_ -------
-_ Fuzzing
-_ -------
+_ --------------
+_ Robust fuzzing
+_ --------------
 
 mk_bin <<EOF
 00111111 | Use a table update
@@ -93,3 +93,20 @@ mk_bin <<EOF
 EOF
 
 tst_decode --table-size 1024
+
+_ ------------
+_ Evil Fuzzing
+_ ------------
+
+mk_bin <<EOF
+00111111 | Use a table update
+10000000 | to make a 5+ integer
+10000000 | stupidly packed with
+10000000 | way more bytes than
+10000000 | needed to encode an
+10000000 | integer overflow
+00000001 | that MUST be caught.
+EOF
+
+# XXX: nghttp2 1.7.1 fails this test
+tst_ignore ngdecode tst_decode --expect-error INT --table-size 1024
