@@ -22,8 +22,9 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-AM_CFLAGS = -Wall -Werror -Wextra
-AM_CPPFLAGS = -I$(top_srcdir)/inc -I$(top_builddir)/inc
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/inc \
+	-I$(top_builddir)/inc
 
 BUILD_MAN_PAGE = $(RST2MAN) --strict --strip-comments
 BUILD_MAN_LINK = printf ".so man3/%s\n"

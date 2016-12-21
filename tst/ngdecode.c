@@ -57,7 +57,7 @@ print_headers(void *priv, const void *buf, size_t len)
 	int flg;
 
 	inf = priv;
-	in = (uint8_t *)buf;
+	in = (uint8_t *)(uintptr_t)buf;
 
 	while (len > 0) {
 
@@ -136,7 +136,7 @@ decode_block(void *priv, const void *buf, size_t len, unsigned cut)
 	rv = print_headers(inf, buf, len);
 
 	if (rv == 0 && !cut) {
-		end = (uint8_t *)buf + len;
+		end = (uint8_t *)(uintptr_t)buf + len;
 		flg = 0;
 		rv = nghttp2_hd_inflate_hd(inf, &nv, &flg, end, 0, 1);
 		assert(rv == 0);

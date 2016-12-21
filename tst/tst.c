@@ -172,7 +172,7 @@ TST_decode(struct dec_ctx *ctx)
 		res = cb(ctx->priv, ctx->blk, len, cut);
 
 		if (cb == ctx->dec) {
-			ctx->blk = (uint8_t *)ctx->blk + len;
+			ctx->blk = (const uint8_t *)ctx->blk + len;
 			ctx->blk_len -= len;
 		}
 	} while (ctx->blk_len > 0);

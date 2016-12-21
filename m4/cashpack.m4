@@ -61,6 +61,70 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
+# _CASHPACK_CHECK_FLAG
+----------------------
+AC_DEFUN([_CASHPACK_CHECK_FLAG], [
+
+         AX_CHECK_COMPILE_FLAG([$1],
+		 [CASHPACK_CFLAGS="${CASHPACK_CFLAGS} $1"], [], [])
+
+])
+
+# _CASHPACK_CHECK_FLAGS
+-----------------------
+AC_DEFUN([_CASHPACK_CHECK_FLAGS], [
+
+	m4_foreach([_vmod_name],
+		m4_split(m4_normalize([$1])),
+			[_CASHPACK_CHECK_FLAG(_vmod_name)])
+
+])
+
+# CASHPACK_CHECK_FLAGS
+----------------------
+AC_DEFUN([CASHPACK_CHECK_FLAGS], [
+
+	CASHPACK_CFLAGS=
+
+	dnl This corresponds to FreeBSD's WARNS level 6
+	_CASHPACK_CHECK_FLAGS([
+		-Werror
+		-Wall
+		-Wno-format-y2k
+		-W
+		-Wstrict-prototypes
+		-Wmissing-prototypes
+		-Wpointer-arith
+		-Wreturn-type
+		-Wcast-qual
+		-Wwrite-strings
+		-Wswitch
+		-Wshadow
+		-Wunused-parameter
+		-Wcast-align
+		-Wchar-subscripts
+		-Wnested-externs
+		-Wextra
+		-Wno-sign-compare
+	])
+
+	dnl Can't follow FreeBSD too closely
+	_CASHPACK_CHECK_FLAGS([
+		-Wno-error=shadow
+		-Wno-error=cast-qual
+		-Wno-error=discarded-qualifiers
+	])
+
+	dnl Other desirable warnings
+	_CASHPACK_CHECK_FLAGS([
+		-Wunused-result
+		-Wsign-compare
+	])
+
+	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
+
+])
+
 # CASHPACK_CHECK_GOLANG
 -----------------------
 AC_DEFUN([CASHPACK_CHECK_GOLANG], [

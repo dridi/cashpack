@@ -54,8 +54,8 @@ enum hpack_step_e {
 };
 
 struct hpt_field {
-	char		*nam;
-	char		*val;
+	const char	*nam;
+	const char	*val;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
 };
@@ -184,7 +184,7 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 #define HPACK_FLD	const struct hpack_field *fld
-#define HPACK_TBL(hp)	((struct hpt_entry *)((hp) + 1))
+#define HPACK_TBL(hp)	((struct hpt_entry *)(uintptr_t)((hp) + 1))
 
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))

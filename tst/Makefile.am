@@ -22,10 +22,9 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-AM_CFLAGS = -Wall -Wextra -Werror
 AM_CPPFLAGS = \
-	-I $(top_srcdir)/inc \
-	-I $(top_builddir)/inc
+	-I$(top_srcdir)/inc \
+	-I$(top_builddir)/inc
 
 # Programs used by the test suite
 
