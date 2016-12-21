@@ -112,7 +112,8 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 	_CASHPACK_CHECK_FLAGS([
 		-Wno-error=shadow
 		-Wno-error=cast-qual
-		-Wno-error=discarded-qualifiers
+		-Wno-error=ignored-qualifiers
+		-Wno-error=incompatible-pointer-types-discards-qualifiers
 	])
 
 	dnl Other desirable warnings
