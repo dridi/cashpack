@@ -230,7 +230,7 @@ tst_hexdump(void *ptr, ssize_t len, const char *pfx)
 }
 
 static void
-tst_dump(struct hpack *hp)
+tst_dump(void)
 {
 	struct hpt_entry *tbl_ptr;
 	const char *magic;
@@ -286,7 +286,7 @@ tst_sighandler(int signo)
 {
 
 	(void)signo;
-	tst_dump(hp);
+	tst_dump();
 }
 
 void
