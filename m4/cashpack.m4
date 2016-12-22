@@ -96,7 +96,6 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wpointer-arith
 		-Wreturn-type
 		-Wcast-qual
-		-Wwrite-strings
 		-Wswitch
 		-Wshadow
 		-Wunused-parameter
@@ -109,13 +108,13 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	dnl Can't follow FreeBSD too closely
 	_CASHPACK_CHECK_FLAGS([
-		-Wno-error=shadow
 		-Wno-error=cast-qual
 		-Wno-error=discarded-qualifiers
 		-Wno-error=ignored-qualifiers
-		-Wno-error=discarded-array-qualifiers
 		-Wno-error=incompatible-pointer-types-discards-qualifiers
+		-Wno-error=shadow
 		-Wno-error=unknown-warning-option
+		-Wno-error=write-strings
 	])
 
 	dnl Other desirable warnings
