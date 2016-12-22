@@ -30,11 +30,66 @@ tst_invalid_char() {
 	tst_encode --expect-error CHR
 }
 
+_ ----------
+_ Empty name
+_ ----------
+
+mk_msg </dev/null
 mk_tbl </dev/null
+
+mk_bin <<EOF
+00000000 | literal field (0000) without indexing
+00000000 | field name has a length of zero octets
+EOF
+
+tst_decode --expect-error LEN
+
+_ -----------
+_ Empty value
+_ -----------
+
+mk_bin <<EOF
+01000001 | dynamic field (01) with indexed name 1
+00000000 | field value has a length of zero octets
+EOF
+
+mk_msg <<EOF
+:authority: 
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  42) :authority: 
+      Table size:  42
+EOF
+
+mk_enc <<EOF
+dynamic idx 1 str 
+EOF
+
+tst_decode
+tst_encode
+
+_ -------------------------
+_ Empty Huffman-coded value
+_ -------------------------
+
+mk_bin <<EOF
+01000001 | dynamic field (01) with indexed name 1
+10000000 | field value has a length of zero octets
+EOF
+
+mk_enc <<EOF
+dynamic idx 1 huf 
+EOF
+
+tst_decode
+tst_encode
 
 _ -----------------------------------
 _ Invalid characters for a field name
 _ -----------------------------------
+
+mk_tbl </dev/null
 
 tst_invalid_char "literal str name: str value"
 tst_invalid_char "literal str näme str value"
