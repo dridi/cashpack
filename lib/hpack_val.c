@@ -56,6 +56,8 @@ HPV_value(HPACK_CTX, const char *str, size_t len)
 		str++;
 		len--;
 	}
+
+	assert(*str == '\0');
 	return (0);
 }
 
@@ -68,9 +70,13 @@ HPV_token(HPACK_CTX, const char *str, size_t len)
 
 	/* RFC 7540 Section 8.1.2.1.  Pseudo-Header Fields */
 	if (*str == ':') {
-		str++;
-		len--;
-		EXPECT(ctx, CHR, len > 0);
+#define HPPH(hdr)					\
+		if (!memcmp(str, hdr, -1 + sizeof hdr))	\
+				return (0);
+#include "tbl/hpack_pseudo_headers.h"
+#undef HPPH
+		ctx->res = HPACK_RES_HDR;
+		return (HPACK_RES_HDR);
 	}
 
 	while (len > 0) {
@@ -83,5 +89,6 @@ HPV_token(HPACK_CTX, const char *str, size_t len)
 		len--;
 	}
 
+	assert(*str == '\0');
 	return (0);
 }

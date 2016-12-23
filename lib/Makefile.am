@@ -44,6 +44,7 @@ libhpack_la_SOURCES = \
 	hpack_tbl.c \
 	hpack_val.c \
 	$(top_builddir)/inc/hpack.h \
+	$(top_builddir)/inc/tbl/hpack_pseudo_headers.h \
 	$(top_builddir)/inc/tbl/hpack_static.h \
 	$(top_builddir)/inc/tbl/hpack_tbl.h \
 	$(top_builddir)/gen/hpack_huf_dec.h \

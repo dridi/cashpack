@@ -80,6 +80,9 @@ HPR(BSY, -11, "codec busy",
 HPR(BIG, -12, "message too big",
 	"\tThe request or response being decoded doesn't fit in the output\n"
 	"\tbuffer.\n\n")
+
+HPR(HDR, -13, "undefined pseudo-header",
+	"\tA header list contains an undefined pseudo-header.\n\n")
 #endif /* HPR */
 
 #ifdef HPE
