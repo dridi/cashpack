@@ -312,12 +312,15 @@ test_decode_null_args(void)
 {
 	struct hpack_decoding dec;
 
+	/* first attempt when everything is null */
+	(void)memset(&dec, 0, sizeof dec);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+
 	hp = make_decoder(512, -1, hpack_default_alloc);
 
 	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0);
 
-	/* make null members and populate them one by one */
-	(void)memset(&dec, 0, sizeof dec);
+	/* populate dec members one by one */
 	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
 	dec.blk = basic_block;
 	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
@@ -336,11 +339,15 @@ test_encode_null_args(void)
 {
 	struct hpack_encoding enc;
 
+	/* first attempt when everything is null */
+	(void)memset(&enc, 0, sizeof enc);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+
 	hp = make_encoder(512, -1, hpack_default_alloc);
 
 	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0);
 
-	/* make null members and populate them one by one */
+	/* populate enc members one by one */
 	(void)memset(&enc, 0, sizeof enc);
 	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
 	enc.fld = basic_field;
