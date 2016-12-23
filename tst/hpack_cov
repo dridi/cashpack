@@ -59,6 +59,27 @@ EOF
 
 ! tst_encode
 
+_ ------------------
+_ Decoding spec woes
+_ ------------------
+
+! tst_solely hdecode tst_decode --decoding-spec Unknown
+
+_ -----------------
+_ Encoding DSL woes
+_ -----------------
+
+syntax_error() {
+	mk_enc <<-EOF
+	$1
+	EOF
+	! tst_encode
+}
+
+syntax_error "unknown-command"
+syntax_error "literal xxx wrong-name-type"
+syntax_error "literal idx 1 xxx wrong-value-type"
+
 _ -------------------------
 _ Encode exactly 256 octets
 _ -------------------------
