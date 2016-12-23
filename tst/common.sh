@@ -208,6 +208,15 @@ tst_ignore() (
 	"$@"
 )
 
+tst_solely() (
+	for cmd in $HDECODE
+	do
+		[ "$cmd" != "$1" ] && HIGNORE="$HIGNORE $cmd"
+	done
+	shift
+	"$@"
+)
+
 tst_decode() {
 	for dec in $HDECODE
 	do
