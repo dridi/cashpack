@@ -146,7 +146,6 @@ TST_decode(struct dec_ctx *ctx)
 		case 'a':
 			abort();
 			return (-1);
-			break;
 		case 'p':
 			cut = 1;
 			/* fall through */
