@@ -82,3 +82,44 @@ trim
 EOF
 
 tst_encode
+
+_ ------------------------------------------
+_ Not enough space for indexed name or value
+_ ------------------------------------------
+
+mk_bin <<EOF
+10000101 | indexed field 5 (:path: /index.html)
+EOF
+
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 4 # fail name
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 8 # fail value
+
+_ ---------------------------------
+_ Not enough space for a raw string
+_ ---------------------------------
+
+mk_hex <<EOF
+0003 746f 6f03 6269 67                  | ..too.big
+EOF
+
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+
+_ -----------------------------------------------
+_ No space for the null character of a raw string
+_ -----------------------------------------------
+
+mk_hex <<EOF
+0005 656d 7074 7900                     | ..empty.
+EOF
+
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+
+_ ---------------------------------------------------
+_ No space for the null character of a Huffman string
+_ ---------------------------------------------------
+
+mk_hex <<EOF
+0005 656d 7074 7980                     | ..empty.
+EOF
+
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
