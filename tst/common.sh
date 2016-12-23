@@ -222,7 +222,8 @@ tst_decode() {
 	do
 		skip_cmd "$dec" && continue
 
-		hpack_decode "./$dec" "$@"
+		# XXX: why isn't this caught by `set -e`? fork?
+		hpack_decode "./$dec" "$@" || return $?
 
 		skip_diff "$@" && continue
 
@@ -236,7 +237,8 @@ tst_decode() {
 }
 
 tst_encode() {
-	hpack_encode ./hencode "$@"
+	# XXX: why isn't this caught by `set -e`? fork?
+	hpack_encode ./hencode "$@" || return $?
 
 	skip_diff "$@" && return
 
