@@ -179,7 +179,8 @@ from the total size::
 
 This list of sizes can also contain dynamic table sizes when they are resized
 out of band, like HTTP/2 settings. In this case the 'd' size prefix's replaced
-by 'r'. Partial blocks may be decoded, in this case the prefix is 'p'.
+by 'r'. Partial blocks may be decoded, in this case the prefix is 'p'. The
+character 'a' aborts, more on that below.
 
 In some cases *hexdumps* are not *that* helpful and a binary representation is
 a better match. This requirement is covered by another function used by some
@@ -220,7 +221,7 @@ be last so it works by sheer luck.
 
     encoding-script = 1*( statement )
 
-    statement = block-statement / resize / update
+    statement = block-statement / resize / update / abort
 
     block-statement = 1*( header-statement LF ) flush-statement
     flush-statement = send / push
@@ -236,6 +237,7 @@ be last so it works by sheer luck.
     push          = "push" LF
     resize        = "resize" SP size LF
     update        = "update" SP size LF
+    abort         = "abort" LF
 
     index  = number
     size   = number
@@ -470,6 +472,11 @@ like this::
     }
     tst/common.sh: line 57: 16044 Aborted                 (core dumped) "$@"
     FAIL rfc7541_c_6_3 (exit status: 134)
+
+It is also possible to manually abort the test suite at any given time using
+either the decoding spec for ``hdecode`` or the DSL for ``hencode``. This way
+it becomes possible to get the data structure dump at the desired step of the
+coding process.
 
 If that's really not enough, then all hail the mighty interactive debugger.
 

@@ -168,6 +168,8 @@ main(int argc, char **argv)
 	void *blk;
 	int fd, retval, tbl_sz, res, exp;
 
+	TST_signal();
+
 	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
 	ctx.spec = "";
@@ -213,6 +215,7 @@ main(int argc, char **argv)
 		    "<dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n"
 		    "Spec format: <letter><size>\n"
+		    "  a - abort the decoding process\n"
 		    "  d - decode <size> bytes from the dump\n"
 		    "  p - decode a partial block of <size> bytes\n"
 		    "  r - resize the dynamic table to <size> bytes\n"

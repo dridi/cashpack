@@ -143,6 +143,10 @@ TST_decode(struct dec_ctx *ctx)
 			cb = ctx->dec;
 			len = ctx->blk_len;
 			break;
+		case 'a':
+			abort();
+			return (-1);
+			break;
 		case 'p':
 			cut = 1;
 			/* fall through */
@@ -287,6 +291,10 @@ tst_sighandler(int signo)
 
 	(void)signo;
 	tst_dump();
+
+#ifdef NDEBUG
+	exit(1);
+#endif
 }
 
 void

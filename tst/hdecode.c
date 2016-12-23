@@ -213,6 +213,7 @@ main(int argc, char **argv)
 		    "[--buffer-size <size>] <dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n\n"
 		    "Spec format: <letter><size>\n"
+		    "  a - abort the decoding process\n"
 		    "  d - decode a block of <size> bytes from the dump\n"
 		    "  p - decode a partial block of <size> bytes\n"
 		    "  r - resize the dynamic table to <size> bytes\n"
