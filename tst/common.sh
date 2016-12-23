@@ -109,17 +109,17 @@ skip_diff() {
 }
 
 skip_cmd() {
-	for tst in $HIGNORE
+	for cmd in $HIGNORE
 	do
-		[ "$tst" = "$1" ] && return
+		[ "$cmd" = "$1" ] && return
 	done
 	return 1
 }
 
 skip_tbl() {
-	for tst in $NOTABLE
+	for cmd in $NOTABLE
 	do
-		[ "$tst" = "$1" ] && return
+		[ "$cmd" = "$1" ] && return
 	done
 	return 1
 }
