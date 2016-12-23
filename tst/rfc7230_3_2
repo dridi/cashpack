@@ -101,6 +101,19 @@ _ --------------------------------------------
 tst_invalid_char "literal str name str value"
 tst_invalid_char "literal str name str value"
 
+_ -----------------------------------
+_ Invalid character for a field value
+_ -----------------------------------
+
+mk_bin <<EOF
+00000001 | literal field with indexed name 1
+00000001 | raw string of length 1 (field value)
+00000000 | the null character
+EOF
+
+# XXX: nghttp2 1.7.1 fails this test
+tst_ignore ngdecode tst_decode --expect-error CHR
+
 _ --------------------------------------------------
 _ Horizontal tabulation is a valid control character
 _ --------------------------------------------------
