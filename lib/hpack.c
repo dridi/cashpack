@@ -94,7 +94,7 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 	if (hp == NULL)
 		return (NULL);
 
-	(void)memset(hp, 0, sizeof *hp + mem);
+	(void)memset(hp, 0, sizeof *hp);
 	hp->magic = magic;
 	hp->ctx.hp = hp;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
