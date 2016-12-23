@@ -96,6 +96,7 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 
 	(void)memset(hp, 0, sizeof *hp + mem);
 	hp->magic = magic;
+	hp->ctx.hp = hp;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->sz.mem = mem;
 	hp->sz.max = max;
@@ -154,6 +155,7 @@ hpack_realloc(struct hpack **hpp, size_t mem)
 	if (hp == NULL)
 		return (HPACK_RES_OOM);
 
+	hp->ctx.hp = hp;
 	hp->sz.mem = mem;
 	*hpp = hp;
 	return (HPACK_RES_OK);
@@ -607,9 +609,9 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 		return (HPACK_RES_ARG);
 
 	ctx = &hp->ctx;
+	assert(ctx->hp == hp);
 
 	if (ctx->res == HPACK_RES_BLK) {
-		EXPECT(ctx, ARG, ctx->hp == hp);
 		assert(ctx->buf != NULL);
 		dec_buf = dec->buf;
 		EXPECT(ctx, ARG,
@@ -617,7 +619,6 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
-		ctx->hp = hp;
 		ctx->buf = dec->buf;
 		ctx->buf_len = dec->buf_len;
 		ctx->can_upd = 1;
@@ -847,13 +848,13 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 		return (HPACK_RES_ARG);
 
 	ctx = &hp->ctx;
+	assert(ctx->hp == hp);
 
 	if (ctx->res == HPACK_RES_BLK) {
 		assert(ctx->hp == hp);
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
-		ctx->hp = hp;
 		ctx->can_upd = 1;
 		ctx->res = HPACK_RES_BLK;
 	}
