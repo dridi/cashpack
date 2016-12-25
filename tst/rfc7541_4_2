@@ -70,6 +70,8 @@ mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
 
+# out-of-band resize happens here
+
 # table update to 20
 34                                      | 4
 
@@ -104,6 +106,8 @@ _ -----------------------------------------------------
 mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# out-of-band resizes happen here
 
 # table update to 0
 20                                      |  
@@ -158,18 +162,35 @@ mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
 
+# out-of-band resizes happen here
+
 # table update to 0
 20                                      |  
 
 # table update to only 2048
-3fe1 08                                 | ?..
+3fe1 0f                                 | ?..
 
 # literal field "name: value"
 0004 6e61 6d65 0576 616c 7565           | ..name.value
 EOF
 
+mk_enc <<EOF
+dynamic str name str value
+send
+
+# the encoder decides to limit table usage
+update 2048
+
+# it then receives to out-of-band resizes
+resize 0
+resize 4096
+
+# cashpack automatically sends the two relevant updates
+literal str name str value
+EOF
+
 tst_decode --decoding-spec d12,r0,r4096,
-# XXX: not testable yet for encoding
+tst_encode
 
 _ ---------------------------
 _ Missing update after resize
@@ -178,6 +199,8 @@ _ ---------------------------
 mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# out-of-band resize happens here
 
 # literal field "name: value"
 0004 6e61 6d65 0576 616c 7565           | ..name.value
@@ -193,6 +216,8 @@ mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
 
+# out-of-band resize happens here
+
 # table update to 4096
 3fe1 1f                                 | ?..
 EOF
@@ -206,6 +231,8 @@ _ -------------------------------------
 mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# out-of-band resizes happen here
 
 # table update to 0
 20                                      |  
@@ -238,6 +265,8 @@ _ ---------------------------------------------
 mk_hex <<EOF
 # dynamic field "name: value"
 4004 6e61 6d65 0576 616c 7565           | @.name.value
+
+# out-of-band resizes happen here
 
 # table update to 0
 20                                      |  
@@ -291,6 +320,8 @@ mk_hex <<EOF
 # no update, yet
 4004 6e61 6d65 0576 616c 7565 4005 6f74 | @.name.value@.ot
 6865 7205 6669 656c 64                  | her.field
+
+# out-of-band resizes happen here
 
 # table update to 0
 20

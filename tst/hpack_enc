@@ -23,13 +23,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
-#
-# XXX: Encoding tests to consider rewriting if still relevant:
-# - Table update doesn't fit
-# - Table update exceeds boundaries (>16bit)
-# - Table size update not at the begining of an HPACK block
-# - No more than two updates can occur in a block
-# - Update too large
 
 . "$(dirname "$0")"/common.sh
 
