@@ -433,6 +433,19 @@ test_use_busy_decoder(void)
 }
 
 static void
+test_use_different_buffer(void)
+{
+	struct hpack_decoding different_decoding;
+
+	hp = make_decoder(0, -1, hpack_default_alloc);
+	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 1);
+	different_decoding = double_decoding;
+	different_decoding.buf_len -= 64;
+	CHECK_RES(retval, ARG, hpack_decode, hp, &different_decoding, 1);
+	hpack_free(&hp);
+}
+
+static void
 test_limit_null_encoder(void)
 {
 	assert(hp == NULL);
@@ -621,6 +634,7 @@ main(int argc, char **argv)
 
 	test_use_defunct_decoder();
 	test_use_busy_decoder();
+	test_use_different_buffer();
 
 	test_limit_null_encoder();
 	test_limit_decoder();
