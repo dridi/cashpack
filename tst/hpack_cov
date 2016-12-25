@@ -163,3 +163,14 @@ mk_hex <<EOF
 EOF
 
 tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+
+_ -----------------------------------------
+_ Break after a never-encoded field integer
+_ -----------------------------------------
+
+mk_bin <<EOF
+00010000 | Never-indexed field
+00000000 | Field name of length 0
+EOF
+
+tst_solely hdecode tst_decode --decoding-spec p1, --expect-error LEN
