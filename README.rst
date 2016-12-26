@@ -1,6 +1,9 @@
 CASHPACK - The C Anti-State HPACK library
 =========================================
 
+.. image:: logo.png
+   :alt: cashpack logo
+
 cashpack is a stateless event-driven HPACK codec aimed at embedded systems.
 It is meant to work with HTTP/2 or similar protocols in the sense that some
 assumptions made by the library would not work in all situations. For example,
