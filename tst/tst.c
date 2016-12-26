@@ -300,8 +300,5 @@ void
 TST_signal(void)
 {
 
-	if (signal(SIGABRT, tst_sighandler) == SIG_ERR) {
-		ERR("%s", "Failed to install signal handler");
-		exit(EXIT_FAILURE);
-	}
+	(void)signal(SIGABRT, tst_sighandler);
 }
