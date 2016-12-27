@@ -77,8 +77,8 @@ syntax_error() {
 }
 
 syntax_error "unknown-command"
-syntax_error "literal xxx wrong-name-type"
-syntax_error "literal idx 1 xxx wrong-value-type"
+syntax_error "literal xyz wrong-name-type"
+syntax_error "literal idx 1 xyz wrong-value-type"
 
 _ -------------------------
 _ Encode exactly 256 octets
