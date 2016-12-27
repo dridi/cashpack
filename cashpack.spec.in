@@ -42,7 +42,7 @@ developing applications that use %{name}.
 
 
 %build
-%configure
+%configure --disable-silent-rules
 make %{?_smp_mflags}
 
 
