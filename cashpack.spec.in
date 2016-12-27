@@ -10,6 +10,18 @@ Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  bc
 BuildRequires:  vim-common
 
+%bcond_with golang
+%bcond_with nghttp2
+
+%if %{with golang}
+BuildRequires:  golang >= 1.7
+BuildRequires:  golang-src >= 1.7
+%endif
+
+%if %{with nghttp2}
+BuildRequires:  libnghttp2-devel
+%endif
+
 
 %description
 %{name} is a stateless event-driven HPACK codec written in C.
