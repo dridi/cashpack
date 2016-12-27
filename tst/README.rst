@@ -324,7 +324,7 @@ will be automatically skipped. It is looked up at configure time::
     ./configure
     [...]
     checking for NGHTTP2... yes
-    checking for golang >= 1.6... yes
+    checking for golang >= 1.7... yes
     [...]
 
 Some of ``nghttp2`` tests fail and are deactivated. It may be fixed on newer

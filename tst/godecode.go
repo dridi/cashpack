@@ -29,7 +29,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"golang.org/x/net/http2/hpack"
+	"golang_org/x/net/http2/hpack"
 	"log"
 	"os"
 	"strconv"

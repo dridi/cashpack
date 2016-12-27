@@ -130,7 +130,7 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 -----------------------
 AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 
-	AC_MSG_CHECKING([for golang >= 1.6])
+	AC_MSG_CHECKING([for golang >= 1.7])
 
 	[golang_version="$(
 		go version 2>/dev/null |
@@ -139,19 +139,18 @@ AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 		sed s/go//
 	)"]
 
-	AS_VERSION_COMPARE([$golang_version], [1.6],
-		[golang_16=no],
-		[golang_16=yes],
-		[golang_16=yes])
+	AS_VERSION_COMPARE([$golang_version], [1.7],
+		[golang_17=no],
+		[golang_17=yes],
+		[golang_17=yes])
 
-	AC_MSG_RESULT([$golang_16])
-	AM_CONDITIONAL([HAVE_GOLANG], [test "$golang_16" = yes])
+	AC_MSG_RESULT([$golang_17])
+	AM_CONDITIONAL([HAVE_GOLANG], [test "$golang_17" = yes])
 
-	if test "$golang_16" = yes
+	if test "$golang_17" = yes
 	then
 		GOROOT="$(go env GOROOT)"
 		AC_SUBST([GOROOT])
-		AC_SUBST([GOPATH], [$PWD/tst])
 	fi
 
 	dnl Define an automake silent execution for go

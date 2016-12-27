@@ -62,12 +62,12 @@ ngdecode_SOURCES = \
 endif
 
 if HAVE_GOLANG
-GO = GOPATH=$(GOPATH) go
+GO = GOPATH=$(abs_builddir) go
 
 noinst_PROGRAMS += godecode
 
 src:
-	$(AM_V_GO)ln -s -f -T $(GOROOT)/lib/golang/src/internal $@
+	$(AM_V_GO)ln -s -f -T $(GOROOT)/src/vendor $@
 
 godecode_SOURCES =
 godecode: src godecode.go
