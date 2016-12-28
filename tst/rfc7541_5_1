@@ -108,5 +108,5 @@ mk_bin <<EOF
 00000001 | that MUST be caught.
 EOF
 
-# XXX: nghttp2 1.7.1 fails this test
+# XXX: nghttp2 1.13.0 fails this test
 tst_ignore ngdecode tst_decode --expect-error INT --table-size 1024

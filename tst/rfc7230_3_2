@@ -111,7 +111,7 @@ mk_bin <<EOF
 00000000 | the null character
 EOF
 
-# XXX: nghttp2 1.7.1 fails this test
+# XXX: nghttp2 1.13.0 fails this test
 tst_ignore ngdecode tst_decode --expect-error CHR
 
 _ --------------------------------------------------
