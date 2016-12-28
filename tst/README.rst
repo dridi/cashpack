@@ -363,6 +363,70 @@ invariant checks, they are closer to potential faults origins: the source code
 itself. About 5% of the whole C code base is dedicated to that, but it's about
 8% for the library itself.
 
+Portability
+-----------
+
+Portability is an important factor for cashpack and although it won't directly
+contribute to the test suite, it is actually related. As stated above, using
+sanitizers or different optimization levels can help check against undefined
+behavior. Switching compilers can also reveal undefined behavior, especially
+for a language as weak as C. Running without asserts (eg. with ``lcov``) is
+also a good way to spot coding mistakes.
+
+That's where Travis CI fits in the picture. The cashpack project is integrated
+with a build matrix covering optimizations, sanitizers and even Valgrind. All
+of that with both GCC and clang, with older versions. Travis CI is a bit short
+sighted when it comes to continuous integration, trying to solve a too narrow
+CI problem space, but at the same time it covers a great deal of needs, all of
+that for free!
+
+Speaking of coverage, Travis CI made it possible in a rather convenient way to
+publish code coverage reports with codecov.io and do static analysis using
+Coverity Scan. Other static analysis tools got evaluated, but most of the time
+yielding far too many false-positives. With maybe the exception of clang's
+``scan-build(1)`` that does a great job too.
+
+So Travis CI helps on both continuous integration and compiler portability.
+But it also helps check the portability of the Shell test suite. The default
+shell on Ubuntu/Debian is ``dash(1)``, which is as POSIX as a shell can get.
+From times to times it is tested against other POSIX-compliant shells.
+
+Finally, architecture portability. cashpack is intended for embedded systems
+but would work fine with "regular" systems too. However, it does not target
+8-bit micro-controllers or any similar truly embedded device, but actual CPUs.
+
+Once again, C being C you may get different results on different platforms if
+you inadvertently rely on undefined behavior. Thanks to resources provided by
+the Fedora Project, a lot of CPU architectures are used to *manually* run the
+test suite. It would be interesting to link against ``libc``\s other than
+``glibc``.
+
++----------+------------------+-----------+-----------+-------+
+| Compiler | GCC              | clang     | pcc       | SunCC |
++----------+------------------+-----------+-----------+-------+
+| Arch     | Targets                                          |
++==========+==================+===========+===========+=======+
+| x86_64   | GNU/Linux, SunOS | GNU/Linux | GNU/Linux | SunOS |
++----------+------------------+-----------+-----------+-------+
+| i686     | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+| armv7hl  | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+| aarch64  | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+| ppc64    | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+| ppc64le  | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+| s390x    | GNU/Linux        | —         | —         | —     |
++----------+------------------+-----------+-----------+-------+
+
+cashpack works fine on all platforms where it could be tested. It did not
+build fine with the Portable C Compiler because a small bunch of C files
+wouldn't compile (for what looks like a bug in pcc). Building the missing
+objects with clang while still using ppc for linking *did* pass the test
+suite.
+
 Reporting
 ---------
 
@@ -442,8 +506,8 @@ to the ``make`` command line::
 
 Finally, if an invariant is not met and triggers an assert, a dump of the data
 structure is printed in the standard error. The C programs used in testing may
-abort on regular errors for convenience, in both cases the output may look
-like this::
+abort instead of doing proper error handling for convenience. In both cases
+the output may look like this::
 
     FAIL: rfc7541_c_6_3
     ===================
