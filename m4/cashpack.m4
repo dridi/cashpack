@@ -74,9 +74,9 @@ AC_DEFUN([_CASHPACK_CHECK_FLAG], [
 -----------------------
 AC_DEFUN([_CASHPACK_CHECK_FLAGS], [
 
-	m4_foreach([_vmod_name],
+	m4_foreach([_flag],
 		m4_split(m4_normalize([$1])),
-			[_CASHPACK_CHECK_FLAG(_vmod_name)])
+			[_CASHPACK_CHECK_FLAG(_flag)])
 
 ])
 
