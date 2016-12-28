@@ -84,7 +84,7 @@ clean-memcheck:
 
 clean-local: clean-failed clean-memcheck
 
-check-local: clean-failed clean-memcheck $(noinst_PROGRAMS)
+check-local: clean-failed clean-memcheck $(PROGRAMS)
 
 # Test suite
 
