@@ -118,8 +118,10 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	dnl Other desirable warnings
 	_CASHPACK_CHECK_FLAGS([
-		-Wunused-result
+		-Wmissing-variable-declarations
+		-Wredundant-decls
 		-Wsign-compare
+		-Wunused-result
 	])
 
 	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"

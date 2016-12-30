@@ -45,7 +45,7 @@
 #define JUMP(he, off)	(void *)((uintptr_t)(he) + HPT_HEADERSZ + (off))
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
-const struct hpt_field hpt_static[] = {
+static const struct hpt_field hpt_static[] = {
 #define HPS(n, v)				\
 	{					\
 		.nam = n,			\

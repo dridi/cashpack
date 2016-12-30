@@ -186,26 +186,26 @@ static const struct hpack_alloc oom_alloc = {
  * Test cases sharing a bunch of global variables
  */
 
-struct hpack *hp;
-struct hpack_field fld;
-char wrk_buf[256];
-int retval;
+static struct hpack *hp;
+static struct hpack_field fld;
+static char wrk_buf[256];
+static int retval;
 
-#define DECODING(nam)				\
-const struct hpack_decoding nam##_decoding = {	\
-	.blk = nam##_block,			\
-	.blk_len = sizeof nam##_block,		\
-	.buf = wrk_buf,				\
-	.buf_len = sizeof wrk_buf,		\
-	.cb = noop_cb,				\
-	.priv = NULL,				\
+#define DECODING(nam)					\
+static const struct hpack_decoding nam##_decoding = {	\
+	.blk = nam##_block,				\
+	.blk_len = sizeof nam##_block,			\
+	.buf = wrk_buf,					\
+	.buf_len = sizeof wrk_buf,			\
+	.cb = noop_cb,					\
+	.priv = NULL,					\
 }
 DECODING(update);
 DECODING(junk);
 DECODING(double);
 #undef DECODING
 
-const struct hpack_encoding basic_encoding = {
+static const struct hpack_encoding basic_encoding = {
 	.fld = basic_field,
 	.fld_cnt = 1,
 	.buf = wrk_buf,
@@ -214,7 +214,7 @@ const struct hpack_encoding basic_encoding = {
 	.priv = NULL,
 };
 
-const struct hpack_encoding unknown_encoding = {
+static const struct hpack_encoding unknown_encoding = {
 	.fld = unknown_field,
 	.fld_cnt = 1,
 	.buf = wrk_buf,

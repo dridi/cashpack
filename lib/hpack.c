@@ -66,7 +66,7 @@ hpack_libc_free(void *ptr, void *priv)
 	free(ptr);
 }
 
-const struct hpack_alloc hpack_libc_alloc = {
+static const struct hpack_alloc hpack_libc_alloc = {
 	hpack_libc_malloc,
 	hpack_libc_realloc,
 	hpack_libc_free,

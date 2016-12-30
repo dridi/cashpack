@@ -56,8 +56,8 @@ struct dumb_ref {
 	const char *val;
 };
 
-struct dumb_ref dumb_idx[MAX_ENTRIES + 1];
-size_t idx_len;
+static struct dumb_ref dumb_idx[MAX_ENTRIES + 1];
+static size_t idx_len;
 
 static void
 dumb_index(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
