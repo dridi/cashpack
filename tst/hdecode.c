@@ -257,7 +257,7 @@ main(int argc, char **argv)
 	res = TST_decode(&ctx);
 
 	OUT("\n\n");
-	TST_print_table(hp);
+	TST_print_table();
 
 	hpack_free(&hp);
 

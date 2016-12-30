@@ -42,6 +42,8 @@
 
 #include "tst.h"
 
+struct hpack *hp;
+
 /**********************************************************************
  * Dynamic table
  */
@@ -88,7 +90,7 @@ tst_print_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 }
 
 void
-TST_print_table(struct hpack *hp)
+TST_print_table(void)
 {
 	struct dyn_ctx ctx;
 	char buf[8];
@@ -200,8 +202,6 @@ TST_translate_error(const char *str)
 /**********************************************************************
  * Debugging
  */
-
-extern struct hpack *hp;
 
 static void
 tst_hexdump(void *ptr, ssize_t len, const char *pfx)

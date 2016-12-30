@@ -344,8 +344,6 @@ main(int argc, char **argv)
 	ctx.hp = hpack_encoder(tbl_sz, tbl_mem, hpack_default_alloc);
 	assert(ctx.hp != NULL);
 
-	hp = ctx.hp;
-
 	ctx.res = HPACK_RES_OK;
 
 	do {
@@ -362,7 +360,8 @@ main(int argc, char **argv)
 		retval = dup2(3, STDOUT_FILENO);
 		assert(retval == STDOUT_FILENO);
 
-		TST_print_table(ctx.hp);
+		hp = ctx.hp;
+		TST_print_table();
 
 		retval = fclose(stdout);
 		assert(retval == 0);

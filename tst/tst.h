@@ -44,8 +44,9 @@ struct dec_ctx {
 };
 
 struct hpack;
+extern struct hpack *hp;
 
-void TST_print_table(struct hpack *);
+void TST_print_table(void);
 int  TST_decode(struct dec_ctx *);
 
 enum hpack_result_e TST_translate_error(const char *);
