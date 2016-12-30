@@ -27,7 +27,25 @@ talk_ from the first edition of VarnishCon.
 .. _talk: https://www.infoq.com/fr/presentations/varnishcon-dridi-boukelmoune-hpack-vs-varnish-cache
 
 How to use
------------
+----------
+
+Grab the `latest release`_ archive, and once inside the source directory
+follow these steps::
+
+    $ ./configure
+    $ make
+    $ make check # optional but recommended
+    $ sudo make install
+
+Once installed, you will find comprehensive documentation and also examples
+in the manual. You can use the ``cashpack(3)`` manual as an entry point::
+
+    $ man cashpack
+
+.. _`latest release`: https://github.com/Dridi/cashpack/releases/latest
+
+Hacking
+-------
 
 cashpack relies on autotools for building, and a range of tools for testing
 and code coverage. The basic usage is as follows::
@@ -54,14 +72,9 @@ For code coverage, the simplest way to get a report is as follows::
    $ make lcov
    $ xdg-open lcov/index.html
 
-An example of the library usage can be found in the `cashpack(3)` manual.
-
-Contributing
-------------
-
-The best way to contribute to cashpack is to use it on platforms other than
-x86_64 GNU/Linux with glibc and report failures. Despite a paranoid coding
-style and the benefits of open-source [1]_ there may be security issues.
+Despite a paranoid coding style, insane code coverage and the benefits of
+open-source [1]_ it may not be exempt of security flaws. You can learn more
+from the test suite's README file too.
 
 Design goals
 ------------
@@ -95,7 +108,7 @@ copy, decode, or encode data exactly once. The goal used to be zero-copy but
 proved to be harder to implement and less efficient. Insertions in the dynamic
 tables copy data a second "single" time, but contents need to be moved prior
 to that. Under certain circumstances, data may need to be moved in several
-steps, but only during encoding. This is no longer a DOS vector for decoding.
+steps, but only during encoding. This is no longer a DoS vector for decoding.
 
 Evictions from the dynamic table on the other hand are very cheap.
 

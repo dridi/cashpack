@@ -12,13 +12,18 @@ levels:
 - backed by C programs that use the library
 
 The common shell rules give some degree of isolation to the test cases by
-setting up a temp working directory. It also abstracts most of the setup so
-that the test cases contain as little boilerplate as possible.
+setting up a temp working directory. It also abstracts away most of the setup
+so that the test cases contain as little boilerplate as possible.
 
 The C programs serve as bindings between the C library and the shell scripts,
 offering a convenient interface even for edge cases. Reaching a particular
 line or branch from outside the library should always be straightforward given
 the relative simplicity of HPACK.
+
+It also means that the test suite cannot cheat the type system and reach
+private functions directly. All test cases go through the public API, so every
+single test is relevant for production, with a degree of relevance varying on
+the test subject (silly or rare edge cases may be of lower importance).
 
 The typical structure of a test case is the following::
 
