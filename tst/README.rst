@@ -427,10 +427,8 @@ test suite. It would be interesting to link against ``libc``\s other than
 +----------+------------------+-----------+-----------+-------+
 
 cashpack works fine on all platforms where it could be tested. It did not
-build fine with the Portable C Compiler because a small bunch of C files
-wouldn't compile (for what looks like a bug in pcc). Building the missing
-objects with clang while still using pcc for linking *did* pass the test
-suite.
+however compile with the Portable C Compiler unless optimizations were
+disabled (which looks like a bug in pcc).
 
 Reporting
 ---------
