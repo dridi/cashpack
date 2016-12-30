@@ -50,7 +50,6 @@
 #define TOK_ARGS(line, token) (line + sizeof token)
 
 struct enc_ctx {
-	struct hpack		*hp;
 	hpack_callback_f	*cb;
 	struct hpack_field	*fld;
 	size_t			cnt;
@@ -114,7 +113,7 @@ encode_message(struct enc_ctx *ctx)
 	enc.cb = ctx->cb;
 	enc.priv = NULL;
 
-	ctx->res = hpack_encode(ctx->hp, &enc, ctx->cut);
+	ctx->res = hpack_encode(hp, &enc, ctx->cut);
 	fld = ctx->fld;
 
 	while (ctx->cnt > 0) {
@@ -218,20 +217,20 @@ parse_commands(struct enc_ctx *ctx)
 	}
 	else if (!LINECMP(ctx->line, "trim")) {
 		assert(ctx->cnt == 0);
-		ctx->res = hpack_trim(&ctx->hp);
+		ctx->res = hpack_trim(&hp);
 		return (0);
 	}
 	else if (!TOKCMP(ctx->line, "resize")) {
 		assert(ctx->cnt == 0);
 		args = TOK_ARGS(ctx->line, "resize");
 		len = atoi(args);
-		ctx->res = hpack_resize(&ctx->hp, len);
+		ctx->res = hpack_resize(&hp, len);
 		return (0);
 	}
 	else if (!TOKCMP(ctx->line, "update")) {
 		args = TOK_ARGS(ctx->line, "update");
 		len = atoi(args);
-		ctx->res = hpack_limit(&ctx->hp, len);
+		ctx->res = hpack_limit(&hp, len);
 		return (0);
 	}
 
@@ -341,8 +340,8 @@ main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ctx.hp = hpack_encoder(tbl_sz, tbl_mem, hpack_default_alloc);
-	assert(ctx.hp != NULL);
+	hp = hpack_encoder(tbl_sz, tbl_mem, hpack_default_alloc);
+	assert(hp != NULL);
 
 	ctx.res = HPACK_RES_OK;
 
@@ -360,14 +359,13 @@ main(int argc, char **argv)
 		retval = dup2(3, STDOUT_FILENO);
 		assert(retval == STDOUT_FILENO);
 
-		hp = ctx.hp;
 		TST_print_table();
 
 		retval = fclose(stdout);
 		assert(retval == 0);
 	}
 
-	hpack_free(&ctx.hp);
+	hpack_free(&hp);
 
 	if (ctx.res != HPACK_RES_OK)
 		ERR("hpack error: %s (%d)", hpack_strerror(ctx.res), ctx.res);
