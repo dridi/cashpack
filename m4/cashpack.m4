@@ -338,8 +338,8 @@ lcov-clean:
 	CFLAGS="$CFLAGS -O0 -g -fprofile-arcs -ftest-coverage"
 	LDFLAGS="$LDFLAGS -lgcov"
 
-	AC_SUBST([LCOV])
-	AC_SUBST([GENHTML])
+	AC_SUBST([LCOV], ["$LCOV --config-file \$(srcdir)/lcovrc"])
+	AC_SUBST([GENHTML], ["$GENHTML --config-file \$(srcdir)/lcovrc"])
 	AC_SUBST([LCOV_RULES])
 	m4_ifdef([_AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE([LCOV_RULES])])
 
