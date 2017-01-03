@@ -27,9 +27,9 @@ set -u
 
 # Test environment
 
-readonly TEST_NAM="$(basename "$0")"
-readonly TEST_DIR="$(dirname "$0")"
-readonly TEST_TMP="$(mktemp -d "cashpack.${TEST_NAM}.XXXXXXXX")"
+readonly TEST_NAM=$(basename "$0")
+readonly TEST_DIR=$(dirname "$0")
+readonly TEST_TMP=$(mktemp -d "cashpack.${TEST_NAM}.XXXXXXXX")
 
 keep_tmp() {
 	[ "${KEEP_TMP:-no}" = yes ] &&
@@ -153,7 +153,7 @@ mk_bin() {
 	while read bin
 	do
 		# XXX: is this portable?
-		dec="$(echo "obase=10;ibase=2;$bin" | bc)"
+		dec=$(echo "obase=10;ibase=2;$bin" | bc)
 		printf %02x "$dec"
 	done |
 	mk_hex
@@ -184,7 +184,7 @@ mk_enc() {
 }
 
 mk_chars() {
-	fmt="$(printf %s "$2" | tr ' ' '\t')"
+	fmt=$(printf %s "$2" | tr ' ' '\t')
 	# shellcheck disable=SC2059
 	printf "$fmt" ' ' |
 	tr '\t ' " $1"

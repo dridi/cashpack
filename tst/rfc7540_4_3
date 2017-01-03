@@ -425,7 +425,7 @@ decode_partial_block() {
 	tst_decode --decoding-spec p$1, --table-size 256
 }
 
-c="$(wc -c <"$TEST_TMP/bin")"
+c=$(wc -c <"$TEST_TMP/bin")
 
 tst_repeat "$c" decode_partial_block
 
@@ -452,6 +452,6 @@ decode_partial_broken_block() {
 	tst_decode --decoding-spec p$1, --expect-error UPD
 }
 
-c="$(wc -c <"$TEST_TMP/bin")"
+c=$(wc -c <"$TEST_TMP/bin")
 
 tst_repeat "$c" decode_partial_broken_block
