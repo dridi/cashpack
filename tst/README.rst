@@ -220,7 +220,7 @@ appendix C.6.3.::
 This is a statement-oriented language that is interpreted one line at a time.
 Commands and arguments are separated by single spaces to make parsing easier,
 and conveniently only header field values can contain spaces but they can only
-be last so it works by sheer luck.
+appear last in a statement: it worked by sheer luck \o/.
 
 ::
 
@@ -269,7 +269,7 @@ suite had to be written by hand. That includes hexadecimal sequences, and
 among them packed integers and Huffman strings.
 
 The most common solution was to write the encoding test case by hand, and
-copy the hexadecimal as-is for the decoding test. This introduces the risk of
+copy the *hexdump* as-is for the decoding test. This introduces the risk of
 coordinated bugs where both cases are wrong but they look OK to each other.
 However the encoding is a lot simpler and less error-prone than decoding,
 which is essentially the same as serializing vs parsing.
@@ -282,7 +282,7 @@ further (see below).
 
 For other tests, mostly the tricky edge cases, the hexadecimal is hand written
 and commented. And a simple command line utility called ``hpiencode`` exists
-in the source tree to avoid making mistakes::
+in the source tree to avoid making (inevitable) mistakes::
 
     ./lib/hpiencode HUF 123
     fb
@@ -339,7 +339,7 @@ library is wrong.
 Compatibility tests may be extended to other HPACK implementations. For that
 the main requirements are the ability to probe [1]_ the dynamic table, enough
 control over the coding process and the ability to write ``hencode``-like and
-``hdecode``-like programs.
+``hdecode``-like programs. This has yet to happen for encoding.
 
 Additional checking
 -------------------
@@ -387,23 +387,25 @@ that for free!
 
 Speaking of coverage, Travis CI made it possible in a rather convenient way to
 publish code coverage reports with codecov.io and do static analysis using
-Coverity Scan. Other static analysis tools got evaluated, but most of the time
+Coverity Scan. Other static analysis tools were evaluated but most of the time
 yielding far too many false-positives. With maybe the exception of clang's
 ``scan-build(1)`` that does a great job too.
 
 So Travis CI helps on both continuous integration and compiler portability.
 But it also helps check the portability of the Shell test suite. The default
 shell on Ubuntu/Debian is ``dash(1)``, which is as POSIX as a shell can get.
-From times to times it is tested against other POSIX-compliant shells.
+From times to times it is tested against other POSIX-compliant shells, and
+``bash(1)`` is the daily driver.
 
 Finally, architecture portability. cashpack is intended for embedded systems
-but would work fine with "regular" systems too. However, it does not target
-8-bit micro-controllers or any similar truly embedded device, but actual CPUs.
+but would work fine with "regular" systems too. However it does not target
+8-bit micro-controllers or any similar *dedicated* devices, but actual general
+purpose 32- or 64-bit CPUs: common enough in the embedded space.
 
 Once again, C being C you may get different results on different platforms if
 you inadvertently rely on undefined behavior. Thanks to resources provided by
 the Fedora Project, a lot of CPU architectures are used to *manually* run the
-test suite. It would be interesting to link against ``libc``\s other than
+test suite. It would be interesting too to link against ``libc``\s other than
 ``glibc``.
 
 +----------+------------------+-----------+-----------+-------+
@@ -483,7 +485,7 @@ Here is a passing test log::
 
 The different test cases stand out thanks to their title, and each case has
 one or more checks to perform. If a check appears to run fine, its output is
-compared (``diff -u``) with the expected results::
+then challenged (``diff -u``) against the expected results::
 
     FAIL: rfc7541_c_6_3
     ===================
@@ -559,6 +561,7 @@ necessary reflect the quality of the tests.
 It's just a numbers game and some kinds of *wossname* coverage are quite hard
 to quantify, like for example the infinite possibilities of decodable input,
 or interoperability in the absence of a proper technology compatibility kit.
+
 State is probably one of the hardest things to cover in general, and setting
 up the system under test can be a lot easier with unit testing. It also means
 introducing heavy coupling, whereas raising the level of abstraction may allow
@@ -573,7 +576,8 @@ definitely not resort to unit tests.
 
 That being said, Happy Testing!
 
-.. [1] The test suite can now skip the dynamic table checks
+.. [1] The test suite can now skip the dynamic table checks when unavailable
+       as it is sadly the case for Go
 .. [2] The coverage peaked at 99% for the library and should stay there
 .. [3] The transition from zero-copy to single-copy was painless with almost
        no changes to the test suite despite many changes in the library
