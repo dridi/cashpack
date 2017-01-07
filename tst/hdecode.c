@@ -46,7 +46,7 @@
 
 struct dec_priv {
 	struct hpack		*hp;
-	hpack_callback_f	*cb;
+	hpack_event_f		*cb;
 	void			*buf;
 	size_t			len;
 };
@@ -146,7 +146,7 @@ int
 main(int argc, char **argv)
 {
 	enum hpack_result_e res, exp;
-	hpack_callback_f *cb;
+	hpack_event_f *cb;
 	struct dec_ctx ctx;
 	struct dec_priv priv;
 	struct stat st;

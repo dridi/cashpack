@@ -50,7 +50,7 @@
 #define TOK_ARGS(line, token) (line + sizeof token)
 
 struct enc_ctx {
-	hpack_callback_f	*cb;
+	hpack_event_f		*cb;
 	struct hpack_field	*fld;
 	size_t			cnt;
 	char			*line;

@@ -43,14 +43,14 @@ SYNOPSIS
 |
 | **#define** *HPACK_STATIC* **61**
 |
-| **enum hpack_result_e hpack_static(hpack_callback_f** *cb*\ **,** \
+| **enum hpack_result_e hpack_static(hpack_event_f** *cb*\ **,** \
     **void** *\*priv*\ **);**
 |
 | **enum hpack_result_e hpack_dynamic(struct hpack** *\*hpack*\ **,**
-| **\     hpack_callback_f** *cb*\ **, void** *\*priv*\ **);**
+| **\     hpack_event_f** *cb*\ **, void** *\*priv*\ **);**
 |
 | **enum hpack_result_e hpack_tables(struct hpack** *\*hpack*\ **,**
-| **\     hpack_callback_f** *cb*\ **, void** *\*priv*\ **);**
+| **\     hpack_event_f** *cb*\ **, void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========

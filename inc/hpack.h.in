@@ -69,7 +69,7 @@ enum hpack_event_e {
 #undef HPE
 };
 
-typedef void hpack_callback_f(enum hpack_event_e, const char *, size_t,
+typedef void hpack_event_f(enum hpack_event_e, const char *, size_t,
     void *);
 
 /* hpack_decode */
@@ -79,7 +79,7 @@ struct hpack_decoding {
 	size_t			blk_len;
 	void			*buf;
 	size_t			buf_len;
-	hpack_callback_f	*cb;
+	hpack_event_f		*cb;
 	void			*priv;
 };
 
@@ -108,7 +108,7 @@ struct hpack_encoding {
 	size_t				fld_cnt;
 	void				*buf;
 	size_t				buf_len;
-	hpack_callback_f		*cb;
+	hpack_event_f			*cb;
 	void				*priv;
 };
 
@@ -121,6 +121,6 @@ enum hpack_result_e hpack_clean_field(struct hpack_field *);
 
 ##define HPACK_STATIC 61
 
-enum hpack_result_e hpack_static(hpack_callback_f, void *);
-enum hpack_result_e hpack_dynamic(struct hpack *, hpack_callback_f, void *);
-enum hpack_result_e hpack_tables(struct hpack *, hpack_callback_f, void *);
+enum hpack_result_e hpack_static(hpack_event_f, void *);
+enum hpack_result_e hpack_dynamic(struct hpack *, hpack_event_f, void *);
+enum hpack_result_e hpack_tables(struct hpack *, hpack_event_f, void *);

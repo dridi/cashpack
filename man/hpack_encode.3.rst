@@ -56,7 +56,7 @@ SYNOPSIS
 |    **size_t**                   *fld_cnt*\ **;**
 |    **void**                     *\*buf*\ **;**
 |    **size_t**                   *buf_len*\ **;**
-|    **hpack_callback_f**         *\*cb*\ **;**
+|    **hpack_event_f**            *\*cb*\ **;**
 |    **void**                     *\*priv*\ **;**
 | **};**
 |

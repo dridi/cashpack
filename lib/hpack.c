@@ -331,7 +331,7 @@ hpack_free(struct hpack **hpp)
  */
 
 enum hpack_result_e
-hpack_static(hpack_callback_f cb, void *priv)
+hpack_static(hpack_event_f cb, void *priv)
 {
 	struct hpack_ctx ctx;
 
@@ -347,7 +347,7 @@ hpack_static(hpack_callback_f cb, void *priv)
 }
 
 static enum hpack_result_e
-hpack_foreach(struct hpack *hp, hpack_callback_f cb, void *priv, int flg)
+hpack_foreach(struct hpack *hp, hpack_event_f cb, void *priv, int flg)
 {
 	struct hpack_ctx *ctx;
 
@@ -373,14 +373,14 @@ hpack_foreach(struct hpack *hp, hpack_callback_f cb, void *priv, int flg)
 }
 
 enum hpack_result_e
-hpack_dynamic(struct hpack *hp, hpack_callback_f cb, void *priv)
+hpack_dynamic(struct hpack *hp, hpack_event_f cb, void *priv)
 {
 
 	return (hpack_foreach(hp, cb, priv, HPT_FLG_DYNAMIC));
 }
 
 enum hpack_result_e
-hpack_tables(struct hpack *hp, hpack_callback_f cb, void *priv)
+hpack_tables(struct hpack *hp, hpack_event_f cb, void *priv)
 {
 
 	return (hpack_foreach(hp, cb, priv, HPT_FLG_STATIC|HPT_FLG_DYNAMIC));

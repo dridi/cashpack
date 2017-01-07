@@ -164,7 +164,7 @@ The list of events is the same for all event drivers, some of them only use a
 subset. An event handler has the following signature:
 
 |
-| **typedef void hpack_callback_f(enum hpack_event_e** *evt*\ **,**
+| **typedef void hpack_event_f(enum hpack_event_e** *evt*\ **,**
 | **\     const char** *\*buf*\ **, size_t** *size*\ **,** \
     **void** *\*priv*\ **);**
 

@@ -94,7 +94,7 @@ struct hpack_ctx {
 		size_t				nam_sz;
 		size_t				val_sz;
 	} fld;
-	hpack_callback_f			*cb;
+	hpack_event_f				*cb;
 	void					*priv;
 	enum hpack_result_e			res;
 	unsigned				can_upd;
