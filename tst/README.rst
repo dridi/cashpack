@@ -394,8 +394,9 @@ yielding far too many false-positives. With maybe the exception of clang's
 So Travis CI helps on both continuous integration and compiler portability.
 But it also helps check the portability of the Shell test suite. The default
 shell on Ubuntu/Debian is ``dash(1)``, which is as POSIX as a shell can get.
-From times to times it is tested against other POSIX-compliant shells, and
-``bash(1)`` is the daily driver.
+From times to times it is tested against other POSIX-compatible shells, and
+``bash(1)`` is the daily driver. The other shells include in alphabetic order:
+``ksh``, ``lksh``, ``mksh``, ``yash`` and ``zsh``.
 
 Finally, architecture portability. cashpack is intended for embedded systems
 but would work fine with "regular" systems too. However it does not target
