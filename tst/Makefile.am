@@ -28,7 +28,7 @@ AM_CPPFLAGS = \
 
 # Programs used by the test suite
 
-noinst_PROGRAMS = \
+check_PROGRAMS = \
 	hpack_arg \
 	hdecode \
 	hencode
@@ -51,7 +51,7 @@ hencode_SOURCES = \
 	hencode.c
 
 if HAVE_NGHTTP2
-noinst_PROGRAMS += ngdecode
+check_PROGRAMS += ngdecode
 ngdecode_CFLAGS = $(NGHTTP2_CFLAGS)
 ngdecode_LDFLAGS = $(NGHTTP2_LIBS)
 ngdecode_LDADD = $(top_builddir)/lib/libhpack.la
@@ -64,7 +64,7 @@ endif
 if HAVE_GOLANG
 GO = GOPATH=$(abs_builddir) go
 
-noinst_PROGRAMS += godecode
+check_PROGRAMS += godecode
 
 src:
 	$(AM_V_GO)ln -s -f -T $(GOROOT)/src/vendor $@
