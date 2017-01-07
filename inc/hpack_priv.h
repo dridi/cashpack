@@ -189,9 +189,9 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
 
-#define CALL(func, args...)				\
+#define CALL(func, ...)					\
 	do {						\
-		if ((func)(args) != 0)			\
+		if ((func)(__VA_ARGS__) != 0)		\
 			return (-1);			\
 	} while (0)
 

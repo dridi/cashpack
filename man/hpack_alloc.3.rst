@@ -38,6 +38,7 @@ SYNOPSIS
 
 | **#include <stdint.h>**
 | **#include <stdlib.h>**
+| **#include <unistd.h>**
 | **#include <hpack.h>**
 |
 | **typedef void \* hpack_malloc_f(size_t** *size*\ **, void** *\*priv*\ **);**

@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 
-#define DBG(fmt, args...)				\
+#define DBG(fmt, ...)					\
 	do {						\
 		fprintf(stderr, "%s(%d): " fmt "\n",	\
-		    __func__, __LINE__, args);		\
+		    __func__, __LINE__, __VA_ARGS__);	\
 	} while (0)

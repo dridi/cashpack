@@ -38,6 +38,7 @@ SYNOPSIS
 
 | **#include <stdint.h>**
 | **#include <stdlib.h>**
+| **#include <unistd.h>**
 | **#include <hpack.h>**
 |
 | **enum hpack_flag_e;**

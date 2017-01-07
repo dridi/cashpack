@@ -250,12 +250,12 @@ tst_dump(void)
 	default: magic = "UNKNOWN";
 	}
 
-	fprintf(stderr, "*hp = %p {\n", hp);
+	fprintf(stderr, "*hp = %p {\n", (void *)hp);
 	fprintf(stderr, "\t.magic = %08x (%s)\n", hp->magic, magic);
 	fprintf(stderr, "\t.alloc = {\n");
-	fprintf(stderr, "\t\t.malloc = %p\n", hp->alloc.malloc);
-	fprintf(stderr, "\t\t.realloc = %p\n", hp->alloc.realloc);
-	fprintf(stderr, "\t\t.free = %p\n", hp->alloc.free);
+	fprintf(stderr, "\t\t.malloc = %p\n", (uint8_t *)&hp->alloc.malloc);
+	fprintf(stderr, "\t\t.realloc = %p\n", (uint8_t *)&hp->alloc.realloc);
+	fprintf(stderr, "\t\t.free = %p\n", (uint8_t *)&hp->alloc.free);
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.sz = {\n");
 	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
@@ -274,7 +274,7 @@ tst_dump(void)
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
 
-	fprintf(stderr, "\t.tbl = %p <<EOF\n", tbl_ptr);
+	fprintf(stderr, "\t.tbl = %p <<EOF\n", (void *)tbl_ptr);
 	tst_hexdump(tbl_ptr, hp->sz.len, "\t");
 	fprintf(stderr, "\tEOF\n");
 	fprintf(stderr, "}\n");

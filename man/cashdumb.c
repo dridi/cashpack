@@ -36,7 +36,7 @@
 
 /* utility functions */
 
-#define LOG(args...) fprintf(stderr, args)
+#define LOG(...) fprintf(stderr, __VA_ARGS__)
 
 static void
 print_error(const char *func, int retval)

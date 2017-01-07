@@ -86,6 +86,12 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	CASHPACK_CFLAGS=
 
+	dnl Standards compliance
+	_CASHPACK_CHECK_FLAGS([
+		-std=c99
+		-D_POSIX_C_SOURCE=200809L
+	])
+
 	dnl This corresponds to FreeBSD's WARNS level 6
 	_CASHPACK_CHECK_FLAGS([
 		-Werror

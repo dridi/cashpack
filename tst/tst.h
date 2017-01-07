@@ -28,9 +28,9 @@
 
 #define WRT(buf, len) fwrite(buf, len, 1, stdout)
 
-#define OUT(fmt...) fprintf(stdout, fmt)
+#define OUT(...) fprintf(stdout, __VA_ARGS__)
 
-#define ERR(fmt, args...) fprintf(stderr, "%s: " fmt "\n", __func__, args)
+#define ERR(fmt, ...) fprintf(stderr, "%s: " fmt "\n", __func__, __VA_ARGS__)
 
 typedef int tst_decode_f(void *, const void *, size_t, unsigned);
 

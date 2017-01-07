@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "hpack.h"
 #include "dbg.h"
@@ -40,23 +41,23 @@
  * Utility macros
  */
 
-#define CHECK_NULL(res, call, args...)	\
-	do {				\
-		res = call(args);	\
-		assert(res == NULL);	\
-		(void)res;		\
+#define CHECK_NULL(res, call, ...)		\
+	do {					\
+		res = call(__VA_ARGS__);	\
+		assert(res == NULL);		\
+		(void)res;			\
 	} while (0)
 
-#define CHECK_NOTNULL(res, call, args...)	\
+#define CHECK_NOTNULL(res, call, ...)	\
 	do {					\
-		res = call(args);		\
+		res = call(__VA_ARGS__);	\
 		assert(res != NULL);		\
 		(void)res;			\
 	} while (0)
 
-#define CHECK_RES(res, exp, call, args...)			\
+#define CHECK_RES(res, exp, call, ...)				\
 	do {							\
-		res = call(args);				\
+		res = call(__VA_ARGS__);			\
 		DBG("expected %s, got %d (%s)", #exp, res,	\
 		    hpack_strerror(res));			\
 		assert(res == HPACK_RES_##exp);			\
