@@ -28,7 +28,7 @@
  * HPACK: Header Compression for HTTP/2 (RFC 7541)
  */
 
-#ifdef SYNTASTIC
+#ifdef _SYNTASTIC
 #  include <stdint.h>
 #  include <stdlib.h>
 #  include <unistd.h>
