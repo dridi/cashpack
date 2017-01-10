@@ -66,7 +66,9 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 AC_DEFUN([_CASHPACK_CHECK_FLAG], [
 
          AX_CHECK_COMPILE_FLAG([$1],
-		 [CASHPACK_CFLAGS="${CASHPACK_CFLAGS} $1"], [], [])
+		 [CASHPACK_CFLAGS="$CASHPACK_CFLAGS $1"],
+		 [],
+		 [$CASHPACK_CFLAGS $CFLAGS])
 
 ])
 
@@ -118,7 +120,6 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wno-error=discarded-qualifiers
 		-Wno-error=ignored-qualifiers
 		-Wno-error=incompatible-pointer-types-discards-qualifiers
-		-Wno-error=unknown-warning-option
 		-Wno-error=write-strings
 	])
 
