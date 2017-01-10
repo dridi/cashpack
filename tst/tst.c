@@ -42,6 +42,8 @@
 
 #include "tst.h"
 
+#define FUNC_PTR(f)	(void *)(uint8_t *)&(f)
+
 struct hpack *hp;
 
 /**********************************************************************
@@ -253,9 +255,9 @@ tst_dump(void)
 	fprintf(stderr, "*hp = %p {\n", (void *)hp);
 	fprintf(stderr, "\t.magic = %08x (%s)\n", hp->magic, magic);
 	fprintf(stderr, "\t.alloc = {\n");
-	fprintf(stderr, "\t\t.malloc = %p\n", (uint8_t *)&hp->alloc.malloc);
-	fprintf(stderr, "\t\t.realloc = %p\n", (uint8_t *)&hp->alloc.realloc);
-	fprintf(stderr, "\t\t.free = %p\n", (uint8_t *)&hp->alloc.free);
+	fprintf(stderr, "\t\t.malloc = %p\n", FUNC_PTR(hp->alloc.malloc));
+	fprintf(stderr, "\t\t.realloc = %p\n", FUNC_PTR(hp->alloc.realloc));
+	fprintf(stderr, "\t\t.free = %p\n", FUNC_PTR(hp->alloc.free));
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.sz = {\n");
 	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
