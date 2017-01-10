@@ -33,6 +33,8 @@ check_PROGRAMS = \
 	hdecode \
 	hencode
 
+all-local: $(check_PROGRAMS)
+
 hpack_arg_LDADD = $(top_builddir)/lib/libhpack.la
 hpack_arg_SOURCES = \
 	hpack_arg.c \
