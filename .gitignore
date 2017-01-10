@@ -43,6 +43,8 @@ hpiencode
 ngdecode
 
 # generated headers
+.*.h
+cpp_ignore
 hpack.h
 hpack_huf_dec.h
 hpack_huf_enc.h

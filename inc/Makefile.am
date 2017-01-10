@@ -26,12 +26,18 @@ include_HEADERS = hpack.h
 BUILT_SOURCES = hpack.h
 CLEANFILES = hpack.h
 
-hpack.h: hpack.h.in tbl/hpack_tbl.h uncrustify.cfg
-	$(AM_V_GEN) cpp -P -o hpack.h $(srcdir)/hpack.h.in
-	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) hpack.h
-	@$(SED) -i 's/##/#/' hpack.h
+cpp_ignore:
+	$(AM_V_GEN) cpp -C -P /dev/null | wc -l >.$@
+	@mv .$@ $@
+
+hpack.h: hpack.h.in tbl/hpack_tbl.h cpp_ignore uncrustify.cfg
+	$(AM_V_GEN) cpp -P -C -o .$@ $(srcdir)/hpack.h.in
+	@$(SED) -i "1,$$(cat cpp_ignore)d ; s/##/#/" .$@
+	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) .$@
+	@mv .$@ $@
 
 EXTRA_DIST = \
+	cpp_ignore \
 	hpack.h.in \
 	hpack.h \
 	hpack_assert.h \
