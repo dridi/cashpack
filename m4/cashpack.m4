@@ -132,6 +132,12 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wunused-result
 	])
 
+	dnl SunCC-specific warnings
+	_CASHPACK_CHECK_FLAGS([
+		[-Wc,-errwarn=%all]
+		[-Wc,-errtags=yes]
+	])
+
 	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
 
 ])
