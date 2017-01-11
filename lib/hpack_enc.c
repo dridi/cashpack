@@ -42,13 +42,13 @@ inline void
 HPE_putb(HPACK_CTX, uint8_t b)
 {
 
-	assert(ctx->len < ctx->enc->buf_len);
+	assert(ctx->len < ctx->arg.enc->buf_len);
 
-	*ctx->cur = b;
-	ctx->cur++;
+	*ctx->ptr.cur = b;
+	ctx->ptr.cur++;
 	ctx->len++;
 
-	if (ctx->len == ctx->enc->buf_len)
+	if (ctx->len == ctx->arg.enc->buf_len)
 		HPE_send(ctx);
 }
 
@@ -60,16 +60,16 @@ HPE_bcat(HPACK_CTX, const void *buf, size_t len)
 	assert(buf != NULL);
 
 	while (len > 0) {
-		sz = ctx->enc->buf_len - ctx->len;
+		sz = ctx->arg.enc->buf_len - ctx->len;
 		if (sz > len)
 			sz = len;
 
-		(void)memcpy(ctx->cur, buf, sz);
-		ctx->cur += sz;
+		(void)memcpy(ctx->ptr.cur, buf, sz);
+		ctx->ptr.cur += sz;
 		ctx->len += sz;
 		len -= sz;
 
-		if (ctx->len == ctx->enc->buf_len)
+		if (ctx->len == ctx->arg.enc->buf_len)
 			HPE_send(ctx);
 	}
 }
@@ -81,7 +81,7 @@ HPE_send(HPACK_CTX)
 	if (ctx->len == 0)
 		return;
 
-	CALLBACK(ctx, HPACK_EVT_DATA, ctx->enc->buf, ctx->len);
-	ctx->cur = ctx->enc->buf;
+	CALLBACK(ctx, HPACK_EVT_DATA, ctx->arg.enc->buf, ctx->len);
+	ctx->ptr.cur = ctx->arg.enc->buf;
 	ctx->len = 0;
 }

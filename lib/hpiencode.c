@@ -75,8 +75,8 @@ main(int argc, const char **argv)
 	enc.buf_len = sizeof buf;
 
 	(void)memset(&ctx, 0, sizeof ctx);
-	ctx.enc = &enc;
-	ctx.cur = buf;
+	ctx.arg.enc = &enc;
+	ctx.ptr.cur = buf;
 
 	HPI_encode(&ctx, pfx, pat, val);
 

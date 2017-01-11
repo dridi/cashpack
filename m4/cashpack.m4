@@ -90,6 +90,7 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	dnl Standards compliance
 	_CASHPACK_CHECK_FLAGS([
+		-pedantic
 		-std=c99
 		-D_POSIX_C_SOURCE=200809L
 	])

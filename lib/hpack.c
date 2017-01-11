@@ -417,14 +417,14 @@ hpack_decode_raw_string(HPACK_CTX, size_t len)
 	if (!fit)
 		len = ctx->len;
 
-	CALL(HPD_cat, ctx, (const char *)ctx->blk, len);
+	CALL(HPD_cat, ctx, (const char *)ctx->ptr.blk, len);
 	if (fit)
 		CALL(HPD_putc, ctx, '\0');
 
-	ctx->blk += len;
+	ctx->ptr.blk += len;
 	ctx->len -= len;
-	hs->str.len -= len;
-	EXPECT(ctx, BUF, hs->str.len == 0);
+	hs->stt.str.len -= len;
+	EXPECT(ctx, BUF, hs->stt.str.len == 0);
 
 	return (0);
 }
@@ -442,19 +442,19 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_VAL_LEN:
 		/* decode integer */
-		huf = *ctx->blk & HPACK_PAT_HUF;
+		huf = *ctx->ptr.blk & HPACK_PAT_HUF;
 		CALL(HPI_decode, ctx, HPACK_PFX_STR, &len);
 
 		/* set up string decoding */
 		hs->magic = huf ?  HUF_STATE_MAGIC : STR_STATE_MAGIC;
-		hs->str.len = len;
+		hs->stt.str.len = len;
 		hs->stp++;
 
 		if (huf) {
-			hs->str.dec = NULL;
-			hs->str.oct = NULL;
-			hs->str.blen = 0;
-			hs->str.bits = 0;
+			hs->stt.str.dec = NULL;
+			hs->stt.str.oct = NULL;
+			hs->stt.str.blen = 0;
+			hs->stt.str.bits = 0;
 		}
 
 		if (evt == HPACK_EVT_NAME)
@@ -471,13 +471,13 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 		WRONG("Unknown step");
 	}
 
-	assert(hs->str.len > 0 || evt != HPACK_EVT_NAME);
+	assert(hs->stt.str.len > 0 || evt != HPACK_EVT_NAME);
 
 	if (hs->magic == HUF_STATE_MAGIC)
-		CALL(HPH_decode, ctx, hs->str.len);
+		CALL(HPH_decode, ctx, hs->stt.str.len);
 	else {
 		assert(hs->magic == STR_STATE_MAGIC);
-		CALL(hpack_decode_raw_string, ctx, hs->str.len);
+		CALL(hpack_decode_raw_string, ctx, hs->stt.str.len);
 	}
 
 	return (0);
@@ -626,8 +626,8 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
-	ctx->dec = dec;
-	ctx->blk = dec->blk;
+	ctx->arg.dec = dec;
+	ctx->ptr.blk = dec->blk;
 	ctx->len = dec->blk_len;
 	ctx->cb = dec->cb;
 	ctx->priv = dec->priv;
@@ -635,7 +635,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 
 	while (ctx->len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
-			hp->state.typ = *ctx->blk;
+			hp->state.typ = *ctx->ptr.blk;
 		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
 			if (hp->sz.nxt >= 0) {
 				hp->magic = DEFUNCT_MAGIC;
@@ -860,8 +860,8 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 		ctx->res = HPACK_RES_BLK;
 	}
 
-	ctx->enc = enc;
-	ctx->cur = enc->buf;
+	ctx->arg.enc = enc;
+	ctx->ptr.cur = enc->buf;
 	ctx->len = 0;
 	ctx->cb = enc->cb;
 	ctx->priv = enc->priv;

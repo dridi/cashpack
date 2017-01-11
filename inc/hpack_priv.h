@@ -80,11 +80,11 @@ struct hpack_ctx {
 	union {
 		const struct hpack_decoding	*dec;
 		const struct hpack_encoding	*enc;
-	};
+	} arg;
 	union {
 		const uint8_t			*blk;
 		uint8_t				*cur;
-	};
+	} ptr;
 	size_t					len;
 	char					*buf;
 	size_t					buf_len;
@@ -161,7 +161,7 @@ struct hpack_state {
 	union {
 		struct hpack_int_state		hpi;
 		struct hpack_str_state		str;
-	};
+	} stt;
 };
 
 struct hpack {

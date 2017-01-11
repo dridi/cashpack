@@ -62,34 +62,34 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	EXPECT(ctx, BUF, ctx->len > 0);
 	if (!hs->bsy) {
 		mask = (1 << pfx) - 1;
-		hs->hpi.v = *ctx->blk & mask;
-		ctx->blk++;
+		hs->stt.hpi.v = *ctx->ptr.blk & mask;
+		ctx->ptr.blk++;
 		ctx->len--;
 
-		if (hs->hpi.v < mask) {
-			*val = hs->hpi.v;
+		if (hs->stt.hpi.v < mask) {
+			*val = hs->stt.hpi.v;
 			return (0);
 		}
-		hs->hpi.m = 0;
+		hs->stt.hpi.m = 0;
 		hs->bsy = 1;
 	}
 
 	do {
 		EXPECT(ctx, BUF, ctx->len > 0);
-		b = *ctx->blk;
-		n = hs->hpi.v;
-		if (hs->hpi.m <= 16)
-			n += (b & 0x7f) * (1 << hs->hpi.m);
+		b = *ctx->ptr.blk;
+		n = hs->stt.hpi.v;
+		if (hs->stt.hpi.m <= 16)
+			n += (b & 0x7f) * (1 << hs->stt.hpi.m);
 		else
 			EXPECT(ctx, INT, (b & 0x7f) == 0);
-		EXPECT(ctx, INT, hs->hpi.v <= n);
-		hs->hpi.v = n;
-		hs->hpi.m += 7;
-		ctx->blk++;
+		EXPECT(ctx, INT, hs->stt.hpi.v <= n);
+		hs->stt.hpi.v = n;
+		hs->stt.hpi.m += 7;
+		ctx->ptr.blk++;
 		ctx->len--;
 	} while (b & 0x80);
 
-	*val = hs->hpi.v;
+	*val = hs->stt.hpi.v;
 	hs->bsy = 0;
 	return (0);
 }
@@ -101,7 +101,7 @@ HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
 	uint8_t mask;
 
 	assert(pfx >= 4 && pfx <= 7);
-	assert(ctx->len < ctx->enc->buf_len);
+	assert(ctx->len < ctx->arg.enc->buf_len);
 
 	mask = (1 << pfx) - 1;
 	if (val < mask) {
