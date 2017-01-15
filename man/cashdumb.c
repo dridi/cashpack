@@ -106,7 +106,7 @@ search_index(const char *nam, const char *val)
 struct dumb_state {
 	struct hpack_field	*fld;
 	size_t			idx_off;
-	ssize_t			idx_max;
+	size_t			idx_max;
 };
 
 static void
@@ -206,6 +206,9 @@ send_fields(struct hpack *hp, struct hpack_field *fld, size_t n_fld,
 		fld++;
 		n_fld--;
 	}
+
+	if (state.idx_off > 0 || state.idx_max != idx_len)
+		idx_len = 0;
 }
 
 static void
