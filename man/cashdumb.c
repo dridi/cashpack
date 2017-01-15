@@ -113,37 +113,37 @@ static void
 dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 	struct hpack_field *hf;
-	struct dumb_state *ds;
+	struct dumb_state *stt;
 
-	ds = priv;
-	hf = ds->fld;
+	stt = priv;
+	hf = stt->fld;
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
-		ds->fld++;
+		stt->fld++;
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
 		if (hf->flg & HPACK_FLG_TYP_IDX) {
 			LOG("(indexed");
-			if (hf->idx > ds->idx_max) {
+			if (hf->idx > stt->idx_max) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->idx = 0;
 			}
 			if (hf->idx > HPACK_STATIC)
-				hf->idx += ds->idx_off;
+				hf->idx += stt->idx_off;
 			if (hf->idx > 0)
 				LOG(", %hu", hf->idx);
 			LOG(")");
 		}
 		if (hf->flg & HPACK_FLG_NAM_IDX) {
 			LOG("(indexed name");
-			if (hf->nam_idx > ds->idx_max) {
+			if (hf->nam_idx > stt->idx_max) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->nam_idx = 0;
 			}
 			if (hf->nam_idx > HPACK_STATIC)
-				hf->nam_idx += ds->idx_off;
+				hf->nam_idx += stt->idx_off;
 			if (hf->nam_idx > 0)
 				LOG(", %hu", hf->nam_idx);
 			LOG(")");
@@ -152,11 +152,11 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_EVICT:
 		LOG("eviction\n");
-		ds->idx_max--;
+		stt->idx_max--;
 		break;
 	case HPACK_EVT_INDEX:
 		LOG("field indexed\n");
-		ds->idx_off++;
+		stt->idx_off++;
 		break;
 	case HPACK_EVT_DATA:
 		fwrite(buf, len, 1, stdout);
@@ -174,20 +174,20 @@ send_fields(struct hpack *hp, struct hpack_field *fld, size_t n_fld,
     unsigned cut)
 {
 	struct hpack_encoding enc;
-	struct dumb_state state;
+	struct dumb_state stt;
 	char buf[256];
 	int retval;
 
-	state.fld = fld;
-	state.idx_off = 0;
-	state.idx_max = idx_len;
+	stt.fld = fld;
+	stt.idx_off = 0;
+	stt.idx_max = idx_len;
 
 	enc.fld = fld;
 	enc.fld_cnt = n_fld;
 	enc.buf = buf;
 	enc.buf_len = sizeof buf;
 	enc.cb = dumb_encoding;
-	enc.priv = &state;
+	enc.priv = &stt;
 
 	retval = hpack_encode(hp, &enc, cut);
 	if (retval < 0)
@@ -207,7 +207,7 @@ send_fields(struct hpack *hp, struct hpack_field *fld, size_t n_fld,
 		n_fld--;
 	}
 
-	if (state.idx_off > 0 || state.idx_max != idx_len)
+	if (stt.idx_off > 0 || stt.idx_max != idx_len)
 		idx_len = 0;
 }
 
