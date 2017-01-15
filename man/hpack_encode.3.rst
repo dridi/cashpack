@@ -134,10 +134,10 @@ events. For instance a NAME event belongs after a FIELD event::
                | '---->----+
                |           | .--.
                |           v v  |
-               +----<---- DATA -'
-               |           |
+    (end) <----+----<---- DATA -'
+               ^           |
                |           v
-    (end) <----+----<--- INDEX
+               +----<--- INDEX
 
 If you are familiar with regular expressions, here is a translation of the
 encoding state machine to a regular expressions using the initials of the
