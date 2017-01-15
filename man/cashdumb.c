@@ -105,8 +105,8 @@ search_index(const char *nam, const char *val)
 
 struct dumb_state {
 	struct hpack_field	*fld;
-	size_t			off;
-	ssize_t			max;
+	size_t			idx_off;
+	ssize_t			idx_max;
 };
 
 static void
@@ -124,26 +124,26 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
 		if (hf->flg & HPACK_FLG_TYP_IDX) {
 			LOG("(indexed");
-			if (hf->idx > ds->max) {
+			if (hf->idx > ds->idx_max) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->idx = 0;
 			}
 			if (hf->idx > HPACK_STATIC)
-				hf->idx += ds->off;
+				hf->idx += ds->idx_off;
 			if (hf->idx > 0)
 				LOG(", %hu", hf->idx);
 			LOG(")");
 		}
 		if (hf->flg & HPACK_FLG_NAM_IDX) {
 			LOG("(indexed name");
-			if (hf->nam_idx > ds->max) {
+			if (hf->nam_idx > ds->idx_max) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->nam_idx = 0;
 			}
 			if (hf->nam_idx > HPACK_STATIC)
-				hf->nam_idx += ds->off;
+				hf->nam_idx += ds->idx_off;
 			if (hf->nam_idx > 0)
 				LOG(", %hu", hf->nam_idx);
 			LOG(")");
@@ -152,11 +152,11 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_EVICT:
 		LOG("eviction\n");
-		ds->max--;
+		ds->idx_max--;
 		break;
 	case HPACK_EVT_INDEX:
 		LOG("field indexed\n");
-		ds->off++;
+		ds->idx_off++;
 		break;
 	case HPACK_EVT_DATA:
 		fwrite(buf, len, 1, stdout);
@@ -179,8 +179,8 @@ send_fields(struct hpack *hp, struct hpack_field *fld, size_t n_fld,
 	int retval;
 
 	state.fld = fld;
-	state.off = 0;
-	state.max = idx_len;
+	state.idx_off = 0;
+	state.idx_max = idx_len;
 
 	enc.fld = fld;
 	enc.fld_cnt = n_fld;
