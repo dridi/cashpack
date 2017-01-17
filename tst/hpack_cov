@@ -44,7 +44,9 @@ _ --------
 _ Aborting
 _ --------
 
-mk_hex </dev/null
+mk_hex <<EOF
+dead beef                               | dead beef
+EOF
 
 ! tst_solely hdecode  tst_decode --decoding-spec abort
 ! tst_solely ngdecode tst_decode --decoding-spec abort
