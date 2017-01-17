@@ -48,8 +48,7 @@ mk_hex <<EOF
 dead beef                               | dead beef
 EOF
 
-! tst_solely hdecode  tst_decode --decoding-spec abort
-! tst_solely ngdecode tst_decode --decoding-spec abort
+err_decode --decoding-spec abort
 
 mk_enc <<EOF
 dynamic str name str value
@@ -59,13 +58,13 @@ send
 abort
 EOF
 
-! tst_encode
+err_encode
 
 _ ------------------
 _ Decoding spec woes
 _ ------------------
 
-! tst_solely hdecode tst_decode --decoding-spec Unknown
+err_decode --decoding-spec Unknown
 
 _ -----------------
 _ Encoding DSL woes
@@ -75,7 +74,7 @@ syntax_error() {
 	mk_enc <<-EOF
 	$1
 	EOF
-	! tst_encode
+	err_encode
 }
 
 syntax_error "unknown-command"

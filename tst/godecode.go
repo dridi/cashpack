@@ -48,6 +48,8 @@ func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
 		}
 		if stp == "" {
 			break
+		} else if stp[0] == 'a' {
+			panic("abort")
 		} else if stp[0] == 'd' {
 			_, err = dec.Write(blk[0:len])
 			blk = blk[len:]

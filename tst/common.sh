@@ -248,6 +248,22 @@ tst_encode() {
 	diff -u "$TEST_TMP/tbl" "$TEST_TMP/enc_tbl"
 }
 
+err_decode() {
+	for dec in $HDECODE
+	do
+		skip_cmd "$dec" && continue
+		printf "err_decode: %s\n" "$*" >&2
+		! "./$dec" "$@" "$TEST_TMP/bin" >"$TEST_TMP/dec_out"
+	done
+}
+
+err_encode() {
+	printf "err_encode: %s\n" "$*" >&2
+	! ./hencode "$@" <"$TEST_TMP/enc" \
+		1>"$TEST_TMP/enc_bin" \
+		3>"$TEST_TMP/enc_tbl"
+}
+
 tst_repeat() {
 	i=1
 	j="$1"
