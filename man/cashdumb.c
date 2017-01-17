@@ -103,8 +103,16 @@ search_index(const char *nam, const char *val)
 
 #define MAX_FIELDS 10
 
+struct dumb_field {
+	char	*nam;
+	char	*val;
+};
+
 struct dumb_state {
+	struct dumb_field	*dmb;
 	struct hpack_field	*fld;
+	size_t			len;
+	size_t			pos;
 	size_t			idx_off;
 	size_t			idx_max;
 };
@@ -116,11 +124,11 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 	struct dumb_state *stt;
 
 	stt = priv;
-	hf = stt->fld;
+	hf = stt->fld + stt->pos;
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
-		stt->fld++;
+		stt->pos++;
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
 		if (hf->flg & HPACK_FLG_TYP_IDX) {
 			LOG("(indexed");
@@ -128,6 +136,10 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->idx = 0;
+			}
+			else {
+				hf->nam = NULL;
+				hf->val = NULL;
 			}
 			if (hf->idx > HPACK_STATIC)
 				hf->idx += stt->idx_off;
@@ -142,6 +154,8 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->nam_idx = 0;
 			}
+			else
+				hf->nam = NULL;
 			if (hf->nam_idx > HPACK_STATIC)
 				hf->nam_idx += stt->idx_off;
 			if (hf->nam_idx > 0)
@@ -170,54 +184,69 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 /* fields management */
 
 static void
-send_fields(struct hpack *hp, struct hpack_field *fld, size_t n_fld,
-    unsigned cut)
+clear_fields(struct dumb_state *stt)
+{
+	struct hpack_field *fld;
+	struct dumb_field *dmb;
+	int retval;
+
+	dmb = stt->dmb;
+	fld = stt->fld;
+
+	while (stt->len > 0) {
+		free(dmb->nam);
+		free(dmb->val);
+		retval = hpack_clean_field(fld);
+		if (retval < 0)
+			print_error("hpack_clean_field", retval);
+		dmb++;
+		fld++;
+		stt->len--;
+	}
+}
+
+static void
+send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 {
 	struct hpack_encoding enc;
-	struct dumb_state stt;
 	char buf[256];
 	int retval;
 
-	stt.fld = fld;
-	stt.idx_off = 0;
-	stt.idx_max = idx_len;
+	stt->pos = 0;
+	stt->idx_off = 0;
+	stt->idx_max = idx_len;
 
-	enc.fld = fld;
-	enc.fld_cnt = n_fld;
+	enc.fld = stt->fld;
+	enc.fld_cnt = stt->len;
 	enc.buf = buf;
 	enc.buf_len = sizeof buf;
 	enc.cb = dumb_encoding;
-	enc.priv = &stt;
+	enc.priv = stt;
 
 	retval = hpack_encode(hp, &enc, cut);
 	if (retval < 0)
 		print_error("hpack_encode", retval);
 
-	while (n_fld > 0) {
-		/* clear the name and value that are always set */
-		free(fld->nam);
-		free(fld->val);
-		fld->nam = NULL;
-		fld->val = NULL;
-		/* clear the rest of the field */
-		retval = hpack_clean_field(fld);
-		if (retval < 0)
-			print_error("hpack_clean_field", retval);
-		fld++;
-		n_fld--;
-	}
+	clear_fields(stt);
 
-	if (stt.idx_off > 0 || stt.idx_max != idx_len)
+	if (stt->idx_off > 0 || stt->idx_max != idx_len)
 		idx_len = 0;
 }
 
 static void
-make_field(struct hpack_field *fld, const char *line)
+make_field(struct dumb_state *stt, const char *line)
 {
+	struct hpack_field *fld;
+	struct dumb_field *dmb;
 	const char *sep, *val;
 	char *nam, *tmp;
 	size_t idx;
 
+	dmb = stt->dmb + stt->len;
+	fld = stt->fld + stt->len;
+	stt->len++;
+
+	(void)memset(dmb, 0, sizeof *dmb);
 	(void)memset(fld, 0, sizeof *fld);
 
 	sep = strchr(line + 1, ':');
@@ -225,10 +254,12 @@ make_field(struct hpack_field *fld, const char *line)
 	while (*val == ' ' || *val == '\t')
 		val++;
 
-	fld->nam = strndup(line, sep - line);
-	fld->val = strdup(val);
+	dmb->nam = strndup(line, sep - line);
+	dmb->val = strdup(val);
+	fld->nam = dmb->nam;
+	fld->val = dmb->val;
 
-	nam = fld->nam;
+	nam = dmb->nam;
 	while (*nam) {
 		*nam = tolower(*nam);
 		nam++;
@@ -263,8 +294,10 @@ main(int argc, const char **argv)
 {
 	struct hpack *hp;
 	struct hpack_field fld[MAX_FIELDS];
+	struct dumb_field dmb[MAX_FIELDS];
+	struct dumb_state stt;
 	char *lineptr;
-	size_t linelen, n_fld;
+	size_t linelen;
 	int retval;
 
 	/* command-line arguments are not used */
@@ -279,7 +312,9 @@ main(int argc, const char **argv)
 
 	/* remaining initialization */
 	hp = hpack_encoder(TABLE_SIZE, -1, hpack_default_alloc);
-	n_fld = 0;
+	(void)memset(&stt, 0, sizeof stt);
+	stt.fld = fld;
+	stt.dmb = dmb;
 	lineptr = NULL;
 	linelen = 0;
 
@@ -290,11 +325,10 @@ main(int argc, const char **argv)
 		}
 
 		if (*lineptr == '\n') {
-			if (n_fld == 0)
+			if (stt.len == 0)
 				continue;
 			LOG("encoding block\n");
-			send_fields(hp, fld, n_fld, 0);
-			n_fld = 0;
+			send_fields(hp, &stt, 0);
 			idx_len = 0;
 			retval = hpack_tables(hp, dumb_index, NULL);
 			if (retval < 0)
@@ -302,18 +336,16 @@ main(int argc, const char **argv)
 			LOG("index length: %zu\n\n", idx_len);
 		}
 		else {
-			if (n_fld == MAX_FIELDS) {
+			if (stt.len == MAX_FIELDS) {
 				LOG("encoding partial block\n");
-				send_fields(hp, fld, n_fld, 1);
-				n_fld = 0;
+				send_fields(hp, &stt, 1);
 			}
-			make_field(fld + n_fld, lineptr);
-			n_fld++;
+			make_field(&stt, lineptr);
 		}
 	}
 
-	if (n_fld > 0)
-		send_fields(hp, fld, n_fld, 0);
+	if (stt.len > 0)
+		send_fields(hp, &stt, 0);
 
 	hpack_free(&hp);
 	free(lineptr);
