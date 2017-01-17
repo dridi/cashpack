@@ -24,7 +24,7 @@
 
 include_HEADERS = hpack.h
 BUILT_SOURCES = hpack.h
-CLEANFILES = hpack.h cpp_ignore
+DISTCLEANFILES = hpack.h cpp_ignore
 
 cpp_ignore:
 	$(AM_V_GEN) cpp -C -P -o .null.h /dev/null

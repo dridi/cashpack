@@ -135,8 +135,10 @@ clean-local:
 	@test "$(abs_srcdir)" = "$(abs_builddir)" || \
 		rm -f $(builddir)/*.rst
 
+DISTCLEANFILES = \
+	$(dist_man_MANS)
+
 CLEANFILES = \
-	$(dist_man_MANS) \
 	hpe2rst.rst \
 	hpf2rst.rst \
 	hpr2rst.rst \
