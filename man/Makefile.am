@@ -110,7 +110,8 @@ SUFFIXES = .3.rst .3
 .3.rst.3:
 	@test "$(abs_srcdir)" = "$(abs_builddir)" || \
 		ln -f -s $(srcdir)/$@.rst $@.rst
-	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst >$@
+	$(AM_V_GEN) $(BUILD_MAN_PAGE) $@.rst $@
+	@touch -c $@
 
 cashpack.3: hpe2rst.rst cashdump.src cashdump.hex cashdump.out
 
