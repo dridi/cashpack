@@ -46,35 +46,58 @@ print_error(const char *func, int retval)
 	exit(EXIT_FAILURE);
 }
 
-/* index management */
-
-#define TABLE_SIZE 256
-#define MAX_ENTRIES (HPACK_STATIC + TABLE_SIZE / 33)
+/* data structures */
 
 struct dumb_ref {
 	const char *nam;
 	const char *val;
 };
 
-static struct dumb_ref dumb_idx[MAX_ENTRIES + 1];
-static size_t idx_len;
+struct dumb_field {
+	char	*nam;
+	char	*val;
+};
+
+struct dumb_state {
+	struct dumb_ref		*idx;
+	struct dumb_field	*dmb;
+	struct hpack_field	*fld;
+	size_t			len;
+	size_t			pos;
+	size_t			idx_len;
+	size_t			idx_off;
+	size_t			idx_max;
+};
+
+/* global variables for convenience */
+
+#define TABLE_SIZE 256
+#define MAX_ENTRIES (HPACK_STATIC + TABLE_SIZE / 33)
+#define MAX_FIELDS 10
+
+static struct hpack_field static_fld[MAX_FIELDS];
+static struct dumb_field  static_dmb[MAX_FIELDS];
+static struct dumb_ref    static_idx[MAX_ENTRIES + 1];
+
+/* index management */
 
 static void
 dumb_index(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
+	struct dumb_state *stt;
 
-	(void)priv;
+	stt = priv;
 	(void)len;
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
-		idx_len += 1;
+		stt->idx_len += 1;
 		break;
 	case HPACK_EVT_NAME:
-		dumb_idx[idx_len].nam = buf;
+		stt->idx[stt->idx_len].nam = buf;
 		break;
 	case HPACK_EVT_VALUE:
-		dumb_idx[idx_len].val = buf;
+		stt->idx[stt->idx_len].val = buf;
 		/* fall through */
 	default:
 		/* ignore other events */
@@ -83,16 +106,16 @@ dumb_index(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 }
 
 static size_t
-search_index(const char *nam, const char *val)
+search_index(const struct dumb_state *stt, const char *nam, const char *val)
 {
 	size_t nam_idx, idx;
 
 	nam_idx = 0;
 
-	for (idx = 1; idx <= idx_len; idx++)
-		if (!strcmp(nam, dumb_idx[idx].nam)) {
+	for (idx = 1; idx <= stt->idx_len; idx++)
+		if (!strcmp(nam, stt->idx[idx].nam)) {
 			nam_idx = idx;
-			if (!strcmp(val, dumb_idx[idx].val))
+			if (!strcmp(val, stt->idx[idx].val))
 				return (idx);
 		}
 
@@ -100,22 +123,6 @@ search_index(const char *nam, const char *val)
 }
 
 /* encoding logic */
-
-#define MAX_FIELDS 10
-
-struct dumb_field {
-	char	*nam;
-	char	*val;
-};
-
-struct dumb_state {
-	struct dumb_field	*dmb;
-	struct hpack_field	*fld;
-	size_t			len;
-	size_t			pos;
-	size_t			idx_off;
-	size_t			idx_max;
-};
 
 static void
 dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
@@ -214,7 +221,7 @@ send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 
 	stt->pos = 0;
 	stt->idx_off = 0;
-	stt->idx_max = idx_len;
+	stt->idx_max = stt->idx_len;
 
 	enc.fld = stt->fld;
 	enc.fld_cnt = stt->len;
@@ -229,8 +236,8 @@ send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 
 	clear_fields(stt);
 
-	if (stt->idx_off > 0 || stt->idx_max != idx_len)
-		idx_len = 0;
+	if (stt->idx_off > 0 || stt->idx_max != stt->idx_len)
+		stt->idx_len = 0;
 }
 
 static void
@@ -268,7 +275,7 @@ make_field(struct dumb_state *stt, const char *line)
 	tmp = strchr(fld->val, '\n');
 	*tmp = '\0';
 
-	idx = search_index(fld->nam, fld->val);
+	idx = search_index(stt, fld->nam, fld->val);
 
 	if (idx == 0) {
 		/* not in the cache? insert it */
@@ -276,7 +283,7 @@ make_field(struct dumb_state *stt, const char *line)
 		return;
 	}
 
-	if (strcmp(fld->val, dumb_idx[idx].val)) {
+	if (strcmp(fld->val, stt->idx[idx].val)) {
 		/* only the name is in the cache? use it */
 		fld->flg = HPACK_FLG_TYP_DYN | HPACK_FLG_NAM_IDX;
 		fld->nam_idx = idx;
@@ -293,26 +300,24 @@ int
 main(void)
 {
 	struct hpack *hp;
-	struct hpack_field fld[MAX_FIELDS];
-	struct dumb_field dmb[MAX_FIELDS];
 	struct dumb_state stt;
 	char *lineptr;
 	size_t linelen;
 	int retval;
 
-	/* index initialization */
-	idx_len = 0;
-	retval = hpack_static(dumb_index, NULL);
-	if (retval < 0)
-		print_error("hpack_static", retval);
-
-	/* remaining initialization */
+	/* initialization */
 	hp = hpack_encoder(TABLE_SIZE, -1, hpack_default_alloc);
 	(void)memset(&stt, 0, sizeof stt);
-	stt.fld = fld;
-	stt.dmb = dmb;
+	stt.idx = static_idx;
+	stt.fld = static_fld;
+	stt.dmb = static_dmb;
 	lineptr = NULL;
 	linelen = 0;
+
+	/* index initialization */
+	retval = hpack_static(dumb_index, &stt);
+	if (retval < 0)
+		print_error("hpack_static", retval);
 
 	while (getline(&lineptr, &linelen, stdin) != -1) {
 		if (*lineptr == '#') {
@@ -325,11 +330,11 @@ main(void)
 				continue;
 			LOG("encoding block\n");
 			send_fields(hp, &stt, 0);
-			idx_len = 0;
-			retval = hpack_tables(hp, dumb_index, NULL);
+			stt.idx_len = 0;
+			retval = hpack_tables(hp, dumb_index, &stt);
 			if (retval < 0)
 				print_error("hpack_tables", retval);
-			LOG("index length: %zu\n\n", idx_len);
+			LOG("index length: %zu\n\n", stt.idx_len);
 		}
 		else {
 			if (stt.len == MAX_FIELDS) {
