@@ -121,7 +121,7 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 	dnl Other desirable warnings
 	_CASHPACK_CHECK_FLAGS([
 		-Wextra
-		-Wmissing-variable-declarations
+		-Wmissing-declarations
 		-Wredundant-decls
 		-Wsign-compare
 		-Wunused-result
