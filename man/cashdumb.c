@@ -290,7 +290,7 @@ make_field(struct dumb_state *stt, const char *line)
 /* cashdumb */
 
 int
-main(int argc, const char **argv)
+main(void)
 {
 	struct hpack *hp;
 	struct hpack_field fld[MAX_FIELDS];
@@ -299,10 +299,6 @@ main(int argc, const char **argv)
 	char *lineptr;
 	size_t linelen;
 	int retval;
-
-	/* command-line arguments are not used */
-	(void)argc;
-	(void)argv;
 
 	/* index initialization */
 	idx_len = 0;
