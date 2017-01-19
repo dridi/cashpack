@@ -44,11 +44,11 @@ SYNOPSIS
 | **enum hpack_flag_e;**
 |
 | **struct hpack_field {**
-|     **uint32_t** *flg*\ **;**
-|     **uint16_t** *idx*\ **;**
-|     **uint16_t** *nam_idx*\ **;**
-|     **char**     *\*nam*\ **;**
-|     **char**     *\*val*\ **;**
+|     **uint32_t**   *flg*\ **;**
+|     **uint16_t**   *idx*\ **;**
+|     **uint16_t**   *nam_idx*\ **;**
+|     **const char** *\*nam*\ **;**
+|     **const char** *\*val*\ **;**
 | **};**
 |
 | **struct hpack_encoding {**

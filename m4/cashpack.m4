@@ -100,11 +100,13 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Werror
 		-Wall
 		-Wno-format-y2k
+		-W
 		-Wstrict-prototypes
 		-Wmissing-prototypes
 		-Wpointer-arith
 		-Wreturn-type
 		-Wcast-qual
+		-Wwrite-strings
 		-Wswitch
 		-Wshadow
 		-Wunused-parameter
@@ -113,15 +115,6 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wnested-externs
 		-Wextra
 		-Wno-sign-compare
-	])
-
-	dnl Can't follow FreeBSD too closely
-	_CASHPACK_CHECK_FLAGS([
-		-Wno-error=cast-qual
-		-Wno-error=discarded-qualifiers
-		-Wno-error=ignored-qualifiers
-		-Wno-error=incompatible-pointer-types-discards-qualifiers
-		-Wno-error=write-strings
 	])
 
 	dnl Other desirable warnings

@@ -107,8 +107,8 @@ struct hpack_field {
 	uint32_t	flg;
 	uint16_t	idx;
 	uint16_t	nam_idx;
-	char		*nam;
-	char		*val;
+	const char	*nam;
+	const char	*val;
 };
 
 struct hpack_encoding {

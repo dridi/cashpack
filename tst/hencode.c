@@ -49,6 +49,8 @@
 
 #define TOK_ARGS(line, token) (line + sizeof token)
 
+#define TRUST_ME(p) ((void *)(uintptr_t)(p))
+
 struct enc_ctx {
 	hpack_event_f		*cb;
 	struct hpack_field	*fld;
@@ -88,8 +90,8 @@ free_field(struct hpack_field *fld)
 	case HPACK_FLG_TYP_LIT:
 	case HPACK_FLG_TYP_NVR:
 		if (~fld->flg & HPACK_FLG_NAM_IDX)
-			free((char *)fld->nam);
-		free((char *)fld->val);
+			free(TRUST_ME(fld->nam));
+		free(TRUST_ME(fld->val));
 		break;
 	default:
 		WRONG("Unknwon type");
