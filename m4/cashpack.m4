@@ -65,11 +65,14 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 ----------------------
 AC_DEFUN([_CASHPACK_CHECK_FLAG], [
 
-         AX_CHECK_COMPILE_FLAG([$1],
-		 [CASHPACK_CFLAGS="$CASHPACK_CFLAGS $1"],
-		 [],
-		 [$CASHPACK_CFLAGS $CFLAGS])
-
+	AC_MSG_CHECKING([whether the compiler accepts $1])
+	_cflags="$CFLAGS"
+	CFLAGS="$CASHPACK_CFLAGS $1 $CFLAGS"
+	AC_RUN_IFELSE(
+		[AC_LANG_SOURCE([int main(void) { return (0); }])],
+		[AC_MSG_RESULT([yes]); CASHPACK_CFLAGS="$CASHPACK_CFLAGS $1"],
+		[AC_MSG_RESULT([no])])
+	CFLAGS="$_cflags"
 ])
 
 # _CASHPACK_CHECK_FLAGS
