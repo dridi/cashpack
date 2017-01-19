@@ -40,6 +40,8 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
+#define OUT_OF_BITS (void)0;
+
 /**********************************************************************
  */
 
@@ -652,7 +654,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 		HPACK_DECODE(dynamic, DYN, else)
 		HPACK_DECODE(update,  UPD, else)
 		HPACK_DECODE(never,   NVR, else)
-		HPACK_DECODE(literal, LIT, /* out of bits */)
+		HPACK_DECODE(literal, LIT, OUT_OF_BITS)
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
