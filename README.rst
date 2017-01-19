@@ -34,7 +34,7 @@ How to use
 Grab the `latest release`_ archive, and once inside the source directory
 follow these steps::
 
-    $ ./configure
+    $ ./configure --disable-docs
     $ make
     $ make check # optional but recommended
     $ sudo make install
