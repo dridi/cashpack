@@ -95,11 +95,10 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-D_POSIX_C_SOURCE=200809L
 	])
 
-	dnl This corresponds to FreeBSD's WARNS level 6
+	dnl FreeBSD's WARNS level 6
 	_CASHPACK_CHECK_FLAGS([
 		-Werror
 		-Wall
-		-Wno-format-y2k
 		-W
 		-Wstrict-prototypes
 		-Wmissing-prototypes
@@ -112,13 +111,16 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wunused-parameter
 		-Wcast-align
 		-Wchar-subscripts
+		-Winline
 		-Wnested-externs
-		-Wextra
-		-Wno-sign-compare
+		-Wredundant-decls
+		-Wold-style-definition
+		-Wmissing-variable-declarations
 	])
 
 	dnl Other desirable warnings
 	_CASHPACK_CHECK_FLAGS([
+		-Wextra
 		-Wmissing-variable-declarations
 		-Wredundant-decls
 		-Wsign-compare
