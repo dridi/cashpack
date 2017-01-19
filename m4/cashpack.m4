@@ -88,13 +88,6 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	CASHPACK_CFLAGS=
 
-	dnl Standards compliance
-	_CASHPACK_CHECK_FLAGS([
-		-pedantic
-		-std=c99
-		-D_POSIX_C_SOURCE=200809L
-	])
-
 	dnl FreeBSD's WARNS level 6
 	_CASHPACK_CHECK_FLAGS([
 		-Werror
@@ -131,6 +124,13 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 	_CASHPACK_CHECK_FLAGS([
 		[-Wc,-errwarn=%all]
 		[-Wc,-errtags=yes]
+	])
+
+	dnl Standards compliance
+	_CASHPACK_CHECK_FLAGS([
+		-pedantic
+		-std=c99
+		-D_POSIX_C_SOURCE=200809L
 	])
 
 	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
