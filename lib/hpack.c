@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2016 Dridi Boukelmoune
+ * Copyright (c) 2016-2017 Dridi Boukelmoune
  * All rights reserved.
  *
  * Author: Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
@@ -667,6 +667,72 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	}
 
 	assert(ctx->res == HPACK_RES_OK || ctx->res == HPACK_RES_BLK);
+	return (ctx->res);
+}
+
+static void
+hpack_null_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
+{
+
+	(void)evt;
+	(void)buf;
+	(void)len;
+	(void)priv;
+}
+
+enum hpack_result_e
+hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
+    const char **pnam, const char **pval)
+{
+	struct hpack_decoding fld_dec;
+	struct hpack_ctx *ctx;
+	const char *nam, *val;
+	int retval;
+
+	if (hp == NULL || hp->magic != DECODER_MAGIC || dec == NULL ||
+	    pnam == NULL || pval == NULL)
+		return (HPACK_RES_ARG);
+
+	nam = *pnam;
+	val = *pval;
+	if ((nam == NULL) ^ (val == NULL))
+		return (HPACK_RES_ARG);
+
+	ctx = &hp->ctx;
+	assert(ctx->hp == hp);
+	if (nam == NULL && ctx->res != HPACK_RES_OK &&
+	    ctx->res != HPACK_RES_BLK)
+		return (HPACK_RES_ARG);
+
+	if (nam == NULL) {
+		memcpy(&fld_dec, dec, sizeof fld_dec);
+		fld_dec.cb = hpack_null_cb;
+		retval = hpack_decode(hp, &fld_dec);
+		if (retval != HPACK_RES_OK)
+			return (retval);
+		ctx->res = HPACK_RES_FLD;
+	}
+
+	assert(ctx->res == HPACK_RES_FLD);
+	/* TODO: buf checks */
+
+	if (nam == NULL)
+		nam = dec->buf;
+	else
+		nam = val + strlen(val) + 1;
+
+	if (nam == ctx->buf) {
+		nam = NULL;
+		val = NULL;
+		ctx->res = HPACK_RES_OK;
+	}
+	else
+		val = nam + strlen(nam) + 1;
+
+	/* TODO: assert buf checks */
+	*pnam = nam;
+	*pval = val;
+
 	return (ctx->res);
 }
 

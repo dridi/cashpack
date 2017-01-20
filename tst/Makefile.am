@@ -31,6 +31,7 @@ AM_CPPFLAGS = \
 check_PROGRAMS = \
 	hpack_arg \
 	hdecode \
+	fdecode \
 	hencode
 
 all-local: $(check_PROGRAMS)
@@ -45,6 +46,12 @@ hdecode_SOURCES = \
 	tst.h \
 	tst.c \
 	hdecode.c
+
+fdecode_LDADD = $(top_builddir)/lib/libhpack.la
+fdecode_SOURCES = \
+	tst.h \
+	tst.c \
+	fdecode.c
 
 hencode_LDADD = $(top_builddir)/lib/libhpack.la
 hencode_SOURCES = \

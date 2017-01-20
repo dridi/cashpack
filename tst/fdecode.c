@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2016-2017 Dridi Boukelmoune
+ * Copyright (c) 2017 Dridi Boukelmoune
  * All rights reserved.
  *
  * Author: Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
@@ -44,71 +44,19 @@
 
 #include "tst.h"
 
-struct dec_priv {
-	struct hpack		*hp;
-	hpack_event_f		*cb;
-	void			*buf;
-	size_t			len;
+struct fld_dec_priv {
+	struct hpack	*hp;
+	hpack_event_f	*cb;
+	void		*buf;
+	size_t		len;
+	const char	*nam;
+	const char	*val;
 };
-
-static void
-print_nothing(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
-{
-
-	assert(priv == NULL);
-
-#ifdef NDEBUG
-	(void)priv;
-#endif
-
-	(void)evt;
-	(void)buf;
-	(void)len;
-}
-
-static void
-print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
-{
-
-	assert(priv == NULL);
-
-#ifdef NDEBUG
-	(void)priv;
-#endif
-
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
-		OUT("\n");
-		break;
-	case HPACK_EVT_EVICT:
-		assert(buf == NULL);
-		assert(len > 0);
-		break;
-	case HPACK_EVT_INDEX:
-	case HPACK_EVT_NEVER:
-		assert(len == 0);
-		/* fall through */
-	case HPACK_EVT_TABLE:
-		assert(buf == NULL);
-		break;
-	case HPACK_EVT_VALUE:
-		OUT(": ");
-		/* fall through */
-	case HPACK_EVT_NAME:
-		assert(buf != NULL);
-		assert(len == strlen(buf));
-		WRT(buf, len);
-		break;
-	default:
-		WRONG("Unknown event");
-	}
-}
 
 static int
 decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 {
-	struct dec_priv *priv2;
+	struct fld_dec_priv *priv2;
 	struct hpack_decoding dec;
 	int retval;
 
@@ -121,7 +69,10 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 	dec.priv = NULL;
 	dec.cut = cut;
 
-	retval = hpack_decode(priv2->hp, &dec);
+	while ((retval = hpack_decode_fields(priv2->hp, &dec, &priv2->nam,
+	    &priv2->val)) == HPACK_RES_FLD)
+		printf("\n%s: %s", priv2->nam, priv2->val);
+
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
 		retval = 0;
@@ -133,7 +84,7 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 static int
 resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 {
-	struct dec_priv *priv2;
+	struct fld_dec_priv *priv2;
 
 	(void)buf;
 	(void)cut;
@@ -147,9 +98,8 @@ int
 main(int argc, char **argv)
 {
 	enum hpack_result_e res, exp;
-	hpack_event_f *cb;
 	struct dec_ctx ctx;
-	struct dec_priv priv;
+	struct fld_dec_priv priv;
 	struct stat st;
 	char buf[4096];
 	void *blk;
@@ -159,6 +109,8 @@ main(int argc, char **argv)
 
 	priv.buf = buf;
 	priv.len = sizeof buf;
+	priv.nam = NULL;
+	priv.val = NULL;
 
 	ctx.dec = decode_block;
 	ctx.rsz = resize_table;
@@ -166,7 +118,6 @@ main(int argc, char **argv)
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
-	cb = print_headers;
 
 	/* ignore the command name */
 	argc--;
@@ -185,7 +136,6 @@ main(int argc, char **argv)
 		exp = TST_translate_error(argv[1]);
 		assert(exp != HPACK_RES_OK);
 		assert(exp != HPACK_RES_BSY);
-		cb = print_nothing;
 		argc -= 2;
 		argv += 2;
 	}
@@ -254,7 +204,6 @@ main(int argc, char **argv)
 	assert(hp != NULL);
 
 	priv.hp = hp;
-	priv.cb = cb;
 	res = TST_decode(&ctx);
 
 	OUT("\n\n");

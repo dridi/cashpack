@@ -95,6 +95,9 @@ struct hpack_decoding {
 enum hpack_result_e hpack_decode(struct hpack *,
     const struct hpack_decoding *);
 
+enum hpack_result_e hpack_decode_fields(struct hpack *,
+    const struct hpack_decoding *, const char **, const char **);
+
 /* hpack_encode */
 
 enum hpack_flag_e {

@@ -30,6 +30,9 @@
 
 #ifdef HPR
 #ifndef HPR_ERRORS_ONLY
+HPR(FLD, 2, "decoded field",
+	"\tTODO\n\n") /* XXX */
+
 HPR(BLK, 1, "incomplete block",
 	"\tThe expected result during partial decoding. This is not an\n"
 	"\terror.\n\n")

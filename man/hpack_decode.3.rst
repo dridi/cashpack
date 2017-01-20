@@ -53,6 +53,8 @@ SYNOPSIS
 | **enum hpack_result_e hpack_decode(struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_decoding** *\*dec*\ **);**
 
+.. TODO: hpack_decode_fields
+
 DESCRIPTION
 ===========
 

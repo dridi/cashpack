@@ -35,6 +35,8 @@ else
 libhpack_la_LDFLAGS = -export-symbols-regex '^hpack_'
 endif
 
+libhpack_la_DEPENDENCIES = $(PACKAGE).map
+
 libhpack_la_SOURCES = \
 	hpack.c \
 	hpack_dec.c \

@@ -30,14 +30,16 @@ _ -----------
 _ Wrong usage
 _ -----------
 
-! ./hdecode # missing param
+! ./hdecode  # missing param
+! ./fdecode  # missing param
+! ./ngdecode # missing param
 ! ./hencode unexpected_param
 
 ! ./hdecode --expect-error UNKNOWN
-
-! ./ngdecode # missing param
+! ./fdecode --expect-error UNKNOWN
 
 ! ./hdecode  --expect-error BSY /dev/null
+! ./fdecode  --expect-error BSY /dev/null
 ! ./ngdecode --expect-error BSY /dev/null
 
 _ --------
@@ -132,8 +134,10 @@ mk_bin <<EOF
 10000101 | indexed field 5 (:path: /index.html)
 EOF
 
-tst_solely hdecode tst_decode --expect-error BIG --buffer-size 4 # fail name
-tst_solely hdecode tst_decode --expect-error BIG --buffer-size 8 # fail value
+# fail name
+tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 4
+# fail value
+tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 8
 
 _ ---------------------------------
 _ Not enough space for a raw string
@@ -143,7 +147,7 @@ mk_hex <<EOF
 0003 746f 6f03 6269 67                  | ..too.big
 EOF
 
-tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
 
 _ -----------------------------------------------
 _ No space for the null character of a raw string
@@ -153,7 +157,7 @@ mk_hex <<EOF
 0005 656d 7074 7900                     | ..empty.
 EOF
 
-tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
 
 _ ---------------------------------------------------
 _ No space for the null character of a Huffman string
@@ -163,7 +167,7 @@ mk_hex <<EOF
 0005 656d 7074 7980                     | ..empty.
 EOF
 
-tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
 
 _ -----------------------------------------
 _ Break after a never-encoded field integer
@@ -174,4 +178,4 @@ mk_bin <<EOF
 00000000 | Field name of length 0
 EOF
 
-tst_solely hdecode tst_decode --decoding-spec p1, --expect-error LEN
+tst_solely "hdecode fdecode" tst_decode --decoding-spec p1, --expect-error LEN

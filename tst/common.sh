@@ -44,7 +44,7 @@ trap 'rm -fr "$TEST_TMP"' EXIT
 
 # Test conditionals
 
-HDECODE=hdecode
+HDECODE="hdecode fdecode"
 HIGNORE=
 NOTABLE=godecode
 
