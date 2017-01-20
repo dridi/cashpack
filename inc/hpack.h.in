@@ -89,10 +89,11 @@ struct hpack_decoding {
 	size_t			buf_len;
 	hpack_event_f		*cb;
 	void			*priv;
+	unsigned		cut;
 };
 
 enum hpack_result_e hpack_decode(struct hpack *,
-    const struct hpack_decoding *, unsigned);
+    const struct hpack_decoding *);
 
 /* hpack_encode */
 
@@ -118,10 +119,11 @@ struct hpack_encoding {
 	size_t				buf_len;
 	hpack_event_f			*cb;
 	void				*priv;
+	unsigned			cut;
 };
 
 enum hpack_result_e hpack_encode(struct hpack *,
-    const struct hpack_encoding *, unsigned);
+    const struct hpack_encoding *);
 
 enum hpack_result_e hpack_clean_field(struct hpack_field *);
 

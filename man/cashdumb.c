@@ -230,8 +230,9 @@ send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 	enc.buf_len = sizeof buf;
 	enc.cb = dumb_encoding;
 	enc.priv = stt;
+	enc.cut = cut;
 
-	retval = hpack_encode(hp, &enc, cut);
+	retval = hpack_encode(hp, &enc);
 	if (retval < 0)
 		print_error("hpack_encode", retval);
 

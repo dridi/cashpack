@@ -124,7 +124,6 @@ main(int argc, char **argv)
 	uint32_t str;
 	unsigned first;
 	size_t len;
-	unsigned cut;
 	int retval;
 
 	/* command-line arguments are not used */
@@ -173,9 +172,9 @@ main(int argc, char **argv)
 		if (flg & H2_FLG_END_HEADERS)
 			printf("=== stream %u", str);
 
-		cut = ~flg & H2_FLG_END_HEADERS;
+		dec.cut = ~flg & H2_FLG_END_HEADERS;
 		dec.blk_len = len;
-		retval = hpack_decode(hp, &dec, cut);
+		retval = hpack_decode(hp, &dec);
 		if (retval < 0)
 			print_error("hpack_decode", retval);
 

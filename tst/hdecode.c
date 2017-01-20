@@ -119,8 +119,9 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 	dec.buf_len = priv2->len;
 	dec.cb = priv2->cb;
 	dec.priv = NULL;
+	dec.cut = cut;
 
-	retval = hpack_decode(priv2->hp, &dec, cut);
+	retval = hpack_decode(priv2->hp, &dec);
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
 		retval = 0;

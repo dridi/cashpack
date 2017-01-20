@@ -114,8 +114,9 @@ encode_message(struct enc_ctx *ctx)
 	enc.buf_len = sizeof buf;
 	enc.cb = ctx->cb;
 	enc.priv = NULL;
+	enc.cut = ctx->cut;
 
-	ctx->res = hpack_encode(hp, &enc, ctx->cut);
+	ctx->res = hpack_encode(hp, &enc);
 	fld = ctx->fld;
 
 	while (ctx->cnt > 0) {

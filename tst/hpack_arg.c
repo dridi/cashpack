@@ -200,6 +200,7 @@ static const struct hpack_decoding nam##_decoding = {	\
 	.buf_len = sizeof wrk_buf,			\
 	.cb = noop_cb,					\
 	.priv = NULL,					\
+	.cut = 0,					\
 }
 DECODING(update);
 DECODING(junk);
@@ -213,6 +214,7 @@ static const struct hpack_encoding basic_encoding = {
 	.buf_len = sizeof wrk_buf,
 	.cb = noop_cb,
 	.priv = NULL,
+	.cut = 0,
 };
 
 static const struct hpack_encoding unknown_encoding = {
@@ -222,6 +224,7 @@ static const struct hpack_encoding unknown_encoding = {
 	.buf_len = sizeof wrk_buf,
 	.cb = noop_cb,
 	.priv = NULL,
+	.cut = 0,
 };
 
 static void
@@ -315,22 +318,22 @@ test_decode_null_args(void)
 
 	/* first attempt when everything is null */
 	(void)memset(&dec, 0, sizeof dec);
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 
 	hp = make_decoder(512, -1, hpack_default_alloc);
 
-	CHECK_RES(retval, ARG, hpack_decode, hp, NULL, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, NULL);
 
 	/* populate dec members one by one */
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 	dec.blk = basic_block;
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 	dec.blk_len = sizeof basic_block;
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 	dec.buf = wrk_buf;
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 	dec.buf_len = sizeof wrk_buf;
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
 
 	hpack_free(&hp);
 }
@@ -342,23 +345,23 @@ test_encode_null_args(void)
 
 	/* first attempt when everything is null */
 	(void)memset(&enc, 0, sizeof enc);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 
 	hp = make_encoder(512, -1, hpack_default_alloc);
 
-	CHECK_RES(retval, ARG, hpack_encode, hp, NULL, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, NULL);
 
 	/* populate enc members one by one */
 	(void)memset(&enc, 0, sizeof enc);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 	enc.fld = basic_field;
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 	enc.fld_cnt = 1;
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 	enc.buf = wrk_buf;
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 	enc.buf_len = sizeof wrk_buf;
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
 
 	hpack_free(&hp);
 }
@@ -376,7 +379,7 @@ test_limit_null_realloc(void)
 {
 	hp = make_encoder(4096, 0, &static_alloc);
 
-	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding);
 	CHECK_RES(retval, ARG, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -385,7 +388,7 @@ static void
 test_limit_realloc_failure(void)
 {
 	hp = make_encoder(4096, 2048, &oom_alloc);
-	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding);
 	CHECK_RES(retval, OOM, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
@@ -403,7 +406,7 @@ test_trim_realloc_failure(void)
 {
 	hp = make_decoder(4096, -1, &oom_alloc);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 0);
-	CHECK_RES(retval, OK, hpack_decode, hp, &update_decoding, 0);
+	CHECK_RES(retval, OK, hpack_decode, hp, &update_decoding);
 	CHECK_RES(retval, OOM, hpack_trim, &hp);
 	hpack_free(&hp);
 }
@@ -414,10 +417,10 @@ test_use_defunct_decoder(void)
 	hp = make_decoder(0, -1, hpack_default_alloc);
 
 	/* break the decoder */
-	CHECK_RES(retval, IDX, hpack_decode, hp, &junk_decoding, 0);
+	CHECK_RES(retval, IDX, hpack_decode, hp, &junk_decoding);
 
 	/* try using it again */
-	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding, 0);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding);
 
 	hpack_free(&hp);
 }
@@ -425,8 +428,13 @@ test_use_defunct_decoder(void)
 static void
 test_use_busy_decoder(void)
 {
+	struct hpack_decoding partial_decoding;
+
 	hp = make_decoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 1);
+	partial_decoding = double_decoding;
+	partial_decoding.cut = 1;
+
+	CHECK_RES(retval, BLK, hpack_decode, hp, &partial_decoding);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
 	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
@@ -436,13 +444,16 @@ test_use_busy_decoder(void)
 static void
 test_use_different_buffer(void)
 {
-	struct hpack_decoding different_decoding;
+	struct hpack_decoding partial_decoding, different_decoding;
 
 	hp = make_decoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, BLK, hpack_decode, hp, &double_decoding, 1);
+	partial_decoding = double_decoding;
+	partial_decoding.cut = 1;
+	CHECK_RES(retval, BLK, hpack_decode, hp, &partial_decoding);
+
 	different_decoding = double_decoding;
 	different_decoding.buf_len -= 64;
-	CHECK_RES(retval, ARG, hpack_decode, hp, &different_decoding, 1);
+	CHECK_RES(retval, ARG, hpack_decode, hp, &different_decoding);
 	hpack_free(&hp);
 }
 
@@ -484,7 +495,7 @@ test_limit_between_two_resizes(void)
 	hp = make_encoder(512, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 1024);
-	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding);
 	CHECK_RES(retval, OK, hpack_resize, &hp, 2048);
 	hpack_free(&hp);
 }
@@ -495,10 +506,10 @@ test_use_defunct_encoder(void)
 	hp = make_encoder(4096, -1, hpack_default_alloc);
 
 	/* break the decoder */
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding);
 
 	/* try using it again */
-	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding, 0);
+	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding);
 
 	/* try resizing it */
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
@@ -511,8 +522,13 @@ test_use_defunct_encoder(void)
 static void
 test_use_busy_encoder(void)
 {
+	struct hpack_encoding partial_encoding;
+
 	hp = make_encoder(0, -1, hpack_default_alloc);
-	CHECK_RES(retval, BLK, hpack_encode, hp, &basic_encoding, 1);
+	partial_encoding = basic_encoding;
+	partial_encoding.cut = 1;
+
+	CHECK_RES(retval, BLK, hpack_encode, hp, &partial_encoding);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
@@ -541,7 +557,7 @@ test_trim_to_limit(void)
 {
 	hp = make_encoder(512, -1, hpack_default_alloc);
 	CHECK_RES(retval, OK, hpack_limit, &hp, 256);
-	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding, 0);
+	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding);
 	CHECK_RES(retval, OK, hpack_trim, &hp);
 	hpack_free(&hp);
 }

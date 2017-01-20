@@ -600,7 +600,7 @@ hpack_decode_update(HPACK_CTX)
 }
 
 enum hpack_result_e
-hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
+hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 {
 	struct hpack_ctx *ctx;
 	char *dec_buf;
@@ -633,7 +633,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 	ctx->len = dec->blk_len;
 	ctx->cb = dec->cb;
 	ctx->priv = dec->priv;
-	ctx->res = cut ? HPACK_RES_BLK : HPACK_RES_OK;
+	ctx->res = dec->cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
@@ -658,7 +658,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec, unsigned cut)
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
-			if (cut && ctx->res == HPACK_RES_BUF)
+			if (dec->cut && ctx->res == HPACK_RES_BUF)
 				ctx->res = HPACK_RES_BLK;
 			else
 				hp->magic = DEFUNCT_MAGIC;
@@ -838,7 +838,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 }
 
 enum hpack_result_e
-hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
+hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 {
 	const struct hpack_field *fld;
 	struct hpack_ctx *ctx;
@@ -922,7 +922,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc, unsigned cut)
 	HPE_send(ctx);
 
 	assert(ctx->res == HPACK_RES_BLK);
-	if (!cut)
+	if (!enc->cut)
 		ctx->res = HPACK_RES_OK;
 
 	return (ctx->res);
