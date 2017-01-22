@@ -269,10 +269,10 @@ tst_dump(void)
 	fprintf(stderr, "\t\t.min = %zd\n", hp->sz.min);
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.state = {\n");
-	// XXX: do when bored
+	/* XXX: do when bored */
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.ctx = {\n");
-	// XXX: do when bored
+	/* XXX: do when bored */
 	fprintf(stderr, "\t}\n");
 	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
 
