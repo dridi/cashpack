@@ -89,6 +89,10 @@ HPR(BIG, -12, "message too big",
 
 HPR(HDR, -13, "undefined pseudo-header",
 	"\tA header list contains an undefined pseudo-header.\n\n")
+
+HPR(REA, -14, "missing realloc function",
+	"\tThe codec was initialized without a realloc function but used in\n"
+	"\ta way that required a realloc operation.\n\n")
 #endif /* HPR */
 
 #ifdef HPE

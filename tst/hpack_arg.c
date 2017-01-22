@@ -380,7 +380,7 @@ test_limit_null_realloc(void)
 	hp = make_encoder(4096, 0, &static_alloc);
 
 	CHECK_RES(retval, OK, hpack_encode, hp, &basic_encoding);
-	CHECK_RES(retval, ARG, hpack_limit, &hp, 4096);
+	CHECK_RES(retval, REA, hpack_limit, &hp, 4096);
 	hpack_free(&hp);
 }
 

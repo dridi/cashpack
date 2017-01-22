@@ -152,7 +152,7 @@ hpack_realloc(struct hpack **hpp, size_t mem)
 
 	assert(hp->sz.len <= mem);
 	if (hp->alloc.realloc == NULL)
-		return (HPACK_RES_ARG); /* XXX: dedicated error? */
+		return (HPACK_RES_REA);
 
 	hp = hp->alloc.realloc(hp, sizeof *hp + mem, hp->alloc.priv);
 	if (hp == NULL)
