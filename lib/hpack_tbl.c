@@ -39,8 +39,7 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
-#define HPT_OVERHEAD 32 /* section 4.1 */
-#define HPT_HEADERSZ 30 /* account for 2 null bytes */
+#define HPT_HEADERSZ (HPACK_OVERHEAD - 2) /* account for 2 null bytes */
 
 #define MOVE(he, off)	(void *)(uintptr_t)((uintptr_t)(he) + (off))
 #define JUMP(he, off)	(void *)((uintptr_t)(he) + HPT_HEADERSZ + (off))
@@ -81,7 +80,7 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 		assert(tmp.nam_sz > 0);
 		if (--idx == 0)
 			return (he);
-		off = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
+		off = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		he = MOVE(he, off);
 	}
 }
@@ -138,7 +137,7 @@ HPT_foreach(HPACK_CTX, int flg)
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.pre_sz == off);
 		assert(tmp.nam_sz > 0);
-		off = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
+		off = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
 		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), tmp.nam_sz);
 		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, tmp.nam_sz + 1),
@@ -176,7 +175,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
 		assert(tmp.magic == HPT_ENTRY_MAGIC);
 		assert(tmp.nam_sz > 0);
-		sz = HPT_OVERHEAD + tmp.nam_sz + tmp.val_sz;
+		sz = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
 		len -= sz;
 		hp->sz.len -= sz;
 		hp->cnt--;
@@ -300,7 +299,7 @@ HPT_index(HPACK_CTX)
 	ovl = hpt_overlap(hp, ctx->fld.nam, nam_sz);
 	assert(!hpt_overlap(hp, ctx->fld.val, val_sz));
 
-	len = HPT_OVERHEAD + nam_sz + val_sz;
+	len = HPACK_OVERHEAD + nam_sz + val_sz;
 	if (!hpt_fit(ctx, len))
 		return;
 

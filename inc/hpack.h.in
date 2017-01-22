@@ -133,6 +133,7 @@ enum hpack_result_e hpack_clean_field(struct hpack_field *);
 /* hpack_foreach */
 
 ##define HPACK_STATIC 61
+##define HPACK_OVERHEAD 32
 
 enum hpack_result_e hpack_static(hpack_event_f, void *);
 enum hpack_result_e hpack_dynamic(struct hpack *, hpack_event_f, void *);
