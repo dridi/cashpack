@@ -599,11 +599,18 @@ hpack_decode_update(HPACK_CTX)
 	return (0);
 }
 
+static inline unsigned
+hpack_check_buffer(struct hpack_ctx *ctx, const struct hpack_decoding *dec)
+{
+	char *dec_buf = dec->buf;
+
+	return (dec_buf + dec->buf_len == ctx->buf + ctx->buf_len);
+}
+
 enum hpack_result_e
 hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 {
 	struct hpack_ctx *ctx;
-	char *dec_buf;
 	int retval;
 
 	if (hp == NULL || hp->magic != DECODER_MAGIC || dec == NULL ||
@@ -616,9 +623,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 
 	if (ctx->res == HPACK_RES_BLK) {
 		assert(ctx->buf != NULL);
-		dec_buf = dec->buf;
-		EXPECT(ctx, ARG,
-		    dec_buf + dec->buf_len == ctx->buf + ctx->buf_len);
+		EXPECT(ctx, ARG, hpack_check_buffer(ctx, dec));
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
@@ -714,12 +719,13 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 	}
 
 	assert(ctx->res == HPACK_RES_FLD);
-	/* TODO: buf checks */
 
 	if (nam == NULL)
 		nam = dec->buf;
-	else
+	else {
 		nam = val + strlen(val) + 1;
+		EXPECT(ctx, ARG, hpack_check_buffer(ctx, dec));
+	}
 
 	if (nam == ctx->buf) {
 		nam = NULL;
