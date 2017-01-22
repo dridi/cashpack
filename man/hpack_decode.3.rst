@@ -22,14 +22,15 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-============
-hpack_decode
-============
+=================================
+hpack_decode, hpack_decode_fields
+=================================
 
 ---------------------
 decode an HPACK block
 ---------------------
 
+:Title upper: HPACK_DECODE
 :Manual section: 3
 
 SYNOPSIS
@@ -52,8 +53,10 @@ SYNOPSIS
 |
 | **enum hpack_result_e hpack_decode(struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_decoding** *\*dec*\ **);**
-
-.. TODO: hpack_decode_fields
+|
+| **enum hpack_result_e hpack_decode_fields(struct hpack** *\*hpack*\ **,**
+| **\     const struct hpack_decoding** *\*dec*\ **,**
+| **\     const char** *\*\*pnam*\ **, const char** *\*\*pval*\ **);**
 
 DESCRIPTION
 ===========
@@ -188,6 +191,34 @@ follow arrows in the detailed state machines, you will find that a ``NEVER``
 event may be followed by an ``INDEX`` event. That is never the case, but in
 order to keep the detailed state machines *simpler* this detail is omitted.
 
+CALLBACK-LESS DECODING
+======================
+
+When only fields matter an alternative is to use the ``hpack_decode_fields()``
+function. Instead of exposing the decoding state machine, it provides an
+iterative API and returns once per field decoded from the header list. This
+function does not return fields until the HPACK block is completely decoded
+and expects consistent arguments between calls.
+
+In this mode the *cb* and *priv* fields are ignored and can be omitted. The
+*pnam* and *pval* point respectively to the name and value for each field
+returned. They always point to null-terminated strings. They MUST be both
+``NULL`` before the first call to ``hpack_decode_fields()``, and they are
+automatically reset to ``NULL`` after the last field was returned.
+
+In pseudo-code, it can be used like this::
+
+    while ((retval = hpack_decode_fields(...)) != HPACK_RES_FLD) {
+    	/* use name and value here */
+    }
+
+    /* handle non-field results here */
+
+This doesn't take partial blocks into account: when a continuation is expected
+it breaks out of the loop, to be reentered later with consistent parameters.
+Mixing calls to ``hpack_decode()`` and ``hpack_decode_fields()`` results in
+undefined behavior. Pick one.
+
 RETURN VALUE
 ============
 
@@ -195,10 +226,17 @@ The ``hpack_decode()`` function returns ``HPACK_RES_OK`` if *cut* is zero,
 otherwise ``HPACK_RES_BLK``. On error, this function returns one of the listed
 errors and makes the *hpack* argument improper for further use.
 
+The ``hpack_decode_fields()`` function returns ``HPACK_RES_FLD`` if *cut* is
+zero, otherwise ``HPACK_RES_BLK``. For each subsequent call, ``HPACK_RES_FLD``
+is returned until there are no fields left and ``HPACK_RES_OK`` is returned.
+On error, this function returns one of the listed errors and makes the *hpack*
+argument improper for further use.
+
 ERRORS
 ======
 
-The ``hpack_decode()`` function can fail with the following errors:
+The ``hpack_decode()`` and ``hpack_decode_fields()`` functions can fail with
+the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *dec* contains
 ``NULL`` pointers or zero lengths, except *priv* which is optional.
