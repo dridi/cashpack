@@ -83,8 +83,8 @@ to ``hpack_decode()``.
 
 The *priv* pointer is passed to the *cb* callback for all the events.
 
-If *dec->cut* is zero, the HPACK block being decoded is expected to end with
-the *dec->blk_len* octets.
+If *cut* is zero, the HPACK block being decoded is expected to end with the
+*blk_len* octets.
 
 DECODING STATE MACHINE
 ======================
@@ -191,9 +191,9 @@ order to keep the detailed state machines *simpler* this detail is omitted.
 RETURN VALUE
 ============
 
-The ``hpack_decode()`` function returns ``HPACK_RES_OK`` if *dec->cut* is
-zero, otherwise ``HPACK_RES_BLK``. On error, this function returns one of the
-listed errors and makes the *hpack* argument improper for further use.
+The ``hpack_decode()`` function returns ``HPACK_RES_OK`` if *cut* is zero,
+otherwise ``HPACK_RES_BLK``. On error, this function returns one of the listed
+errors and makes the *hpack* argument improper for further use.
 
 ERRORS
 ======
@@ -201,7 +201,7 @@ ERRORS
 The ``hpack_decode()`` function can fail with the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *dec* contains
-``NULL`` pointers or zero lengths, except *dec->priv* which is optional.
+``NULL`` pointers or zero lengths, except *priv* which is optional.
 
 All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
 details of all possible errors.

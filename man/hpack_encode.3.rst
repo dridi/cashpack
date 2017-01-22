@@ -84,8 +84,8 @@ octets, the working buffer can safely be reused in subsequent calls. All the
 events are described in the ``cashpack``\ (3) manual. The *priv* pointer is
 passed to the *cb* callback for all the events.
 
-If *enc->cut* is zero, the HPACK block being encoded is expected to end with
-the *enc->fld_cnt* fields.
+If *cut* is zero, the HPACK block being encoded is expected to end with the
+*fld_cnt* fields.
 
 ENCODING FLAGS
 ==============
@@ -204,9 +204,9 @@ MUST be done prior to calling ``hpack_clean_field()``.
 RETURN VALUE
 ============
 
-The ``hpack_encode()`` function returns ``HPACK_RES_OK`` if *enc->cut* is
-zero, otherwise ``HPACK_RES_BLK``. On error, this function returns one of the
-listed errors and makes the *hpack* argument improper for further use.
+The ``hpack_encode()`` function returns ``HPACK_RES_OK`` if *cut* is zero,
+otherwise ``HPACK_RES_BLK``. On error, this function returns one of the listed
+errors and makes the *hpack* argument improper for further use.
 
 The ``hpack_clean_field()`` function returns ``HPACK_RES_OK`` if the field's
 structure was properly zeroed, otherwise ``HPACK_RES_ARG``.
@@ -217,7 +217,7 @@ ERRORS
 The ``hpack_encode()`` function can fail with the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid encoder or *enc* contains
-``NULL`` pointers or zero lengths, except *enc->priv* which is optional.
+``NULL`` pointers or zero lengths, except *priv* which is optional.
 
 All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
 details of all possible errors.
