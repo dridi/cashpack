@@ -327,12 +327,14 @@ main(int argc, char **argv)
 		argv += 2;
 	}
 
-	/* exactly one file name is expected */
+	/* hencode expects only options, no arguments */
 	if (argc != 0) {
-		fprintf(stderr, "Usage: hencode [--expect-error <ERR>] "
+		fprintf(stderr, "Unexpected argument: %s\n\n"
+		    "Usage: hencode [--expect-error <ERR>] "
 		    "[--table-size <size>]\n\n"
 		    "Default table size: 4096\n"
-		    "Possible errors:\n");
+		    "Possible errors:\n",
+		    *argv);
 
 #define HPR_ERRORS_ONLY
 #define HPR(val, cod, txt, rst) fprintf(stderr, "  %s: %s\n", #val, txt);
