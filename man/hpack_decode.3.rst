@@ -239,7 +239,9 @@ The ``hpack_decode()`` and ``hpack_decode_fields()`` functions can fail with
 the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid decoder or *dec* contains
-``NULL`` pointers or zero lengths, except *priv* which is optional.
+``NULL`` pointers or zero lengths, except *priv* which is optional. The other
+invalid calls described in the functions documentation will also lead to this
+error.
 
 All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
 details of all possible errors.
