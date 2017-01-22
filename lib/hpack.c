@@ -720,8 +720,10 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 
 	assert(ctx->res == HPACK_RES_FLD);
 
-	if (nam == NULL)
+	if (nam == NULL) {
 		nam = dec->buf;
+		assert(val == NULL);
+	}
 	else {
 		nam = val + strlen(val) + 1;
 		EXPECT(ctx, ARG, hpack_check_buffer(ctx, dec));
@@ -732,10 +734,12 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 		val = NULL;
 		ctx->res = HPACK_RES_OK;
 	}
-	else
+	else {
 		val = nam + strlen(nam) + 1;
+		assert(nam < ctx->buf);
+		assert(val < ctx->buf);
+	}
 
-	/* TODO: assert buf checks */
 	*pnam = nam;
 	*pval = val;
 
