@@ -44,7 +44,9 @@ func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
 	for _, stp := range strings.Split(spec, ",") {
 		if stp != "" {
 			stp = strings.Replace(stp, ",", "", 1)
-			len, _ = strconv.Atoi(stp[1:]) // XXX
+			if len, err = strconv.Atoi(stp[1:]); err != nil {
+				log.Fatal(err)
+			}
 		}
 		if stp == "" {
 			break
@@ -78,14 +80,15 @@ func main() {
 	var exp string
 	var tbl_sz int
 
-	// XXX
-	flag.StringVar(&spec, "decoding-spec", "", "TODO")
-	flag.StringVar(&exp, "expect-error", "OK", "TODO")
-	flag.IntVar(&tbl_sz, "table-size", 4096, "TODO")
+	flag.StringVar(&spec, "decoding-spec", "", "An hdecode spec.")
+	flag.StringVar(&exp, "expect-error", "OK", "An error name (not BSY).")
+	flag.IntVar(&tbl_sz, "table-size", 4096, "The dynamic table size.")
 	flag.Parse()
 
-	// TODO: assert exp != BSY
-	// TODO: print usage if flag.NArg() != 1
+	if exp == "BSY" || flag.NArg() != 1 {
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	file, err := os.Open(flag.Arg(0))
 	if err != nil {
