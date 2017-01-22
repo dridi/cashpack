@@ -324,7 +324,7 @@ HPT_index(HPACK_CTX)
 	hp->sz.len += len;
 	hp->cnt++;
 
-	CALLBACK(ctx, HPACK_EVT_INDEX, NULL, 0);
+	CALLBACK(ctx, HPACK_EVT_INDEX, NULL, len);
 }
 
 /**********************************************************************

@@ -86,6 +86,9 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(len > 0);
 		break;
 	case HPACK_EVT_INDEX:
+		assert(buf == NULL);
+		assert(len > HPACK_OVERHEAD);
+		break;
 	case HPACK_EVT_NEVER:
 		assert(len == 0);
 		/* fall through */

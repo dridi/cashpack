@@ -124,8 +124,9 @@ HPE(INDEX, 2, "a field was indexed",
 	"\tinserted in the dynamic table during encoding\n\n"
 
 	"\tThe role of this event is to inform that the dynamic table\n"
-	"\tchanged during an operation. Both *buf* and *len* are\n"
-	"\tunused and respectively ``NULL`` and zero.\n\n")
+	"\tchanged during an operation. *buf* is unused and always\n"
+	"\t``NULL``. *len* is the size of the entry in the dynamic table,\n"
+	"\toverhead included.\n\n")
 
 HPE(NAME,  3, "field name",
 	"\tA decoder sends a NAME event when the current field's name has\n"
