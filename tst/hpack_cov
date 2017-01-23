@@ -135,9 +135,11 @@ mk_bin <<EOF
 EOF
 
 # fail name
-tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 4
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 4
+tst_solely fdecode tst_decode --expect-error BIG --buffer-size 4
 # fail value
-tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 8
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 8
+tst_solely fdecode tst_decode --expect-error BIG --buffer-size 8
 
 _ ---------------------------------
 _ Not enough space for a raw string
@@ -147,7 +149,8 @@ mk_hex <<EOF
 0003 746f 6f03 6269 67                  | ..too.big
 EOF
 
-tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely fdecode tst_decode --expect-error BIG --buffer-size 6
 
 _ -----------------------------------------------
 _ No space for the null character of a raw string
@@ -157,7 +160,8 @@ mk_hex <<EOF
 0005 656d 7074 7900                     | ..empty.
 EOF
 
-tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely fdecode tst_decode --expect-error BIG --buffer-size 6
 
 _ ---------------------------------------------------
 _ No space for the null character of a Huffman string
@@ -167,7 +171,8 @@ mk_hex <<EOF
 0005 656d 7074 7980                     | ..empty.
 EOF
 
-tst_solely "hdecode fdecode" tst_decode --expect-error BIG --buffer-size 6
+tst_solely hdecode tst_decode --expect-error BIG --buffer-size 6
+tst_solely fdecode tst_decode --expect-error BIG --buffer-size 6
 
 _ -----------------------------------------
 _ Break after a never-encoded field integer
@@ -178,4 +183,5 @@ mk_bin <<EOF
 00000000 | Field name of length 0
 EOF
 
-tst_solely "hdecode fdecode" tst_decode --decoding-spec p1, --expect-error LEN
+tst_solely hdecode tst_decode --decoding-spec p1, --expect-error LEN
+tst_solely fdecode tst_decode --decoding-spec p1, --expect-error LEN
