@@ -259,7 +259,7 @@ hpack_limit(struct hpack **hpp, size_t len)
 	res = hpack_realloc(&hp, mem);
 	if (res < 0) {
 		assert(*hpp == hp);
-		if (res != HPACK_RES_ARG)
+		if (res != HPACK_RES_REA)
 			hp->magic = DEFUNCT_MAGIC;
 		return (res);
 	}
