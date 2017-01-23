@@ -41,7 +41,8 @@ SYNOPSIS
 | **#include <unistd.h>**
 | **#include <hpack.h>**
 |
-| **#define** *HPACK_STATIC* **61**
+| **#define HPACK_STATIC   61**
+| **#define HPACK_OVERHEAD 32**
 |
 | **enum hpack_result_e hpack_static(hpack_event_f** *cb*\ **,** \
     **void** *\*priv*\ **);**
@@ -68,6 +69,10 @@ events, passing a *priv* pointer that can be used to maintain state. The
 ``hpack_static()`` function ALWAYS emits the same sequence of events. The
 ``hpack_tables()`` function probes both the static and dynamic table for its
 *hpack* argument.
+
+The ``HPACK_STATIC`` and ``HPACK_OVERHEAD`` macros represent respectively the
+number of entries in the static table and the per-entry overhead in dynamic
+tables, as per the RFC.
 
 FOREACH STATE MACHINE
 =====================
