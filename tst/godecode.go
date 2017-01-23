@@ -81,7 +81,7 @@ func main() {
 	var tbl_sz int
 
 	flag.StringVar(&spec, "decoding-spec", "", "An hdecode spec.")
-	flag.StringVar(&exp, "expect-error", "OK", "An error name (not BSY).")
+	flag.StringVar(&exp, "expect-error", "OK", "An error (except BSY).")
 	flag.IntVar(&tbl_sz, "table-size", 4096, "The dynamic table size.")
 	flag.Parse()
 

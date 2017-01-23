@@ -33,14 +33,16 @@ _ -----------
 ! ./hdecode  # missing param
 ! ./fdecode  # missing param
 ! ./ngdecode # missing param
+! ./godecode # missing param
 ! ./hencode unexpected_param
 
-! ./hdecode --expect-error UNKNOWN
-! ./fdecode --expect-error UNKNOWN
-
-! ./hdecode  --expect-error BSY /dev/null
-! ./fdecode  --expect-error BSY /dev/null
-! ./ngdecode --expect-error BSY /dev/null
+for COD in UNKNOWN OK BLK FLD BSY
+do
+	! ./hdecode  --expect-error $COD  /dev/null
+	! ./fdecode  --expect-error $COD  /dev/null
+	! ./ngdecode --expect-error $COD  /dev/null
+	! ./hencode  --expect-error $COD </dev/null 1>/dev/null 3>&1
+done
 
 _ --------
 _ Aborting
