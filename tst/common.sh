@@ -203,12 +203,14 @@ hpack_encode() {
 }
 
 tst_ignore() (
+	set -e
 	HIGNORE="$HIGNORE $1"
 	shift
 	"$@"
 )
 
 tst_solely() (
+	set -e
 	for cmd in $HDECODE
 	do
 		[ "$cmd" != "$1" ] && HIGNORE="$HIGNORE $cmd"
@@ -222,8 +224,7 @@ tst_decode() {
 	do
 		skip_cmd "$dec" && continue
 
-		# XXX: why isn't this caught by `set -e`? fork?
-		hpack_decode "./$dec" "$@" || return $?
+		hpack_decode "./$dec" "$@"
 
 		skip_diff "$@" && continue
 
@@ -237,8 +238,7 @@ tst_decode() {
 }
 
 tst_encode() {
-	# XXX: why isn't this caught by `set -e`? fork?
-	hpack_encode ./hencode "$@" || return $?
+	hpack_encode ./hencode "$@"
 
 	skip_diff "$@" && return
 
