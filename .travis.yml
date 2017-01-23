@@ -13,7 +13,7 @@ env:
     - CFLAGS=-O3
     - CFLAGS=-Os
     - BUILD_FLAGS=--with-memcheck
-    - BUILD_FLAGS=--with-lcov BUILD_TARGET=lcov
+    - BUILD_FLAGS=--with-lcov BUILD_TARGET="lcov -j 1"
 matrix:
   include:
     - compiler: clang
