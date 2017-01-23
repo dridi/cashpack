@@ -398,6 +398,10 @@ From times to times it is tested against other POSIX-compatible shells, and
 ``bash(1)`` is the daily driver. The other shells include in alphabetic order:
 ``ksh`` (``ksh93``), ``lksh``, ``mksh``, ``yash`` and ``zsh``.
 
+For instance, to run the test suite with ``yash``::
+
+    make check LOG_COMPILER=yash
+
 Finally, architecture portability. cashpack is intended for embedded systems
 but would work fine with "regular" systems too. However it does not target
 8-bit micro-controllers or any similar *dedicated* devices, but actual general
