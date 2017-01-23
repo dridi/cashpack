@@ -124,6 +124,15 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
+	if (argc > 0 && !strcmp("--buffer-size", *argv)) {
+		assert(argc > 2);
+		priv.len = atoi(argv[1]);
+		assert(priv.len > 0);
+		assert(priv.len < sizeof buf);
+		argc -= 2;
+		argv += 2;
+	}
+
 	if (argc > 0 && !strcmp("--decoding-spec", *argv)) {
 		assert(argc > 2);
 		ctx.spec = argv[1];
@@ -143,15 +152,6 @@ main(int argc, char **argv)
 		assert(argc > 2);
 		tbl_sz = atoi(argv[1]);
 		assert(tbl_sz > 0);
-		argc -= 2;
-		argv += 2;
-	}
-
-	if (argc > 0 && !strcmp("--buffer-size", *argv)) {
-		assert(argc > 2);
-		priv.len = atoi(argv[1]);
-		assert(priv.len > 0);
-		assert(priv.len < sizeof buf);
 		argc -= 2;
 		argv += 2;
 	}
