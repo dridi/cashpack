@@ -726,7 +726,7 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 	}
 	else {
 		nam = val + strlen(val) + 1;
-		EXPECT(ctx, ARG, hpack_check_buffer(ctx, dec));
+		assert(hpack_check_buffer(ctx, dec));
 	}
 
 	if (nam == ctx->buf) {
