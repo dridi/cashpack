@@ -149,11 +149,9 @@ mk_hex() {
 }
 
 mk_bin() {
-	cut -d '|' -f 1 |
-	while read bin
+	while read -r bin pipe comment
 	do
-		# XXX: is this portable?
-		dec=$(echo "obase=10;ibase=2;$bin" | bc)
+		dec=$(printf 'ibase=2; %s\n' "$bin" | bc)
 		printf %02x "$dec"
 	done |
 	mk_hex
