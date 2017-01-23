@@ -316,13 +316,12 @@ test_decode_null_args(void)
 {
 	struct hpack_decoding dec;
 
-	/* first attempt when everything is null */
 	(void)memset(&dec, 0, sizeof dec);
-	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
-
 	hp = make_decoder(512, -1, hpack_default_alloc);
 
-	CHECK_RES(retval, ARG, hpack_decode, hp, NULL);
+	/* first attempt with one NULL per argument */
+	CHECK_RES(retval, ARG, hpack_decode, NULL, &dec);
+	CHECK_RES(retval, ARG, hpack_decode, hp,   NULL);
 
 	/* populate dec members one by one */
 	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
@@ -339,17 +338,56 @@ test_decode_null_args(void)
 }
 
 static void
+test_decode_fields_null_args(void)
+{
+	struct hpack_decoding dec;
+	const char *nam, *val;
+
+	(void)memset(&dec, 0, sizeof dec);
+	hp = make_decoder(512, -1, hpack_default_alloc);
+	dec.blk = basic_block;
+	dec.blk_len = sizeof basic_block;
+	dec.buf = wrk_buf;
+	dec.buf_len = sizeof wrk_buf;
+
+	/* first attempt with one NULL per argument */
+	CHECK_RES(retval, ARG, hpack_decode_fields, NULL, &dec, &nam, &val);
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp,   NULL, &nam, &val);
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp,   &dec, NULL, &val);
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp,   &dec, &nam, NULL);
+
+	/* then try to pass inconsistent nam/val */
+	nam = NULL;
+	val = "";
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp, &dec, &nam, &val);
+
+	/* decode a field */
+	nam = NULL;
+	val = NULL;
+	CHECK_RES(retval, FLD, hpack_decode_fields, hp, &dec, &nam, &val);
+
+	/* break the decoding iteration, reset manually */
+	nam = NULL;
+	val = NULL;
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp, &dec, &nam, &val);
+
+	/* try reusing the defunct decoder */
+	CHECK_RES(retval, ARG, hpack_decode_fields, hp, &dec, &nam, &val);
+
+	hpack_free(&hp);
+}
+
+static void
 test_encode_null_args(void)
 {
 	struct hpack_encoding enc;
 
-	/* first attempt when everything is null */
 	(void)memset(&enc, 0, sizeof enc);
-	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
-
 	hp = make_encoder(512, -1, hpack_default_alloc);
 
-	CHECK_RES(retval, ARG, hpack_encode, hp, NULL);
+	/* first attempt with one NULL per argument */
+	CHECK_RES(retval, ARG, hpack_encode, NULL, &enc);
+	CHECK_RES(retval, ARG, hpack_encode, hp,   NULL);
 
 	/* populate enc members one by one */
 	(void)memset(&enc, 0, sizeof enc);
@@ -641,6 +679,7 @@ main(int argc, char **argv)
 	test_foreach();
 	test_foreach_null_args();
 	test_decode_null_args();
+	test_decode_fields_null_args();
 	test_encode_null_args();
 
 	test_resize_overflow();

@@ -706,8 +706,10 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 	ctx = &hp->ctx;
 	assert(ctx->hp == hp);
 	if (nam == NULL && ctx->res != HPACK_RES_OK &&
-	    ctx->res != HPACK_RES_BLK)
+	    ctx->res != HPACK_RES_BLK) {
+		hp->magic = DEFUNCT_MAGIC;
 		return (HPACK_RES_ARG);
+	}
 
 	if (nam == NULL) {
 		memcpy(&fld_dec, dec, sizeof fld_dec);
