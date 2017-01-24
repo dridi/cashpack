@@ -149,12 +149,15 @@ mk_hex() {
 }
 
 mk_bin() {
+	printf '%s\n' 'mk_bin ---' >&2
 	while read -r bin pipe comment
 	do
 		dec=$(printf 'ibase=2; %s\n' "$bin" | bc)
-		printf %02x "$dec"
+		printf '%02x' "$dec"
+		printf '%02x: %s %s %s\n' "$dec" "$bin" "$pipe" "$comment" >&2
 	done |
 	mk_hex
+	printf '%s\n' --- >&2
 }
 
 mk_msg() {
