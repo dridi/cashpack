@@ -40,7 +40,7 @@
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
 
 static void
-print_error(const char *func, int retval)
+dumb_perror(const char *func, int retval)
 {
 
 	LOG("%s: %s\n", func, hpack_strerror(retval));
@@ -83,7 +83,7 @@ static struct dumb_ref    static_idx[MAX_ENTRIES + 1];
 /* index management */
 
 static void
-dumb_index(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
+dumb_index_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 	struct dumb_state *stt;
 
@@ -107,7 +107,7 @@ dumb_index(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 }
 
 static size_t
-search_index(const struct dumb_state *stt, const char *nam, const char *val)
+dumb_search(const struct dumb_state *stt, const char *nam, const char *val)
 {
 	size_t nam_idx, idx;
 
@@ -123,10 +123,10 @@ search_index(const struct dumb_state *stt, const char *nam, const char *val)
 	return (nam_idx);
 }
 
-/* encoding logic */
+/* logging of the encoding process */
 
 static void
-dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
+dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 	struct hpack_field *hf;
 	struct dumb_state *stt;
@@ -192,7 +192,7 @@ dumb_encoding(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 /* fields management */
 
 static void
-clear_fields(struct dumb_state *stt)
+dumb_fields_clear(struct dumb_state *stt)
 {
 	struct hpack_field *fld;
 	struct dumb_field *dmb;
@@ -206,7 +206,7 @@ clear_fields(struct dumb_state *stt)
 		free(dmb->val);
 		retval = hpack_clean_field(fld);
 		if (retval < 0)
-			print_error("hpack_clean_field", retval);
+			dumb_perror("hpack_clean_field", retval);
 		dmb++;
 		fld++;
 		stt->len--;
@@ -214,7 +214,7 @@ clear_fields(struct dumb_state *stt)
 }
 
 static void
-send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
+dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 {
 	struct hpack_encoding enc;
 	char buf[256];
@@ -228,22 +228,22 @@ send_fields(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 	enc.fld_cnt = stt->len;
 	enc.buf = buf;
 	enc.buf_len = sizeof buf;
-	enc.cb = dumb_encoding;
+	enc.cb = dumb_log_cb;
 	enc.priv = stt;
 	enc.cut = cut;
 
 	retval = hpack_encode(hp, &enc);
 	if (retval < 0)
-		print_error("hpack_encode", retval);
+		dumb_perror("hpack_encode", retval);
 
-	clear_fields(stt);
+	dumb_fields_clear(stt);
 
 	if (stt->idx_off > 0 || stt->idx_max != stt->idx_len)
 		stt->idx_len = 0;
 }
 
 static void
-make_field(struct dumb_state *stt, const char *line)
+dumb_fields_append(struct dumb_state *stt, const char *line)
 {
 	struct hpack_field *fld;
 	struct dumb_field *dmb;
@@ -277,7 +277,7 @@ make_field(struct dumb_state *stt, const char *line)
 	tmp = strchr(fld->val, '\n');
 	*tmp = '\0';
 
-	idx = search_index(stt, fld->nam, fld->val);
+	idx = dumb_search(stt, fld->nam, fld->val);
 
 	if (idx == 0) {
 		/* not in the cache? insert it */
@@ -317,9 +317,9 @@ main(void)
 	linelen = 0;
 
 	/* index initialization */
-	retval = hpack_static(dumb_index, &stt);
+	retval = hpack_static(dumb_index_cb, &stt);
 	if (retval < 0)
-		print_error("hpack_static", retval);
+		dumb_perror("hpack_static", retval);
 
 	while (getline(&lineptr, &linelen, stdin) != -1) {
 		if (*lineptr == '#') {
@@ -331,24 +331,24 @@ main(void)
 			if (stt.len == 0)
 				continue;
 			LOG("encoding block\n");
-			send_fields(hp, &stt, 0);
+			dumb_fields_send(hp, &stt, 0);
 			stt.idx_len = 0;
-			retval = hpack_tables(hp, dumb_index, &stt);
+			retval = hpack_tables(hp, dumb_index_cb, &stt);
 			if (retval < 0)
-				print_error("hpack_tables", retval);
+				dumb_perror("hpack_tables", retval);
 			LOG("index length: %zu\n\n", stt.idx_len);
 		}
 		else {
 			if (stt.len == MAX_FIELDS) {
 				LOG("encoding partial block\n");
-				send_fields(hp, &stt, 1);
+				dumb_fields_send(hp, &stt, 1);
 			}
-			make_field(&stt, lineptr);
+			dumb_fields_append(&stt, lineptr);
 		}
 	}
 
 	if (stt.len > 0)
-		send_fields(hp, &stt, 0);
+		dumb_fields_send(hp, &stt, 0);
 
 	hpack_free(&hp);
 	free(lineptr);
