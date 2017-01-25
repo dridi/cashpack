@@ -188,6 +188,7 @@ SEE ALSO
 
 **cashpack**\(3),
 **hpack_decode**\(3),
+**hpack_dump**\(3),
 **hpack_dynamic**\(3),
 **hpack_encode**\(3),
 **hpack_foreach**\(3),

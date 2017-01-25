@@ -22,14 +22,15 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-==============
-hpack_strerror
-==============
+==========================
+hpack_strerror, hpack_dump
+==========================
 
-------------------------------------------
-return a string describing an error number
-------------------------------------------
+----------------------------
+error handling with cashpack
+----------------------------
 
+:Title upper: HPACK_ERROR
 :Manual section: 3
 
 SYNOPSIS
@@ -40,9 +41,15 @@ SYNOPSIS
 | **#include <unistd.h>**
 | **#include <hpack.h>**
 |
+| **struct hpack;**
 | **enum hpack_result_e;**
 |
+| **typedef void hpack_dump_f(void** *\*priv*\ **, const char** *\*fmt*\ **, \
+    ...);**
+|
 | **const char * hpack_strerror(enum hpack_result_e** *res*\ **);**
+| **void hpack_dump(struct hpack** *\*hp*\ **, hpack_dump_f** *\*dump*\ **, \
+    void** *\*priv*\ **);**
 
 DESCRIPTION
 ===========
@@ -54,6 +61,13 @@ a defunct codec that can no longer be used.
 
 The ``hpack_strerror()`` function is a thread-safe function that translates an
 error code into a human readable short description.
+
+The ``hpack_dump()`` function outputs the internal state of a ``struct hpack``
+instance. The output is sent via a ``printf``-like callback to let the user
+choose how to report the dump. This is mostly useful when cashpack is built
+with assertions enabled, to report the state when the program aborts. This
+report can then be submitted as a bug report, ideally along with the HTTP
+message that was being processed at the time of the crash.
 
 RESULT CODES
 ============
@@ -75,6 +89,14 @@ RETURN VALUE
 
 The ``hpack_strerror()`` function returns a constant string corresponding to
 one of the short descriptions detailed above, or ``NULL`` for unknown values.
+
+EXAMPLE
+=======
+
+The ``hpack_dump()`` function integrates well with **vfprintf**\(3):
+
+.. include:: hpack_dump.src
+    :literal:
 
 SEE ALSO
 ========

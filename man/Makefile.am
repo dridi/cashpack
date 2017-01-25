@@ -37,6 +37,10 @@ hpack_alloc_links = \
 	hpack_limit.3 \
 	hpack_trim.3
 
+hpack_error_links = \
+	hpack_strerror.3 \
+	hpack_dump.3
+
 hpack_foreach_links = \
 	hpack_static.3 \
 	hpack_dynamic.3 \
@@ -49,8 +53,9 @@ dist_man_MANS = \
 	hpack_decode.3 \
 	hpack_encode.3 \
 	hpack_foreach.3 \
-	hpack_strerror.3 \
+	hpack_error.3 \
 	$(hpack_alloc_links) \
+	$(hpack_error_links) \
 	$(hpack_foreach_links)
 endif
 
@@ -60,7 +65,8 @@ examplesdir = $(pkgdatadir)/examples
 
 examples_DATA = \
 	cashdumb.c \
-	cashdump.c
+	cashdump.c \
+	hpack_dump.c
 
 if DOCS
 
@@ -69,12 +75,14 @@ if DOCS
 noinst_PROGRAMS = \
 	cashdumb \
 	cashdump \
+	hpack_dump \
 	hpe2rst.gen \
 	hpf2rst.gen \
 	hpr2rst.gen
 
 cashdumb_LDADD = $(top_builddir)/lib/libhpack.la
 cashdump_LDADD = $(top_builddir)/lib/libhpack.la
+hpack_dump_LDADD = $(top_builddir)/lib/libhpack.la
 
 .gen.rst:
 	$(AM_V_GEN) ./$< >$@
@@ -117,12 +125,15 @@ cashpack.3: hpe2rst.rst cashdump.src cashdump.hex cashdump.out
 
 hpack_encode.3: hpf2rst.rst cashdumb.src cashdumb.txt cashdumb.out
 
-hpack_strerror.3: hpr2rst.rst
+hpack_error.3: hpr2rst.rst hpack_dump.src
 
 # man links
 
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
+
+$(hpack_error_links):
+	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_error.3 >$@
 
 $(hpack_foreach_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_foreach.3 >$@
