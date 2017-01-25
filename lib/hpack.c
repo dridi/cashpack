@@ -43,6 +43,7 @@
 #define OUT_OF_BITS (void)0;
 
 /**********************************************************************
+ * System allocator
  */
 
 static void *
@@ -79,6 +80,7 @@ static const struct hpack_alloc hpack_libc_alloc = {
 const struct hpack_alloc *hpack_default_alloc = &hpack_libc_alloc;
 
 /**********************************************************************
+ * Memory management
  */
 
 static struct hpack *
@@ -390,6 +392,7 @@ hpack_tables(struct hpack *hp, hpack_event_f cb, void *priv)
 
 
 /**********************************************************************
+ * Errors
  */
 
 const char *
