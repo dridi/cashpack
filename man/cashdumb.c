@@ -67,7 +67,6 @@ struct dumb_state {
 	size_t			pos;
 	size_t			idx_len;
 	size_t			idx_off;
-	size_t			idx_max;
 };
 
 /* global variables for convenience */
@@ -140,7 +139,7 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
 		if (hf->flg & HPACK_FLG_TYP_IDX) {
 			LOG("(indexed");
-			if (hf->idx > stt->idx_max) {
+			if (hf->idx > stt->idx_len) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->idx = 0;
@@ -157,7 +156,7 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		}
 		if (hf->flg & HPACK_FLG_NAM_IDX) {
 			LOG("(indexed name");
-			if (hf->nam_idx > stt->idx_max) {
+			if (hf->nam_idx > stt->idx_len) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
 				hf->nam_idx = 0;
@@ -174,7 +173,7 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_EVICT:
 		LOG("eviction\n");
-		stt->idx_max--;
+		stt->idx_len--;
 		break;
 	case HPACK_EVT_INDEX:
 		LOG("field indexed\n");
@@ -222,7 +221,6 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 
 	stt->pos = 0;
 	stt->idx_off = 0;
-	stt->idx_max = stt->idx_len;
 
 	enc.fld = stt->fld;
 	enc.fld_cnt = stt->len;
@@ -238,7 +236,7 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 
 	dumb_fields_clear(stt);
 
-	if (stt->idx_off > 0 || stt->idx_max != stt->idx_len)
+	if (stt->idx_off > 0)
 		stt->idx_len = 0;
 }
 
