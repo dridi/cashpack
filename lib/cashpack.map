@@ -29,6 +29,7 @@ CASHPACK_0.3 {
     hpack_decode;
     hpack_decode_fields;
     hpack_decoder;
+    hpack_dump;
     hpack_dynamic;
     hpack_encode;
     hpack_encoder;

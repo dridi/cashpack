@@ -29,7 +29,9 @@
  */
 
 #include <assert.h>
+#include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -120,6 +122,18 @@ make_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 	CHECK_NOTNULL(hp, hpack_encoder, max, lim, ha);
 	return (hp);
 }
+
+static void
+test_dump_cb(void *priv, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)vfprintf(priv, fmt, ap);
+	va_end(ap);
+}
+
+#define test_dump(hp)	hpack_dump(hp, test_dump_cb, stderr);
 
 /**********************************************************************
  * Static allocator
@@ -460,6 +474,9 @@ test_use_defunct_decoder(void)
 	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding);
 
+	/* try dumping it */
+	test_dump(hp);
+
 	hpack_free(&hp);
 }
 
@@ -554,6 +571,10 @@ test_use_defunct_encoder(void)
 
 	/* try trimming it */
 	CHECK_RES(retval, ARG, hpack_trim, &hp);
+
+	/* try dumping it */
+	test_dump(hp);
+
 	hpack_free(&hp);
 }
 
@@ -657,6 +678,25 @@ test_strerror(void)
 	CHECK_NULL(str, hpack_strerror, UINT16_MAX);
 }
 
+static void
+test_dump_unknown(void)
+{
+	unsigned magic;
+
+	hp = make_decoder(0, -1, &static_alloc);
+
+	/* save the magic number */
+	(void)memcpy(&magic, hp, sizeof magic);
+
+	/* dump a corrupted codec */
+	(void)memset(hp, 0, sizeof magic);
+	test_dump(hp);
+
+	/* restore and free */
+	(void)memcpy(hp, &magic, sizeof magic);
+	hpack_free(&hp);
+}
+
 /**********************************************************************
  */
 
@@ -715,6 +755,7 @@ main(int argc, char **argv)
 	test_clean_indexed_field_with_indexed_name();
 
 	test_strerror();
+	test_dump_unknown();
 
 	return (0);
 }

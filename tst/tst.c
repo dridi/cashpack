@@ -30,6 +30,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -42,8 +43,6 @@
 #include "hpack_priv.h"
 
 #include "tst.h"
-
-#define FUNC_PTR(f)	(void *)(uint8_t *)&(f)
 
 struct hpack *hp;
 
@@ -201,96 +200,25 @@ TST_translate_error(const char *str)
 }
 
 /**********************************************************************
- * Debugging
- */
-
-static void
-tst_hexdump(void *ptr, ssize_t len, const char *pfx)
-{
-	uint8_t *buf;
-	size_t pos;
-	int i;
-
-	buf = ptr;
-	pos = 0;
-
-	while (len > 0) {
-		fprintf(stderr, "%s%06zx: ", pfx, pos);
-		for (i = 0; i < 16; i++)
-			if (i < len)
-				fprintf(stderr, "%02x ", buf[i]);
-			else
-				fprintf(stderr, "   ");
-		fprintf(stderr, "| ");
-		for (i = 0; i < 16; i++)
-			if (i < len)
-				fprintf(stderr, "%c",
-				    isprint(buf[i]) ? buf[i] : '.');
-		fprintf(stderr, "\n");
-		len -= 16;
-		buf += 16;
-		pos += 16;
-	}
-}
-
-static void
-tst_dump(void)
-{
-	struct hpt_entry *tbl_ptr;
-	const char *magic;
-
-	if (hp == NULL)
-		return;
-
-	tbl_ptr = HPACK_TBL(hp);
-
-	switch (hp->magic) {
-	case DECODER_MAGIC: magic = "DECODER"; break;
-	case ENCODER_MAGIC: magic = "ENCODER"; break;
-	case DEFUNCT_MAGIC: magic = "DEFUNCT"; break;
-	default: magic = "UNKNOWN";
-	}
-
-	fprintf(stderr, "*hp = %p {\n", (void *)hp);
-	fprintf(stderr, "\t.magic = %08x (%s)\n", hp->magic, magic);
-	fprintf(stderr, "\t.alloc = {\n");
-	fprintf(stderr, "\t\t.malloc = %p\n", FUNC_PTR(hp->alloc.malloc));
-	fprintf(stderr, "\t\t.realloc = %p\n", FUNC_PTR(hp->alloc.realloc));
-	fprintf(stderr, "\t\t.free = %p\n", FUNC_PTR(hp->alloc.free));
-	fprintf(stderr, "\t}\n");
-	fprintf(stderr, "\t.sz = {\n");
-	fprintf(stderr, "\t\t.mem = %zu\n", hp->sz.mem);
-	fprintf(stderr, "\t\t.max = %zu\n", hp->sz.max);
-	fprintf(stderr, "\t\t.lim = %zd\n", hp->sz.lim);
-	fprintf(stderr, "\t\t.cap = %zd\n", hp->sz.cap);
-	fprintf(stderr, "\t\t.len = %zu\n", hp->sz.len);
-	fprintf(stderr, "\t\t.nxt = %zd\n", hp->sz.nxt);
-	fprintf(stderr, "\t\t.min = %zd\n", hp->sz.min);
-	fprintf(stderr, "\t}\n");
-	fprintf(stderr, "\t.state = {\n");
-	/* XXX: do when bored */
-	fprintf(stderr, "\t}\n");
-	fprintf(stderr, "\t.ctx = {\n");
-	/* XXX: do when bored */
-	fprintf(stderr, "\t}\n");
-	fprintf(stderr, "\t.cnt = %zu\n", hp->cnt);
-
-	fprintf(stderr, "\t.tbl = %p <<EOF\n", (void *)tbl_ptr);
-	tst_hexdump(tbl_ptr, hp->sz.len, "\t");
-	fprintf(stderr, "\tEOF\n");
-	fprintf(stderr, "}\n");
-}
-
-/**********************************************************************
  * Signal handling
  */
+
+static void
+tst_dump_cb(void *priv, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)vfprintf(priv, fmt, ap);
+	va_end(ap);
+}
 
 static void
 tst_sighandler(int signo)
 {
 
 	(void)signo;
-	tst_dump();
+	hpack_dump(hp, tst_dump_cb, stderr);
 
 #ifdef NDEBUG
 	exit(1);

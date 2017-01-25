@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -41,6 +42,7 @@
 #include "hpack_priv.h"
 
 #define OUT_OF_BITS (void)0;
+#define FUNC_PTR(f) (const void *)(const uint8_t *)&(f)
 
 /**********************************************************************
  * System allocator
@@ -405,6 +407,89 @@ hpack_strerror(enum hpack_result_e res)
 #include "tbl/hpack_tbl.h"
 #undef HPR
 	return (NULL);
+}
+
+static void /* NB: hexdump -C output */
+hpack_hexdump(void *ptr, ssize_t len, hpack_dump_f *dump, void *priv)
+{
+	uint8_t *buf;
+	size_t pos;
+	int i;
+
+	buf = ptr;
+	pos = 0;
+
+	while (len > 0) {
+		dump(priv, "\t%06zx: ", pos);
+		for (i = 0; i < 16; i++) {
+			if (i == 8)
+				dump(priv, " ");
+			if (i < len)
+				dump(priv, "%02x ", buf[i]);
+			else
+				dump(priv, "   ");
+		}
+		dump(priv, "| ");
+		for (i = 0; i < 16; i++) {
+			if (i == 8)
+				dump(priv, " ");
+			if (i < len)
+				dump(priv, "%c",
+				    isprint(buf[i]) ? buf[i] : '.');
+		}
+		dump(priv, "\n");
+		len -= 16;
+		buf += 16;
+		pos += 16;
+	}
+}
+
+void
+hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
+{
+	struct hpt_entry *tbl_ptr;
+	const char *magic;
+
+	if (hp == NULL)
+		return;
+
+	tbl_ptr = HPACK_TBL(hp);
+
+	switch (hp->magic) {
+	case DECODER_MAGIC: magic = "DECODER"; break;
+	case ENCODER_MAGIC: magic = "ENCODER"; break;
+	case DEFUNCT_MAGIC: magic = "DEFUNCT"; break;
+	default: magic = "UNKNOWN";
+	}
+
+	dump(priv, "*hp = %p {\n", (const void *)hp);
+	dump(priv, "\t.magic = %08x (%s)\n", hp->magic, magic);
+	dump(priv, "\t.alloc = {\n");
+	dump(priv, "\t\t.malloc = %p\n", FUNC_PTR(hp->alloc.malloc));
+	dump(priv, "\t\t.realloc = %p\n", FUNC_PTR(hp->alloc.realloc));
+	dump(priv, "\t\t.free = %p\n", FUNC_PTR(hp->alloc.free));
+	dump(priv, "\t}\n");
+	dump(priv, "\t.sz = {\n");
+	dump(priv, "\t\t.mem = %zu\n", hp->sz.mem);
+	dump(priv, "\t\t.max = %zu\n", hp->sz.max);
+	dump(priv, "\t\t.lim = %zd\n", hp->sz.lim);
+	dump(priv, "\t\t.cap = %zd\n", hp->sz.cap);
+	dump(priv, "\t\t.len = %zu\n", hp->sz.len);
+	dump(priv, "\t\t.nxt = %zd\n", hp->sz.nxt);
+	dump(priv, "\t\t.min = %zd\n", hp->sz.min);
+	dump(priv, "\t}\n");
+	dump(priv, "\t.state = {\n");
+	/* XXX: do when bored */
+	dump(priv, "\t}\n");
+	dump(priv, "\t.ctx = {\n");
+	/* XXX: do when bored */
+	dump(priv, "\t}\n");
+	dump(priv, "\t.cnt = %zu\n", hp->cnt);
+
+	dump(priv, "\t.tbl = %p <<EOF\n", (void *)tbl_ptr);
+	hpack_hexdump(tbl_ptr, hp->sz.len, dump, priv);
+	dump(priv, "\tEOF\n");
+	dump(priv, "}\n");
 }
 
 /**********************************************************************
