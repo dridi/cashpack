@@ -254,6 +254,7 @@ SEE ALSO
 
 **cashpack**\(3),
 **hpack_decode**\(3),
+**hpack_decode_fields**\(3),
 **hpack_decoder**\(3),
 **hpack_dump**\(3),
 **hpack_dynamic**\(3),
