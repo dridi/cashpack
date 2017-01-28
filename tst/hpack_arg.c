@@ -692,6 +692,9 @@ test_dump_unknown(void)
 	(void)memset(hp, 0, sizeof magic);
 	test_dump(hp);
 
+	/* omit the dump callback */
+	hpack_dump(hp, NULL, NULL);
+
 	/* restore and free */
 	(void)memcpy(hp, &magic, sizeof magic);
 	hpack_free(&hp);
