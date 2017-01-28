@@ -450,7 +450,7 @@ hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 	struct hpt_entry *tbl_ptr;
 	const char *magic;
 
-	if (hp == NULL)
+	if (hp == NULL || dump == NULL)
 		return;
 
 	tbl_ptr = HPACK_TBL(hp);
