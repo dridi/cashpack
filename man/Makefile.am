@@ -169,6 +169,6 @@ EXTRA_DIST = \
 	hpack_decode.3.rst \
 	hpack_encode.3.rst \
 	hpack_foreach.3.rst \
-	hpack_strerror.3.rst \
+	hpack_error.3.rst \
 	frames.hex \
 	requests.txt
