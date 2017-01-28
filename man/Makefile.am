@@ -41,7 +41,7 @@ hpack_error_links = \
 	hpack_strerror.3 \
 	hpack_dump.3
 
-hpack_foreach_links = \
+hpack_index_links = \
 	hpack_static.3 \
 	hpack_dynamic.3 \
 	hpack_tables.3
@@ -52,11 +52,11 @@ dist_man_MANS = \
 	hpack_alloc.3 \
 	hpack_decode.3 \
 	hpack_encode.3 \
-	hpack_foreach.3 \
+	hpack_index.3 \
 	hpack_error.3 \
 	$(hpack_alloc_links) \
 	$(hpack_error_links) \
-	$(hpack_foreach_links)
+	$(hpack_index_links)
 endif
 
 # code examples
@@ -135,8 +135,8 @@ $(hpack_alloc_links):
 $(hpack_error_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_error.3 >$@
 
-$(hpack_foreach_links):
-	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_foreach.3 >$@
+$(hpack_index_links):
+	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_index.3 >$@
 
 hpack_clean_field.3:
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_encode.3 >$@
@@ -168,7 +168,7 @@ EXTRA_DIST = \
 	hpack_alloc.3.rst \
 	hpack_decode.3.rst \
 	hpack_encode.3.rst \
-	hpack_foreach.3.rst \
+	hpack_index.3.rst \
 	hpack_error.3.rst \
 	frames.hex \
 	requests.txt

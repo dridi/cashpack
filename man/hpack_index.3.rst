@@ -30,7 +30,7 @@ hpack_static, hpack_dynamic, hpack_tables
 probe the contents of HPACK tables
 ----------------------------------
 
-:Title upper: HPACK_FOREACH
+:Title upper: HPACK_INDEX
 :Manual section: 3
 
 SYNOPSIS
