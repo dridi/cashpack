@@ -25,6 +25,8 @@ matrix:
     - compiler: gcc
       env: CFLAGS=-m32
     - compiler: gcc
+      env: BUILD_FLAGS=CC=cgcc
+    - compiler: gcc
       env: BUILD_TARGET="all distcheck"
 addons:
   apt:
@@ -33,6 +35,7 @@ addons:
     - gcc-multilib
     - lcov
     - python-docutils
+    - sparse
     - valgrind
   coverity_scan:
     project:

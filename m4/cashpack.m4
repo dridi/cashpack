@@ -129,6 +129,12 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		[-Wc,-errtags=yes]
 	])
 
+	dnl sparse(1) warnings
+	_CASHPACK_CHECK_FLAGS([
+		-Wsparse-all
+		-Wsparse-error
+	])
+
 	dnl Standards compliance
 	_CASHPACK_CHECK_FLAGS([
 		-pedantic
