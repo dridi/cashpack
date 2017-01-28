@@ -341,6 +341,7 @@ HPT_decode(HPACK_CTX, size_t idx)
 	CALL(HPT_search, ctx, idx, &hf);
 	assert(hf.nam != NULL);
 	assert(hf.val != NULL);
+	assert(hf.nam_sz > 0);
 
 	ctx->fld.nam = ctx->buf;
 	ctx->fld.nam_sz = hf.nam_sz;
