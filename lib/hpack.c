@@ -387,6 +387,25 @@ hpack_tables(struct hpack *hp, hpack_event_f cb, void *priv)
 	return (hpack_foreach(hp, cb, priv, HPT_FLG_STATIC|HPT_FLG_DYNAMIC));
 }
 
+enum hpack_result_e
+hpack_entry(struct hpack *hp, size_t idx, const char **nam, const char **val)
+{
+	struct hpt_field hf;
+	int retval;
+
+	if (hp == NULL || nam == NULL || val == NULL)
+		return (HPACK_RES_ARG);
+	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
+		return (HPACK_RES_ARG);
+	if (idx == 0 || idx > HPACK_STATIC + hp->cnt)
+		return (HPACK_RES_IDX);
+
+	retval = HPT_search(&hp->ctx, idx, &hf);
+	assert(retval == HPACK_RES_OK);
+	*nam = hf.nam;
+	*val = hf.val;
+	return (retval);
+}
 
 /**********************************************************************
  * Errors

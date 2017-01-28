@@ -101,6 +101,8 @@ HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
 	he = hpt_dynamic(ctx->hp, idx);
+	assert(he != NULL);
+	assert(hf != NULL);
 	(void)memcpy(&tmp, he, HPT_HEADERSZ);
 	hf->nam_sz = tmp.nam_sz;
 	hf->val_sz = tmp.val_sz;

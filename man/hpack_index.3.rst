@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-=========================================
-hpack_static, hpack_dynamic, hpack_tables
-=========================================
+======================================================
+hpack_static, hpack_dynamic, hpack_tables, hpack_index
+======================================================
 
 ----------------------------------
 probe the contents of HPACK tables
@@ -52,6 +52,10 @@ SYNOPSIS
 |
 | **enum hpack_result_e hpack_tables(struct hpack** *\*hpack*\ **,**
 | **\     hpack_event_f** *cb*\ **, void** *\*priv*\ **);**
+|
+| **enum hpack_result_e hpack_entry(struct hpack** *\*hpack*\ **,**
+| **\     size_t** *idx*\ **, const char** *\*\*nam*\ **, const char** \
+    *\*\*val*\ **)**
 
 DESCRIPTION
 ===========
@@ -69,6 +73,10 @@ events, passing a *priv* pointer that can be used to maintain state. The
 ``hpack_static()`` function ALWAYS emits the same sequence of events. The
 ``hpack_tables()`` function probes both the static and dynamic table for its
 *hpack* argument.
+
+The ``hpack_entry()`` function extracts an entry from both tables based on a
+global index *idx*. When the function returns, *nam* and *val* respectively
+point to the name and value of the indexed field.
 
 The ``HPACK_STATIC`` and ``HPACK_OVERHEAD`` macros represent respectively the
 number of entries in the static table and the per-entry overhead in dynamic
@@ -113,7 +121,11 @@ following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid codec or *cb* is ``NULL``.
 
-``HPACK_RES_BSY``: the codec is busy processing an HPACK block.
+The ``hpack_entry()`` function can fail with the following errors:
+
+``HPACK_RES_ARG``: *hpack*, *nam* or *val* is ``NULL``.
+
+``HPACK_RES_IDX``: *idx* is not a valid index.
 
 SEE ALSO
 ========

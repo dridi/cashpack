@@ -259,7 +259,7 @@ SEE ALSO
 **hpack_dump**\(3),
 **hpack_dynamic**\(3),
 **hpack_encoder**\(3),
-**hpack_foreach**\(3),
+**hpack_entry**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),

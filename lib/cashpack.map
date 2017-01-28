@@ -33,6 +33,7 @@ CASHPACK_0.3 {
     hpack_dynamic;
     hpack_encode;
     hpack_encoder;
+    hpack_entry;
     hpack_free;
     hpack_limit;
     hpack_resize;

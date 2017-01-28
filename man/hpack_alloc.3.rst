@@ -192,7 +192,7 @@ SEE ALSO
 **hpack_dump**\(3),
 **hpack_dynamic**\(3),
 **hpack_encode**\(3),
-**hpack_foreach**\(3),
+**hpack_entry**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
 **hpack_tables**\(3),

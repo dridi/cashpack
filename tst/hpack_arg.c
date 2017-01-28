@@ -305,23 +305,55 @@ test_double_free(void)
 }
 
 static void
-test_foreach(void)
+test_index(void)
 {
+	const char *nam, *val;
+
 	hp = make_decoder(0, -1, &static_alloc);
 	CHECK_RES(retval, OK, hpack_static, noop_cb, NULL);
 	CHECK_RES(retval, OK, hpack_dynamic, hp, noop_cb, NULL);
 	CHECK_RES(retval, OK, hpack_tables, hp, noop_cb, NULL);
+
+	nam = NULL;
+	val = NULL;
+	CHECK_RES(retval, OK, hpack_entry, hp, 2, &nam, &val);
+
+	assert(nam != NULL);
+	assert(val != NULL);
+	assert(!strcmp(nam, ":method"));
+	assert(!strcmp(val, "GET"));
+
 	hpack_free(&hp);
 }
 
 static void
-test_foreach_null_args(void)
+test_index_null_args(void)
 {
+	const char *nam, *val;
+
 	hp = make_decoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_dynamic, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_dynamic, hp, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_static, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_tables, NULL, NULL, NULL);
+
+	nam = NULL;
+	val = NULL;
+	CHECK_RES(retval, ARG, hpack_entry, NULL, 2, &nam, &val);
+	CHECK_RES(retval, ARG, hpack_entry, hp,   2, NULL, &val);
+	CHECK_RES(retval, ARG, hpack_entry, hp,   2, &nam, NULL);
+
+	hpack_free(&hp);
+}
+
+static void
+test_index_invalid_entry(void)
+{
+	const char *nam, *val;
+
+	hp = make_encoder(0, -1, hpack_default_alloc);
+	CHECK_RES(retval, IDX, hpack_entry, hp, 0, &nam, &val);
+	CHECK_RES(retval, IDX, hpack_entry, hp, HPACK_STATIC + 1, &nam, &val);
 	hpack_free(&hp);
 }
 
@@ -466,6 +498,8 @@ test_trim_realloc_failure(void)
 static void
 test_use_defunct_decoder(void)
 {
+	const char *nam, *val;
+
 	hp = make_decoder(0, -1, hpack_default_alloc);
 
 	/* break the decoder */
@@ -473,6 +507,7 @@ test_use_defunct_decoder(void)
 
 	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding);
+	CHECK_RES(retval, ARG, hpack_entry, hp, 2, &nam, &val);
 
 	/* try dumping it */
 	test_dump(hp);
@@ -558,6 +593,8 @@ test_limit_between_two_resizes(void)
 static void
 test_use_defunct_encoder(void)
 {
+	const char *nam, *val;
+
 	hp = make_encoder(4096, -1, hpack_default_alloc);
 
 	/* break the decoder */
@@ -565,6 +602,7 @@ test_use_defunct_encoder(void)
 
 	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_encode, hp, &unknown_encoding);
+	CHECK_RES(retval, ARG, hpack_entry, hp, 2, &nam, &val);
 
 	/* try resizing it */
 	CHECK_RES(retval, ARG, hpack_resize, &hp, 0);
@@ -719,8 +757,9 @@ main(int argc, char **argv)
 	test_free_null_codec();
 	test_double_free();
 
-	test_foreach();
-	test_foreach_null_args();
+	test_index();
+	test_index_null_args();
+	test_index_invalid_entry();
 	test_decode_null_args();
 	test_decode_fields_null_args();
 	test_encode_null_args();
