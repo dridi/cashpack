@@ -125,8 +125,8 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	dnl SunCC-specific warnings
 	_CASHPACK_CHECK_FLAGS([
-		[-Wc,-errwarn=%all]
-		[-Wc,-errtags=yes]
+		-errwarn=%all
+		-errtags=yes
 	])
 
 	dnl sparse(1) warnings
