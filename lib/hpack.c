@@ -778,13 +778,42 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 }
 
 static void
-hpack_null_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
+hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
+#ifdef NDEBUG
 	(void)evt;
 	(void)buf;
 	(void)len;
+#endif
 	(void)priv;
+
+	switch (evt) {
+	case HPACK_EVT_FIELD:
+		assert(buf == NULL);
+		break;
+	case HPACK_EVT_EVICT:
+		assert(buf == NULL);
+		assert(len > 0);
+		break;
+	case HPACK_EVT_INDEX:
+		assert(buf == NULL);
+		assert(len > HPACK_OVERHEAD);
+		break;
+	case HPACK_EVT_NEVER:
+		assert(len == 0);
+		/* fall through */
+	case HPACK_EVT_TABLE:
+		assert(buf == NULL);
+		break;
+	case HPACK_EVT_VALUE:
+	case HPACK_EVT_NAME:
+		assert(buf != NULL);
+		assert(len == strlen(buf));
+		break;
+	default:
+		WRONG("Unknown event");
+	}
 }
 
 enum hpack_result_e
@@ -815,7 +844,7 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 
 	if (nam == NULL) {
 		memcpy(&fld_dec, dec, sizeof fld_dec);
-		fld_dec.cb = hpack_null_cb;
+		fld_dec.cb = hpack_assert_cb;
 		retval = hpack_decode(hp, &fld_dec);
 		if (retval != HPACK_RES_OK)
 			return (retval);

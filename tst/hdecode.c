@@ -78,33 +78,15 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
 		OUT("\n");
-		break;
-	case HPACK_EVT_EVICT:
-		assert(buf == NULL);
-		assert(len > 0);
-		break;
-	case HPACK_EVT_INDEX:
-		assert(buf == NULL);
-		assert(len > HPACK_OVERHEAD);
-		break;
-	case HPACK_EVT_NEVER:
-		assert(len == 0);
-		/* fall through */
-	case HPACK_EVT_TABLE:
-		assert(buf == NULL);
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
 		/* fall through */
 	case HPACK_EVT_NAME:
-		assert(buf != NULL);
-		assert(len == strlen(buf));
 		WRT(buf, len);
-		break;
 	default:
-		WRONG("Unknown event");
+		break;
 	}
 }
 
