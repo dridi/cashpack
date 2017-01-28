@@ -73,7 +73,7 @@ struct dumb_state {
 
 #define TABLE_SIZE 256
 #define MAX_ENTRIES (HPACK_STATIC + TABLE_SIZE / 33)
-#define MAX_FIELDS 10
+#define MAX_FIELDS 7
 
 static struct hpack_field static_fld[MAX_FIELDS];
 static struct dumb_field  static_dmb[MAX_FIELDS];
@@ -103,6 +103,18 @@ dumb_index_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		/* ignore other events */
 		break;
 	}
+}
+
+static void
+dumb_reindex(struct hpack *hp, struct dumb_state *stt)
+{
+	int retval;
+
+	stt->idx_len = 0;
+	retval = hpack_tables(hp, dumb_index_cb, stt);
+	if (retval < 0)
+		dumb_perror("hpack_tables", retval);
+	LOG("index length: %zu\n\n", stt->idx_len);
 }
 
 static size_t
@@ -235,9 +247,7 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 		dumb_perror("hpack_encode", retval);
 
 	dumb_fields_clear(stt);
-
-	if (stt->idx_off > 0)
-		stt->idx_len = 0;
+	dumb_reindex(hp, stt);
 }
 
 static void
@@ -330,11 +340,6 @@ main(void)
 				continue;
 			LOG("encoding block\n");
 			dumb_fields_send(hp, &stt, 0);
-			stt.idx_len = 0;
-			retval = hpack_tables(hp, dumb_index_cb, &stt);
-			if (retval < 0)
-				dumb_perror("hpack_tables", retval);
-			LOG("index length: %zu\n\n", stt.idx_len);
 		}
 		else {
 			if (stt.len == MAX_FIELDS) {
@@ -345,8 +350,10 @@ main(void)
 		}
 	}
 
-	if (stt.len > 0)
+	if (stt.len > 0) {
+		LOG("encoding final block\n");
 		dumb_fields_send(hp, &stt, 0);
+	}
 
 	hpack_free(&hp);
 	free(lineptr);

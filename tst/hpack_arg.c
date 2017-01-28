@@ -492,7 +492,7 @@ test_use_busy_decoder(void)
 	CHECK_RES(retval, BLK, hpack_decode, hp, &partial_decoding);
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
+	CHECK_RES(retval, OK,  hpack_dynamic, hp, noop_cb, NULL);
 	hpack_free(&hp);
 }
 
@@ -591,7 +591,7 @@ test_use_busy_encoder(void)
 	CHECK_RES(retval, BSY, hpack_resize, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_limit, &hp, 0);
 	CHECK_RES(retval, BSY, hpack_trim, &hp);
-	CHECK_RES(retval, BSY, hpack_dynamic, hp, noop_cb, NULL);
+	CHECK_RES(retval, OK,  hpack_dynamic, hp, noop_cb, NULL);
 	hpack_free(&hp);
 }
 
