@@ -31,6 +31,9 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([lib/hpack.c])
 AC_CONFIG_AUX_DIR([build-aux])
 
+# NB: This project targets standards C99 and POSIX.1-2008,
+# but some systems suck when it comes to feature detection
+# and want system extensions for functions like getline.
 AC_USE_SYSTEM_EXTENSIONS
 
 AM_INIT_AUTOMAKE([1.11 foreign])
