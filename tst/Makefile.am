@@ -93,7 +93,7 @@ clean-memcheck:
 
 clean-local: clean-failed clean-memcheck
 
-check-local: clean-failed clean-memcheck $(PROGRAMS)
+check-am: clean-failed clean-memcheck $(PROGRAMS)
 
 # Test suite
 
