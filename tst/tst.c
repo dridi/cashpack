@@ -133,7 +133,7 @@ TST_decode(struct dec_ctx *ctx)
 	OUT("Decoded header list:\n");
 	res = 0;
 
-	/* some compilers fail to see their proper initialization */
+	/* GCC 4.7.3 complains about those two */
 	len = 0;
 	cb = NULL;
 

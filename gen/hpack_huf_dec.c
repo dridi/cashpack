@@ -85,6 +85,8 @@ dec_pfxcat(char *dst, int ref, int n)
 {
 
 	n = dec_rndpow2(n, +1);
+	assert(n >  0);
+	assert(n <= 4);
 	do {
 		n--;
 		strcat(dst, (ref >> n) & 1 ? "1" : "0");
@@ -123,7 +125,6 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 	sub_msk = (1 << bits) - 1;
 
 	ref = 1 + sub_msk - sub_tbl;
-	msk_len = 8 * oct;
 	while (n < sz) {
 		assert(n < 256);
 		dec[n].len = 8;
