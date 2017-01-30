@@ -143,7 +143,10 @@ send events during decoding or encoding.
 6. No locking
 
 Assuming an HTTP/2 or similar usage, no locking is required. The decoding
-or encoding should happen in the HTTP/2 RX or TX loop, which is ordered.
+or encoding should happen in the HTTP/2 RX or TX loop, which is ordered. Being
+designed for single allocation, there is also no hidden locking after the
+initialization completes. It is also possible to achieve no locking at all by
+using a different allocator.
 
 7. Decoding as a state machine
 
