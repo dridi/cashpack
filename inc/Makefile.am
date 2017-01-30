@@ -36,7 +36,7 @@ cpp_ignore:
 hpack.h: hpack.h.in tbl/hpack_tbl.h cpp_ignore uncrustify.cfg
 	$(AM_V_GEN) cpp -P -C -o .cpp.h $(srcdir)/hpack.h.in
 	@tail -n "+$$(cat cpp_ignore)" <.cpp.h >.tail.h
-	@$(SED) 's/##/#/' <.tail.h >.sed.h
+	@$(SED) -e 's/^##/#/' <.tail.h >.sed.h
 	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) .sed.h
 	@rm .cpp.h .tail.h
 	@mv .sed.h $@

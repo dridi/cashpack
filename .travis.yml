@@ -52,8 +52,8 @@ script:
   - test $TRAVIS_BRANCH != coverity_scan || exit 0
 
   # Help antique software cope with the test suite
-  - sed -i s/AM_TESTS_ENVIRONMENT/TESTS_ENVIRONMENT/ tst/Makefile.am
-  - sed -i /leak-kinds/d tst/common.sh
+  - sed -i -e s/AM_TESTS_ENVIRONMENT/TESTS_ENVIRONMENT/ tst/Makefile.am
+  - sed -i -e /leak-kinds/d tst/common.sh
 
   - mkdir build
   - cd build

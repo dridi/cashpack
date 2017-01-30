@@ -156,7 +156,7 @@ AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 		go version 2>/dev/null |
 		tr ' ' '\n' |
 		grep '^go[1-9]' |
-		sed s/go//
+		$SED -e s/go//
 	)"]
 
 	AS_VERSION_COMPARE([$golang_version], [1.7],

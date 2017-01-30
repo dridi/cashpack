@@ -5,6 +5,6 @@
 # This file is in the public domain.
 
 # Decode a hexdump from the test suite and output the raw binary
-sed '/^$/d; /^#/d' |
+sed -e '/^$/d; /^#/d' |
 cut -d '|' -f 1 |
 xxd -r -p
