@@ -29,6 +29,12 @@ matrix:
       env: BUILD_FLAGS=CC=cgcc
     - compiler: gcc
       env: BUILD_TARGET="all distcheck"
+    - compiler: clang
+      env:
+      os: osx
+    - compiler: gcc
+      env:
+      os: osx
 addons:
   apt:
     packages:

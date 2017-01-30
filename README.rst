@@ -76,7 +76,9 @@ For code coverage, the simplest way to get a report is as follows::
 
 Despite a paranoid coding style, insane code coverage and the benefits of
 open-source [1]_ it may not be exempt of security flaws. You can learn more
-from the test suite's README file too.
+from the test suite's README file too. The build system portability is limited
+mostly to GNU/Linux systems. Building the project should work fine on other
+systems except for dist archives that may ship with a broken header file.
 
 Design goals
 ------------
