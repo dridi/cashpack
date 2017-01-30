@@ -31,7 +31,7 @@ cpp_ignore:
 	@cat /dev/null >.null.h
 	$(AM_V_GEN) cpp -C -P -o .dummy.h .null.h || :
 	@echo '/* dummy line */' >> .dummy.h
-	@wc -l <.dummy.h >.wc.h
+	@wc -l <.dummy.h | awk '{print $$1}' >.wc.h
 	@rm .null.h .dummy.h
 	@mv .wc.h $@
 
