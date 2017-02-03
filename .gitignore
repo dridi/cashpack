@@ -36,9 +36,11 @@ tags
 *.gen
 cashdumb
 cashdump
+fdecode
 hdecode
 hencode
 hpack_arg
+hpack_dump
 hpiencode
 ngdecode
 

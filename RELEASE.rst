@@ -7,6 +7,7 @@ Administrativa:
 - Bump the version number
 - Add a changelog entry to the RPM spec
 - Check copyright notices of updated files
+- Check git-ignored files after a non-VPATH build
 
 Local checks:
 
