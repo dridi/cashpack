@@ -76,6 +76,12 @@ make %{?_smp_mflags} check
 
 
 %changelog
+* Fri Feb  3 2017 Dridi <dridi.boukelmoune@gmail.com> - 0.3
+- Bump version to 0.3
+
+* Fri Dec 30 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.2
+- Bump version to 0.2
+
 * Sun May  8 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
 - Add %%_datarootdir
 
