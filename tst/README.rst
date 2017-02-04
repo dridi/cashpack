@@ -358,7 +358,7 @@ continuous integration may reveal undefined behaviour in the code.
 
 Going further with undefined behaviour detection, it is possible to build with
 ASAN (address sanitizer), MSAN (memory sanitizer) or UBSAN (undefined behavior
-sanitizer) support for GCC and clang. If Valgrind is available, its memcheck
+sanitizer) support for GCC and Clang. If Valgrind is available, its memcheck
 tool can also be used to identify undefined behaviour and detect leaks.
 
 Of course all this extra-tooling comes after the very first testing facility
@@ -380,7 +380,7 @@ also a good way to spot coding mistakes.
 
 That's where Travis CI fits in the picture. The cashpack project is integrated
 with a build matrix covering optimizations, sanitizers and even Valgrind. All
-of that with both GCC and clang, with older versions. Travis CI is a bit short
+of that with both GCC and Clang, with older versions. Travis CI is a bit short
 sighted when it comes to continuous integration, trying to solve a too narrow
 CI problem space, but at the same time it covers a great deal of needs, all of
 that for free!
