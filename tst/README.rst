@@ -388,8 +388,8 @@ that for free!
 Speaking of coverage, Travis CI made it possible in a rather convenient way to
 publish code coverage reports with codecov.io and do static analysis using
 Coverity Scan. Other static analysis tools were evaluated but most of the time
-yielding far too many false-positives. With maybe the exception of clang's
-``scan-build(1)`` that does a great job too.
+yielding far too many false-positives. With the exception of ``cppcheck(1)``
+and Clang's ``scan-build(1)`` that do a great job too.
 
 So Travis CI helps on both continuous integration and compiler portability.
 But it also helps check the portability of the Shell test suite. The default
