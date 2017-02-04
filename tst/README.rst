@@ -169,6 +169,10 @@ requires to build empty files for the HTTP message and the dynamic table::
     mk_msg </dev/null
     mk_tbl </dev/null
 
+    mk_enc <<EOF
+    indexed 9001
+    EOF
+
     tst_encode --expect-error IDX # expect an invalid index
 
 For the specific needs of decoding, another option handled by ``hdecode`` only
@@ -277,7 +281,7 @@ which is essentially the same as serializing vs parsing.
 So the risk is low, but not zero. In the case of Huffman coding, the test
 suite survived a complete rewrite without flinching. And since Huffman coding
 exercises most of HPACK features, the risk for coordinated bugs is even lower.
-Interoperability checks with other HPACK implementations lowers the risk even
+Interoperability checks with other HPACK implementations lower the risk even
 further (see below).
 
 For other tests, mostly the tricky edge cases, the hexadecimal is hand written
@@ -394,7 +398,7 @@ and Clang's ``scan-build(1)`` that do a great job too.
 So Travis CI helps on both continuous integration and compiler portability.
 But it also helps check the portability of the Shell test suite. The default
 shell on Ubuntu/Debian is ``dash(1)``, which is as POSIX as a shell can get.
-From times to times it is tested against other POSIX-compatible shells, and
+At release time it is tested against other POSIX-compatible shells, while
 ``bash(1)`` is the daily driver. The other shells include in alphabetic order:
 ``ksh`` (``ksh93``), ``lksh``, ``mksh``, ``yash`` and ``zsh``.
 
