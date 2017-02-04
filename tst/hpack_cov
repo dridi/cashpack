@@ -44,6 +44,15 @@ do
 	! ./hencode  --expect-error $COD </dev/null 1>/dev/null 3>&1
 done
 
+mk_enc <<EOF
+dynamic str name str value
+corrupt
+dynamic str other str header
+send
+EOF
+
+err_encode
+
 _ --------
 _ Aborting
 _ --------

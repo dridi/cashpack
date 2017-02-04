@@ -270,6 +270,8 @@ parse_commands(struct enc_ctx *ctx)
 		parse_name(fld, &args);
 		parse_value(fld, &args);
 	}
+	else if (!LINECMP(ctx->line, "corrupt"))
+		fld->flg = 0xff;
 	else
 		WRONG("Unknown token");
 

@@ -242,6 +242,7 @@ appear last in a statement: it worked by sheer luck \o/.
     dynamic-field = "dynamic" SP field-name SP field-value
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
+    corrupt-field = "corrupt" LF
     send          = "send" LF
     push          = "push" LF
     resize        = "resize" SP size LF
