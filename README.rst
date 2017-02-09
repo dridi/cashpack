@@ -23,9 +23,12 @@ cashpack.
    :target: https://codecov.io/gh/Dridi/cashpack
 
 It started as a research project and became the basis for Varnish Cache's
-HPACK implementation. To learn more about its origins, you can watch this
-talk_ from the first edition of VarnishCon.
+HPACK implementation, it is now a test bed for Varnish_ and `Hitch TLS`_.
+To learn more about its origins, you can watch this talk_ from the first
+edition of VarnishCon.
 
+.. _Varnish: https://www.varnish-cache.org/
+.. _Hitch TLS: https://hitch-tls.org/
 .. _talk: https://www.infoq.com/fr/presentations/varnishcon-dridi-boukelmoune-hpack-vs-varnish-cache
 
 How to use
