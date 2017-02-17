@@ -61,32 +61,38 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
-# _CASHPACK_CHECK_FLAG
-----------------------
-AC_DEFUN([_CASHPACK_CHECK_FLAG], [
+# _CASHPACK_CHECK_FLAGS_FUNC
+# --------------------------
+AC_DEFUN([_CASHPACK_CHECK_FLAGS_FUNC], [
 
-	AC_MSG_CHECKING([whether the compiler accepts $1])
-	_cflags="$CFLAGS"
-	CFLAGS="$CASHPACK_CFLAGS $1 $CFLAGS"
-	AC_RUN_IFELSE(
-		[AC_LANG_SOURCE([int main(void) { return (0); }])],
-		[AC_MSG_RESULT([yes]); CASHPACK_CFLAGS="$CASHPACK_CFLAGS $1"],
-		[AC_MSG_RESULT([no])])
-	CFLAGS="$_cflags"
+cashpack_check_flags() {
+	for _flag
+	do
+		AC_MSG_CHECKING([whether the compiler accepts $_flag])
+		_cflags="$CFLAGS"
+		CFLAGS="$CASHPACK_CFLAGS $_flag $CFLAGS"
+		AC_RUN_IFELSE(
+			[AC_LANG_SOURCE([int main(void) { return (0); }])], [
+				AC_MSG_RESULT([yes]);
+				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_flag"],
+			[AC_MSG_RESULT([no])])
+		CFLAGS="$_cflags"
+	done
+}
+
 ])
 
 # _CASHPACK_CHECK_FLAGS
------------------------
+# ---------------------
 AC_DEFUN([_CASHPACK_CHECK_FLAGS], [
 
-	m4_foreach([_flag],
-		m4_split(m4_normalize([$1])),
-			[_CASHPACK_CHECK_FLAG(_flag)])
+	AC_REQUIRE([_CASHPACK_CHECK_FLAGS_FUNC])
+	cashpack_check_flags m4_normalize([$1])
 
 ])
 
 # CASHPACK_CHECK_FLAGS
-----------------------
+# --------------------
 AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	CASHPACK_CFLAGS=
@@ -147,7 +153,7 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 ])
 
 # CASHPACK_CHECK_GOLANG
------------------------
+# ---------------------
 AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 
 	AC_MSG_CHECKING([for golang >= 1.7])
@@ -186,7 +192,7 @@ AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 ])
 
 # CASHPACK_PROG_HEXDUMP
------------------------
+# ---------------------
 AC_DEFUN([CASHPACK_PROG_HEXDUMP], [
 
 	AC_CHECK_PROGS(HEXDUMP, [hexdump], [no])
@@ -195,7 +201,7 @@ AC_DEFUN([CASHPACK_PROG_HEXDUMP], [
 ])
 
 # CASHPACK_PROG_RST2MAN
------------------------
+# ---------------------
 AC_DEFUN([CASHPACK_PROG_RST2MAN], [
 
 	AC_CHECK_PROGS(RST2MAN, [rst2man.py rst2man], [true])
