@@ -434,7 +434,7 @@ hpack_hexdump(void *ptr, ssize_t len, hpack_dump_f *dump, void *priv)
 	pos = 0;
 
 	while (len > 0) {
-		dump(priv, "\t%06zx: ", pos);
+		dump(priv, "\t%08zx  ", pos);
 		for (i = 0; i < 16; i++) {
 			if (i == 8)
 				dump(priv, " ");
@@ -443,15 +443,12 @@ hpack_hexdump(void *ptr, ssize_t len, hpack_dump_f *dump, void *priv)
 			else
 				dump(priv, "   ");
 		}
-		dump(priv, "| ");
-		for (i = 0; i < 16; i++) {
-			if (i == 8)
-				dump(priv, " ");
+		dump(priv, " |");
+		for (i = 0; i < 16; i++)
 			if (i < len)
 				dump(priv, "%c",
 				    isprint(buf[i]) ? buf[i] : '.');
-		}
-		dump(priv, "\n");
+		dump(priv, "|\n");
 		len -= 16;
 		buf += 16;
 		pos += 16;
