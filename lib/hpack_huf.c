@@ -55,7 +55,8 @@ hph_decode_lookup(HPACK_CTX, int *eos)
 
 	assert(hs->stt.str.blen >= 8);
 	while (hs->stt.str.blen >= hs->stt.str.oct->len) {
-		cod = hs->stt.str.bits >> (16 - hs->stt.str.dec->len);
+		cod = (hs->stt.str.bits >> (16 - hs->stt.str.dec->len)) &
+		    0xff;
 
 		/* premature EOS */
 		EXPECT(ctx, HUF, hs->stt.str.oct[cod].len > 0);
@@ -137,7 +138,7 @@ HPH_encode(HPACK_CTX, const char *str)
 	sz = 0;
 
 	while (*str != '\0') {
-		c = *str;
+		c = (uint8_t)*str;
 		bits = (bits << hph_enc[c].len) | hph_enc[c].cod;
 		sz += hph_enc[c].len;
 

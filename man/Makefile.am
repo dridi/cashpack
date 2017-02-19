@@ -22,6 +22,8 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
+CFLAGS += $(EXAMPLE_CFLAGS)
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/inc \
 	-I$(top_builddir)/inc

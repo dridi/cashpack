@@ -61,7 +61,7 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	assert(ctx->len > 0 || ctx->hp->state.stp != HPACK_STP_FLD_INT);
 	EXPECT(ctx, BUF, ctx->len > 0);
 	if (!hs->bsy) {
-		mask = (1 << pfx) - 1;
+		mask = (uint8_t)((1 << pfx) - 1);
 		hs->stt.hpi.v = *ctx->ptr.blk & mask;
 		ctx->ptr.blk++;
 		ctx->len--;
@@ -103,7 +103,7 @@ HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
 	assert(pfx >= 4 && pfx <= 7);
 	assert(ctx->len < ctx->arg.enc->buf_len);
 
-	mask = (1 << pfx) - 1;
+	mask = (uint8_t)((1 << pfx) - 1);
 	if (val < mask) {
 		HPE_putb(ctx, (uint8_t)(pat | val));
 		return;

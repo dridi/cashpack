@@ -64,7 +64,7 @@ struct hpt_entry {
 	uint32_t	magic;
 #define HPT_ENTRY_MAGIC	0xe4582b39
 	uint32_t	align; /* fill a hole on 64-bit systems */
-	int64_t		pre_sz;
+	uint64_t	pre_sz;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
 	uint16_t	pad[5];

@@ -41,8 +41,9 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
-#define OUT_OF_BITS (void)0;
-#define FUNC_PTR(f) (const void *)(const uint8_t *)&(f)
+#define OUT_OF_BITS	(void)0;
+#define FUNC_PTR(f)	(const void *)(const uint8_t *)&(f)
+#define HPACK_FLG(f)	((unsigned)HPACK_FLG_##f)
 
 /**********************************************************************
  * System allocator
@@ -125,7 +126,7 @@ hpack_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 	hp = hpack_new(ENCODER_MAGIC, mem, max, ha);
 	if (lim >= 0 && hp != NULL) {
 		tmp = hp;
-		res = hpack_limit(&tmp, lim);
+		res = hpack_limit(&tmp, (size_t)lim);
 		(void)res;
 		assert(res == HPACK_RES_OK);
 		assert(tmp == hp);
@@ -197,11 +198,11 @@ hpack_resize(struct hpack **hpp, size_t len)
 			assert(hp->sz.lim == hp->sz.cap);
 			assert((size_t)hp->sz.lim <= hp->sz.mem);
 			assert((size_t)hp->sz.lim >= hp->sz.len);
-			mem = hp->sz.lim;
+			mem = (size_t)hp->sz.lim;
 		}
 		else if (hp->sz.cap >= 0) {
 			assert((size_t)hp->sz.cap <= max);
-			mem = hp->sz.cap;
+			mem = (size_t)hp->sz.cap;
 		}
 	}
 
@@ -221,14 +222,14 @@ hpack_resize(struct hpack **hpp, size_t len)
 
 	if (hp->sz.min < 0) {
 		assert(hp->sz.nxt < 0);
-		hp->sz.nxt = len;
-		hp->sz.min = len;
+		hp->sz.nxt = (ssize_t)len;
+		hp->sz.min = (ssize_t)len;
 	}
 	else {
 		assert(hp->sz.nxt >= hp->sz.min);
-		hp->sz.nxt = len;
+		hp->sz.nxt = (ssize_t)len;
 		if (hp->sz.min > (ssize_t)len)
-			hp->sz.min = len;
+			hp->sz.min = (ssize_t)len;
 	}
 
 	return (HPACK_RES_OK);
@@ -269,7 +270,7 @@ hpack_limit(struct hpack **hpp, size_t len)
 	}
 
 	*hpp = hp;
-	hp->sz.cap = len;
+	hp->sz.cap = (ssize_t)len;
 	return (HPACK_RES_OK);
 }
 
@@ -424,11 +425,10 @@ hpack_strerror(enum hpack_result_e res)
 }
 
 static void /* NB: hexdump -C output */
-hpack_hexdump(void *ptr, ssize_t len, hpack_dump_f *dump, void *priv)
+hpack_hexdump(void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 {
+	unsigned pos, i;
 	uint8_t *buf;
-	size_t pos;
-	int i;
 
 	buf = ptr;
 	pos = 0;
@@ -449,7 +449,10 @@ hpack_hexdump(void *ptr, ssize_t len, hpack_dump_f *dump, void *priv)
 				dump(priv, "%c",
 				    isprint(buf[i]) ? buf[i] : '.');
 		dump(priv, "|\n");
-		len -= 16;
+		if (len > 16)
+			len -= 16;
+		else
+			len = 0;
 		buf += 16;
 		pos += 16;
 	}
@@ -568,6 +571,8 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 	case HPACK_STP_NAM_STR:
 	case HPACK_STP_VAL_STR:
 		break;
+	case HPACK_STP_FLD_INT:
+		WRONG("Invalid step");
 	default:
 		WRONG("Unknown step");
 	}
@@ -599,15 +604,17 @@ hpack_decode_field(HPACK_CTX)
 			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
 		else
 			CALL(HPT_decode_name, ctx);
-		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
-		ctx->fld.nam_sz = ctx->buf - ctx->fld.nam - 1;
+		assert(ctx->buf > ctx->fld.nam);
+		ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
 		CALL(HPV_token, ctx, ctx->fld.nam, ctx->fld.nam_sz);
 		ctx->fld.val = ctx->buf;
+		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
 		/* fall through */
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
 		CALL(hpack_decode_string, ctx, HPACK_EVT_VALUE);
-		ctx->fld.val_sz = ctx->buf - ctx->fld.val - 1;
+		assert(ctx->buf > ctx->fld.val);
+		ctx->fld.val_sz = (size_t)(ctx->buf - ctx->fld.val - 1);
 		CALL(HPV_value, ctx, ctx->fld.val, ctx->fld.val_sz);
 		HPD_notify(ctx);
 		ctx->hp->state.stp = HPACK_STP_FLD_INT;
@@ -682,7 +689,8 @@ hpack_decode_update(HPACK_CTX)
 		else {
 			EXPECT(ctx, UPD, sz == ctx->hp->sz.nxt ||
 			    sz < ctx->hp->sz.nxt);
-			ctx->hp->sz.max = ctx->hp->sz.nxt;
+			assert(ctx->hp->sz.nxt >= 0);
+			ctx->hp->sz.max = (size_t)ctx->hp->sz.nxt;
 			ctx->hp->sz.lim = sz;
 			ctx->hp->sz.min = -1;
 			ctx->hp->sz.nxt = -1;
@@ -717,6 +725,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	    dec->buf_len == 0 || dec->cb == NULL)
 		return (HPACK_RES_ARG);
 
+	retval = -1;
 	ctx = &hp->ctx;
 	assert(ctx->hp == hp);
 
@@ -808,6 +817,8 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(buf != NULL);
 		assert(len == strlen(buf));
 		break;
+	case HPACK_EVT_DATA:
+		WRONG("Invalid event");
 	default:
 		WRONG("Unknown event");
 	}
@@ -901,15 +912,16 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 	}
 
 	len = strlen(str);
+	EXPECT(ctx, INT, len <= UINT16_MAX);
 	CALL(val, ctx, str, len);
 
 	if (huf != 0) {
 		HPH_size(str, &len);
-		HPI_encode(ctx, HPACK_PFX_HUF, HPACK_PAT_HUF, len);
+		HPI_encode(ctx, HPACK_PFX_HUF, HPACK_PAT_HUF, (uint16_t)len);
 		HPH_encode(ctx, str);
 	}
 	else {
-		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_STR, len);
+		HPI_encode(ctx, HPACK_PFX_STR, HPACK_PAT_STR, (uint16_t)len);
 		HPE_bcat(ctx, str, len);
 	}
 
@@ -917,7 +929,8 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 }
 
 static int
-hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpi_pattern_e pat, size_t pfx)
+hpack_encode_field(HPACK_CTX, HPACK_FLD, enum hpi_pattern_e pat,
+    enum hpi_prefix_e pfx)
 {
 	uint16_t idx;
 
@@ -985,9 +998,11 @@ hpack_encode_never(HPACK_CTX, HPACK_FLD)
 	return (hpack_encode_field(ctx, fld, HPACK_PAT_NVR, HPACK_PFX_NVR));
 }
 
-static size_t
-hpack_cap(struct hpack *hp, size_t lim, ssize_t max)
+static ssize_t
+hpack_cap(struct hpack *hp, ssize_t lim, ssize_t max)
 {
+
+	assert(lim >= 0);
 
 	if (hp->sz.cap < 0)
 		return (lim);
@@ -1002,31 +1017,34 @@ hpack_cap(struct hpack *hp, size_t lim, ssize_t max)
 }
 
 static int
-hpack_encode_update(HPACK_CTX, size_t lim)
+hpack_encode_update(HPACK_CTX, ssize_t lim)
 {
 	struct hpack *hp;
 
 	assert(ctx->can_upd);
+	assert(lim >= 0);
 	assert(lim <= UINT16_MAX);
 
 	hp = ctx->hp;
 
 	if (hp->sz.min >= 0) {
 		assert(hp->sz.min <= hp->sz.nxt);
-		hp->sz.max = lim;
+		hp->sz.max = (size_t)lim;
 		if (hp->sz.min < hp->sz.nxt)
-			assert(lim == (size_t)hp->sz.min);
+			assert(lim == hp->sz.min);
 		else
 			lim = hpack_cap(hp, lim, hp->sz.nxt);
 	}
 	else {
-		lim = hpack_cap(hp, lim, hp->sz.max);
-		assert(lim == (size_t)hp->sz.lim);
+		lim = hpack_cap(hp, lim, (ssize_t)hp->sz.max);
+		assert(lim == hp->sz.lim);
 	}
 
+	assert(lim >= 0);
+
 	HPT_adjust(ctx, hp->sz.len);
-	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, lim);
-	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, lim);
+	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, (uint16_t)lim);
+	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, (size_t)lim);
 
 	if (hp->sz.min < hp->sz.nxt) {
 		assert(hp->sz.min >= 0);
@@ -1039,7 +1057,7 @@ hpack_encode_update(HPACK_CTX, size_t lim)
 		ctx->can_upd = 0;
 	}
 
-	assert(lim <= hp->sz.max);
+	assert((size_t)lim <= hp->sz.max);
 	return (0);
 }
 
@@ -1150,19 +1168,19 @@ hpack_clean_field(struct hpack_field *fld)
 	case HPACK_FLG_TYP_NVR:
 		if (fld->flg & HPACK_FLG_NAM_IDX) {
 			fld->nam_idx = 0;
-			fld->flg &= ~HPACK_FLG_NAM_IDX;
+			fld->flg &= ~HPACK_FLG(NAM_IDX);
 		}
 		else
 			fld->nam = NULL;
 		fld->val = NULL;
-		fld->flg &= ~HPACK_FLG_NAM_HUF;
-		fld->flg &= ~HPACK_FLG_VAL_HUF;
+		fld->flg &= ~HPACK_FLG(NAM_HUF);
+		fld->flg &= ~HPACK_FLG(VAL_HUF);
 		break;
 	default:
 		return (HPACK_RES_ARG);
 	}
 
-	fld->flg &= ~HPACK_FLG_TYP_MSK;
+	fld->flg &= ~HPACK_FLG(TYP_MSK);
 
 	if (fld->nam != NULL || fld->val != NULL || fld->flg != 0)
 		return (HPACK_RES_ARG);

@@ -103,13 +103,13 @@ dec_make_hit(const struct hph *hph, struct hph_dec *dec, unsigned n,
 	if ((msb >> (32 - hph->len)) != hph->cod)
 		return (0);
 
-	dec[n].len = hph->len - oct * 8;
+	dec[n].len = (uint8_t)(hph->len - oct * 8);
 	dec[n].chr = hph->chr;
 	(void)snprintf(dec[n].nxt, sizeof dec->nxt, "NULL");
 	return (1);
 }
 
-static int
+static unsigned
 dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 {
 	const struct hph *max;
@@ -124,7 +124,7 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 	bits = dec_bits(sub_tbl);
 	sub_msk = (1 << bits) - 1;
 
-	ref = 1 + sub_msk - sub_tbl;
+	ref = (int)(1 + sub_msk - (unsigned)sub_tbl);
 	while (n < sz) {
 		assert(n < 256);
 		dec[n].len = 8;
@@ -154,7 +154,7 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			/* help finish the next octect */
 			msk_len = 8 * oct;
 			msk = 0xffffffff << (32 - msk_len);
-			msk |= ref << (32 - msk_len + bits);
+			msk |= (unsigned)ref << (32 - msk_len + bits);
 
 			max = hph;
 			while ((max->msb & msk) == (hph->msb & msk)) {
@@ -175,7 +175,8 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 	}
 	assert(dec_rndpow2(ref, +1) == ref);
 
-	return (sz);
+	assert(sz > 0);
+	return ((unsigned)sz);
 }
 
 static void
@@ -183,7 +184,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
     int msk_len, int oct, const char *pfx)
 {
 	struct hph_dec dec[256];
-	int n, sz, len;
+	unsigned n, sz, len;
 
 	n = 0;
 	while (hph != max && hph->len <= msk_len) {
@@ -198,7 +199,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 	assert(n > 0);
 
 	if (max == eos)
-		sz = dec_make_misses(hph, dec, n, oct + 1);
+		sz = dec_make_misses(hph, dec, (int)n, oct + 1);
 	else {
 		assert(hph == max);
 		sz = n;
@@ -217,7 +218,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 		    n, dec[n].len, dec[n].chr, dec[n].nxt);
 	OUT("};");
 	OUT("");
-	GEN("static const struct hph_dec hph_dec%d%s = {%d, hph_oct%d%s};",
+	GEN("static const struct hph_dec hph_dec%d%s = {%u, hph_oct%d%s};",
 	    oct, pfx, len, oct, pfx);
 }
 

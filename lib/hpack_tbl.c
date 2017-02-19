@@ -41,8 +41,8 @@
 
 #define HPT_HEADERSZ (HPACK_OVERHEAD - 2) /* account for 2 null bytes */
 
-#define MOVE(he, off)	(void *)(uintptr_t)((uintptr_t)(he) + (off))
-#define JUMP(he, off)	(void *)((uintptr_t)(he) + HPT_HEADERSZ + (off))
+#define MOVE(he, mv)	(void *)(uintptr_t)((uintptr_t)(he) + (uintptr_t)(mv))
+#define JUMP(he, mv)	MOVE(he, HPT_HEADERSZ + (mv))
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
 static const struct hpt_field hpt_static[] = {
@@ -65,7 +65,7 @@ static struct hpt_entry *
 hpt_dynamic(struct hpack *hp, size_t idx)
 {
 	struct hpt_entry *he, tmp;
-	ptrdiff_t off;
+	size_t off;
 
 	he = HPACK_TBL(hp);
 	off = 0;
@@ -117,8 +117,7 @@ HPT_foreach(HPACK_CTX, int flg)
 	const struct hpt_entry *he, *tbl;
 	const struct hpt_field *hf;
 	struct hpt_entry tmp;
-	ptrdiff_t off;
-	size_t i;
+	size_t i, off;
 
 	if (flg & HPT_FLG_STATIC)
 		for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++) {
@@ -294,6 +293,8 @@ HPT_index(HPACK_CTX)
 
 	nam_sz = ctx->fld.nam_sz;
 	val_sz = ctx->fld.val_sz;
+	assert(nam_sz <= UINT16_MAX);
+	assert(val_sz <= UINT16_MAX);
 	assert(ctx->fld.nam[nam_sz] == '\0');
 	assert(ctx->fld.val[val_sz] == '\0');
 
@@ -321,8 +322,8 @@ HPT_index(HPACK_CTX)
 
 	tbl_ptr->magic = HPT_ENTRY_MAGIC;
 	tbl_ptr->pre_sz = 0;
-	tbl_ptr->nam_sz = nam_sz;
-	tbl_ptr->val_sz = val_sz;
+	tbl_ptr->nam_sz = (uint16_t)nam_sz;
+	tbl_ptr->val_sz = (uint16_t)val_sz;
 	hp->sz.len += len;
 	hp->cnt++;
 

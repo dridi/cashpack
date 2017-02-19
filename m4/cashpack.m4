@@ -71,11 +71,15 @@ cashpack_check_flags() {
 		AC_MSG_CHECKING([whether the compiler accepts $_flag])
 		_cflags="$CFLAGS"
 		CFLAGS="$CASHPACK_CFLAGS $_flag $CFLAGS"
+		mv confdefs.h confdefs.h.orig
+		touch confdefs.h
 		AC_RUN_IFELSE(
 			[AC_LANG_SOURCE([int main(void) { return (0); }])], [
 				AC_MSG_RESULT([yes]);
 				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_flag"],
 			[AC_MSG_RESULT([no])])
+		rm confdefs.h
+		mv confdefs.h.orig confdefs.h
 		CFLAGS="$_cflags"
 	done
 }
@@ -129,6 +133,17 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wunused-result
 	])
 
+	dnl Clang unleashed-ish
+	dnl XXX: -Wno-unused-macros needed by clang on Travis CI
+	_CASHPACK_CHECK_FLAGS([
+		-Weverything
+		-Wno-padded
+		-Wno-string-conversion
+		-Wno-covered-switch-default
+		-Wno-disabled-macro-expansion
+		-Wno-unused-macros
+	])
+
 	dnl SunCC-specific warnings
 	_CASHPACK_CHECK_FLAGS([
 		-errwarn=%all
@@ -150,6 +165,32 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 
 	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
 
+	CASHPACK_CFLAGS=
+
+	dnl Keep examples simple enough
+	_CASHPACK_CHECK_FLAGS([
+		-Wno-conversion
+		-Wno-format-nonliteral
+		-Wno-missing-noreturn
+		-Wno-switch-enum
+	])
+
+	EXAMPLE_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS"
+	AC_SUBST([EXAMPLE_CFLAGS])
+
+	CASHPACK_CFLAGS=
+
+	dnl Be lenient towards testing, it may test shit
+	dnl XXX: -Wno-unreachable-code needed by clang on Travis CI
+	_CASHPACK_CHECK_FLAGS([
+		-Wno-assign-enum
+		-Wno-sign-conversion
+		-Wno-unreachable-code
+		-Wno-unreachable-code-return
+	])
+
+	TEST_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS $TEST_CFLAGS"
+	AC_SUBST([TEST_CFLAGS])
 ])
 
 # CASHPACK_CHECK_GOLANG

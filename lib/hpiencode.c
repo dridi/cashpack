@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #include "hpack.h"
+#include "hpack_assert.h"
 #include "hpack_priv.h"
 
 int
@@ -47,26 +48,28 @@ main(int argc, const char **argv)
 	struct hpack_ctx ctx;
 	enum hpi_prefix_e pfx;
 	enum hpi_pattern_e pat;
-	uint16_t val;
+	int val, ok;
 	uint8_t buf[8];
 
 	/* ignore the program name */
 	argc--;
-
 	assert(argc == 2);
 
-	pfx = 0;
-	pat = 0;
+	ok = 0;
+	pfx = (enum hpi_prefix_e)-1;
+	pat = (enum hpi_pattern_e)-1;
 
 #define HPP(nm, px, pt)				\
 	if (!strcasecmp(#nm, argv[1])) {	\
 		pfx = px;			\
 		pat = pt;			\
+		ok = 1;				\
 	}
 #include "tbl/hpack_tbl.h"
 #undef HPP
 
-	assert(pfx != 0);
+	if (!ok)
+		WRONG("Unknown prefix");
 
 	val = atoi(argv[2]);
 
@@ -78,7 +81,7 @@ main(int argc, const char **argv)
 	ctx.arg.enc = &enc;
 	ctx.ptr.cur = buf;
 
-	HPI_encode(&ctx, pfx, pat, val);
+	HPI_encode(&ctx, pfx, pat, (uint16_t)val);
 
 	assert(ctx.len > 0);
 
