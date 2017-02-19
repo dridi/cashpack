@@ -61,48 +61,48 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 
 ])
 
-# _CASHPACK_CHECK_FLAGS_FUNC
-# --------------------------
-AC_DEFUN([_CASHPACK_CHECK_FLAGS_FUNC], [
+# _CASHPACK_CHECK_CFLAGS_FN
+# -------------------------
+AC_DEFUN([_CASHPACK_CHECK_CFLAGS_FN], [
 
-cashpack_check_flags() {
-	for _flag
+cashpack_check_cflags() {
+	for _cflag
 	do
-		AC_MSG_CHECKING([whether the compiler accepts $_flag])
 		_cflags="$CFLAGS"
-		CFLAGS="$CASHPACK_CFLAGS $_flag $CFLAGS"
+		CFLAGS="$CASHPACK_CFLAGS $_cflag $CFLAGS"
+
 		mv confdefs.h confdefs.h.orig
 		touch confdefs.h
+
+		AC_MSG_CHECKING([whether the compiler accepts $_cflag])
 		AC_RUN_IFELSE(
 			[AC_LANG_SOURCE([int main(void) { return (0); }])], [
 				AC_MSG_RESULT([yes]);
-				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_flag"],
+				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_cflag"],
 			[AC_MSG_RESULT([no])])
+
 		rm confdefs.h
 		mv confdefs.h.orig confdefs.h
+
 		CFLAGS="$_cflags"
 	done
 }
 
 ])
 
-# _CASHPACK_CHECK_FLAGS
-# ---------------------
-AC_DEFUN([_CASHPACK_CHECK_FLAGS], [
-
-	AC_REQUIRE([_CASHPACK_CHECK_FLAGS_FUNC])
-	cashpack_check_flags m4_normalize([$1])
-
+# _CASHPACK_CHECK_CFLAGS(CFLAGS)
+# ------------------------------
+AC_DEFUN([_CASHPACK_CHECK_CFLAGS], [dnl
+AC_REQUIRE([_CASHPACK_CHECK_CFLAGS_FN])dnl
+cashpack_check_cflags m4_normalize([$1])dnl
 ])
 
-# CASHPACK_CHECK_FLAGS
-# --------------------
-AC_DEFUN([CASHPACK_CHECK_FLAGS], [
-
+# CASHPACK_CHECK_CFLAGS
+# ---------------------
+AC_DEFUN([CASHPACK_CHECK_CFLAGS], [dnl
 	CASHPACK_CFLAGS=
-
-	dnl FreeBSD's WARNS level 6
-	_CASHPACK_CHECK_FLAGS([
+	# FreeBSD's WARNS level 6
+	_CASHPACK_CHECK_CFLAGS([
 		-Werror
 		-Wall
 		-W
@@ -124,8 +124,8 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wmissing-variable-declarations
 	])
 
-	dnl Other desirable warnings
-	_CASHPACK_CHECK_FLAGS([
+	# Other desirable warnings
+	_CASHPACK_CHECK_CFLAGS([
 		-Wextra
 		-Wmissing-declarations
 		-Wredundant-decls
@@ -133,9 +133,8 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wunused-result
 	])
 
-	dnl Clang unleashed-ish
-	dnl XXX: -Wno-unused-macros needed by clang on Travis CI
-	_CASHPACK_CHECK_FLAGS([
+	# Clang unleashed-ish
+	_CASHPACK_CHECK_CFLAGS([
 		-Weverything
 		-Wno-padded
 		-Wno-string-conversion
@@ -143,54 +142,68 @@ AC_DEFUN([CASHPACK_CHECK_FLAGS], [
 		-Wno-disabled-macro-expansion
 		-Wno-unused-macros
 	])
+	dnl XXX: -Wno-unused-macros needed by clang on Travis CI
 
-	dnl SunCC-specific warnings
-	_CASHPACK_CHECK_FLAGS([
+	# SunCC-specific warnings
+	_CASHPACK_CHECK_CFLAGS([
 		-errwarn=%all
 		-errtags=yes
 	])
 
-	dnl sparse(1) warnings
-	_CASHPACK_CHECK_FLAGS([
+	# sparse(1) warnings
+	_CASHPACK_CHECK_CFLAGS([
 		-Wsparse-all
 		-Wsparse-error
 	])
 
-	dnl Standards compliance
-	_CASHPACK_CHECK_FLAGS([
+	# Standards compliance
+	_CASHPACK_CHECK_CFLAGS([
 		-pedantic
 		-std=c99
 		-D_POSIX_C_SOURCE=200809L
 	])
-
 	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
+])
 
+# CASHPACK_CHECK_EXAMPLE_CFLAGS
+# -----------------------------
+AC_DEFUN([CASHPACK_CHECK_EXAMPLE_CFLAGS], [dnl
 	CASHPACK_CFLAGS=
-
-	dnl Keep examples simple enough
-	_CASHPACK_CHECK_FLAGS([
+	# Keep examples simple enough
+	_CASHPACK_CHECK_CFLAGS([
 		-Wno-conversion
 		-Wno-format-nonliteral
 		-Wno-missing-noreturn
 		-Wno-switch-enum
 	])
-
 	EXAMPLE_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS"
-	AC_SUBST([EXAMPLE_CFLAGS])
+])
 
+# CASHPACK_CHECK_TEST_CFLAGS
+# --------------------------
+AC_DEFUN([CASHPACK_CHECK_TEST_CFLAGS], [dnl
 	CASHPACK_CFLAGS=
 
-	dnl Be lenient towards testing, it may test shit
-	dnl XXX: -Wno-unreachable-code needed by clang on Travis CI
-	_CASHPACK_CHECK_FLAGS([
+	# Be lenient towards testing, it may test shit
+	_CASHPACK_CHECK_CFLAGS([
 		-Wno-assign-enum
 		-Wno-sign-conversion
 		-Wno-unreachable-code
 		-Wno-unreachable-code-return
 	])
+	dnl XXX: -Wno-unreachable-code needed by clang on Travis CI
+	TEST_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS $TEST_CFLAGS"dnl
+])
 
-	TEST_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS $TEST_CFLAGS"
-	AC_SUBST([TEST_CFLAGS])
+# CASHPACK_CHECK_FLAGS
+# --------------------
+AC_DEFUN([CASHPACK_CHECK_FLAGS], [dnl
+AS_IF([test "$cross_compiling" = no], [dnl
+CASHPACK_CHECK_CFLAGS()
+CASHPACK_CHECK_EXAMPLE_CFLAGS()
+CASHPACK_CHECK_TEST_CFLAGS()dnl
+AC_SUBST([EXAMPLE_CFLAGS])dnl
+AC_SUBST([TEST_CFLAGS])])
 ])
 
 # CASHPACK_CHECK_GOLANG
