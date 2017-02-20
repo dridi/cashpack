@@ -66,6 +66,7 @@ AC_DEFUN([CASHPACK_SANITY_CHECK], [
 AC_DEFUN([_CASHPACK_CHECK_CFLAGS_FN], [
 
 cashpack_check_cflags() {
+	_ret=0
 	for _cflag
 	do
 		_cflags="$CFLAGS"
@@ -77,15 +78,16 @@ cashpack_check_cflags() {
 		AC_MSG_CHECKING([whether the compiler accepts $_cflag])
 		AC_RUN_IFELSE(
 			[AC_LANG_SOURCE([int main(void) { return (0); }])], [
-				AC_MSG_RESULT([yes]);
+				AC_MSG_RESULT([yes])
 				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_cflag"],
-			[AC_MSG_RESULT([no])])
+			[AC_MSG_RESULT([no]); _ret=1])
 
 		rm confdefs.h
 		mv confdefs.h.orig confdefs.h
 
 		CFLAGS="$_cflags"
 	done
+	return $_ret
 }
 
 ])
