@@ -313,16 +313,15 @@ AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
 
 ])
 
-# _CASHPACK_ASAN
-# --------------
-AC_DEFUN([_CASHPACK_ASAN], [
-
-	CFLAGS="$CFLAGS -fsanitize=address"
-	AC_CHECK_LIB(
-		[asan],
-		[__asan_address_is_poisoned],
-		[LIBS="$ac_check_lib_save_LIBS"])
-
+# _CASHPACK_SANITIZER(NAME, CFLAGS)
+# ---------------------------------
+AC_DEFUN([_CASHPACK_SANITIZER], [
+AC_REQUIRE([_CASHPACK_CHECK_CFLAGS_FN])dnl
+AC_MSG_CHECKING([for $1])
+AC_MSG_RESULT([])
+AS_IF([cashpack_check_cflags "$2"],
+	[CFLAGS="$CFLAGS $2"],
+	[AC_MSG_FAILURE([failed to use sanitizer: $1])])
 ])
 
 # CASHPACK_WITH_ASAN
@@ -333,7 +332,7 @@ AC_DEFUN([CASHPACK_WITH_ASAN], [
 		AS_HELP_STRING(
 			[--with-asan],
 			[Build binaries with address sanitizer]),
-		[_CASHPACK_ASAN],
+		[_CASHPACK_SANITIZER([asan], [-fsanitize=address])],
 		[])
 
 ])
@@ -346,19 +345,9 @@ AC_DEFUN([CASHPACK_WITH_MSAN], [
 		AS_HELP_STRING(
 			[--with-msan],
 			[Build binaries with address sanitizer]),
-		[CFLAGS="$CFLAGS -fsanitize=memory -fsanitize-memory-track-origins"],
+		[_CASHPACK_SANITIZER([msan],
+			[-fsanitize=memory -fsanitize-memory-track-origins])],
 		[])
-
-])
-
-# _CASHPACK_UBSAN
-# ---------------
-AC_DEFUN([_CASHPACK_UBSAN], [
-
-	CFLAGS="$CFLAGS -fsanitize=undefined"
-	AC_CHECK_LIB([ubsan],
-		[__ubsan_handle_add_overflow],
-		[LIBS="$ac_check_lib_save_LIBS"])
 
 ])
 
@@ -370,7 +359,7 @@ AC_DEFUN([CASHPACK_WITH_UBSAN], [
 		AS_HELP_STRING(
 			[--with-ubsan],
 			[Build binaries with undefined sanitizer]),
-		[_CASHPACK_UBSAN],
+		[_CASHPACK_SANITIZER([ubsan], [-fsanitize=undefined])],
 		[])
 
 ])
