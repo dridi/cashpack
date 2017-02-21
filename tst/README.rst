@@ -423,7 +423,8 @@ test suite. It would be interesting too to link against ``libc``\s other than
 +----------+------------+------------+-----------+-------+-----------+
 | Arch     | Targets                                                 |
 +==========+============+============+===========+=======+===========+
-| x86_64   | GNU/Linux, | GNU/Linux, | GNU/Linux | SunOS | GNU/Linux |
+| x86_64   | FreeBSD,   | FreeBSD,   | GNU/Linux | SunOS | GNU/Linux |
+|          | GNU/Linux, | GNU/Linux, |           |       |           |
 |          | OSX,       | OSX        |           |       |           |
 |          | SunOS      |            |           |       |           |
 +----------+------------+------------+-----------+-------+-----------+
