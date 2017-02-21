@@ -137,8 +137,10 @@ enum hpack_result_e hpack_clean_field(struct hpack_field *);
 
 /* hpack_index */
 
-##define HPACK_STATIC 61
-##define HPACK_OVERHEAD 32
+/* REMOVE_ME
+#define HPACK_STATIC 61
+#define HPACK_OVERHEAD 32
+   REMOVE_ME */
 
 enum hpack_result_e hpack_static(hpack_event_f, void *);
 enum hpack_result_e hpack_dynamic(struct hpack *, hpack_event_f, void *);

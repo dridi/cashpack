@@ -24,28 +24,13 @@
 
 include_HEADERS = hpack.h
 BUILT_SOURCES = hpack.h
-DISTCLEANFILES = hpack.h cpp_ignore
+DISTCLEANFILES = hpack.h
 
-cpp_ignore:
-	@rm -f .null.h .dummy.h
-	@cat /dev/null >.null.h
-	$(AM_V_GEN) cpp -C -P -o .dummy.h .null.h || :
-	@echo '/* dummy line */' >> .dummy.h
-	@wc -l <.dummy.h | awk '{print $$1}' >.wc.h
-	@rm .null.h .dummy.h
-	@mv .wc.h $@
-
-hpack.h: hpack.h.in tbl/hpack_tbl.h cpp_ignore uncrustify.cfg
-	$(AM_V_GEN) cpp -P -C -o .cpp.h $(srcdir)/hpack.h.in || \
-		cp $(srcdir)/hpack.h.in .cpp.h
-	@tail -n "+$$(cat cpp_ignore)" <.cpp.h >.tail.h
-	@$(SED) -e 's/^##/#/' <.tail.h >.sed.h
-	@$(UNCRUSTIFY) $(UNCRUSTIFY_OPTS) .sed.h
-	@rm .cpp.h .tail.h
-	@mv .sed.h $@
+hpack.h: hpack.h.in format_header.sh tbl/hpack_tbl.h uncrustify.cfg
+	$(AM_V_GEN) $(srcdir)/format_header.sh $(srcdir)/hpack.h.in $@
 
 EXTRA_DIST = \
-	cpp_ignore \
+	format_header.sh \
 	hpack.h.in \
 	hpack.h \
 	hpack_assert.h \

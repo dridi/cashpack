@@ -265,20 +265,6 @@ AC_DEFUN([CASHPACK_PROG_RST2MAN], [
 
 ])
 
-# CASHPACK_PROG_UNCRUSTIFY
-# ------------------------
-AC_DEFUN([CASHPACK_PROG_UNCRUSTIFY], [
-
-	UNCRUSTIFY_OPTS="-c '\$(srcdir)/uncrustify.cfg' -q -l C --no-backup"
-
-	AC_CHECK_PROGS(UNCRUSTIFY, [uncrustify], [true])
-	test "$UNCRUSTIFY" = true && UNCRUSTIFY_OPTS=
-
-	AC_SUBST([UNCRUSTIFY])
-	AC_SUBST([UNCRUSTIFY_OPTS])
-
-])
-
 # CASHPACK_LIB_NGHTTP2
 # --------------------
 AC_DEFUN([CASHPACK_LIB_NGHTTP2], [
