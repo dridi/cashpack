@@ -277,7 +277,7 @@ tst_repeat() {
 }
 
 _() {
-	if expr "$1" : '^-' >/dev/null
+	if printf %s "$1" | grep -q -e '^-'
 	then
 		echo "------$*"
 	else
