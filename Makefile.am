@@ -41,6 +41,8 @@ SUBDIRS = \
 	man \
 	tst
 
+dist: all
+
 @LCOV_RULES@
 
 clean-local:
