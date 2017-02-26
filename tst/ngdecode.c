@@ -101,7 +101,7 @@ print_entries(nghttp2_hd_inflater *inf)
 		if (sz == 0)
 			OUT("\n");
 
-		len = 32 + nv->namelen + nv->valuelen;
+		len = HPACK_OVERHEAD + nv->namelen + nv->valuelen;
 		l = snprintf(str, sizeof str, "\n[%3zu] (s = %3zu) ",
 		    idx - HPACK_STATIC, len);
 		assert(l + 1 == sizeof str);
