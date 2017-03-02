@@ -197,3 +197,13 @@ EOF
 
 tst_solely hdecode tst_decode --decoding-spec p1, --expect-error LEN
 tst_solely fdecode tst_decode --decoding-spec p1, --expect-error LEN
+
+_ --------------------------------------
+_ Encode a string larger than UINT16_MAX
+_ --------------------------------------
+
+mk_enc <<EOF
+literal str too-long str $(mk_chars X %65536s)
+EOF
+
+tst_encode --expect-error INT
