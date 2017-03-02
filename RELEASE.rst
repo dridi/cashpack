@@ -15,6 +15,7 @@ Local checks:
 - Build with GCC, Clang, pcc and Sparse
 - Check with scan-build and cppcheck
 - Run the test suite with nghttp2 and Go 1.7+
+- Run again with msan and an instrumented nghttp2
 - Build with gmake and bmake
 - Test with bash, dash, ksh, lksh, mksh, yash and zsh
 - Build using sanitizers, Valgrind and lcov
@@ -28,7 +29,7 @@ Local checks:
 
 Remote checks:
 
-- Run the comprehensive build matrix on Travis CI
+- Run the almost-comprehensive build matrix on Travis CI
 - Trigger an analysis by Coverity Scan
 - Build with SunCC
 - Build on i686, armv7hl, aarch64, ppc64, ppc64le and s390x
