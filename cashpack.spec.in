@@ -5,7 +5,7 @@ Summary:        The C Anti-State HPACK library
 
 License:        BSD
 URL:            https://github.com/dridi/%{name}
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{url}/releases/download/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  bc
 BuildRequires:  vim-common
@@ -43,7 +43,7 @@ developing applications that use %{name}.
 
 %build
 %configure --disable-silent-rules
-make %{?_smp_mflags}
+%make_build
 
 
 %install
@@ -51,7 +51,7 @@ make %{?_smp_mflags}
 
 
 %check
-make %{?_smp_mflags} check
+%make_build check
 
 
 %post -p /sbin/ldconfig
