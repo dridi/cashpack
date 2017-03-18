@@ -427,7 +427,7 @@ AC_DEFUN([CASHPACK_ENABLE_DOCS], [
 	AC_ARG_ENABLE([docs],
 		AS_HELP_STRING(
 			[--enable-docs],
-			[Man pages can be omitted if built from a dist archive]))
+			[Man pages builds can be omitted for a dist archive]))
 
 	AM_CONDITIONAL([DOCS], [test "$enable_docs" != "no"])
 ])
