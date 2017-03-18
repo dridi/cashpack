@@ -431,3 +431,16 @@ AC_DEFUN([CASHPACK_ENABLE_DOCS], [
 
 	AM_CONDITIONAL([DOCS], [test "$enable_docs" != "no"])
 ])
+
+# CASHPACK_DISABLE_PEDANTIC
+# -------------------------
+AC_DEFUN([CASHPACK_DISABLE_PEDANTIC], [
+
+	AC_ARG_ENABLE([pedantic],
+		AS_HELP_STRING(
+			[--disable-pedantic],
+			[Some compilers may fail because of system includes]))
+
+	AS_IF([test "$enable_pedantic" = no],
+		[cashpack_check_cflags -Wno-pedantic], [])
+])
