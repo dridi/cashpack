@@ -418,33 +418,33 @@ the Fedora Project, a lot of CPU architectures are used to *manually* run the
 test suite. It would be interesting too to link against ``libc``\s other than
 ``glibc``.
 
-+----------+------------+------------+-----------+-------+-----------+
-| Compiler | GCC        | Clang      | pcc       | SunCC | Sparse    |
-+----------+------------+------------+-----------+-------+-----------+
-| Arch     | Targets                                                 |
-+==========+============+============+===========+=======+===========+
-| x86_64   | FreeBSD,   | FreeBSD,   | GNU/Linux | SunOS | GNU/Linux |
-|          | GNU/Linux, | GNU/Linux, |           |       |           |
-|          | OSX,       | OSX        |           |       |           |
-|          | SunOS      |            |           |       |           |
-+----------+------------+------------+-----------+-------+-----------+
-| i686     | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
-| armv7hl  | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
-| aarch64  | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
-| ppc64    | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
-| ppc64le  | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
-| s390x    | GNU/Linux  | —          | —         | —     | —         |
-+----------+------------+------------+-----------+-------+-----------+
++----------+------------+------------+-----------+-------+-----------+-----------+
+| Compiler | GCC        | Clang      | pcc       | SunCC | afl-gcc   | Sparse    |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| Arch     | Targets                                                             |
++==========+============+============+===========+=======+===========+===========+
+| x86_64   | FreeBSD,   | FreeBSD,   | GNU/Linux | SunOS | GNU/Linux | GNU/Linux |
+|          | GNU/Linux, | GNU/Linux, |           |       |           |           |
+|          | OSX,       | OSX        |           |       |           |           |
+|          | SunOS      |            |           |       |           |           |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| i686     | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| armv7hl  | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| aarch64  | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| ppc64    | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| ppc64le  | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
+| s390x    | GNU/Linux  | —          | —         | —     | —         | —         |
++----------+------------+------------+-----------+-------+-----------+-----------+
 
 cashpack works fine on all platforms where it could be tested. It did not
 however compile with the Portable C Compiler unless optimizations were
-disabled (which looks like a bug in pcc). Sparse is not a compiler but an
-additional source of potential warnings on top of GCC.
+disabled (which looks like a bug in pcc). Sparse and afl-gcc (American Fuzzy
+Lop GCC) aren't compilers but an additional source of warnings on top of GCC.
 
 Reporting
 ---------

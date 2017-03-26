@@ -12,7 +12,7 @@ Administrativa:
 
 Local checks:
 
-- Build with GCC, Clang, pcc and Sparse
+- Build with GCC, Clang, pcc, afl-gcc and Sparse
 - Check with scan-build and cppcheck
 - Run the test suite with nghttp2 and Go 1.7+
 - Run again with msan and an instrumented nghttp2
