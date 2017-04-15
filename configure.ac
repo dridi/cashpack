@@ -72,6 +72,9 @@ AC_CONFIG_FILES([
 	lib/Makefile
 	lib/cashpack.pc
 	man/Makefile
+	man/cashpack.3.rst
+	man/hpack_encode.3.rst
+	man/hpack_error.3.rst
 	tst/Makefile
 ])
 

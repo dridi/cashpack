@@ -174,7 +174,7 @@ callback returns.
 
 The type ``enum hpack_event_e`` may take the following values:
 
-.. include:: hpe2rst.rst
+.. include:: @builddir@/hpe2rst.rst
 
 When dealing with events, unknown values should be ignored. Future versions of
 cashpack may introduce new events. The values for existing events shall never
@@ -193,19 +193,19 @@ The headers blocks are printed for each stream and at the end, the dynamic
 table is printed too. This program is stateless and doesn't have side effects
 so it doesn't use the private pointer in its decoding callback:
 
-.. include:: cashdump.src
+.. include:: @builddir@/cashdump.src
     :literal:
 
 The HTTP/2 frames in this example are stored in a binary file in the same
 directory:
 
-.. include:: cashdump.hex
+.. include:: @builddir@/cashdump.hex
     :literal:
 
 Assuming a standard installation of cashpack, the program can be compiled and
 will produce the following output for the frames dumped above:
 
-.. include:: cashdump.out
+.. include:: @builddir@/cashdump.out
     :literal:
 
 FILES

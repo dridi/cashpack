@@ -82,7 +82,7 @@ generic style::
 
 The list of possible results:
 
-.. include:: hpr2rst.rst
+.. include:: @builddir@/hpr2rst.rst
 
 RETURN VALUE
 ============
@@ -95,7 +95,7 @@ EXAMPLE
 
 The ``hpack_dump()`` function integrates well with **vfprintf**\(3):
 
-.. include:: hpack_dump.src
+.. include:: @builddir@/hpack_dump.src
     :literal:
 
 SEE ALSO

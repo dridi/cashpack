@@ -100,7 +100,7 @@ to interpret a ``struct hpack_field`` instance. Some flags can be combined and
 others are mutual exclusive. Combining flags that aren't documented as working
 together results in undefined behavior:
 
-.. include:: hpf2rst.rst
+.. include:: @builddir@/hpf2rst.rst
 
 ENCODING STATE MACHINE
 ======================
@@ -235,18 +235,18 @@ encoded header blocks are written on the standard output, without anything to
 indicate the boundaries between blocks. Information about the encoding process
 is logged to the standard error.
 
-.. include:: cashdumb.src
+.. include:: @builddir@/cashdumb.src
     :literal:
 
 In this example the header lists will be read from a file:
 
-.. include:: cashdumb.txt
+.. include:: @builddir@/cashdumb.txt
     :literal:
 
 Assuming a standard installation of cashpack, the program can be compiled and
 will produce the following logs, the binary output being ignored:
 
-.. include:: cashdumb.out
+.. include:: @builddir@/cashdumb.out
     :literal:
 
 SEE ALSO
