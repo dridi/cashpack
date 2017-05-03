@@ -425,10 +425,10 @@ hpack_strerror(enum hpack_result_e res)
 }
 
 static void /* NB: hexdump -C output */
-hpack_hexdump(void *ptr, size_t len, hpack_dump_f *dump, void *priv)
+hpack_hexdump(const void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 {
 	unsigned pos, i;
-	uint8_t *buf;
+	const uint8_t *buf;
 
 	buf = ptr;
 	pos = 0;
@@ -461,7 +461,7 @@ hpack_hexdump(void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 void
 hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 {
-	struct hpt_entry *tbl_ptr;
+	const struct hpt_entry *tbl_ptr;
 	const char *magic;
 
 	if (hp == NULL || dump == NULL)
@@ -500,7 +500,7 @@ hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 	dump(priv, "\t}\n");
 	dump(priv, "\t.cnt = %zu\n", hp->cnt);
 
-	dump(priv, "\t.tbl = %p <<EOF\n", (void *)tbl_ptr);
+	dump(priv, "\t.tbl = %p <<EOF\n", (const void *)tbl_ptr);
 	hpack_hexdump(tbl_ptr, hp->sz.len, dump, priv);
 	dump(priv, "\tEOF\n");
 	dump(priv, "}\n");
