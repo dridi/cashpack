@@ -174,6 +174,7 @@ struct hpack {
 	struct hpack_state	state;
 	size_t			cnt; /* number of entries in the table */
 	struct hpack_ctx	ctx;
+	struct hpt_entry	tbl[];
 };
 
 typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
@@ -184,7 +185,6 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 
 #define HPACK_CTX	struct hpack_ctx *ctx
 #define HPACK_FLD	const struct hpack_field *fld
-#define HPACK_TBL(hp)	((struct hpt_entry *)(uintptr_t)((hp) + 1))
 
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))

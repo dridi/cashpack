@@ -461,13 +461,10 @@ hpack_hexdump(const void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 void
 hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 {
-	const struct hpt_entry *tbl_ptr;
 	const char *magic;
 
 	if (hp == NULL || dump == NULL)
 		return;
-
-	tbl_ptr = HPACK_TBL(hp);
 
 	switch (hp->magic) {
 	case DECODER_MAGIC: magic = "DECODER"; break;
@@ -500,8 +497,8 @@ hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 	dump(priv, "\t}\n");
 	dump(priv, "\t.cnt = %zu\n", hp->cnt);
 
-	dump(priv, "\t.tbl = %p <<EOF\n", (const void *)tbl_ptr);
-	hpack_hexdump(tbl_ptr, hp->sz.len, dump, priv);
+	dump(priv, "\t.tbl = %p <<EOF\n", (const void *)hp->tbl);
+	hpack_hexdump(hp->tbl, hp->sz.len, dump, priv);
 	dump(priv, "\tEOF\n");
 	dump(priv, "}\n");
 }

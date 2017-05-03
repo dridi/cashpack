@@ -67,7 +67,7 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 	struct hpt_entry *he, tmp;
 	size_t off;
 
-	he = HPACK_TBL(hp);
+	he = hp->tbl;
 	off = 0;
 
 	assert(idx > 0);
@@ -130,7 +130,7 @@ HPT_foreach(HPACK_CTX, int flg)
 		return;
 
 	off = 0;
-	tbl = HPACK_TBL(ctx->hp);
+	tbl = ctx->hp->tbl;
 	he = tbl;
 	for (i = 0; i < ctx->hp->cnt; i++) {
 		assert(DIFF(tbl, he) < ctx->hp->sz.len);
@@ -222,7 +222,7 @@ hpt_overlap(const struct hpack *hp, const char *buf, size_t len)
 {
 	uintptr_t bgn, end, pos;
 
-	bgn = (uintptr_t)HPACK_TBL(hp);
+	bgn = (uintptr_t)hp->tbl;
 	pos = (uintptr_t)buf;
 	end = bgn + hp->sz.len;
 
@@ -248,8 +248,8 @@ hpt_move_evicted(HPACK_CTX, const char *nam, size_t nam_sz, size_t len)
 	hp = ctx->hp;
 	assert(hp->magic == ENCODER_MAGIC);
 
-	tbl_ptr = HPACK_TBL(hp);
-	nam_ptr = JUMP(tbl_ptr, 0);
+	tbl_ptr = hp->tbl;
+	nam_ptr = JUMP(hp->tbl, 0);
 	nam_sz++; /* null character */
 	mv = 0;
 
@@ -282,7 +282,6 @@ void
 HPT_index(HPACK_CTX)
 {
 	struct hpack *hp;
-	struct hpt_entry *tbl_ptr;
 	void *nam_ptr, *val_ptr;
 	size_t len, nam_sz, val_sz;
 	unsigned ovl;
@@ -306,24 +305,23 @@ HPT_index(HPACK_CTX)
 	if (!hpt_fit(ctx, len))
 		return;
 
-	tbl_ptr = HPACK_TBL(hp);
-	nam_ptr = JUMP(tbl_ptr, 0);
-	val_ptr = JUMP(tbl_ptr, nam_sz + 1);
-	tbl_ptr->pre_sz = len;
+	nam_ptr = JUMP(hp->tbl, 0);
+	val_ptr = JUMP(hp->tbl, nam_sz + 1);
+	hp->tbl->pre_sz = len;
 
 	if (ovl)
 		hpt_move_evicted(ctx, ctx->fld.nam, nam_sz, len);
 	else if (hp->cnt > 0)
-		(void)memmove(MOVE(tbl_ptr, len), tbl_ptr, hp->sz.len);
+		(void)memmove(MOVE(hp->tbl, len), hp->tbl, hp->sz.len);
 
 	if (!ovl)
 		(void)memcpy(nam_ptr, ctx->fld.nam, nam_sz + 1);
 	(void)memcpy(val_ptr, ctx->fld.val, val_sz + 1);
 
-	tbl_ptr->magic = HPT_ENTRY_MAGIC;
-	tbl_ptr->pre_sz = 0;
-	tbl_ptr->nam_sz = (uint16_t)nam_sz;
-	tbl_ptr->val_sz = (uint16_t)val_sz;
+	hp->tbl->magic = HPT_ENTRY_MAGIC;
+	hp->tbl->pre_sz = 0;
+	hp->tbl->nam_sz = (uint16_t)nam_sz;
+	hp->tbl->val_sz = (uint16_t)val_sz;
 	hp->sz.len += len;
 	hp->cnt++;
 
