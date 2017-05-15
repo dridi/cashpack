@@ -267,9 +267,9 @@ err_encode() {
 
 tst_repeat() {
 	i=1
-	j="$1"
+	j=$1
 	shift
-	while [ "$i" -lt "$j" ]
+	while [ "$i" -le "$j" ]
 	do
 		"$@" $i
 		i=$((i + 1))

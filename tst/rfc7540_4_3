@@ -421,13 +421,18 @@ EOF
 tst_encode --table-size 256
 tst_decode --table-size 256
 
+max_partial_size() {
+	c=$(wc -c)
+	echo $((c - 1))
+}
+
 decode_partial_block() {
 	tst_decode --decoding-spec p$1, --table-size 256
 }
 
-c=$(wc -c <"$TEST_TMP/bin")
+size=$(max_partial_size <"$TEST_TMP/bin")
 
-tst_repeat "$c" decode_partial_block
+tst_repeat "$size" decode_partial_block
 
 _ ----------------------------------
 _ Brute force broken block splitting
@@ -452,6 +457,6 @@ decode_partial_broken_block() {
 	tst_decode --decoding-spec p$1, --expect-error UPD
 }
 
-c=$(wc -c <"$TEST_TMP/bin")
+size=$(max_partial_size <"$TEST_TMP/bin")
 
-tst_repeat "$c" decode_partial_broken_block
+tst_repeat "$size" decode_partial_broken_block
