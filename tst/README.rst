@@ -144,7 +144,7 @@ Coverage of the HPACK protocol
 
 Unfortunately examples from the RFC are far from enough to get decent coverage
 of the HPACK protocol. The appendices don't even bother showing an update of
-the soft limit of a dynamic table, and they all take the happy path.
+the soft limit of a dynamic table, and all examples take the happy path.
 
 For that matter, sections describing decoding errors or expected behavior have
 their own test cases in addition to the examples from the appendix C. This
