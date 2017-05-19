@@ -827,8 +827,8 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 {
 	struct hpack_decoding fld_dec;
 	struct hpack_ctx *ctx;
+	enum hpack_result_e retval;
 	const char *nam, *val;
-	int retval;
 
 	if (hp == NULL || hp->magic != DECODER_MAGIC || dec == NULL ||
 	    pnam == NULL || pval == NULL)
