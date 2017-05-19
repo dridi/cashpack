@@ -39,6 +39,9 @@ hpack_alloc_links = \
 	hpack_limit.3 \
 	hpack_trim.3
 
+hpack_decode_links = \
+	hpack_decode_fields.3
+
 hpack_error_links = \
 	hpack_strerror.3 \
 	hpack_dump.3
@@ -57,6 +60,7 @@ dist_man_MANS = \
 	hpack_index.3 \
 	hpack_error.3 \
 	$(hpack_alloc_links) \
+	$(hpack_decode_links) \
 	$(hpack_error_links) \
 	$(hpack_index_links)
 endif
@@ -130,6 +134,9 @@ hpack_error.3: hpr2rst.rst hpack_dump.src
 
 $(hpack_alloc_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_alloc.3 >$@
+
+$(hpack_decode_links):
+	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_decode.3 >$@
 
 $(hpack_error_links):
 	$(AM_V_GEN) $(BUILD_MAN_LINK) hpack_error.3 >$@
