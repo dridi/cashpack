@@ -878,6 +878,7 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 		assert(val < ctx->buf);
 	}
 
+	assert((nam == NULL) == (val == NULL));
 	*pnam = nam;
 	*pval = val;
 
