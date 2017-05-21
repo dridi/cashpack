@@ -58,13 +58,13 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	else
 		hs->magic = INT_STATE_MAGIC;
 
-	assert(ctx->len > 0 || ctx->hp->state.stp != HPACK_STP_FLD_INT);
-	EXPECT(ctx, BUF, ctx->len > 0);
+	assert(ctx->ptr_len > 0 || ctx->hp->state.stp != HPACK_STP_FLD_INT);
+	EXPECT(ctx, BUF, ctx->ptr_len > 0);
 	if (!hs->bsy) {
 		mask = (uint8_t)((1 << pfx) - 1);
 		hs->stt.hpi.v = *ctx->ptr.blk & mask;
 		ctx->ptr.blk++;
-		ctx->len--;
+		ctx->ptr_len--;
 
 		if (hs->stt.hpi.v < mask) {
 			*val = hs->stt.hpi.v;
@@ -75,7 +75,7 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	}
 
 	do {
-		EXPECT(ctx, BUF, ctx->len > 0);
+		EXPECT(ctx, BUF, ctx->ptr_len > 0);
 		b = *ctx->ptr.blk;
 		n = hs->stt.hpi.v;
 		if (hs->stt.hpi.m <= 16)
@@ -86,7 +86,7 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 		hs->stt.hpi.v = n;
 		hs->stt.hpi.m += 7;
 		ctx->ptr.blk++;
-		ctx->len--;
+		ctx->ptr_len--;
 	} while (b & 0x80);
 
 	*val = hs->stt.hpi.v;
@@ -101,7 +101,7 @@ HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
 	uint8_t mask;
 
 	assert(pfx >= 4 && pfx <= 7);
-	assert(ctx->len < ctx->arg.enc->buf_len);
+	assert(ctx->ptr_len < ctx->arg.enc->buf_len);
 
 	mask = (uint8_t)((1 << pfx) - 1);
 	if (val < mask) {

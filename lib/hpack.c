@@ -514,16 +514,16 @@ hpack_decode_raw_string(HPACK_CTX, size_t len)
 	unsigned fit;
 
 	hs = &ctx->hp->state;
-	fit = len <= ctx->len;
+	fit = len <= ctx->ptr_len;
 	if (!fit)
-		len = ctx->len;
+		len = ctx->ptr_len;
 
 	CALL(HPD_cat, ctx, (const char *)ctx->ptr.blk, len);
 	if (fit)
 		CALL(HPD_putc, ctx, '\0');
 
 	ctx->ptr.blk += len;
-	ctx->len -= len;
+	ctx->ptr_len -= len;
 	hs->stt.str.len -= len;
 	EXPECT(ctx, BUF, hs->stt.str.len == 0);
 
@@ -562,7 +562,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 			EXPECT(ctx, LEN, len > 0);
 
 		if (len > 0)
-			EXPECT(ctx, BUF, ctx->len > 0);
+			EXPECT(ctx, BUF, ctx->ptr_len > 0);
 
 		/* fall through */
 	case HPACK_STP_NAM_STR:
@@ -740,12 +740,12 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 
 	ctx->arg.dec = dec;
 	ctx->ptr.blk = dec->blk;
-	ctx->len = dec->blk_len;
+	ctx->ptr_len = dec->blk_len;
 	ctx->cb = dec->cb;
 	ctx->priv = dec->priv;
 	ctx->res = dec->cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
-	while (ctx->len > 0) {
+	while (ctx->ptr_len > 0) {
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->ptr.blk;
 		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
@@ -1086,7 +1086,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 
 	ctx->arg.enc = enc;
 	ctx->ptr.cur = enc->buf;
-	ctx->len = 0;
+	ctx->ptr_len = 0;
 	ctx->cb = enc->cb;
 	ctx->priv = enc->priv;
 

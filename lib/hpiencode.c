@@ -83,12 +83,12 @@ main(int argc, const char **argv)
 
 	HPI_encode(&ctx, pfx, pat, (uint16_t)val);
 
-	assert(ctx.len > 0);
+	assert(ctx.ptr_len > 0);
 
-	while (ctx.len > 0) {
+	while (ctx.ptr_len > 0) {
 		printf("%02x", *(uint8_t *)enc.buf);
 		enc.buf = (uint8_t *)enc.buf + 1;
-		ctx.len--;
+		ctx.ptr_len--;
 	}
 	puts("");
 

@@ -85,7 +85,7 @@ struct hpack_ctx {
 		const uint8_t			*blk;
 		uint8_t				*cur;
 	} ptr;
-	size_t					len;
+	size_t					ptr_len;
 	char					*buf;
 	size_t					buf_len;
 	struct {

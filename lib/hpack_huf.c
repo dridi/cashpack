@@ -93,8 +93,8 @@ HPH_decode(HPACK_CTX, size_t len)
 		hs->stt.str.oct = hph_oct0;
 	}
 
-	if (len > ctx->len)
-		len = ctx->len;
+	if (len > ctx->ptr_len)
+		len = ctx->ptr_len;
 
 	while (hs->stt.str.len > 0) {
 		EXPECT(ctx, BUF, len > 0);
@@ -103,7 +103,7 @@ HPH_decode(HPACK_CTX, size_t len)
 		hs->stt.str.blen += 8;
 		hs->stt.str.len--;
 		ctx->ptr.blk++;
-		ctx->len--;
+		ctx->ptr_len--;
 		len--;
 
 		CALL(hph_decode_lookup, ctx, &eos);
