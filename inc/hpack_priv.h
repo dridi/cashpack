@@ -75,6 +75,8 @@ struct hpt_entry {
 	uint16_t	unused;
 };
 
+#define HPACK_CTX_CAN_UPD (unsigned)1
+
 struct hpack_ctx {
 	struct hpack				*hp;
 	union {
@@ -97,7 +99,7 @@ struct hpack_ctx {
 	hpack_event_f				*cb;
 	void					*priv;
 	enum hpack_result_e			res;
-	unsigned				can_upd;
+	unsigned				flg;
 };
 
 struct hpack_size {

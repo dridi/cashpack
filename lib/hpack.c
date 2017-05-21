@@ -674,7 +674,7 @@ hpack_decode_update(HPACK_CTX)
 {
 	uint16_t sz;
 
-	EXPECT(ctx, UPD, ctx->can_upd);
+	EXPECT(ctx, UPD, ctx->flg & HPACK_CTX_CAN_UPD);
 
 	CALL(HPI_decode, ctx, HPACK_PFX_UPD, &sz);
 	if (ctx->hp->sz.min >= 0) {
@@ -691,11 +691,11 @@ hpack_decode_update(HPACK_CTX)
 			ctx->hp->sz.lim = sz;
 			ctx->hp->sz.min = -1;
 			ctx->hp->sz.nxt = -1;
-			ctx->can_upd = 0;
+			ctx->flg &= ~HPACK_CTX_CAN_UPD;
 		}
 	}
 	else
-		ctx->can_upd = 0;
+		ctx->flg &= ~HPACK_CTX_CAN_UPD;
 	EXPECT(ctx, LEN, sz <= ctx->hp->sz.max);
 	ctx->hp->sz.lim = sz;
 	HPT_adjust(ctx, ctx->hp->sz.len);
@@ -734,7 +734,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 		assert(ctx->res == HPACK_RES_OK);
 		ctx->buf = dec->buf;
 		ctx->buf_len = dec->buf_len;
-		ctx->can_upd = 1;
+		ctx->flg = HPACK_CTX_CAN_UPD;
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
@@ -754,7 +754,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 				return (HPACK_RES_RSZ);
 			}
 			assert(hp->sz.min < 0);
-			ctx->can_upd = 0;
+			ctx->flg &= ~HPACK_CTX_CAN_UPD;
 		}
 #define HPACK_DECODE(l, U, or)						\
 		if ((hp->state.typ & HPACK_PAT_##U) == HPACK_PAT_##U)	\
@@ -1019,7 +1019,7 @@ hpack_encode_update(HPACK_CTX, ssize_t lim)
 {
 	struct hpack *hp;
 
-	assert(ctx->can_upd);
+	assert(ctx->flg & HPACK_CTX_CAN_UPD);
 	assert(lim >= 0);
 	assert(lim <= UINT16_MAX);
 
@@ -1052,7 +1052,7 @@ hpack_encode_update(HPACK_CTX, ssize_t lim)
 		assert(hp->sz.min == hp->sz.nxt);
 		hp->sz.min = -1;
 		hp->sz.nxt = -1;
-		ctx->can_upd = 0;
+		ctx->flg &= ~HPACK_CTX_CAN_UPD;
 	}
 
 	assert((size_t)lim <= hp->sz.max);
@@ -1080,7 +1080,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
-		ctx->can_upd = 1;
+		ctx->flg = HPACK_CTX_CAN_UPD;
 		ctx->res = HPACK_RES_BLK;
 	}
 
@@ -1090,7 +1090,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 	ctx->cb = enc->cb;
 	ctx->priv = enc->priv;
 
-	if (ctx->can_upd && hp->sz.min >= 0) {
+	if (ctx->flg & HPACK_CTX_CAN_UPD && hp->sz.min >= 0) {
 		assert(hp->sz.min <= hp->sz.nxt);
 		retval = hpack_encode_update(ctx, hp->sz.min);
 		assert(retval == 0);
@@ -1099,10 +1099,10 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 			retval = hpack_encode_update(ctx, hp->sz.nxt);
 			assert(retval == 0);
 		}
-		assert(!ctx->can_upd);
+		assert((ctx->flg & HPACK_CTX_CAN_UPD) == 0);
 	}
 
-	if (ctx->can_upd && ctx->hp->sz.cap >= 0) {
+	if (ctx->flg & HPACK_CTX_CAN_UPD && ctx->hp->sz.cap >= 0) {
 		assert(ctx->hp->sz.lim == -1);
 		if ((size_t)ctx->hp->sz.cap < ctx->hp->sz.max) {
 			retval = hpack_encode_update(ctx, hp->sz.cap);
@@ -1111,7 +1111,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 		}
 	}
 
-	ctx->can_upd = 0;
+	ctx->flg &= ~HPACK_CTX_CAN_UPD;
 	cnt = enc->fld_cnt;
 	fld = enc->fld;
 
