@@ -73,6 +73,9 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 	    &priv2->val)) == HPACK_RES_FLD)
 		printf("\n%s: %s", priv2->nam, priv2->val);
 
+	if (retval == HPACK_RES_OK)
+		assert(!cut);
+
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
 		retval = 0;
