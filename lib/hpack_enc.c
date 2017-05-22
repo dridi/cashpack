@@ -60,6 +60,7 @@ HPE_bcat(HPACK_CTX, const void *buf, size_t len)
 	assert(buf != NULL);
 
 	while (len > 0) {
+		assert(ctx->arg.enc->buf_len > ctx->ptr_len);
 		sz = ctx->arg.enc->buf_len - ctx->ptr_len;
 		if (sz > len)
 			sz = len;
