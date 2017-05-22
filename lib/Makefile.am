@@ -39,6 +39,7 @@ libhpack_la_DEPENDENCIES = $(PACKAGE).map
 
 libhpack_la_SOURCES = \
 	hpack.c \
+	hpack_ctx.c \
 	hpack_dec.c \
 	hpack_enc.c \
 	hpack_huf.c \
@@ -58,6 +59,7 @@ pkgconfig_DATA = $(PACKAGE).pc
 noinst_PROGRAMS = hpiencode
 
 hpiencode_LDADD = \
+	hpack_ctx.$(OBJEXT) \
 	hpack_enc.$(OBJEXT) \
 	hpack_int.$(OBJEXT)
 

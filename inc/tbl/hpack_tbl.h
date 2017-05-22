@@ -93,6 +93,10 @@ HPR(HDR, -13, "undefined pseudo-header",
 HPR(REA, -14, "missing realloc function",
 	"\tThe codec was initialized without a realloc function but used in\n"
 	"\ta way that required a realloc operation.\n\n")
+
+HPR(SKP, -15, "failed to skip a block",
+	"\tThe attempt at skipping a header block too big failed. There\n"
+	"\twas a single field too large for the whole decoding buffer.\n\n")
 #endif /* HPR */
 
 #ifdef HPE

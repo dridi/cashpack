@@ -76,6 +76,7 @@ struct hpt_entry {
 };
 
 #define HPACK_CTX_CAN_UPD (unsigned)1
+#define HPACK_CTX_TOO_BIG (unsigned)2
 
 struct hpack_ctx {
 	struct hpack				*hp;
@@ -197,11 +198,6 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 			return (-1);			\
 	} while (0)
 
-#define CALLBACK(ctx, evt, buf, len)			\
-	do {						\
-		(ctx)->cb(evt, buf, len, (ctx)->priv);	\
-	} while (0)
-
 #define EXPECT(ctx, err, cond)				\
 	do {						\
 		if (!(cond)) {				\
@@ -213,6 +209,8 @@ typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
 /**********************************************************************
  * Function Signatures
  */
+
+void HPC_notify(HPACK_CTX, enum hpack_event_e, const void *, size_t);
 
 int  HPD_putc(HPACK_CTX, char);
 int  HPD_puts(HPACK_CTX, const char *, size_t);

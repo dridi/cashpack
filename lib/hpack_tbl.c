@@ -121,9 +121,9 @@ HPT_foreach(HPACK_CTX, int flg)
 
 	if (flg & HPT_FLG_STATIC)
 		for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++) {
-			CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
-			CALLBACK(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
-			CALLBACK(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);
+			HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
+			HPC_notify(ctx, HPACK_EVT_NAME, hf->nam, hf->nam_sz);
+			HPC_notify(ctx, HPACK_EVT_VALUE, hf->val, hf->val_sz);
 		}
 
 	if (~flg & HPT_FLG_DYNAMIC)
@@ -139,9 +139,9 @@ HPT_foreach(HPACK_CTX, int flg)
 		assert(tmp.pre_sz == off);
 		assert(tmp.nam_sz > 0);
 		off = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, off);
-		CALLBACK(ctx, HPACK_EVT_NAME, JUMP(he, 0), tmp.nam_sz);
-		CALLBACK(ctx, HPACK_EVT_VALUE, JUMP(he, tmp.nam_sz + 1),
+		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, off);
+		HPC_notify(ctx, HPACK_EVT_NAME, JUMP(he, 0), tmp.nam_sz);
+		HPC_notify(ctx, HPACK_EVT_VALUE, JUMP(he, tmp.nam_sz + 1),
 		    tmp.val_sz);
 		he = MOVE(he, off);
 	}
@@ -185,7 +185,7 @@ HPT_adjust(struct hpack_ctx *ctx, size_t len)
 	}
 
 	if (n > 0)
-		CALLBACK(ctx, HPACK_EVT_EVICT, NULL, n);
+		HPC_notify(ctx, HPACK_EVT_EVICT, NULL, n);
 
 	if (hp->cnt == 0)
 		assert(hp->sz.len == 0);
@@ -325,7 +325,7 @@ HPT_index(HPACK_CTX)
 	hp->sz.len += len;
 	hp->cnt++;
 
-	CALLBACK(ctx, HPACK_EVT_INDEX, NULL, len);
+	HPC_notify(ctx, HPACK_EVT_INDEX, NULL, len);
 }
 
 /**********************************************************************

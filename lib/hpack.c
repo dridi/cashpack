@@ -629,7 +629,7 @@ hpack_decode_indexed(HPACK_CTX)
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_IDX, &idx);
-	CALLBACK(ctx, HPACK_EVT_FIELD, NULL, idx);
+	HPC_notify(ctx, HPACK_EVT_FIELD, NULL, idx);
 	return (HPT_decode(ctx, idx));
 }
 
@@ -639,7 +639,7 @@ hpack_decode_dynamic(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &ctx->hp->state.idx);
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 	CALL(hpack_decode_field, ctx);
 	HPT_index(ctx);
@@ -652,7 +652,7 @@ hpack_decode_literal(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_LIT, &ctx->hp->state.idx);
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
 	}
 	return (hpack_decode_field(ctx));
 }
@@ -663,8 +663,8 @@ hpack_decode_never(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_NVR, &ctx->hp->state.idx);
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
-		CALLBACK(ctx, HPACK_EVT_NEVER, NULL, 0);
+		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
+		HPC_notify(ctx, HPACK_EVT_NEVER, NULL, 0);
 	}
 	return (hpack_decode_field(ctx));
 }
@@ -699,7 +699,7 @@ hpack_decode_update(HPACK_CTX)
 	EXPECT(ctx, LEN, sz <= ctx->hp->sz.max);
 	ctx->hp->sz.lim = sz;
 	HPT_adjust(ctx, ctx->hp->sz.len);
-	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, sz);
+	HPC_notify(ctx, HPACK_EVT_TABLE, NULL, sz);
 	return (0);
 }
 
@@ -778,6 +778,8 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	}
 
 	assert(ctx->res == HPACK_RES_OK || ctx->res == HPACK_RES_BLK);
+	if (ctx->flg & HPACK_CTX_TOO_BIG && ctx->res == HPACK_RES_OK)
+		return (HPACK_RES_BIG);
 	return (ctx->res);
 }
 
@@ -1043,7 +1045,7 @@ hpack_encode_update(HPACK_CTX, ssize_t lim)
 
 	HPT_adjust(ctx, hp->sz.len);
 	HPI_encode(ctx, HPACK_PFX_UPD, HPACK_PAT_UPD, (uint16_t)lim);
-	CALLBACK(ctx, HPACK_EVT_TABLE, NULL, (size_t)lim);
+	HPC_notify(ctx, HPACK_EVT_TABLE, NULL, (size_t)lim);
 
 	if (hp->sz.min < hp->sz.nxt) {
 		assert(hp->sz.min >= 0);
@@ -1117,7 +1119,7 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 	fld = enc->fld;
 
 	while (cnt > 0) {
-		CALLBACK(ctx, HPACK_EVT_FIELD, NULL, 0);
+		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
 		switch (fld->flg & HPACK_FLG_TYP_MSK) {
 #define HPACK_ENCODE(l, U)					\
 		case HPACK_FLG_TYP_##U:				\
