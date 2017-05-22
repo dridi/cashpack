@@ -166,6 +166,16 @@ TST_decode(struct dec_ctx *ctx)
 			cb = ctx->rsz;
 			len = atoi(ctx->spec);
 			break;
+		case 'S':
+			cut = 1;
+			/* fall through */
+		case 's':
+			ctx->spec++;
+
+			cb = ctx->skp;
+			len = atoi(ctx->spec);
+			assert(len <= ctx->blk_len);
+			break;
 		default:
 			WRONG("Invalid spec");
 		}
@@ -179,7 +189,7 @@ TST_decode(struct dec_ctx *ctx)
 		assert(cb != NULL);
 		res = cb(ctx->priv, ctx->blk, len, cut);
 
-		if (cb == ctx->dec) {
+		if (cb == ctx->dec || cb == ctx->skp) {
 			ctx->blk = (const uint8_t *)ctx->blk + len;
 			ctx->blk_len -= len;
 		}

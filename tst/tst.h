@@ -37,6 +37,7 @@ typedef int tst_decode_f(void *, const void *, size_t, unsigned);
 struct dec_ctx {
 	void		*priv;
 	tst_decode_f	*dec;
+	tst_decode_f	*skp;
 	tst_decode_f	*rsz;
 	const char	*spec;
 	const void	*blk;

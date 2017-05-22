@@ -85,6 +85,27 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 }
 
 static int
+skip_block(void *priv, const void *blk, size_t len, unsigned cut)
+{
+	int retval;
+
+	retval = decode_block(priv, blk, len, cut);
+
+	if (retval == HPACK_RES_BLK) {
+		assert(cut);
+		retval = 0;
+	}
+	else {
+		assert(retval == HPACK_RES_BIG);
+		OUT("\n<too big>");
+		assert(!cut);
+		retval = 0;
+	}
+
+	return (retval);
+}
+
+static int
 resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 {
 	struct fld_dec_priv *priv2;
@@ -116,6 +137,7 @@ main(int argc, char **argv)
 	priv.val = NULL;
 
 	ctx.dec = decode_block;
+	ctx.skp = skip_block;
 	ctx.rsz = resize_table;
 	ctx.priv = &priv;
 	ctx.spec = "";
@@ -170,6 +192,8 @@ main(int argc, char **argv)
 		    "  d - decode a block of <size> bytes from the dump\n"
 		    "  p - decode a partial block of <size> bytes\n"
 		    "  r - resize the dynamic table to <size> bytes\n"
+		    "  s - try to decode <size> bytes and skip the rest\n"
+		    "  S - the same as 's' but for partial blocks\n"
 		    "  The last empty spec decodes the rest of the dump\n"
 		    "Default table size: 4096\n"
 		    "Possible errors:\n");

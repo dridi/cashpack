@@ -136,6 +136,7 @@ COV_TESTS = \
 	hpack_dec \
 	hpack_enc \
 	hpack_huf \
+	hpack_skp \
 	hpack_tbl
 
 REG_TESTS = \

@@ -178,7 +178,7 @@ requires to build empty files for the HTTP message and the dynamic table::
 For the specific needs of decoding, another option handled by ``hdecode`` only
 can lower the decoding buffer below its default value::
 
-    tst_decode --expect-error BIG --buffer-size 256
+    tst_decode --buffer-size 256 --expect-error BIG
 
 When several header blocks are decoded at once, the size of all blocks are
 passed as a comma-separated list. The last size is omitted and instead deduced
@@ -188,8 +188,9 @@ from the total size::
 
 This list of sizes can also contain dynamic table sizes when they are resized
 out of band, like HTTP/2 settings. In this case the 'd' size prefix's replaced
-by 'r'. Partial blocks may be decoded, in this case the prefix is 'p'. The
-character 'a' aborts, more on that below.
+by 'r'. Partial blocks may be decoded, in this case the prefix is 'p'. It is
+also possible to skip a message too big using 's' and 'S' instead of 'd' and
+'p'. The character 'a' aborts, more on that later.
 
 In some cases *hexdumps* are not *that* helpful and a binary representation is
 a better match. This requirement is covered by another function used by some

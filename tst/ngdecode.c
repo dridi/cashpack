@@ -171,6 +171,7 @@ main(int argc, char **argv)
 	TST_signal();
 
 	ctx.dec = decode_block;
+	ctx.skp = NULL;
 	ctx.rsz = resize_table;
 	ctx.spec = "";
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
