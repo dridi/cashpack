@@ -249,8 +249,9 @@ main(int argc, char **argv)
 	retval = munmap(blk, st.st_size);
 	assert(retval == 0);
 
-	if (res != HPACK_RES_OK)
-		ERR("hpack result: %s (%d)", hpack_strerror(res), res);
+	if (res != exp)
+		ERR("hpack error: expected '%s' (%d) got '%s' (%d)",
+		    hpack_strerror(exp), exp, hpack_strerror(res), res);
 
 	return (res != exp);
 }
