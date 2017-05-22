@@ -133,6 +133,7 @@ AC_DEFUN([CASHPACK_CHECK_CFLAGS], [dnl
 		-Wredundant-decls
 		-Wsign-compare
 		-Wunused-result
+		-Wformat-security
 	])
 
 	# Clang unleashed-ish
