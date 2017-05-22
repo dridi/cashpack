@@ -176,6 +176,7 @@ TST_decode(struct dec_ctx *ctx)
 			ctx->spec++;
 		}
 
+		assert(cb != NULL);
 		res = cb(ctx->priv, ctx->blk, len, cut);
 
 		if (cb == ctx->dec) {
