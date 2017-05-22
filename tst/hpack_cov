@@ -137,6 +137,18 @@ EOF
 
 tst_encode
 
+_ -----------------------------------
+_ Not enough space for all the fields
+_ -----------------------------------
+
+mk_bin <<EOF
+10000010 | indexed field 2 (:method: GET)
+10000101 | indexed field 5 (:path: /index.html)
+EOF
+
+tst_solely hdecode tst_decode --buffer-size 20 --expect-error BIG
+tst_solely fdecode tst_decode --buffer-size 20 --expect-error BIG
+
 _ ------------------------------------------
 _ Not enough space for indexed name or value
 _ ------------------------------------------
