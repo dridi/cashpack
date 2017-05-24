@@ -149,6 +149,38 @@ EOF
 tst_solely hdecode tst_decode --buffer-size 20 --expect-error BIG
 tst_solely fdecode tst_decode --buffer-size 20 --expect-error BIG
 
+_ ----------------------------------------------
+_ Not enough space for a field after making room
+_ ----------------------------------------------
+
+mk_hex <<EOF
+0001 6e01 76                            | @.n.v
+0005 6f74 6865 7205 6669 656c 64        | ..other.field
+EOF
+
+tst_solely hdecode tst_decode \
+	--buffer-size 4 --decoding-spec p12, --expect-error SKP
+
+_ ----------------------------------------------
+_ Not enough space at the end of a partial block
+_ ----------------------------------------------
+
+mk_hex <<EOF
+0001 6101 31                            | @.a.1
+0001 6201 32                            | @.b.2
+0001 6301 33                            | @.c.3
+EOF
+
+mk_msg <<EOF
+a: 1
+<too big>
+EOF
+
+mk_tbl </dev/null
+
+tst_solely hdecode tst_decode \
+	--buffer-size 4 --decoding-spec S5,S5,s5,
+
 _ ------------------------------------------
 _ Not enough space for indexed name or value
 _ ------------------------------------------

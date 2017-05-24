@@ -86,6 +86,9 @@ EOF
 tst_solely hdecode tst_decode \
 	--buffer-size 111 --decoding-spec d70,d8,s98, --table-size 256
 
+tst_solely hdecode tst_decode \
+	--buffer-size 111 --decoding-spec d70,d8,S80,s18, --table-size 256
+
 mk_msg <<EOF
 # Appendix C.5.1.  First Response
 :status: 302
@@ -105,3 +108,44 @@ EOF
 
 tst_solely fdecode tst_decode \
 	--buffer-size 111 --decoding-spec d70,d8,s98, --table-size 256
+
+tst_solely fdecode tst_decode \
+	--buffer-size 111 --decoding-spec d70,d8,S80,s18, --table-size 256
+
+_ -------------------
+_ Skip all the things
+_ -------------------
+
+mk_msg <<EOF
+# Appendix C.5.1.  First Response (deferred failure)
+:status: 302
+cache-control: private
+<too big>
+
+# Appendix C.5.2.  Second Response (deferred failure)
+:status: 307
+cache-control: private
+<too big>
+
+# Appendix C.5.3.  Third Response (deferred failure)
+:status: 200
+cache-control: private
+<too big>
+EOF
+
+tst_solely hdecode tst_decode \
+	--buffer-size 68 --decoding-spec s70,s8,s98, --table-size 256
+
+mk_msg <<EOF
+# Appendix C.5.1.  First Response (immediate failure)
+<too big>
+
+# Appendix C.5.2.  Second Response (immediate failure)
+<too big>
+
+# Appendix C.5.3.  Third Response (immediate failure)
+<too big>
+EOF
+
+tst_solely fdecode tst_decode \
+	--buffer-size 68 --decoding-spec s70,s8,s98, --table-size 256
