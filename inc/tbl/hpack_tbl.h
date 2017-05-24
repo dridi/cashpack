@@ -85,7 +85,7 @@ HPR(BSY, -11, "codec busy",
 
 HPR(BIG, -12, "message too big",
 	"\tThe request or response being decoded doesn't fit in the output\n"
-	"\tbuffer.\n\n")
+	"\tbuffer. This error can be recovered from.\n\n")
 
 HPR(HDR, -13, "undefined pseudo-header",
 	"\tA header list contains an undefined pseudo-header.\n\n")
@@ -94,7 +94,7 @@ HPR(REA, -14, "missing realloc function",
 	"\tThe codec was initialized without a realloc function but used in\n"
 	"\ta way that required a realloc operation.\n\n")
 
-HPR(SKP, -15, "failed to skip a block",
+HPR(SKP, -15, "header too big",
 	"\tThe attempt at skipping a header block too big failed. There\n"
 	"\twas a single field too large for the whole decoding buffer.\n\n")
 #endif /* HPR */

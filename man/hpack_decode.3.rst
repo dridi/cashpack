@@ -219,6 +219,40 @@ it breaks out of the loop, to be reentered later with consistent parameters.
 Mixing calls to ``hpack_decode()`` and ``hpack_decode_fields()`` results in
 undefined behavior. Pick one.
 
+SKIPPING A MESSAGE
+==================
+
+In a memory-constrained environment, it is possible to received a message too
+large from the peer. When that happens either decoding functions would return
+the ``HPACK_RES_BIG`` error code. In that case, like any other error, all bets
+are off regarding any state accumulated by the callback and care should be
+taken to clean everything up.
+
+However ``HPACK_RES_BIG`` is a special case in itself since this error can be
+recovered from. Under the hood the decoder discards previous fields to make
+room for the new field that doesn't fit. It implies that the dynamic table was
+properly maintained and that further messages can be consistently processed.
+
+What if a single field, for example a huge cookie, doesn't fit in the whole
+buffer? In that case the error is ``HPACK_RES_SKP`` and failing to skip the
+message means failing like any other error: the whole decoder is now defunct
+and unusable. In HTTP/2 that would be a protocol error, leading to a shutdown
+of the session, busting all ongoing streams.
+
+In pseudo-code, it can be used like this::
+
+    retval = hpack_decode(...);
+
+    if (retval == HPACK_RES_BIG) {
+        /* handle the skipped message here */
+    }
+    else if (retval < 0) {
+        /* handle unrecoverable errors here */
+    }
+    else {
+        /* handle successful results here */
+    }
+
 RETURN VALUE
 ============
 
