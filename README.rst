@@ -103,8 +103,8 @@ completely stateless, and can carry user-defined state.
 2. Single allocation
 
 An HPACK instance requires a single allocation, and it is possible to plug
-your own allocator. An update of the dynamic table size will require a
-single reallocation too.
+your own allocator. An update of the dynamic table size will require (at most)
+a single reallocation too.
 
 By default cashpack relies on malloc(3), realloc(3) and free(3).
 
