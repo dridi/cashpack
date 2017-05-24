@@ -51,6 +51,7 @@ struct fld_dec_priv {
 	size_t		len;
 	const char	*nam;
 	const char	*val;
+	unsigned	skp;
 };
 
 static int
@@ -78,7 +79,8 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
-		retval = 0;
+		if (!priv2->skp)
+			retval = 0;
 	}
 
 	return (retval);
@@ -87,9 +89,13 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 static int
 skip_block(void *priv, const void *blk, size_t len, unsigned cut)
 {
+	struct fld_dec_priv *priv2;
 	int retval;
 
+	priv2 = priv;
+	priv2->skp = 1;
 	retval = decode_block(priv, blk, len, cut);
+	priv2->skp = 0;
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
@@ -113,6 +119,7 @@ resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 	(void)buf;
 	(void)cut;
 	priv2 = priv;
+	assert(priv2->skp == 0);
 	return (hpack_resize(&priv2->hp, len));
 }
 
@@ -135,6 +142,7 @@ main(int argc, char **argv)
 	priv.len = sizeof buf;
 	priv.nam = NULL;
 	priv.val = NULL;
+	priv.skp = 0;
 
 	ctx.dec = decode_block;
 	ctx.skp = skip_block;
