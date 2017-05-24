@@ -426,7 +426,7 @@ test suite. It would be interesting too to link against ``libc``\s other than
 +==========+============+============+===========+=======+===========+===========+
 | x86_64   | FreeBSD,   | FreeBSD,   | GNU/Linux | SunOS | GNU/Linux | GNU/Linux |
 |          | GNU/Linux, | GNU/Linux, |           |       |           |           |
-|          | OSX,       | OSX        |           |       |           |           |
+|          | MacOS,     | MacOS      |           |       |           |           |
 |          | SunOS      |            |           |       |           |           |
 +----------+------------+------------+-----------+-------+-----------+-----------+
 | i686     | GNU/Linux  | —          | —         | —     | —         | —         |
