@@ -208,7 +208,7 @@ automatically reset to ``NULL`` after the last field was returned.
 
 In pseudo-code, it can be used like this::
 
-    while ((retval = hpack_decode_fields(...)) != HPACK_RES_FLD) {
+    while ((retval = hpack_decode_fields(...)) == HPACK_RES_FLD) {
     	/* use name and value here */
     }
 
