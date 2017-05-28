@@ -23,7 +23,7 @@
 .. SUCH DAMAGE.
 
 ======================================================
-hpack_static, hpack_dynamic, hpack_tables, hpack_index
+hpack_static, hpack_dynamic, hpack_tables, hpack_entry
 ======================================================
 
 ----------------------------------
