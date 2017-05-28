@@ -47,7 +47,7 @@ hpd_skip(HPACK_CTX, size_t len)
 		return (0);
 
 	ctx->flg |= HPACK_CTX_TOO_BIG;
-	EXPECT(ctx, SKP, ctx->fld.nam != ctx->arg.dec->buf);
+	EXPECT(ctx, BIG, ctx->fld.nam != ctx->arg.dec->buf);
 
 	assert(ctx->fld.nam != NULL);
 	assert(ctx->fld.nam <= ctx->buf);
@@ -55,7 +55,7 @@ hpd_skip(HPACK_CTX, size_t len)
 		assert(ctx->fld.val <= ctx->buf);
 	fld_len = (size_t)(ctx->buf - ctx->fld.nam);
 
-	EXPECT(ctx, SKP, ctx->arg.dec->buf_len >= len + fld_len);
+	EXPECT(ctx, BIG, ctx->arg.dec->buf_len >= len + fld_len);
 
 	memmove(ctx->arg.dec->buf, ctx->fld.nam, fld_len);
 

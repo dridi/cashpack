@@ -66,8 +66,8 @@ mk_chars 0 ":authority: %1280s\n"       | mk_msg
 mk_chars 0 "literal idx 1 huf %1280s\n" | mk_enc
 
 # Only cashpack will fail, because of its decoding buffer
-tst_solely hdecode tst_decode --buffer-size 256 --expect-error SKP
-tst_solely fdecode tst_decode --buffer-size 256 --expect-error SKP
+tst_solely hdecode tst_decode --buffer-size 256 --expect-error BIG
+tst_solely fdecode tst_decode --buffer-size 256 --expect-error BIG
 tst_ignore "hdecode fdecode" tst_decode
 tst_encode
 

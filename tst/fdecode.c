@@ -102,7 +102,7 @@ skip_block(void *priv, const void *blk, size_t len, unsigned cut)
 		retval = 0;
 	}
 	else {
-		assert(retval == HPACK_RES_BIG);
+		assert(retval == HPACK_RES_SKP);
 		OUT("\n<too big>");
 		assert(!cut);
 		retval = 0;

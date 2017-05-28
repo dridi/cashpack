@@ -178,7 +178,7 @@ requires to build empty files for the HTTP message and the dynamic table::
 For the specific needs of decoding, another option handled by ``hdecode`` only
 can lower the decoding buffer below its default value::
 
-    tst_decode --buffer-size 256 --expect-error BIG
+    tst_decode --buffer-size 256 --expect-error SKP
 
 When several header blocks are decoded at once, the size of all blocks are
 passed as a comma-separated list. The last size is omitted and instead deduced

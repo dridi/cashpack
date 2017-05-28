@@ -779,7 +779,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 
 	assert(ctx->res == HPACK_RES_OK || ctx->res == HPACK_RES_BLK);
 	if (ctx->flg & HPACK_CTX_TOO_BIG && ctx->res == HPACK_RES_OK)
-		return (HPACK_RES_BIG);
+		return (HPACK_RES_SKP);
 	return (ctx->res);
 }
 
