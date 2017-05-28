@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-=================================
-hpack_decode, hpack_decode_fields
-=================================
+=============================================
+hpack_decode, hpack_decode_fields, hpack_skip
+=============================================
 
 ---------------------
 decode an HPACK block
@@ -57,6 +57,8 @@ SYNOPSIS
 | **enum hpack_result_e hpack_decode_fields(struct hpack** *\*hpack*\ **,**
 | **\     const struct hpack_decoding** *\*dec*\ **,**
 | **\     const char** *\*\*pnam*\ **, const char** *\*\*pval*\ **);**
+|
+| **enum hpack_result_e hpack_skip(struct hpack** *\*hpack*\ **);**
 
 DESCRIPTION
 ===========
@@ -229,9 +231,10 @@ are off regarding any state accumulated by the callback and care should be
 taken to clean everything up.
 
 However ``HPACK_RES_SKP`` is a special case in itself since this error can be
-recovered from. Under the hood the decoder discards previous fields to make
-room for the new field that doesn't fit. It implies that the dynamic table was
-properly maintained and that further messages can be consistently processed.
+recovered from using the ``hpack_skip()`` function. Under the hood the decoder
+discards previous fields to make room for the new field that doesn't fit. It
+implies that the dynamic table was properly maintained and that more messages
+can be consistently processed.
 
 What if a single field, for example a huge cookie, doesn't fit in the whole
 buffer? In that case the error is ``HPACK_RES_BIG`` and failing to skip the
@@ -245,6 +248,7 @@ In pseudo-code, it can be used like this::
 
     if (retval == HPACK_RES_SKP) {
         /* handle the skipped message here */
+        hpack_skip(...);
     }
     else if (retval < 0) {
         /* handle unrecoverable errors here */
@@ -252,6 +256,9 @@ In pseudo-code, it can be used like this::
     else {
         /* handle successful results here */
     }
+
+You may want to assert that ``hpack_skip()`` always returns ``HPACK_RES_OK``
+instead of ignoring the return value like in the example above.
 
 RETURN VALUE
 ============
@@ -265,6 +272,10 @@ zero, otherwise ``HPACK_RES_BLK``. For each subsequent call, ``HPACK_RES_FLD``
 is returned until there are no fields left and ``HPACK_RES_OK`` is returned.
 On error, this function returns one of the listed errors and makes the *hpack*
 argument improper for further use.
+
+The ``hpack_skip()`` function returns ``HPACK_RES_OK`` if *hpack* is a decoder
+that resulted in an ``HPACK_RES_SKP`` error in its latest decoding operation,
+``HPACK_RES_ARG`` otherwise.
 
 ERRORS
 ======

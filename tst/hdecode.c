@@ -140,7 +140,7 @@ skip_block(void *priv, const void *blk, size_t len, unsigned cut)
 		assert(retval == HPACK_RES_SKP);
 		OUT("<too big>");
 		assert(!cut);
-		retval = 0;
+		retval = hpack_skip(priv2->hp);
 	}
 
 	return (retval);

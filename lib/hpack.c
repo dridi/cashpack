@@ -732,9 +732,10 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	}
 	else {
 		assert(ctx->res == HPACK_RES_OK);
+		EXPECT(ctx, ARG, (ctx->flg & HPACK_CTX_TOO_BIG) == 0);
 		ctx->buf = dec->buf;
 		ctx->buf_len = dec->buf_len;
-		ctx->flg = HPACK_CTX_CAN_UPD;
+		ctx->flg |= HPACK_CTX_CAN_UPD;
 		hp->state.stp = HPACK_STP_FLD_INT;
 	}
 
@@ -886,6 +887,18 @@ hpack_decode_fields(struct hpack *hp, const struct hpack_decoding *dec,
 	*pval = val;
 
 	return (ctx->res);
+}
+
+enum hpack_result_e
+hpack_skip(struct hpack *hp)
+{
+
+	if (hp == NULL || hp->magic != DECODER_MAGIC ||
+	    (hp->ctx.flg & HPACK_CTX_TOO_BIG) == 0)
+		return (HPACK_RES_ARG);
+
+	hp->ctx.flg &= ~HPACK_CTX_TOO_BIG;
+	return (HPACK_RES_OK);
 }
 
 /**********************************************************************

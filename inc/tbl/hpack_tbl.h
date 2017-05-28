@@ -83,7 +83,7 @@ HPR(BSY, -11, "codec busy",
 	"\tSome operations such as listing the contents of the dynamic\n"
 	"\ttable can't be performed while a block is being decoded.\n\n")
 
-HPR(SKP, -12, "message too big",
+HPR(SKP, -12, "message skipped",
 	"\tThe request or response being decoded doesn't fit in the output\n"
 	"\tbuffer. This error can be recovered from by skipping the large\n"
 	"\tmessage.\n\n")
