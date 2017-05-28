@@ -496,6 +496,39 @@ test_trim_realloc_failure(void)
 }
 
 static void
+test_skip_decoder(void)
+{
+	struct hpack_decoding dec;
+
+	hp = make_decoder(0, -1, hpack_default_alloc);
+
+	/* unattended skip */
+	CHECK_RES(retval, ARG, hpack_skip, hp);
+
+	/* message too big */
+	(void)memset(&dec, 0, sizeof dec);
+	dec.blk = double_block;
+	dec.blk_len = sizeof double_block;
+	dec.buf = wrk_buf;
+	dec.buf_len = 12; /* just enough for ":method: GET" */
+	dec.cb = noop_cb;
+
+	CHECK_RES(retval, SKP, hpack_decode, hp, &dec);
+
+	/* decode again without properly skipping */
+	CHECK_RES(retval, ARG, hpack_decode, hp, &dec);
+
+	hpack_free(&hp);
+}
+
+static void
+test_skip_null_decoder(void)
+{
+	assert(hp == NULL);
+	CHECK_RES(retval, ARG, hpack_skip, NULL);
+}
+
+static void
 test_use_defunct_decoder(void)
 {
 	const char *nam, *val;
@@ -508,6 +541,7 @@ test_use_defunct_decoder(void)
 	/* try using it again */
 	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding);
 	CHECK_RES(retval, ARG, hpack_entry, hp, 2, &nam, &val);
+	CHECK_RES(retval, ARG, hpack_skip, hp);
 
 	/* try dumping it */
 	test_dump(hp);
@@ -769,6 +803,9 @@ main(int argc, char **argv)
 	test_limit_realloc_failure();
 	test_trim_null_realloc();
 	test_trim_realloc_failure();
+
+	test_skip_decoder();
+	test_skip_null_decoder();
 
 	test_use_defunct_decoder();
 	test_use_busy_decoder();
