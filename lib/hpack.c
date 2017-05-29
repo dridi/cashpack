@@ -789,7 +789,6 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
 #ifdef NDEBUG
-	(void)evt;
 	(void)buf;
 	(void)len;
 #endif

@@ -204,7 +204,7 @@ struct hpack {
 	struct hpt_entry	tbl[];
 };
 
-typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
+typedef int hpack_validate_f(HPACK_CTX, const char *, size_t);
 
 /**********************************************************************
  * Function Signatures
@@ -231,7 +231,7 @@ void HPH_size(const char *, size_t *);
 hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;
 
-void HPT_adjust(struct hpack_ctx *, size_t);
+void HPT_adjust(HPACK_CTX, size_t);
 int  HPT_field(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX, int);
 int  HPT_decode(HPACK_CTX, size_t);
