@@ -26,6 +26,30 @@
  * SUCH DAMAGE.
  */
 
+/**********************************************************************
+ * Utility Macros
+ */
+
+#define HPACK_CTX	struct hpack_ctx *ctx
+#define HPACK_FLD	const struct hpack_field *fld
+
+#define HPACK_LIMIT(hp) \
+	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
+
+#define CALL(func, ...)					\
+	do {						\
+		if ((func)(__VA_ARGS__) != 0)		\
+			return (-1);			\
+	} while (0)
+
+#define EXPECT(ctx, err, cond)				\
+	do {						\
+		if (!(cond)) {				\
+			(ctx)->res = HPACK_RES_##err;	\
+			return (HPACK_RES_##err);	\
+		}					\
+	} while (0)
+
 #define HPT_FLG_STATIC	0x01
 #define HPT_FLG_DYNAMIC	0x02
 
@@ -181,30 +205,6 @@ struct hpack {
 };
 
 typedef int hpack_validate_f(struct hpack_ctx*, const char *, size_t);
-
-/**********************************************************************
- * Utility Macros
- */
-
-#define HPACK_CTX	struct hpack_ctx *ctx
-#define HPACK_FLD	const struct hpack_field *fld
-
-#define HPACK_LIMIT(hp) \
-	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
-
-#define CALL(func, ...)					\
-	do {						\
-		if ((func)(__VA_ARGS__) != 0)		\
-			return (-1);			\
-	} while (0)
-
-#define EXPECT(ctx, err, cond)				\
-	do {						\
-		if (!(cond)) {				\
-			(ctx)->res = HPACK_RES_##err;	\
-			return (HPACK_RES_##err);	\
-		}					\
-	} while (0)
 
 /**********************************************************************
  * Function Signatures
