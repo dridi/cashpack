@@ -87,7 +87,7 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		stt->pos++;
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
 		if (hf->flg & HPACK_FLG_TYP_IDX) {
-			LOG("(indexed");
+			LOG("(indexed: %hu", hf->idx);
 			if (hf->idx > stt->idx_len) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
@@ -99,12 +99,10 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 			}
 			if (hf->idx > HPACK_STATIC)
 				hf->idx += stt->idx_off;
-			if (hf->idx > 0)
-				LOG(", %hu", hf->idx);
 			LOG(")");
 		}
 		if (hf->flg & HPACK_FLG_NAM_IDX) {
-			LOG("(indexed name");
+			LOG("(indexed: %hu", hf->nam_idx);
 			if (hf->nam_idx > stt->idx_len) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
@@ -114,8 +112,6 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 				hf->nam = NULL;
 			if (hf->nam_idx > HPACK_STATIC)
 				hf->nam_idx += stt->idx_off;
-			if (hf->nam_idx > 0)
-				LOG(", %hu", hf->nam_idx);
 			LOG(")");
 		}
 		LOG("\n");
