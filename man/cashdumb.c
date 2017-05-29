@@ -49,18 +49,12 @@ dumb_perror(const char *func, int retval)
 
 /* data structures */
 
-struct dumb_ref {
-	const char *nam;
-	const char *val;
-};
-
 struct dumb_field {
 	char	*nam;
 	char	*val;
 };
 
 struct dumb_state {
-	struct dumb_ref		*idx;
 	struct dumb_field	*dmb;
 	struct hpack_field	*fld;
 	size_t			len;
@@ -72,67 +66,10 @@ struct dumb_state {
 /* global variables for convenience */
 
 #define TABLE_SIZE 256
-#define MAX_ENTRIES (HPACK_STATIC + TABLE_SIZE / 33)
 #define MAX_FIELDS 7
 
 static struct hpack_field static_fld[MAX_FIELDS];
 static struct dumb_field  static_dmb[MAX_FIELDS];
-static struct dumb_ref    static_idx[MAX_ENTRIES + 1];
-
-/* index management */
-
-static void
-dumb_index_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
-{
-	struct dumb_state *stt;
-
-	stt = priv;
-	(void)len;
-
-	switch (evt) {
-	case HPACK_EVT_FIELD:
-		stt->idx_len += 1;
-		break;
-	case HPACK_EVT_NAME:
-		stt->idx[stt->idx_len].nam = buf;
-		break;
-	case HPACK_EVT_VALUE:
-		stt->idx[stt->idx_len].val = buf;
-		/* fall through */
-	default:
-		/* ignore other events */
-		break;
-	}
-}
-
-static void
-dumb_reindex(struct hpack *hp, struct dumb_state *stt)
-{
-	int retval;
-
-	stt->idx_len = 0;
-	retval = hpack_tables(hp, dumb_index_cb, stt);
-	if (retval < 0)
-		dumb_perror("hpack_tables", retval);
-	LOG("index length: %zu\n\n", stt->idx_len);
-}
-
-static size_t
-dumb_search(const struct dumb_state *stt, const char *nam, const char *val)
-{
-	size_t nam_idx, idx;
-
-	nam_idx = 0;
-
-	for (idx = 1; idx <= stt->idx_len; idx++)
-		if (!strcmp(nam, stt->idx[idx].nam)) {
-			nam_idx = idx;
-			if (!strcmp(val, stt->idx[idx].val))
-				return (idx);
-		}
-
-	return (nam_idx);
-}
 
 /* logging of the encoding process */
 
@@ -247,14 +184,15 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 		dumb_perror("hpack_encode", retval);
 
 	dumb_fields_clear(stt);
-	dumb_reindex(hp, stt);
+	LOG("\n");
 }
 
 static void
-dumb_fields_append(struct dumb_state *stt, const char *line)
+dumb_fields_append(struct hpack *hp, struct dumb_state *stt, const char *line)
 {
 	struct hpack_field *fld;
 	struct dumb_field *dmb;
+	enum hpack_result_e res;
 	const char *sep, *val;
 	char *nam, *tmp;
 	size_t idx;
@@ -285,15 +223,15 @@ dumb_fields_append(struct dumb_state *stt, const char *line)
 	tmp = strchr(fld->val, '\n');
 	*tmp = '\0';
 
-	idx = dumb_search(stt, fld->nam, fld->val);
+	res = hpack_search(hp, &idx, fld->nam, fld->val);
 
-	if (idx == 0) {
+	if (res == HPACK_RES_IDX) {
 		/* not in the cache? insert it */
 		fld->flg = HPACK_FLG_TYP_DYN;
 		return;
 	}
 
-	if (strcmp(fld->val, stt->idx[idx].val)) {
+	if (res == HPACK_RES_NAM) {
 		/* only the name is in the cache? use it */
 		fld->flg = HPACK_FLG_TYP_DYN | HPACK_FLG_NAM_IDX;
 		fld->nam_idx = idx;
@@ -313,22 +251,17 @@ main(void)
 	struct dumb_state stt;
 	char *lineptr;
 	size_t linelen;
-	int retval;
 
 	/* initialization */
 	hp = hpack_encoder(TABLE_SIZE, -1, hpack_default_alloc);
 	(void)memset(&stt, 0, sizeof stt);
-	stt.idx = static_idx;
 	stt.fld = static_fld;
 	stt.dmb = static_dmb;
+	stt.idx_len = HPACK_STATIC;
 	lineptr = NULL;
 	linelen = 0;
 
-	/* index initialization */
-	retval = hpack_static(dumb_index_cb, &stt);
-	if (retval < 0)
-		dumb_perror("hpack_static", retval);
-
+	/* repl */
 	while (getline(&lineptr, &linelen, stdin) != -1) {
 		if (*lineptr == '#') {
 			LOG("%s", lineptr);
@@ -346,7 +279,7 @@ main(void)
 				LOG("encoding partial block\n");
 				dumb_fields_send(hp, &stt, 1);
 			}
-			dumb_fields_append(&stt, lineptr);
+			dumb_fields_append(hp, &stt, lineptr);
 		}
 	}
 
