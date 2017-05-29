@@ -149,6 +149,55 @@ HPT_foreach(HPACK_CTX, int flg)
 	assert(DIFF(tbl, he) == ctx->hp->sz.len);
 }
 
+int
+HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
+{
+	const struct hpt_entry *he, *tbl;
+	const struct hpt_field *hf;
+	struct hpt_entry tmp;
+	size_t i, off, nam_idx;
+
+	assert(idx != NULL);
+	assert(nam != NULL);
+	assert(val != NULL);
+	nam_idx = 0;
+
+	for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++)
+		if (!strcmp(nam, hf->nam)) {
+			nam_idx = i + 1;
+			if (!strcmp(val, hf->val)) {
+				*idx = nam_idx;
+				return (0);
+			}
+		}
+
+	off = 0;
+	tbl = ctx->hp->tbl;
+	he = tbl;
+	for (i = 0; i < ctx->hp->cnt; i++) {
+		assert(DIFF(tbl, he) < ctx->hp->sz.len);
+		(void)memcpy(&tmp, he, HPT_HEADERSZ);
+		assert(tmp.magic == HPT_ENTRY_MAGIC);
+		assert(tmp.pre_sz == off);
+		assert(tmp.nam_sz > 0);
+		off = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
+		if (!strcmp(nam, JUMP(he, 0))) {
+			nam_idx = i + HPACK_STATIC + 1;
+			if (!strcmp(val, JUMP(he, tmp.nam_sz + 1))) {
+				*idx = nam_idx;
+				return (0);
+			}
+		}
+		he = MOVE(he, off);
+	}
+
+	assert(DIFF(tbl, he) == ctx->hp->sz.len);
+	*idx = nam_idx;
+	if (nam_idx > 0)
+		return (HPACK_RES_NAM);
+	return (HPACK_RES_IDX);
+}
+
 /**********************************************************************
  * Resize
  */

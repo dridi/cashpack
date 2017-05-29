@@ -37,6 +37,7 @@ CASHPACK_0.4 {
     hpack_free;
     hpack_limit;
     hpack_resize;
+    hpack_search;
     hpack_skip;
     hpack_static;
     hpack_strerror;

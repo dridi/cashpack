@@ -304,6 +304,7 @@ SEE ALSO
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),
+**hpack_search**\(3),
 **hpack_static**\(3),
 **hpack_strerror**\(3),
 **hpack_tables**\(3),

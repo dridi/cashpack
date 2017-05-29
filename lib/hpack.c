@@ -389,6 +389,20 @@ hpack_tables(struct hpack *hp, hpack_event_f cb, void *priv)
 }
 
 enum hpack_result_e
+hpack_search(struct hpack *hp, size_t *idx, const char *nam, const char *val)
+{
+
+	if (hp == NULL || idx == NULL || nam == NULL)
+		return (HPACK_RES_ARG);
+	if (hp->magic != DECODER_MAGIC && hp->magic != ENCODER_MAGIC)
+		return (HPACK_RES_ARG);
+
+	if (val == NULL)
+		val = "";
+	return (HPT_search(&hp->ctx, idx, nam, val));
+}
+
+enum hpack_result_e
 hpack_entry(struct hpack *hp, size_t idx, const char **nam, const char **val)
 {
 	struct hpt_field hf;

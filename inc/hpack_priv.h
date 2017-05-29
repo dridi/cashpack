@@ -234,6 +234,7 @@ hpack_validate_f HPV_value;
 void HPT_adjust(HPACK_CTX, size_t);
 int  HPT_field(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX, int);
+int  HPT_search(HPACK_CTX, size_t *, const char *, const char *);
 int  HPT_decode(HPACK_CTX, size_t);
 int  HPT_decode_name(HPACK_CTX);
 void HPT_index(HPACK_CTX);

@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-======================================================
-hpack_static, hpack_dynamic, hpack_tables, hpack_entry
-======================================================
+====================================================================
+hpack_static, hpack_dynamic, hpack_tables, hpack_entry, hpack_search
+====================================================================
 
 ----------------------------------
 probe the contents of HPACK tables
@@ -56,6 +56,10 @@ SYNOPSIS
 | **enum hpack_result_e hpack_entry(struct hpack** *\*hpack*\ **,**
 | **\     size_t** *idx*\ **, const char** *\*\*nam*\ **, const char** \
     *\*\*val*\ **)**
+|
+| **enum hpack_result_e hpack_search(struct hpack** *\*hpack*\ **,**
+| **\     size_t** *\*idx*\ **, const char** *\*nam*\ **, const char** \
+    *\*val*\ **)**
 
 DESCRIPTION
 ===========
@@ -77,6 +81,11 @@ events, passing a *priv* pointer that can be used to maintain state. The
 The ``hpack_entry()`` function extracts an entry from both tables based on a
 global index *idx*. When the function returns, *nam* and *val* respectively
 point to the name and value of the indexed field.
+
+The ``hpack_search()`` function searches for a best match for *nam* and *val*
+in both the static and dynamic tables of *hpack*. It sets *idx* to the field's
+index or zero if none was found. If a full match is not found, it may match
+a field's name instead and therefore *val* is allowed to be ``NULL``.
 
 The ``HPACK_STATIC`` and ``HPACK_OVERHEAD`` macros represent respectively the
 number of entries in the static table and the per-entry overhead in dynamic
@@ -105,9 +114,12 @@ semantics. Static entries are always safe to dereference.
 RETURN VALUE
 ============
 
-The ``hpack_static()`` ``hpack_dynamic()`` and  ``hpack_tables()`` functions
-return ``HPACK_RES_OK``. On error, these functions returns one of the listed
-errors.
+The ``hpack_static()``, ``hpack_dynamic()``, ``hpack_tables()`` and
+``hpack_entry()`` functions return ``HPACK_RES_OK``.  On error, these
+functions returns one of the listed errors.
+
+The ``hpack_search()`` function returns ``HPACK_RES_OK`` for a full match
+and ``HPACK_RES_NAM`` if only a field name matched.
 
 ERRORS
 ======
@@ -126,6 +138,13 @@ The ``hpack_entry()`` function can fail with the following errors:
 ``HPACK_RES_ARG``: *hpack*, *nam* or *val* is ``NULL``.
 
 ``HPACK_RES_IDX``: *idx* is not a valid index.
+
+The ``hpack_search()`` function can fail with the following errors:
+
+``HPACK_RES_ARG``: *hpack* doesn't point to a valid codec or *nam* is
+``NULL``.
+
+``HPACK_RES_IDX``: *idx* no match found in the tables.
 
 SEE ALSO
 ========

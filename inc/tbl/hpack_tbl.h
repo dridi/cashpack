@@ -30,6 +30,10 @@
 
 #ifdef HPR
 #ifndef HPR_ERRORS_ONLY
+HPR(NAM, 3, "name-only match",
+	"\tAn index search only matched a field name. This is not an\n"
+	"\terror.\n\n")
+
 HPR(FLD, 2, "decoded field",
 	"\tThe expected result when decoding fields only. This is not an\n"
 	"\terror.\n\n")
@@ -56,7 +60,8 @@ HPR(INT, -3, "integer overflow",
 	"\tDecoding of an integer gives a value too large.\n\n")
 
 HPR(IDX, -4, "invalid index",
-	"\tThe decoded or specified index is out of range.\n\n")
+	"\tThe decoded or specified index is out of range. In the case of\n"
+	"\tan index search, no match was found.\n\n")
 
 HPR(LEN, -5, "invalid length",
 	"\tAn invalid length may refer to header fields with an empty name\n"
