@@ -140,6 +140,7 @@ SEE ALSO
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),
+**hpack_skip**\(3),
 **hpack_strerror**\(3),
 **hpack_tables**\(3),
 **hpack_trim**\(3)
