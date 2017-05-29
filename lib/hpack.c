@@ -401,7 +401,7 @@ hpack_entry(struct hpack *hp, size_t idx, const char **nam, const char **val)
 	if (idx == 0 || idx > HPACK_STATIC + hp->cnt)
 		return (HPACK_RES_IDX);
 
-	retval = HPT_search(&hp->ctx, idx, &hf);
+	retval = HPT_field(&hp->ctx, idx, &hf);
 	assert(retval == HPACK_RES_OK);
 	*nam = hf.nam;
 	*val = hf.val;
@@ -982,7 +982,7 @@ hpack_encode_dynamic(HPACK_CTX, HPACK_FLD)
 
 	CALL(hpack_encode_field, ctx, fld, HPACK_PAT_DYN, HPACK_PFX_DYN);
 	if (fld->flg & HPACK_FLG_NAM_IDX) {
-		(void)HPT_search(ctx, fld->nam_idx, &hf);
+		(void)HPT_field(ctx, fld->nam_idx, &hf);
 		assert(ctx->res == HPACK_RES_BLK);
 		ctx->fld.nam = hf.nam;
 		ctx->fld.nam_sz = hf.nam_sz;

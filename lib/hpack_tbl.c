@@ -86,7 +86,7 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 }
 
 int
-HPT_search(HPACK_CTX, size_t idx, struct hpt_field *hf)
+HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 {
 	const struct hpt_entry *he;
 	struct hpt_entry tmp;
@@ -339,7 +339,7 @@ HPT_decode(HPACK_CTX, size_t idx)
 
 	EXPECT(ctx, IDX, idx > 0);
 	(void)memset(&hf, 0, sizeof hf);
-	CALL(HPT_search, ctx, idx, &hf);
+	CALL(HPT_field, ctx, idx, &hf);
 	assert(hf.nam != NULL);
 	assert(hf.val != NULL);
 	assert(hf.nam_sz > 0);
@@ -364,7 +364,7 @@ HPT_decode_name(HPACK_CTX)
 	assert(ctx->fld.nam == ctx->buf);
 	assert(ctx->hp->state.idx != 0);
 	(void)memset(&hf, 0, sizeof hf);
-	CALL(HPT_search, ctx, ctx->hp->state.idx, &hf);
+	CALL(HPT_field, ctx, ctx->hp->state.idx, &hf);
 	assert(hf.nam != NULL);
 	assert(hf.nam_sz > 0);
 

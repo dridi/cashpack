@@ -232,7 +232,7 @@ hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;
 
 void HPT_adjust(struct hpack_ctx *, size_t);
-int  HPT_search(HPACK_CTX, size_t, struct hpt_field *);
+int  HPT_field(HPACK_CTX, size_t, struct hpt_field *);
 void HPT_foreach(HPACK_CTX, int);
 int  HPT_decode(HPACK_CTX, size_t);
 int  HPT_decode_name(HPACK_CTX);
