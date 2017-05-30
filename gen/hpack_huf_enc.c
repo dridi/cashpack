@@ -48,7 +48,7 @@ static const struct hph tbl[] = {
 };
 
 int
-main(int argc, const char **argv)
+main(void)
 {
 	int i, j;
 
@@ -68,7 +68,5 @@ main(int argc, const char **argv)
 	}
 	OUT("};");
 
-	(void)argc;
-	(void)argv;
 	return (0);
 }

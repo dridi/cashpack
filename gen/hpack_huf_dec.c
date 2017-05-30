@@ -223,7 +223,7 @@ dec_generate(const struct hph *hph, const struct hph *max, uint32_t msk,
 }
 
 int
-main(int argc, const char **argv)
+main(void)
 {
 
 	GEN_HDR();
@@ -242,7 +242,5 @@ main(int argc, const char **argv)
 
 	dec_generate(tbl, eos, 0x00000000, 8, 0, "");
 
-	(void)argc;
-	(void)argv;
 	return (0);
 }
