@@ -58,6 +58,8 @@ static const struct hpt_field hpt_static[] = {
 #undef HPS
 };
 
+#define HPS_PSEUDO 14 /* pseudo-headers are naturally sorted */
+
 /**********************************************************************
  * Tables lookups
  */
@@ -150,6 +152,53 @@ HPT_foreach(HPACK_CTX, int flg)
 	assert(DIFF(tbl, he) == ctx->hp->sz.len);
 }
 
+static int
+hpt_bsearch(struct hpt_field *key, const struct hpt_field *src,
+    size_t len)
+{
+	size_t min, max, pos;
+	int retval, cmp;
+
+	retval = HPACK_RES_IDX;
+	min = 0;
+	max = len - 1;
+
+	while (min <= max) {
+		pos = (min + max) / 2;
+		cmp = strcmp(key->nam, src[pos].nam);
+		if (!cmp) {
+			retval = HPACK_RES_NAM;
+			key->idx = src[pos].idx;
+			cmp = strcmp(key->val, src[pos].val);
+			if (!cmp) {
+				retval = HPACK_RES_OK;
+				break;
+			}
+		}
+		if (cmp < 0)
+			max = pos - 1;
+		else
+			min = pos + 1;
+	}
+
+	return (retval);
+}
+
+static int
+hpt_bsearch_pseudo(size_t *idx, const char *nam, const char *val)
+{
+	struct hpt_field hf;
+	int retval;
+
+	hf.nam = nam;
+	hf.val = val;
+	hf.idx = 0;
+
+	retval = hpt_bsearch(&hf, hpt_static, HPS_PSEUDO);
+	*idx = hf.idx;
+	return (retval);
+}
+
 int
 HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 {
@@ -157,13 +206,29 @@ HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 	const struct hpt_field *hf;
 	struct hpt_entry tmp;
 	size_t i, off, nam_idx;
+	int retval;
 
 	assert(idx != NULL);
 	assert(nam != NULL);
 	assert(val != NULL);
+	*idx = 0;
 	nam_idx = 0;
+	retval = HPACK_RES_IDX;
 
-	for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++)
+	if (*nam == ':')
+		retval = hpt_bsearch_pseudo(&nam_idx, nam, val);
+
+	if (retval != HPACK_RES_IDX) {
+		assert(nam_idx > 0);
+		assert(nam_idx <= HPS_PSEUDO);
+	}
+
+	if (retval == 0) {
+		*idx = nam_idx;
+		return (0);
+	}
+
+	for (i = HPS_PSEUDO, hf = hpt_static + i; i < HPACK_STATIC; i++, hf++)
 		if (!strcmp(nam, hf->nam)) {
 			nam_idx = hf->idx;
 			if (!strcmp(val, hf->val)) {
