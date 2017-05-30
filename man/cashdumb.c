@@ -102,7 +102,7 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 			LOG(")");
 		}
 		if (hf->flg & HPACK_FLG_NAM_IDX) {
-			LOG("(indexed: %hu", hf->nam_idx);
+			LOG("(indexed name: %hu", hf->nam_idx);
 			if (hf->nam_idx > stt->idx_len) {
 				LOG(", expired");
 				hf->flg = HPACK_FLG_TYP_DYN;
