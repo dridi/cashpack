@@ -46,12 +46,13 @@
 #define DIFF(a, b)	((uintptr_t)b - (uintptr_t)a)
 
 static const struct hpt_field hpt_static[] = {
-#define HPS(n, v)				\
+#define HPS(i, n, v)				\
 	{					\
 		.nam = n,			\
 		.val = v,			\
 		.nam_sz = sizeof(n) - 1,	\
 		.val_sz = sizeof(v) - 1,	\
+		.idx = i,			\
 	},
 #include "tbl/hpack_static.h"
 #undef HPS
@@ -164,7 +165,7 @@ HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 
 	for (i = 0, hf = hpt_static; i < HPACK_STATIC; i++, hf++)
 		if (!strcmp(nam, hf->nam)) {
-			nam_idx = i + 1;
+			nam_idx = hf->idx;
 			if (!strcmp(val, hf->val)) {
 				*idx = nam_idx;
 				return (0);
