@@ -26,11 +26,13 @@ AM_CPPFLAGS = -I$(top_srcdir)/inc
 
 noinst_PROGRAMS = \
 	hpack_huf_dec.gen \
-	hpack_huf_enc.gen
+	hpack_huf_enc.gen \
+	hpack_static_hdr.gen
 
 BUILT_SOURCES = \
 	hpack_huf_dec.h \
-	hpack_huf_enc.h
+	hpack_huf_enc.h \
+	hpack_static_hdr.h
 
 .gen.h:
 	@rm -f .$@

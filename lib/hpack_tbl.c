@@ -36,8 +36,8 @@
 #include <unistd.h>
 
 #include "hpack.h"
-#include "hpack_assert.h"
 #include "hpack_priv.h"
+#include "hpack_static_hdr.h"
 
 #define HPT_HEADERSZ (HPACK_OVERHEAD - 2) /* account for 2 null bytes */
 
@@ -57,8 +57,6 @@ static const struct hpt_field hpt_static[] = {
 #include "tbl/hpack_static.h"
 #undef HPS
 };
-
-#define HPS_PSEUDO 14 /* pseudo-headers are naturally sorted */
 
 /**********************************************************************
  * Tables lookups
@@ -208,6 +206,7 @@ HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 	size_t i, off, nam_idx;
 	int retval;
 
+	assert(ctx != NULL);
 	assert(idx != NULL);
 	assert(nam != NULL);
 	assert(val != NULL);
