@@ -182,59 +182,33 @@ hpt_bsearch(struct hpt_field *key, const struct hpt_field *src,
 	return (retval);
 }
 
-static int
-hpt_bsearch_pseudo(size_t *idx, const char *nam, const char *val)
-{
-	struct hpt_field hf;
-	int retval;
-
-	hf.nam = nam;
-	hf.val = val;
-	hf.idx = 0;
-
-	retval = hpt_bsearch(&hf, hpt_static, HPS_PSEUDO);
-	*idx = hf.idx;
-	return (retval);
-}
-
 int
-HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
+HPT_search(HPACK_CTX, struct hpt_field *hf)
 {
 	const struct hpt_entry *he, *tbl;
-	const struct hpt_field *hf;
 	struct hpt_entry tmp;
-	size_t i, off, nam_idx;
+	uint32_t i, nam_idx;
+	size_t off;
 	int retval;
 
 	assert(ctx != NULL);
-	assert(idx != NULL);
-	assert(nam != NULL);
-	assert(val != NULL);
-	*idx = 0;
-	nam_idx = 0;
+	assert(hf != NULL);
 	retval = HPACK_RES_IDX;
 
-	if (*nam == ':')
-		retval = hpt_bsearch_pseudo(&nam_idx, nam, val);
+	if (*hf->nam == ':')
+		retval = hpt_bsearch(hf, hpt_static, HPS_PSEUDO);
+	else
+		retval = hpt_bsearch(hf, hpack_static_hdr, HPS_NORMAL);
 
 	if (retval != HPACK_RES_IDX) {
-		assert(nam_idx > 0);
-		assert(nam_idx <= HPS_PSEUDO);
+		assert(hf->idx > 0);
+		assert(hf->idx <= HPACK_STATIC);
 	}
 
-	if (retval == 0) {
-		*idx = nam_idx;
+	if (retval == 0)
 		return (0);
-	}
-
-	for (i = HPS_PSEUDO, hf = hpt_static + i; i < HPACK_STATIC; i++, hf++)
-		if (!strcmp(nam, hf->nam)) {
-			nam_idx = hf->idx;
-			if (!strcmp(val, hf->val)) {
-				*idx = nam_idx;
-				return (0);
-			}
-		}
+	else
+		nam_idx = hf->idx;
 
 	off = 0;
 	tbl = ctx->hp->tbl;
@@ -246,10 +220,10 @@ HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 		assert(tmp.pre_sz == off);
 		assert(tmp.nam_sz > 0);
 		off = HPACK_OVERHEAD + tmp.nam_sz + tmp.val_sz;
-		if (!strcmp(nam, JUMP(he, 0))) {
+		if (!strcmp(hf->nam, JUMP(he, 0))) {
 			nam_idx = i + HPACK_STATIC + 1;
-			if (!strcmp(val, JUMP(he, tmp.nam_sz + 1))) {
-				*idx = nam_idx;
+			if (!strcmp(hf->val, JUMP(he, tmp.nam_sz + 1))) {
+				hf->idx = nam_idx;
 				return (0);
 			}
 		}
@@ -257,7 +231,7 @@ HPT_search(HPACK_CTX, size_t *idx, const char *nam, const char *val)
 	}
 
 	assert(DIFF(tbl, he) == ctx->hp->sz.len);
-	*idx = nam_idx;
+	hf->idx = nam_idx;
 	if (nam_idx > 0)
 		return (HPACK_RES_NAM);
 	return (HPACK_RES_IDX);
