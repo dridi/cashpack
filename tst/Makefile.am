@@ -32,6 +32,7 @@ AM_CPPFLAGS = \
 
 check_PROGRAMS = \
 	hpack_arg \
+	hpack_mbm \
 	hdecode \
 	fdecode \
 	hencode
@@ -42,6 +43,8 @@ hpack_arg_LDADD = $(top_builddir)/lib/libhpack.la
 hpack_arg_SOURCES = \
 	hpack_arg.c \
 	$(top_srcdir)/inc/dbg.h
+
+hpack_mbm_LDADD = $(top_builddir)/lib/libhpack.la
 
 hdecode_LDADD = $(top_builddir)/lib/libhpack.la
 hdecode_SOURCES = \
@@ -136,6 +139,7 @@ COV_TESTS = \
 	hpack_dec \
 	hpack_enc \
 	hpack_huf \
+	hpack_mbm \
 	hpack_skp \
 	hpack_tbl
 

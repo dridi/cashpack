@@ -529,9 +529,24 @@ test_skip_null_decoder(void)
 }
 
 static void
+test_search_null_args(void)
+{
+	uint16_t idx;
+
+	CHECK_RES(retval, ARG, hpack_search, NULL, NULL, NULL, NULL);
+
+	hp = make_decoder(0, -1, hpack_default_alloc);
+	CHECK_RES(retval, ARG, hpack_search, hp, NULL, NULL, NULL);
+	CHECK_RES(retval, ARG, hpack_search, hp, &idx, NULL, NULL);
+	assert(idx == 0);
+	CHECK_RES(retval, NAM, hpack_search, hp, &idx, ":method", NULL);
+}
+
+static void
 test_use_defunct_decoder(void)
 {
 	const char *nam, *val;
+	uint16_t idx;
 
 	hp = make_decoder(0, -1, hpack_default_alloc);
 
@@ -542,6 +557,7 @@ test_use_defunct_decoder(void)
 	CHECK_RES(retval, ARG, hpack_decode, hp, &junk_decoding);
 	CHECK_RES(retval, ARG, hpack_entry, hp, 2, &nam, &val);
 	CHECK_RES(retval, ARG, hpack_skip, hp);
+	CHECK_RES(retval, ARG, hpack_search, hp, &idx, "nam", "val");
 
 	/* try dumping it */
 	test_dump(hp);
@@ -806,6 +822,8 @@ main(int argc, char **argv)
 
 	test_skip_decoder();
 	test_skip_null_decoder();
+
+	test_search_null_args();
 
 	test_use_defunct_decoder();
 	test_use_busy_decoder();
