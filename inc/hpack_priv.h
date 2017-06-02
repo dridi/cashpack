@@ -82,7 +82,7 @@ struct hpt_field {
 	const char	*val;
 	uint16_t	nam_sz;
 	uint16_t	val_sz;
-	uint32_t	idx;
+	uint16_t	idx;
 };
 
 struct hpt_entry {

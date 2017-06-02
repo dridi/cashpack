@@ -191,7 +191,7 @@ dumb_fields_append(struct hpack *hp, struct dumb_state *stt, const char *line)
 	enum hpack_result_e res;
 	const char *sep, *val;
 	char *nam, *tmp;
-	size_t idx;
+	uint16_t idx;
 
 	dmb = stt->dmb + stt->len;
 	fld = stt->fld + stt->len;

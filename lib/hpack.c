@@ -389,7 +389,7 @@ hpack_tables(struct hpack *hp, hpack_event_f cb, void *priv)
 }
 
 enum hpack_result_e
-hpack_search(struct hpack *hp, size_t *idx, const char *nam, const char *val)
+hpack_search(struct hpack *hp, uint16_t *idx, const char *nam, const char *val)
 {
 	struct hpt_field hf;
 	int retval;

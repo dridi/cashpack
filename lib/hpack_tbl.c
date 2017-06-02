@@ -187,7 +187,7 @@ HPT_search(HPACK_CTX, struct hpt_field *hf)
 {
 	const struct hpt_entry *he, *tbl;
 	struct hpt_entry tmp;
-	uint32_t i, nam_idx;
+	uint16_t i, nam_idx;
 	size_t off;
 	int retval;
 
