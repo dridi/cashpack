@@ -152,6 +152,7 @@ mbm_usage(void)
 	if (getrusage(RUSAGE_CHILDREN, &ru) == -1)
 		WRONG("rusage");
 
+#ifndef __APPLE__
 #define PRINT_RUSAGE_LONG(fld)	(void)printf(#fld "\t%ld\n", ru.ru_##fld)
 #define PRINT_RUSAGE_TIME(fld) \
 	(void)printf(#fld "\t%ld.%ld\n", \
@@ -165,6 +166,7 @@ mbm_usage(void)
 	PRINT_RUSAGE_LONG(nivcsw);
 #undef PRINT_RUSAGE_TIME
 #undef PRINT_RUSAGE_LONG
+#endif
 
 	return (status);
 }
