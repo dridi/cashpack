@@ -538,7 +538,6 @@ test_search_null_args(void)
 	hp = make_decoder(0, -1, hpack_default_alloc);
 	CHECK_RES(retval, ARG, hpack_search, hp, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_search, hp, &idx, NULL, NULL);
-	assert(idx == 0);
 	CHECK_RES(retval, NAM, hpack_search, hp, &idx, ":method", NULL);
 }
 
