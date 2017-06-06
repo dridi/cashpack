@@ -47,7 +47,7 @@
 	} while (0)
 
 #define FIELD_MARKER { 0, 0, 0, NULL, NULL }
-#define FIELD_ENTRY(n, v) { HPACK_FLG_TYP_DYN, 0, 0, n, v }
+#define FIELD_ENTRY(n, v) { HPACK_FLG_TYP_DYN|HPACK_FLG_AUT_IDX, 0, 0, n, v }
 #define FIELD_LOOP(it, tbl) for (it = tbl; it->nam != NULL; it++)
 
 static struct hpack *hp;

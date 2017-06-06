@@ -1094,10 +1094,45 @@ hpack_encode_update(HPACK_CTX, ssize_t lim)
 	return (0);
 }
 
+static int
+hpack_auto_index(HPACK_CTX, struct hpack_field *fld)
+{
+	enum hpack_result_e res;
+	const char *val;
+	uint16_t idx;
+
+	if (fld->flg & HPACK_FLG_TYP_IDX || fld->flg & HPACK_FLG_NAM_IDX)
+		return (0); /* NB: ignore auto index */
+
+	val = fld->flg & HPACK_FLG_TYP_NVR ? NULL : fld->val;
+	fld->idx = 0;
+	fld->nam_idx = 0;
+
+	res = hpack_search(ctx->hp, &idx, fld->nam, val);
+	if (res == HPACK_RES_ARG)
+		return (HPACK_RES_ARG);
+	else if (res == HPACK_RES_IDX)
+		return (0);
+	else if (res == HPACK_RES_NAM) {
+		fld->flg |= HPACK_FLG_NAM_IDX;
+		fld->nam_idx = idx;
+	}
+	else if (res == HPACK_RES_OK) {
+		assert(!(fld->flg & HPACK_FLG_TYP_NVR));
+		fld->flg &= ~HPACK_FLG(TYP_MSK);
+		fld->flg |= HPACK_FLG_TYP_IDX;
+		fld->idx = idx;
+	}
+	else
+		WRONG("Unexpected result");
+
+	return (0);
+}
+
 enum hpack_result_e
 hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 {
-	const struct hpack_field *fld;
+	struct hpack_field *fld;
 	struct hpack_ctx *ctx;
 	size_t cnt;
 	int retval;
@@ -1151,6 +1186,12 @@ hpack_encode(struct hpack *hp, const struct hpack_encoding *enc)
 	fld = enc->fld;
 
 	while (cnt > 0) {
+		if (fld->flg & HPACK_FLG_AUT_IDX) {
+			retval = hpack_auto_index(ctx, fld);
+			if (retval == HPACK_RES_ARG)
+				return (retval);
+			assert(retval == 0);
+		}
 		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
 		switch (fld->flg & HPACK_FLG_TYP_MSK) {
 #define HPACK_ENCODE(l, U)					\
@@ -1214,6 +1255,12 @@ hpack_clean_field(struct hpack_field *fld)
 	}
 
 	fld->flg &= ~HPACK_FLG(TYP_MSK);
+
+	if (fld->flg & HPACK_FLG(AUT_IDX)) {
+		fld->nam = NULL;
+		fld->val = NULL;
+		fld->flg &= ~HPACK_FLG(AUT_IDX);
+	}
 
 	if (fld->nam != NULL || fld->val != NULL || fld->flg != 0)
 		return (HPACK_RES_ARG);

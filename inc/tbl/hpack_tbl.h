@@ -218,6 +218,15 @@ HPF(NAM_HUF, 0x20,
 HPF(VAL_HUF, 0x40,
 	"\tThe field value shall be Huffman-encoded. It can be used for any\n"
 	"\ttype of field except ``TYP_IDX``.\n\n")
+
+HPF(AUT_IDX, 0x80,
+	"\tAutomatically look for a best match in the index and use it to\n"
+	"\treduce the size of the encoded block. When ``TYP_NVR`` is set,\n"
+	"\tonly a name match is performed. It is ignored when used together\n"
+	"\twith either ``TYP_IDX`` or ``NAM_IDX``. If an exact match (both\n"
+	"\tname and value) is found, either ``TYP_DYN`` or ``TYP_LIT`` are\n"
+	"\tturned into ``TYP_IDX``. If a match is found, *idx* or *nam_idx*\n"
+	"\tis set to non-zero, zero otherwise.\n\n")
 #endif /* HPF */
 
 #ifdef HPP
