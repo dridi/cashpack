@@ -726,7 +726,7 @@ static void
 test_clean_unknown_field(void)
 {
 	fld = *unknown_field;
-	hpack_clean_field(&fld);
+	CHECK_RES(retval, ARG, hpack_clean_field, &fld);
 }
 
 static void
