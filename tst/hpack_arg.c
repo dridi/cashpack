@@ -80,12 +80,12 @@ static const uint8_t update_block[] = { 0x20 };
 
 static const uint8_t double_block[] = { 0x82, 0x84 };
 
-static const struct hpack_field basic_field[] = {{
+static struct hpack_field basic_field[] = {{
 	.flg = HPACK_FLG_TYP_IDX,
 	.idx = 1,
 }};
 
-static const struct hpack_field unknown_field[] = {{
+static struct hpack_field unknown_field[] = {{
 	.flg = 0xff,
 	.idx = 1,
 }};
@@ -221,7 +221,7 @@ DECODING(junk);
 DECODING(double);
 #undef DECODING
 
-static const struct hpack_encoding basic_encoding = {
+static struct hpack_encoding basic_encoding = {
 	.fld = basic_field,
 	.fld_cnt = 1,
 	.buf = wrk_buf,
@@ -231,7 +231,7 @@ static const struct hpack_encoding basic_encoding = {
 	.cut = 0,
 };
 
-static const struct hpack_encoding unknown_encoding = {
+static struct hpack_encoding unknown_encoding = {
 	.fld = unknown_field,
 	.fld_cnt = 1,
 	.buf = wrk_buf,

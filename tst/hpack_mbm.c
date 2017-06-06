@@ -52,14 +52,14 @@
 
 static struct hpack *hp;
 
-static const struct hpack_field static_entries[] = {
+static struct hpack_field static_entries[] = {
 #define HPS(i, n, v) { 0, 0, 0, n, v },
 #include "tbl/hpack_static.h"
 #undef HPS
 	FIELD_MARKER
 };
 
-static const struct hpack_field dynamic_entries[] = {
+static struct hpack_field dynamic_entries[] = {
 	FIELD_ENTRY(":method", "POST"),
 	FIELD_ENTRY(":authority", "cashpack"),
 	FIELD_ENTRY("user-agent", __FILE__ " cashpack/" PACKAGE_VERSION),
@@ -82,7 +82,7 @@ static const struct hpack_field dynamic_entries[] = {
 	FIELD_MARKER
 };
 
-static const struct hpack_field unknown_entries[] = {
+static struct hpack_field unknown_entries[] = {
 	FIELD_ENTRY(":verb", "PURGE"),
 	FIELD_ENTRY(":host", "localhost"),
 	FIELD_ENTRY("browser", "cashpack/42"),

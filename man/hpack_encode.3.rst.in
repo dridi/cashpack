@@ -52,13 +52,13 @@ SYNOPSIS
 | **};**
 |
 | **struct hpack_encoding {**
-|    **const struct hpack_field** *\*fld*\ **;**
-|    **size_t**                   *fld_cnt*\ **;**
-|    **void**                     *\*buf*\ **;**
-|    **size_t**                   *buf_len*\ **;**
-|    **hpack_event_f**            *\*cb*\ **;**
-|    **void**                     *\*priv*\ **;**
-|    **unsigned**                 *cut*\ **;**
+|    **struct hpack_field** *\*fld*\ **;**
+|    **size_t**             *fld_cnt*\ **;**
+|    **void**               *\*buf*\ **;**
+|    **size_t**             *buf_len*\ **;**
+|    **hpack_event_f**      *\*cb*\ **;**
+|    **void**               *\*priv*\ **;**
+|    **unsigned**           *cut*\ **;**
 | **};**
 |
 | **enum hpack_result_e hpack_encode(struct hpack** *\*hpack*\ **,**
