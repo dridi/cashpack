@@ -40,10 +40,10 @@
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
 
 static void
-dumb_perror(const char *func, int retval)
+dumb_perror(const char *func, enum hpack_result_e res)
 {
 
-	LOG("%s: %s\n", func, hpack_strerror(retval));
+	LOG("%s: %s\n", func, hpack_strerror(res));
 	exit(EXIT_FAILURE);
 }
 
@@ -138,9 +138,9 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 static void
 dumb_fields_clear(struct dumb_state *stt)
 {
+	enum hpack_result_e res;
 	struct hpack_field *fld;
 	struct dumb_field *dmb;
-	int retval;
 
 	dmb = stt->dmb;
 	fld = stt->fld;
@@ -148,9 +148,9 @@ dumb_fields_clear(struct dumb_state *stt)
 	while (stt->len > 0) {
 		free(dmb->nam);
 		free(dmb->val);
-		retval = hpack_clean_field(fld);
-		if (retval < 0)
-			dumb_perror("hpack_clean_field", retval);
+		res = hpack_clean_field(fld);
+		if (res < 0)
+			dumb_perror("hpack_clean_field", res);
 		dmb++;
 		fld++;
 		stt->len--;
@@ -160,9 +160,9 @@ dumb_fields_clear(struct dumb_state *stt)
 static void
 dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 {
+	enum hpack_result_e res;
 	struct hpack_encoding enc;
 	char buf[256];
-	int retval;
 
 	stt->pos = 0;
 	stt->idx_off = 0;
@@ -175,9 +175,9 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 	enc.priv = stt;
 	enc.cut = cut;
 
-	retval = hpack_encode(hp, &enc);
-	if (retval < 0)
-		dumb_perror("hpack_encode", retval);
+	res = hpack_encode(hp, &enc);
+	if (res < 0)
+		dumb_perror("hpack_encode", res);
 
 	dumb_fields_clear(stt);
 	LOG("\n");

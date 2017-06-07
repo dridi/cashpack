@@ -77,10 +77,10 @@ skip_block(void *ptr, size_t len)
 }
 
 static void
-print_error(const char *func, int retval)
+print_error(const char *func, enum hpack_result_e res)
 {
 
-	fprintf(stderr, "%s: %s\n", func, hpack_strerror(retval));
+	fprintf(stderr, "%s: %s\n", func, hpack_strerror(res));
 	exit(EXIT_FAILURE);
 }
 
@@ -116,6 +116,7 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 int
 main(int argc, char **argv)
 {
+	enum hpack_result_e res;
 	struct h2frame frm;
 	struct hpack *hp;
 	struct hpack_decoding dec;
@@ -123,7 +124,6 @@ main(int argc, char **argv)
 	uint32_t str;
 	unsigned first;
 	size_t len;
-	int retval;
 
 	/* command-line arguments are not used */
 	(void)argc;
@@ -173,9 +173,9 @@ main(int argc, char **argv)
 
 		dec.cut = ~flg & H2_FLG_END_HEADERS;
 		dec.blk_len = len;
-		retval = hpack_decode(hp, &dec);
-		if (retval < 0)
-			print_error("hpack_decode", retval);
+		res = hpack_decode(hp, &dec);
+		if (res < 0)
+			print_error("hpack_decode", res);
 
 		if (flg & H2_FLG_PADDED)
 			skip_block(blk, pad);
@@ -187,9 +187,9 @@ main(int argc, char **argv)
 	}
 
 	printf("\n\n=== dynamic table");
-	retval = hpack_dynamic(hp, print_headers, NULL);
-	if (retval < 0)
-		print_error("hpack_dynamic", retval);
+	res = hpack_dynamic(hp, print_headers, NULL);
+	if (res < 0)
+		print_error("hpack_dynamic", res);
 
 	hpack_free(&hp);
 
