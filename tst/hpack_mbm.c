@@ -143,6 +143,7 @@ mbm_setup(void)
 static int
 mbm_usage(void)
 {
+	struct hpack_field *hf;
 	struct rusage ru;
 	int status;
 
@@ -167,6 +168,11 @@ mbm_usage(void)
 #undef PRINT_RUSAGE_TIME
 #undef PRINT_RUSAGE_LONG
 #endif
+
+	/* additional coverage */
+	FIELD_LOOP(hf, dynamic_entries)
+		if (hpack_clean_field(hf) < 0)
+			WRONG("hpack_clean_field");
 
 	return (status);
 }
