@@ -59,8 +59,6 @@ struct dumb_state {
 	struct hpack_field	*fld;
 	size_t			len;
 	size_t			pos;
-	size_t			idx_len;
-	size_t			idx_off;
 };
 
 /* global variables for convenience */
@@ -86,43 +84,17 @@ dumb_log_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 	case HPACK_EVT_FIELD:
 		stt->pos++;
 		LOG("encoding field: %s: %s ", hf->nam, hf->val);
-		if (hf->flg & HPACK_FLG_TYP_IDX) {
-			LOG("(indexed: %hu", hf->idx);
-			if (hf->idx > stt->idx_len) {
-				LOG(", expired");
-				hf->flg = HPACK_FLG_TYP_DYN;
-				hf->idx = 0;
-			}
-			else {
-				hf->nam = NULL;
-				hf->val = NULL;
-			}
-			if (hf->idx > HPACK_STATIC)
-				hf->idx += stt->idx_off;
-			LOG(")");
-		}
-		if (hf->flg & HPACK_FLG_NAM_IDX) {
-			LOG("(indexed name: %hu", hf->nam_idx);
-			if (hf->nam_idx > stt->idx_len) {
-				LOG(", expired");
-				hf->flg = HPACK_FLG_TYP_DYN;
-				hf->nam_idx = 0;
-			}
-			else
-				hf->nam = NULL;
-			if (hf->nam_idx > HPACK_STATIC)
-				hf->nam_idx += stt->idx_off;
-			LOG(")");
-		}
+		if (hf->flg & HPACK_FLG_TYP_IDX)
+			LOG("(indexed: %hu)", hf->idx);
+		if (hf->flg & HPACK_FLG_NAM_IDX)
+			LOG("(indexed name: %hu)", hf->nam_idx);
 		LOG("\n");
 		break;
 	case HPACK_EVT_EVICT:
 		LOG("eviction\n");
-		stt->idx_len--;
 		break;
 	case HPACK_EVT_INDEX:
 		LOG("field indexed\n");
-		stt->idx_off++;
 		break;
 	case HPACK_EVT_DATA:
 		fwrite(buf, len, 1, stdout);
@@ -165,7 +137,6 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 	char buf[256];
 
 	stt->pos = 0;
-	stt->idx_off = 0;
 
 	enc.fld = stt->fld;
 	enc.fld_cnt = stt->len;
@@ -184,14 +155,12 @@ dumb_fields_send(struct hpack *hp, struct dumb_state *stt, unsigned cut)
 }
 
 static void
-dumb_fields_append(struct hpack *hp, struct dumb_state *stt, const char *line)
+dumb_fields_append(struct dumb_state *stt, const char *line)
 {
 	struct hpack_field *fld;
 	struct dumb_field *dmb;
-	enum hpack_result_e res;
 	const char *sep, *val;
 	char *nam, *tmp;
-	uint16_t idx;
 
 	dmb = stt->dmb + stt->len;
 	fld = stt->fld + stt->len;
@@ -209,6 +178,7 @@ dumb_fields_append(struct hpack *hp, struct dumb_state *stt, const char *line)
 	dmb->val = strdup(val);
 	fld->nam = dmb->nam;
 	fld->val = dmb->val;
+	fld->flg = HPACK_FLG_TYP_DYN|HPACK_FLG_AUT_IDX;
 
 	nam = dmb->nam;
 	while (*nam) {
@@ -218,24 +188,6 @@ dumb_fields_append(struct hpack *hp, struct dumb_state *stt, const char *line)
 
 	tmp = strchr(fld->val, '\n');
 	*tmp = '\0';
-
-	res = hpack_search(hp, &idx, fld->nam, fld->val);
-
-	if (res == HPACK_RES_IDX) {
-		/* not in the cache? insert it */
-		fld->flg = HPACK_FLG_TYP_DYN;
-		return;
-	}
-
-	if (res == HPACK_RES_NAM) {
-		/* only the name is in the cache? use it */
-		fld->flg = HPACK_FLG_TYP_DYN | HPACK_FLG_NAM_IDX;
-		fld->nam_idx = idx;
-		return;
-	}
-
-	fld->flg = HPACK_FLG_TYP_IDX;
-	fld->idx = idx;
 }
 
 /* cashdumb */
@@ -253,7 +205,6 @@ main(void)
 	(void)memset(&stt, 0, sizeof stt);
 	stt.fld = static_fld;
 	stt.dmb = static_dmb;
-	stt.idx_len = HPACK_STATIC;
 	lineptr = NULL;
 	linelen = 0;
 
@@ -275,7 +226,7 @@ main(void)
 				LOG("encoding partial block\n");
 				dumb_fields_send(hp, &stt, 1);
 			}
-			dumb_fields_append(hp, &stt, lineptr);
+			dumb_fields_append(&stt, lineptr);
 		}
 	}
 
