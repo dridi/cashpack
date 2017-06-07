@@ -1111,8 +1111,6 @@ hpack_auto_index(HPACK_CTX, struct hpack_field *fld)
 	res = hpack_search(ctx->hp, &idx, fld->nam, val);
 	if (res == HPACK_RES_ARG)
 		return (HPACK_RES_ARG);
-	else if (res == HPACK_RES_IDX)
-		return (0);
 	else if (res == HPACK_RES_NAM) {
 		fld->flg |= HPACK_FLG_NAM_IDX;
 		fld->nam_idx = idx;
@@ -1123,7 +1121,7 @@ hpack_auto_index(HPACK_CTX, struct hpack_field *fld)
 		fld->flg |= HPACK_FLG_TYP_IDX;
 		fld->idx = idx;
 	}
-	else
+	else if (res != HPACK_RES_IDX)
 		WRONG("Unexpected result");
 
 	return (0);
