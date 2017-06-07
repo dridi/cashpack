@@ -201,6 +201,23 @@ for double-checking proper usage of the library. The *nam* and *val* pointers
 may be set to ``NULL``, but if they point to memory that needs to be freed, it
 MUST be done prior to calling ``hpack_clean_field()``.
 
+AUTOMATIC INDEX LOOKUPS
+=======================
+
+To use the dynamic table without having to know all the details of the HPACK
+protocol, you simply need to "OR" the flag ``HPACK_FLG_AUT_IDX`` on all fields
+that may be indexed. Some well-known headers may be directly as indexed fields
+or indexed names from the static table to save unneeded lookups when building
+a request or a response. This is the case for all pseudo-headers, that in some
+cases even the preferred way. For example ``:scheme`` allows two values *http*
+and *https* that are both present in the static table.
+
+For a fine-grained control of the indexing process, it is possible to follow
+changes in the dynamic table via the events and adjust fields on ``FIELD``
+events before they are processed. This implies a good understanding of HPACK
+but enables more efficient lookups. Currently a binary search is done in the
+static table and then a linear search in the dynamic one.
+
 RETURN VALUE
 ============
 
@@ -217,7 +234,9 @@ ERRORS
 The ``hpack_encode()`` function can fail with the following errors:
 
 ``HPACK_RES_ARG``: *hpack* doesn't point to a valid encoder or *enc* contains
-``NULL`` pointers or zero lengths, except *priv* which is optional.
+``NULL`` pointers or zero lengths, except *priv* which is optional. When an
+automatic index lookup is performed, this error may also occur for the same
+reasons as ``hpack_search()``.
 
 All other errors except ``HPACK_RES_BSY``, see ``hpack_strerror``\ (3) for the
 details of all possible errors.
