@@ -405,6 +405,8 @@ hpack_search(struct hpack *hp, uint16_t *idx, const char *nam, const char *val)
 
 	retval = HPT_search(&hp->ctx, &hf);
 	*idx = hf.idx;
+	if (retval == HPACK_RES_OK && val == NULL)
+		return (HPACK_RES_NAM);
 	return (retval);
 }
 

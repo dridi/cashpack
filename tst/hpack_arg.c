@@ -683,6 +683,56 @@ test_use_busy_encoder(void)
 }
 
 static void
+test_auto_index_invalid_field(void)
+{
+	struct hpack_encoding enc;
+
+	hp = make_encoder(0, -1, hpack_default_alloc);
+
+	/* all checks use a single-field encoding */
+	(void)memset(&enc, 0, sizeof enc);
+	enc.fld = &fld;
+	enc.fld_cnt = 1;
+	enc.buf = wrk_buf;
+	enc.buf_len = sizeof wrk_buf;
+	enc.cb = noop_cb;
+
+	/* auto-index is ignored with an index */
+	fld.flg = HPACK_FLG_TYP_IDX|HPACK_FLG_AUT_IDX;
+	fld.idx = 2;
+	fld.nam_idx = 0;
+	fld.nam = NULL; /* this is a needed by AUT_IDX */
+	fld.val = NULL; /* this is a needed by AUT_IDX */
+	CHECK_RES(retval, OK, hpack_encode, hp, &enc);
+
+	/* auto-index is ignored with a name index */
+	fld.flg = HPACK_FLG_TYP_LIT|HPACK_FLG_NAM_IDX|HPACK_FLG_AUT_IDX;
+	fld.idx = 0;
+	fld.nam_idx = 2;
+	fld.nam = NULL; /* this is a needed by AUT_IDX */
+	fld.val = "PUT";
+	CHECK_RES(retval, OK, hpack_encode, hp, &enc);
+
+	/* auto-index with a sensitive field */
+	fld.flg = HPACK_FLG_TYP_NVR|HPACK_FLG_AUT_IDX;
+	fld.idx = 0;
+	fld.nam_idx = 0;
+	fld.nam = "cookie";
+	fld.val = "foo=bar";
+	CHECK_RES(retval, OK, hpack_encode, hp, &enc);
+
+	/* auto-index missing name or value */
+	fld.flg = HPACK_FLG_TYP_LIT|HPACK_FLG_AUT_IDX;
+	fld.idx = 0;
+	fld.nam_idx = 0;
+	fld.nam = NULL; /* this is a needed by AUT_IDX */
+	fld.val = NULL; /* this is a needed by AUT_IDX */
+	CHECK_RES(retval, ARG, hpack_encode, hp, &enc);
+
+	hpack_free(&hp);
+}
+
+static void
 test_resize_null_codec(void)
 {
 	assert(hp == NULL);
@@ -833,6 +883,8 @@ main(void)
 
 	test_use_defunct_encoder();
 	test_use_busy_encoder();
+
+	test_auto_index_invalid_field();
 
 	test_resize_null_codec();
 	test_trim_null_codec();
