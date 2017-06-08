@@ -169,7 +169,7 @@ CLEANFILES = \
 	cashdumb.src \
 	cashdump.src
 
-endif
+endif # DOCS
 
 EXTRA_DIST = \
 	cashpack.3.rst \
