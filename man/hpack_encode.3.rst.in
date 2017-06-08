@@ -244,10 +244,9 @@ details of all possible errors.
 EXAMPLE
 =======
 
-The following example shows how to keep track of insertions and evictions in
-order to maintain proper indexed fields, in case they become stale as encoding
-makes progress. The strategy used in this example is far from optimal, fields
-are either taken from the index, or inserted in the dynamic table.
+The following example shows an index-all strategy for encoding, attempting to
+put every single field in the dynamic table regardless of whether this would
+actually improve encoding efficiency.
 
 Header lists are read from the standard input, separated by blank lines. The
 encoded header blocks are written on the standard output, without anything to
