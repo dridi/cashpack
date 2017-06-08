@@ -791,11 +791,8 @@ test_dump_unknown(void)
  */
 
 int
-main(int argc, char **argv)
+main(void)
 {
-
-	(void)argc;
-	(void)argv;
 
 	test_null_alloc();
 	test_null_malloc();
