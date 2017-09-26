@@ -539,6 +539,7 @@ test_search_null_args(void)
 	CHECK_RES(retval, ARG, hpack_search, hp, NULL, NULL, NULL);
 	CHECK_RES(retval, ARG, hpack_search, hp, &idx, NULL, NULL);
 	CHECK_RES(retval, NAM, hpack_search, hp, &idx, ":method", NULL);
+	hpack_free(&hp);
 }
 
 static void
