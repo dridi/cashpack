@@ -5,6 +5,7 @@ compiler:
   - gcc
 env:
   global:
+    - VERBOSE=1
     - secure: "CmOn5VWvl4SV3omKX3kkBankdUgaeHBrFWgrBiGPA9muPrbKIczZhRY91wYixPrLLv9YOGAyzWv14wjMO+CXC5hlitRLSjTPG8m+QNt6UKgvFGuPjmw+JASC0dKVDDRohr9/W0dFyxLOnyzITQm8vSPmDZYllSbdkXUpVZlM0XNw7lYCHLq8WkOwow9Mkg8ZzCwKn6vjlIZ7/uOH007djlEveOIZRCObmZyQQWCyNXyzsKMcIkv85EVQg9Zw9YutEfTqJNVWQeo1xfVt+SXdXS7vdm0VDR2uHwQUIfNqjrkipMDcCksyeyaeZZnSIwIj7w9cX6BZKfhR8o9LsBuZX1eFeQKNnuzA2Mre6TYTm5l7qmUYutWGon6FSdky21nB91aF8roa6ZAaCSXcwVlWm5wmT9FmwNCMsdftFiQlVhdWznZXy7U/tOm2X8ued9oDbzvWBLeHh806LKUaJyY13jJVcDJ4KPXT5d2vHMeC9a8HBfwnd12R5sVRGX4VN5QSQODdO4rqQ0l4VkR42l+0+s9Zl2q0Lq2pqxrpYV9GYqaX9BCjZQAOB8xU4SiZDoCMOkBtjSDvAOUt+IzlrN6z3ktlZFeq47R/xS/PMnH2dmrWYVEwm1+aruyjQvHitMsLOASyJP+bT+Hag6pZnaW6z9d5z8gtqSYeb5M8o96NKP8="
   matrix:
     -
@@ -14,9 +15,10 @@ env:
     - CFLAGS=-O3
     - CFLAGS=-Os
     - BUILD_FLAGS=--with-memcheck
-    - BUILD_FLAGS=--with-lcov BUILD_TARGET="lcov -j 1"
 matrix:
   include:
+    - compiler: gcc
+      env: BUILD_FLAGS=--with-lcov BUILD_TARGET="lcov -j 1"
     - compiler: clang
       env: BUILD_FLAGS=--with-asan
 #    - compiler: clang
@@ -56,15 +58,10 @@ before_install:
   - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
 script:
   - test $TRAVIS_BRANCH != coverity_scan || exit 0
-
-  # Help antique software cope with the test suite
-  - sed -i -e s/AM_TESTS_ENVIRONMENT/TESTS_ENVIRONMENT/ tst/Makefile.am
-  - sed -i -e /leak-kinds/d tst/common.sh
-
   - mkdir build
   - cd build
   - ../bootstrap $BUILD_FLAGS
-  - make ${BUILD_TARGET:-check}
+  - travis_wait make ${BUILD_TARGET:-check}
 after_success:
   - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
   - test -f cashpack.info || exit 0

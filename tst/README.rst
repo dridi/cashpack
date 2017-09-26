@@ -464,11 +464,11 @@ to understand the failure. If a debugger is needed to make progress, that's a
 sign that the test suite doesn't report enough and it's usually a good time to
 improve it.
 
-On Travis CI, an old version of ``automake`` is used in the Ubuntu 12.04 LTS
-containers, so the contents of ``test-suite.log`` can be found directly in the
-console's log. This behavior can be brought back in more recent versions of
-``automake`` by adding ``AUTOMAKE_OPTIONS = serial-tests`` to the relevant
-``Makefile``.
+On Travis CI, an old version of ``automake`` was used in the Ubuntu 12.04 LTS
+containers, so the contents of ``test-suite.log`` could be found directly in
+the console's log. This behavior is however lost in more recent versions of
+``automake`` even after adding ``AUTOMAKE_OPTIONS = serial-tests`` to the
+relevant ``Makefile``, so the ``VERBOSE`` environment variable is set instead.
 
 The cashpack test suite itself logs useful information, like the programs that
 get executed, their results, and when an assert triggers a dump of the HPACK
