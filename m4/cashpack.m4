@@ -143,9 +143,7 @@ AC_DEFUN([CASHPACK_CHECK_CFLAGS], [dnl
 		-Wno-string-conversion
 		-Wno-covered-switch-default
 		-Wno-disabled-macro-expansion
-		-Wno-unused-macros
 	])
-	dnl XXX: -Wno-unused-macros needed by clang on Travis CI
 
 	# SunCC-specific warnings
 	_CASHPACK_CHECK_CFLAGS([
@@ -191,10 +189,8 @@ AC_DEFUN([CASHPACK_CHECK_TEST_CFLAGS], [dnl
 	_CASHPACK_CHECK_CFLAGS([
 		-Wno-assign-enum
 		-Wno-sign-conversion
-		-Wno-unreachable-code
 		-Wno-unreachable-code-return
 	])
-	dnl XXX: -Wno-unreachable-code needed by clang on Travis CI
 	TEST_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS $TEST_CFLAGS"dnl
 ])
 
