@@ -164,7 +164,10 @@ HPH_size(const char *str, size_t *res)
 {
 	size_t sz;
 
-	sz = 0;
+	assert(str != NULL);
+	assert(res != NULL);
+
+	sz = 7;
 
 	while (*str != '\0') {
 		sz += hph_enc[(uint8_t)*str].len;
@@ -172,6 +175,4 @@ HPH_size(const char *str, size_t *res)
 	}
 
 	*res = sz >> 3;
-	if (sz & 0x07)
-		*res += 1;
 }
