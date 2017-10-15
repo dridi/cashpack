@@ -951,7 +951,7 @@ hpack_encode_string(HPACK_CTX, HPACK_FLD, enum hpack_event_e evt)
 	CALL(val, ctx, str, len);
 
 	if (huf != 0) {
-		HPH_size(str, &len);
+		len = HPH_size(str);
 		HPI_encode(ctx, HPACK_PFX_HUF, HPACK_PAT_HUF, (uint16_t)len);
 		HPH_encode(ctx, str);
 	}

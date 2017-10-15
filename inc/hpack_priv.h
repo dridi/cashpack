@@ -225,9 +225,9 @@ void HPE_send(HPACK_CTX);
 int  HPI_decode(HPACK_CTX, enum hpi_prefix_e, uint16_t *);
 void HPI_encode(HPACK_CTX, enum hpi_prefix_e, enum hpi_pattern_e, uint16_t);
 
-int  HPH_decode(HPACK_CTX, size_t);
-void HPH_encode(HPACK_CTX, const char *);
-void HPH_size(const char *, size_t *);
+int    HPH_decode(HPACK_CTX, size_t);
+void   HPH_encode(HPACK_CTX, const char *);
+size_t HPH_size(const char *);
 
 hpack_validate_f HPV_token;
 hpack_validate_f HPV_value;

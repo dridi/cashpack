@@ -159,13 +159,12 @@ HPH_encode(HPACK_CTX, const char *str)
 	}
 }
 
-void
-HPH_size(const char *str, size_t *res)
+size_t
+HPH_size(const char *str)
 {
 	size_t sz;
 
 	assert(str != NULL);
-	assert(res != NULL);
 
 	sz = 7;
 
@@ -174,5 +173,5 @@ HPH_size(const char *str, size_t *res)
 		str++;
 	}
 
-	*res = sz >> 3;
+	return (sz >> 3);
 }
