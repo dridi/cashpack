@@ -428,6 +428,7 @@ test suite. It would be interesting too to link against ``libc``\s other than
 |          | GNU/Linux, | GNU/Linux, |           |       |           |           |
 |          | MacOS,     | MacOS      |           |       |           |           |
 |          | OmniOS,    |            |           |       |           |           |
+|          | OpenBSD,   |            |           |       |           |           |
 |          | SmartOS    |            |           |       |           |           |
 +----------+------------+------------+-----------+-------+-----------+-----------+
 | i686     | GNU/Linux  | —          | —         | —     | —         | —         |
