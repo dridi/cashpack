@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2017 Dridi Boukelmoune
+# Copyright (c) 2016-2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,19 @@ check_PROGRAMS = \
 	hdecode \
 	fdecode \
 	hencode
+
+nodist_noinst_SCRIPTS = cov.sh
+
+SUFFIXES = .sh.in .sh
+
+.sh.in.sh:
+	$(AM_V_GEN) $(SED) \
+		-e 's:[@]builddir[@]:$(abs_top_builddir):' \
+		-e 's:[@]GCOV[@]:$(GCOV):' \
+		-e 's:[@]JQ[@]:$(JQ):' \
+		-e 's:[@]NC[@]:$(NC):' \
+		<'$<' >$@
+	chmod +x $@
 
 all-local: $(check_PROGRAMS)
 
@@ -76,7 +89,7 @@ ngdecode_SOURCES = \
 endif
 
 if HAVE_GOLANG
-GO = GOPATH=$(abs_builddir) go
+GO_BUILD = GOPATH=$(abs_builddir) $(GO) build
 
 check_PROGRAMS += godecode
 
@@ -85,7 +98,7 @@ src:
 
 godecode_SOURCES =
 godecode: src godecode.go
-	$(AM_V_GO)$(GO) build $(srcdir)/godecode.go
+	$(AM_V_GO)$(GO_BUILD) $(srcdir)/godecode.go
 endif
 
 # Test droppings cleanup
@@ -148,7 +161,8 @@ REG_TESTS = \
 
 AM_TESTS_ENVIRONMENT = \
 	KEEP_TMP="$(KEEP_TMP)" \
-	MEMCHECK="$(MEMCHECK)"
+	MEMCHECK="$(MEMCHECK)" \
+	VALGRIND="$(VALGRIND)"
 
 TESTS = $(RFC_TESTS) $(COV_TESTS) $(REG_TESTS)
 
@@ -159,4 +173,5 @@ EXTRA_DIST = \
 	hex_decode \
 	hex_encode \
 	common.sh \
+	cov.sh.in \
 	godecode.go

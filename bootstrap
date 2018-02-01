@@ -21,4 +21,8 @@ automake --add-missing --copy --foreign
 autoconf
 
 cd "$WORK_DIR"
-"$ROOT_DIR"/configure "$@"
+"$ROOT_DIR"/configure \
+	--enable-docs \
+	--enable-warnings \
+	--enable-hardening \
+	"$@"

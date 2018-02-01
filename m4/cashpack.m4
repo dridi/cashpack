@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2017 Dridi Boukelmoune
+# Copyright (c) 2016-2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,215 +22,150 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-# CASHPACK_SANITY_CHECK
-# ---------------------
-AC_DEFUN([CASHPACK_SANITY_CHECK], [
-
-	dnl hexcheck
-	AC_MSG_CHECKING([for RFC 7541-compatible hexdumps])
-
-	if ! "$srcdir"/tst/hexcheck 2>/dev/null
-	then
-		AC_MSG_RESULT([no])
-		"$srcdir"/tst/hexcheck
-		AC_MSG_FAILURE([hexdumps fail sanity check])
-	fi
-
-	AC_MSG_RESULT([yes])
-
-	dnl bincheck
-	AC_MSG_CHECKING([for working bindumps to hexdumps conversions])
-
-	if ! "$srcdir"/tst/bincheck 2>/dev/null
-	then
-		AC_MSG_RESULT([no])
-		"$srcdir"/tst/bincheck
-		AC_MSG_FAILURE([bindumps fail sanity check])
-	fi
-
-	AC_MSG_RESULT([yes])
-
-	dnl Mutual exclusivity of additional checkers
-	cashpack_options="$(
-		echo "$with_memcheck$with_asan$with_msan$with_ubsan$with_lcov" |
-		awk -F yes '{print NF - 1}'
-	)"
-
-	test "$cashpack_options" -gt 1 &&
-	AC_MSG_FAILURE([Valgrind, ASAN, MSAN, UBSAN and lcov support can't be combined])
-
+# CASHPACK_ARG_ENABLE(FEATURE, DEFAULT)
+# ------------------------------------
+AC_DEFUN([CASHPACK_ARG_ENABLE], [dnl
+	AC_ARG_ENABLE([$1],
+		[AS_HELP_STRING([--enable-$1], [enable $1 (default is $2)])],
+		[],
+		[enable_[]$1=$2])
 ])
 
-# _CASHPACK_CHECK_CFLAGS_FN
-# -------------------------
-AC_DEFUN([_CASHPACK_CHECK_CFLAGS_FN], [
+# _CASHPACK_CHECK_CFLAGS
+# ---------------------
+AC_DEFUN_ONCE([_CASHPACK_CHECK_CFLAGS], [
+
+cashpack_check_cflag() {
+	cashpack_save_CFLAGS=$CFLAGS
+	CFLAGS="$cashpack_chkd_cflags $[]1 $cashpack_orig_cflags"
+
+	mv confdefs.h confdefs.h.orig
+	touch confdefs.h
+
+	AC_MSG_CHECKING([whether the compiler accepts $[]1])
+	AC_RUN_IFELSE(
+		[AC_LANG_SOURCE([int main(void) { return (0); }])],
+		[cashpack_result=yes],
+		[cashpack_result=no])
+	AC_MSG_RESULT($cashpack_result)
+
+	rm confdefs.h
+	mv confdefs.h.orig confdefs.h
+
+	CFLAGS=$cashpack_save_CFLAGS
+
+	test "$cashpack_result" = yes
+}
 
 cashpack_check_cflags() {
-	_ret=0
 	for _cflag
 	do
-		_cflags="$CFLAGS"
-		CFLAGS="$CASHPACK_CFLAGS $_cflag $CFLAGS"
-
-		mv confdefs.h confdefs.h.orig
-		touch confdefs.h
-
-		AC_MSG_CHECKING([whether the compiler accepts $_cflag])
-		AC_RUN_IFELSE(
-			[AC_LANG_SOURCE([int main(void) { return (0); }])], [
-				AC_MSG_RESULT([yes])
-				CASHPACK_CFLAGS="$CASHPACK_CFLAGS $_cflag"],
-			[AC_MSG_RESULT([no]); _ret=1])
-
-		rm confdefs.h
-		mv confdefs.h.orig confdefs.h
-
-		CFLAGS="$_cflags"
+		if cashpack_check_cflag $_cflag
+		then
+			cashpack_chkd_cflags="$cashpack_chkd_cflags $_cflag"
+		fi
 	done
-	return $_ret
 }
 
 ])
 
-# _CASHPACK_CHECK_CFLAGS(CFLAGS)
+# _CASHPACK_INIT_CFLAGS(VARIABLE)
 # ------------------------------
-AC_DEFUN([_CASHPACK_CHECK_CFLAGS], [dnl
-AC_REQUIRE([_CASHPACK_CHECK_CFLAGS_FN])dnl
-cashpack_check_cflags m4_normalize([$1])dnl
+AC_DEFUN([_CASHPACK_INIT_CFLAGS], [dnl
+if test -z "$cashpack_orig_cflags_$1"
+then
+	cashpack_orig_cflags_$1="orig:$$1"
+	cashpack_chkd_cflags_$1=
+fi
 ])
 
-# CASHPACK_CHECK_CFLAGS
-# ---------------------
+# CASHPACK_CHECK_CFLAGS(VARIABLE, CFLAGS)
+# --------------------------------------
 AC_DEFUN([CASHPACK_CHECK_CFLAGS], [dnl
-	CASHPACK_CFLAGS=
-	# FreeBSD's WARNS level 6
-	_CASHPACK_CHECK_CFLAGS([
-		-Werror
-		-Wall
-		-W
-		-Wstrict-prototypes
-		-Wmissing-prototypes
-		-Wpointer-arith
-		-Wreturn-type
-		-Wcast-qual
-		-Wwrite-strings
-		-Wswitch
-		-Wshadow
-		-Wunused-parameter
-		-Wcast-align
-		-Wchar-subscripts
-		-Winline
-		-Wnested-externs
-		-Wredundant-decls
-		-Wold-style-definition
-		-Wmissing-variable-declarations
-	])
-
-	# Other desirable warnings
-	_CASHPACK_CHECK_CFLAGS([
-		-Wextra
-		-Wmissing-declarations
-		-Wredundant-decls
-		-Wsign-compare
-		-Wunused-result
-		-Wformat-security
-	])
-
-	# Clang unleashed-ish
-	_CASHPACK_CHECK_CFLAGS([
-		-Weverything
-		-Wno-padded
-		-Wno-string-conversion
-		-Wno-covered-switch-default
-		-Wno-disabled-macro-expansion
-	])
-
-	# SunCC-specific warnings
-	_CASHPACK_CHECK_CFLAGS([
-		-errwarn=%all
-		-errtags=yes
-	])
-
-	# sparse(1) warnings
-	_CASHPACK_CHECK_CFLAGS([
-		-Wsparse-all
-		-Wsparse-error
-	])
-
-	# Standards compliance
-	_CASHPACK_CHECK_CFLAGS([
-		-pedantic
-		-std=c99
-		-D_POSIX_C_SOURCE=200809L
-	])
-	CFLAGS="$CASHPACK_CFLAGS $CFLAGS"
+AC_REQUIRE([_CASHPACK_CHECK_CFLAGS])dnl
+{
+_CASHPACK_INIT_CFLAGS([$1])dnl
+cashpack_orig_cflags=${cashpack_orig_cflags_$1#orig:}
+cashpack_chkd_cflags=${cashpack_chkd_cflags_$1# }
+cashpack_check_cflags m4_normalize([$2])
+$1="$cashpack_chkd_cflags $cashpack_orig_cflags"
+cashpack_chkd_cflags_$1=$cashpack_chkd_cflags
+}
 ])
 
-# CASHPACK_CHECK_EXAMPLE_CFLAGS
-# -----------------------------
-AC_DEFUN([CASHPACK_CHECK_EXAMPLE_CFLAGS], [dnl
-	CASHPACK_CFLAGS=
-	# Keep examples simple enough
-	_CASHPACK_CHECK_CFLAGS([
-		-Wno-conversion
-		-Wno-format-nonliteral
-		-Wno-missing-noreturn
-		-Wno-switch-enum
-	])
-	EXAMPLE_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS"
+# CASHPACK_ADD_CFLAGS(VARIABLE, CFLAGS)
+# ------------------------------------
+AC_DEFUN([CASHPACK_ADD_CFLAGS], [dnl
+AC_REQUIRE([_CASHPACK_CHECK_CFLAGS])dnl
+{
+_CASHPACK_INIT_CFLAGS([$1])dnl
+cashpack_orig_cflags_$1="$cashpack_orig_cflags_$1 m4_normalize([$2])"
+CFLAGS="$cashpack_chkd_cflags_$1 ${cashpack_orig_cflags_$1#orig:}"
+}
 ])
 
-# CASHPACK_CHECK_TEST_CFLAGS
-# --------------------------
-AC_DEFUN([CASHPACK_CHECK_TEST_CFLAGS], [dnl
-	CASHPACK_CFLAGS=
-
-	# Be lenient towards testing, it may test shit
-	_CASHPACK_CHECK_CFLAGS([
-		-Wno-assign-enum
-		-Wno-sign-conversion
-		-Wno-unreachable-code-return
-	])
-	TEST_CFLAGS="$CASHPACK_CFLAGS $EXAMPLE_CFLAGS $TEST_CFLAGS"dnl
+# CASHPACK_CHECK_LIB(LIBRARY, FUNCTION[, SEARCH-LIBS])
+# ---------------------------------------------------
+AC_DEFUN([CASHPACK_CHECK_LIB], [
+cashpack_save_LIBS="$LIBS"
+LIBS=""
+AC_SEARCH_LIBS([$2], [$1 $3], [], [AC_MSG_ERROR([Could not find $2 support])])
+AC_SUBST(m4_toupper([$1])_LIBS, [$LIBS])
+LIBS="$cashpack_save_LIBS"
 ])
 
-# CASHPACK_CHECK_FLAGS
-# --------------------
-AC_DEFUN([CASHPACK_CHECK_FLAGS], [dnl
-AS_IF([test "$cross_compiling" = no], [dnl
-CASHPACK_CHECK_CFLAGS()
-CASHPACK_CHECK_EXAMPLE_CFLAGS()
-CASHPACK_CHECK_TEST_CFLAGS()dnl
-AC_SUBST([EXAMPLE_CFLAGS])dnl
-AC_SUBST([TEST_CFLAGS])])
+# CASHPACK_CHECK_PROG(VARIABLE, PROGS, DESC)
+# -----------------------------------------
+AC_DEFUN([CASHPACK_CHECK_PROG], [
+AC_ARG_VAR([$1], [$3])
+{
+AC_CHECK_PROGS([$1], [$2], [no])
+test "$[$1]" = no &&
+AC_MSG_ERROR([Could not find program $2])
+}
 ])
 
-# CASHPACK_CHECK_GOLANG
-# ---------------------
-AC_DEFUN([CASHPACK_CHECK_GOLANG], [
+# CASHPACK_COND_PROG(VARIABLE, PROGS, DESC)
+# -----------------------------------------
+AC_DEFUN([CASHPACK_COND_PROG], [
+AC_ARG_VAR([$1], [$3])
+AC_CHECK_PROGS([$1], [$2], [no])
+AM_CONDITIONAL([HAVE_$1], [test "$$1" != no])
+])
 
-	AC_MSG_CHECKING([for golang >= 1.7])
+# CASHPACK_COND_MODULE(VARIABLE, MODULE)
+# --------------------------------------
+AC_DEFUN([CASHPACK_COND_MODULE], [
+PKG_CHECK_MODULES([$1], [$2], [$1=yes], [$1=no])
+AC_SUBST([$1])
+AM_CONDITIONAL([HAVE_$1], [test "$$1" = yes])
+])
 
-	[golang_version="$(
-		go version 2>/dev/null |
+# CASHPACK_GOLANG_PREREQ(VERSION)
+# -------------------------------
+AC_DEFUN([CASHPACK_GOLANG_PREREQ], [
+
+	AC_MSG_CHECKING([for golang >= $1])
+
+	GOROOT="$($GO env GOROOT)"
+
+	[GOLANG_VERSION="$(
+		$GO version 2>/dev/null |
 		tr ' ' '\n' |
 		grep '^go[1-9]' |
 		$SED -e s/go//
 	)"]
 
-	AS_VERSION_COMPARE([$golang_version], [1.7],
-		[golang_17=no],
-		[golang_17=yes],
-		[golang_17=yes])
+	AC_SUBST([GOROOT])
+	AC_SUBST([GOLANG_VERSION])
 
-	AC_MSG_RESULT([$golang_17])
-	AM_CONDITIONAL([HAVE_GOLANG], [test "$golang_17" = yes])
+	AS_VERSION_COMPARE([$GOLANG_VERSION], [$1],
+		[cashpack_golang_prereq=no],
+		[cashpack_golang_prereq=yes],
+		[cashpack_golang_prereq=yes])
 
-	if test "$golang_17" = yes
-	then
-		GOROOT="$(go env GOROOT)"
-		AC_SUBST([GOROOT])
-	fi
+	AC_MSG_RESULT([$cashpack_golang_prereq])
+	AM_CONDITIONAL([HAVE_GOLANG], [test "$cashpack_golang_prereq" = yes])
 
 	dnl Define an automake silent execution for go
 	[am__v_GO_0='@echo "  GO      " $''@;']
@@ -242,202 +177,4 @@ AC_DEFUN([CASHPACK_CHECK_GOLANG], [
 	AC_SUBST([am__v_GO_])
 	AC_SUBST([AM_V_GO])
 
-])
-
-# CASHPACK_PROG_HEXDUMP
-# ---------------------
-AC_DEFUN([CASHPACK_PROG_HEXDUMP], [
-
-	AC_CHECK_PROGS(HEXDUMP, [hexdump], [no])
-	AM_CONDITIONAL([HAVE_HEXDUMP], [test "$HEXDUMP" != no])
-
-])
-
-# CASHPACK_PROG_RST2MAN
-# ---------------------
-AC_DEFUN([CASHPACK_PROG_RST2MAN], [
-
-	AC_CHECK_PROGS(RST2MAN, [rst2man.py rst2man], [true])
-	AC_SUBST([RST2MAN])
-
-])
-
-# CASHPACK_LIB_NGHTTP2
-# --------------------
-AC_DEFUN([CASHPACK_LIB_NGHTTP2], [
-
-	PKG_CHECK_MODULES([NGHTTP2],
-		[libnghttp2],
-		[NGHTTP2=yes],
-		[NGHTTP2=no])
-
-	AC_SUBST([NGHTTP2])
-	AM_CONDITIONAL([HAVE_NGHTTP2], [test "$NGHTTP2" = yes])
-
-])
-
-# CASHPACK_WITH_MEMCHECK
-# ----------------------
-AC_DEFUN([CASHPACK_WITH_MEMCHECK], [
-
-	AC_CHECK_PROGS(VALGRIND, [valgrind], [no])
-
-	AC_ARG_WITH([memcheck],
-		AS_HELP_STRING(
-			[--with-memcheck],
-			[Run the test suite with Valgrind]),
-		[MEMCHECK="$withval"],
-		[MEMCHECK=no])
-
-	test "$MEMCHECK" = yes -a "$VALGRIND" = no &&
-	AC_MSG_FAILURE([Valgrind is required with memcheck])
-
-	AC_SUBST([MEMCHECK])
-
-])
-
-# _CASHPACK_SANITIZER(NAME, CFLAGS)
-# ---------------------------------
-AC_DEFUN([_CASHPACK_SANITIZER], [
-AC_REQUIRE([_CASHPACK_CHECK_CFLAGS_FN])dnl
-AC_MSG_CHECKING([for $1])
-AC_MSG_RESULT([])
-AS_IF([cashpack_check_cflags "$2"],
-	[CFLAGS="$CFLAGS $2"],
-	[AC_MSG_FAILURE([failed to use sanitizer: $1])])
-])
-
-# CASHPACK_WITH_ASAN
-# ------------------
-AC_DEFUN([CASHPACK_WITH_ASAN], [
-
-	AC_ARG_WITH([asan],
-		AS_HELP_STRING(
-			[--with-asan],
-			[Build binaries with address sanitizer]),
-		[_CASHPACK_SANITIZER([asan], [-fsanitize=address])],
-		[])
-
-])
-
-# CASHPACK_WITH_MSAN
-# ------------------
-AC_DEFUN([CASHPACK_WITH_MSAN], [
-
-	AC_ARG_WITH([msan],
-		AS_HELP_STRING(
-			[--with-msan],
-			[Build binaries with address sanitizer]),
-		[_CASHPACK_SANITIZER([msan],
-			[-fsanitize=memory -fsanitize-memory-track-origins])],
-		[])
-
-])
-
-# CASHPACK_WITH_UBSAN
-# -------------------
-AC_DEFUN([CASHPACK_WITH_UBSAN], [
-
-	AC_ARG_WITH([ubsan],
-		AS_HELP_STRING(
-			[--with-ubsan],
-			[Build binaries with undefined sanitizer]),
-		[_CASHPACK_SANITIZER([ubsan], [-fsanitize=undefined])],
-		[])
-
-])
-
-# _CASHPACK_LCOV
-# --------------
-AC_DEFUN([_CASHPACK_LCOV], [
-
-	AC_CHECK_PROGS(LCOV, [lcov], [no])
-	test "$LCOV" = no &&
-	AC_MSG_FAILURE([Lcov is required for code coverage])
-
-	AC_CHECK_PROGS(GENHTML, [genhtml], [no])
-	test "$GENHTML" = no &&
-	AC_MSG_FAILURE([Lcov is missing genhtml for reports generation])
-
-	LCOV_RULES="
-
-lcov: all
-	@\$(LCOV) -z -d .
-	@\$(MAKE) \$(AM_MAKEFLAGS) -k check
-	@\$(LCOV) -c -o tst.info -d tst
-	@\$(LCOV) -c -o lib.info -d lib
-	@\$(LCOV) -a tst.info -a lib.info -o raw.info
-	@\$(LCOV) -r raw.info '/usr/*' -o cashpack.info
-	@\$(GENHTML) -o lcov cashpack.info
-	@echo file://\$(abs_builddir)/lcov/index.html
-
-clean: lcov-clean
-
-lcov-clean:
-	@find \$(abs_builddir) -depth '(' \
-		-name '*.gcda' -o \
-		-name '*.gcov' -o \
-		-name '*.gcno' -o \
-		-name '*.info' \
-		')' -delete
-	@rm -rf \$(abs_builddir)/lcov/
-
-.PHONY: lcov lcov-clean
-
-"
-
-	CPPFLAGS="$CPPFLAGS -DNDEBUG"
-	CFLAGS="$CFLAGS -O0 -g -fprofile-arcs -ftest-coverage"
-	LDFLAGS="$LDFLAGS -lgcov"
-
-	if lcov --help | grep -q -e --config-file
-	then
-		LCOV_OPTS="--config-file \$(srcdir)/lcovrc"
-		LCOV="$LCOV $LCOV_OPTS"
-		GENHTML="$GENHTML $LCOV_OPTS"
-	fi
-
-	AC_SUBST([LCOV])
-	AC_SUBST([GENHTML])
-	AC_SUBST([LCOV_RULES])
-	m4_ifdef([_AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE([LCOV_RULES])])
-
-])
-
-# CASHPACK_WITH_LCOV
-# ------------------
-AC_DEFUN([CASHPACK_WITH_LCOV], [
-
-	AC_ARG_WITH([lcov],
-		AS_HELP_STRING(
-			[--with-lcov],
-			[Measure test suite code coverage with lcov]),
-		[_CASHPACK_LCOV],
-		[])
-
-])
-
-# CASHPACK_ENABLE_DOCS
-# --------------------
-AC_DEFUN([CASHPACK_ENABLE_DOCS], [
-
-	AC_ARG_ENABLE([docs],
-		AS_HELP_STRING(
-			[--enable-docs],
-			[Man pages builds can be omitted for a dist archive]))
-
-	AM_CONDITIONAL([DOCS], [test "$enable_docs" != "no"])
-])
-
-# CASHPACK_DISABLE_PEDANTIC
-# -------------------------
-AC_DEFUN([CASHPACK_DISABLE_PEDANTIC], [
-
-	AC_ARG_ENABLE([pedantic],
-		AS_HELP_STRING(
-			[--disable-pedantic],
-			[Some compilers may fail because of system includes]))
-
-	AS_IF([test "$enable_pedantic" = no],
-		[cashpack_check_cflags -Wno-pedantic], [])
 ])

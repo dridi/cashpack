@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2018 Dridi Boukelmoune
+# Copyright (c) 2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,26 +22,27 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-ACLOCAL_AMFLAGS = -I m4
+lcov: all
+if LCOV_ENABLED
+	@$(LCOV) -z -d .
+	@$(MAKE) $(AM_MAKEFLAGS) -k check
+	@$(LCOV) -c -o $(PACKAGE).info -d .
+	@$(GENHTML) -o lcov $(PACKAGE).info
+	@echo "file://$(abs_builddir)/lcov/index.html"
+else
+	@echo "Error: lcov support is disabled"
+	@false
+endif
 
-DISTCHECK_CONFIGURE_FLAGS = --disable-docs
+clean-local: lcov-clean
 
-EXTRA_DIST = \
-	README.rst \
-	$(PACKAGE).spec
+lcov-clean:
+	@find "$(abs_builddir)" -depth '(' \
+		-name '*.gcda' -o \
+		-name '*.gcno' -o \
+		-name '*.gcov' -o \
+		-name '*.info' \
+		')' -delete
+	@rm -rf "$(abs_builddir)/lcov/"
 
-dist_doc_DATA = \
-	LICENSE \
-	README.rst
-
-SUBDIRS = \
-	gen \
-	inc \
-	lib \
-	man \
-	tst
-
-dist: all
-
-include gcov.am
-include lcov.am
+.PHONY: lcov lcov-clean

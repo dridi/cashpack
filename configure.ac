@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2017 Dridi Boukelmoune
+# Copyright (c) 2016-2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,10 +23,10 @@
 # SUCH DAMAGE.
 
 AC_INIT([cashpack], [0.4], [https://github.com/dridi/cashpack/issues])
-AC_COPYRIGHT([Copyright (c) 2016-2017 Dridi Boukelmoune])
+AC_COPYRIGHT([Copyright (c) 2016-2018 Dridi Boukelmoune])
 
 AC_PREREQ([2.63])
-AC_REVISION([revision 1])
+AC_REVISION([revision 2])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([lib/hpack.c])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -50,20 +50,185 @@ AC_C_STRINGIZE
 
 gl_LD_VERSION_SCRIPT
 
-CASHPACK_LIB_NGHTTP2
-CASHPACK_PROG_HEXDUMP
-CASHPACK_PROG_RST2MAN
-CASHPACK_WITH_MEMCHECK
-CASHPACK_WITH_ASAN
-CASHPACK_WITH_MSAN
-CASHPACK_WITH_UBSAN
-CASHPACK_WITH_LCOV
-CASHPACK_ENABLE_DOCS
-CASHPACK_CHECK_GOLANG
-CASHPACK_CHECK_FLAGS
-CASHPACK_SANITY_CHECK
-CASHPACK_DISABLE_PEDANTIC
+CASHPACK_ARG_ENABLE([docs], [no])
+CASHPACK_ARG_ENABLE([warnings], [no])
+CASHPACK_ARG_ENABLE([hardening], [no])
+CASHPACK_ARG_ENABLE([memcheck], [no])
+CASHPACK_ARG_ENABLE([asan], [no])
+CASHPACK_ARG_ENABLE([msan], [no])
+CASHPACK_ARG_ENABLE([ubsan], [no])
+CASHPACK_ARG_ENABLE([gcov], [no])
+CASHPACK_ARG_ENABLE([lcov], [no])
+CASHPACK_COND_PROG([HEXDUMP], [hexdump], [for examples and tests])
+CASHPACK_COND_PROG([GO], [go], [for compatibility tests])
+CASHPACK_COND_MODULE([NGHTTP2], [libnghttp2])
 
+# Standards compliance
+CASHPACK_CHECK_CFLAGS([CFLAGS], [
+	-pedantic
+	-std=c99
+	-D_POSIX_C_SOURCE=200809L
+])
+
+# Documentation
+AM_CONDITIONAL([DOCS], [test "$enable_docs" != "no"])
+test "$enable_docs" != "no" &&
+CASHPACK_CHECK_PROG([RST2MAN], [rst2man rst2man.py], [required to build docs])
+
+# Dynamic analysis
+test "$enable_asan" != no &&
+CASHPACK_ADD_CFLAGS([CFLAGS], [-fno-omit-frame-pointer -fsanitize=address])
+
+test "$enable_msan" != no &&
+CASHPACK_ADD_CFLAGS([CFLAGS], [-fsanitize=memory])
+
+test "$enable_ubsan" != no &&
+CASHPACK_ADD_CFLAGS([CFLAGS], [-fsanitize=undefined])
+
+if test "$enable_memcheck" != no
+then
+	CASHPACK_CHECK_PROG([VALGRIND], [valgrind],
+		[required by --enable-memcheck])
+	AC_SUBST([MEMCHECK], [yes])
+fi
+
+# Coverage
+AM_CONDITIONAL([GCOV_ENABLED], [test "$enable_gcov" != no])
+AM_CONDITIONAL([LCOV_ENABLED], [test "$enable_lcov" != no])
+
+if test "$enable_gcov$enable_lcov" != nono
+then
+	CASHPACK_CHECK_PROG([GCOV], [gcov], [only works with GCC])
+	CASHPACK_CHECK_PROG([CPIO], [cpio], [required by gcov])
+	CASHPACK_ADD_CFLAGS([CFLAGS], [
+		-O0 -g
+		-fno-inline
+		--coverage
+		-DNDEBUG
+	])
+	enable_warnings=no
+fi
+
+if test "$enable_lcov" != no
+then
+	CASHPACK_CHECK_PROG([LCOV], [lcov], [only works with GCC])
+	CASHPACK_CHECK_PROG([GENHTML], [genhtml], [required by lcov])
+
+	if "$LCOV" --help | grep -q -e --config-file
+	then
+		LCOV_OPTS="--config-file \$(srcdir)/lcovrc"
+		LCOV="$LCOV $LCOV_OPTS"
+		GENHTML="$GENHTML $LCOV_OPTS"
+	fi
+
+	LCOV="$LCOV --gcov-tool '[\$](abs_top_builddir)/tst/cov.sh'"
+fi
+
+# Warnings
+if test "$enable_warnings" != no
+then
+	# FreeBSD's WARNS level 6
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-Werror
+		-Wall
+		-W
+		-Wstrict-prototypes
+		-Wmissing-prototypes
+		-Wpointer-arith
+		-Wreturn-type
+		-Wcast-qual
+		-Wwrite-strings
+		-Wswitch
+		-Wshadow
+		-Wunused-parameter
+		-Wcast-align
+		-Wchar-subscripts
+		-Winline
+		-Wnested-externs
+		-Wredundant-decls
+		-Wold-style-definition
+		-Wmissing-variable-declarations
+	])
+
+	# Other desirable warnings
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-Wextra
+		-Wmissing-declarations
+		-Wredundant-decls
+		-Wsign-compare
+		-Wunused-result
+		-Wformat-security
+	])
+
+	# Clang unleashed-ish
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-Weverything
+		-Wno-padded
+		-Wno-string-conversion
+		-Wno-covered-switch-default
+		-Wno-disabled-macro-expansion
+	])
+
+	# SunCC-specific warnings
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-errwarn=%all
+		-errtags=yes
+	])
+
+	# sparse(1) warnings
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-Wsparse-all
+		-Wsparse-error
+	])
+
+	# Keep examples simple enough
+	CASHPACK_CHECK_CFLAGS([EXAMPLE_CFLAGS], [
+		-Wno-conversion
+		-Wno-format-nonliteral
+		-Wno-missing-noreturn
+		-Wno-switch-enum
+	])
+
+	# Be lenient towards testing, it may test shit
+	CASHPACK_CHECK_CFLAGS([TEST_CFLAGS], [
+		-Wno-assign-enum
+		-Wno-sign-conversion
+		-Wno-unreachable-code-return
+	])
+fi
+
+# Hardening
+if test "$enable_hardening" != no
+then
+	CASHPACK_CHECK_CFLAGS([CFLAGS], [
+		-fstack-clash-protection
+		-fstack-protector
+	])
+fi
+
+# Test suite
+AC_MSG_CHECKING([for RFC 7541-compatible hexdumps])
+if ! "$srcdir"/tst/hexcheck 2>/dev/null
+then
+	AC_MSG_RESULT([no])
+	"$srcdir"/tst/hexcheck
+	AC_MSG_FAILURE([hexdumps fail sanity check])
+fi
+AC_MSG_RESULT([yes])
+
+AC_MSG_CHECKING([for working bindumps to hexdumps conversions])
+if ! "$srcdir"/tst/bincheck 2>/dev/null
+then
+	AC_MSG_RESULT([no])
+	"$srcdir"/tst/bincheck
+	AC_MSG_FAILURE([bindumps fail sanity check])
+fi
+AC_MSG_RESULT([yes])
+
+test "$GO" != no &&
+CASHPACK_GOLANG_PREREQ([1.7])
+
+# The end
 AC_CONFIG_FILES([
 	Makefile
 	cashpack.spec

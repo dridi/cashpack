@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2017 Dridi Boukelmoune
+# Copyright (c) 2016-2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ readonly NOTABLE
 
 MEMCHECK=${MEMCHECK:-no}
 MEMCHECK_CMD="libtool --mode=execute	\
-	valgrind			\
+	${VALGRIND:-valgrind}		\
 	--tool=memcheck			\
 	--leak-check=full		\
 	--show-leak-kinds=all		\

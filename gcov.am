@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2018 Dridi Boukelmoune
+# Copyright (c) 2018 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,26 +22,41 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-ACLOCAL_AMFLAGS = -I m4
+gcov-local:
+if GCOV_ENABLED
+	@if test "$(srcdir)" != "$(top_srcdir)"; \
+	then \
+		find $(abs_builddir) -depth -name '*.gcno' \
+			-exec $(GCOV) {} \;; \
+	else \
+		rm -rf $(builddir)/gcov/; \
+		mkdir $(builddir)/gcov; \
+		find $(builddir) -depth -name '*.gcov' | \
+		$(CPIO) -p -d gcov; \
+	fi
+else
+	@echo "Error: gcov support is disabled"
+	@false
+endif
 
-DISTCHECK_CONFIGURE_FLAGS = --disable-docs
+clean-local: gcov-clean
 
-EXTRA_DIST = \
-	README.rst \
-	$(PACKAGE).spec
+gcov-clean:
+	@find $(abs_builddir) -depth '(' \
+		-name '*.gcda' -o \
+		-name '*.gcno' -o \
+		-name '*.gcov' \
+		')' -delete
 
-dist_doc_DATA = \
-	LICENSE \
-	README.rst
+gcov-recursive: gcov-check
 
-SUBDIRS = \
-	gen \
-	inc \
-	lib \
-	man \
-	tst
+gcov-check:
+if GCOV_ENABLED
+	@if test "$(srcdir)" == "$(top_srcdir)"; \
+	then \
+		find $(abs_builddir) -depth -name '*.gcov' -delete; \
+		$(MAKE) $(AM_MAKEFLAGS) -k check; \
+	fi
+endif
 
-dist: all
-
-include gcov.am
-include lcov.am
+.PHONY: gcov-local gcov-clean gcov-check
