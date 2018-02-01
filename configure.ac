@@ -189,10 +189,13 @@ then
 		-Wno-switch-enum
 	])
 
-	# Be lenient towards testing, it may test shit
+	# Give some slack to the test suite, it covers nasty stuff
 	CASHPACK_CHECK_CFLAGS([TEST_CFLAGS], [
 		-Wno-assign-enum
+		-Wno-conversion
+		-Wno-format-nonliteral
 		-Wno-sign-conversion
+		-Wno-switch-enum
 		-Wno-unreachable-code-return
 	])
 fi
@@ -205,6 +208,9 @@ then
 		-fstack-protector
 	])
 fi
+
+AC_SUBST([EXAMPLE_CFLAGS], ["$CFLAGS $EXAMPLE_CFLAGS"])
+AC_SUBST([TEST_CFLAGS], ["$CFLAGS $TEST_CFLAGS"])
 
 # Test suite
 AC_MSG_CHECKING([for RFC 7541-compatible hexdumps])
