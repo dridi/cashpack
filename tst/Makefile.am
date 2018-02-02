@@ -166,6 +166,7 @@ AM_TESTS_ENVIRONMENT = \
 
 TESTS = $(RFC_TESTS) $(COV_TESTS) $(REG_TESTS)
 
+CLEANFILES = $(nodist_noinst_SCRIPTS)
 EXTRA_DIST = \
 	$(TESTS) \
 	hexcheck \
