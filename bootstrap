@@ -25,4 +25,5 @@ cd "$WORK_DIR"
 	--enable-docs \
 	--enable-warnings \
 	--enable-hardening \
+	--enable-silent-rules \
 	"$@"

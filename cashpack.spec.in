@@ -42,7 +42,7 @@ developing applications that use %{name}.
 
 
 %build
-%configure --disable-silent-rules
+%configure
 %make_build
 
 
@@ -51,7 +51,7 @@ developing applications that use %{name}.
 
 
 %check
-%make_build check
+%make_build check VERBOSE=1
 
 
 %post -p /sbin/ldconfig
@@ -76,22 +76,25 @@ developing applications that use %{name}.
 
 
 %changelog
-* Fri Feb  3 2017 Dridi <dridi.boukelmoune@gmail.com> - 0.3
+* Sat Feb  3 2018 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.3
+- Refine build verbosity
+
+* Fri Feb  3 2017 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.3
 - Bump version to 0.3
 
-* Fri Dec 30 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.2
+* Fri Dec 30 2016 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.2
 - Bump version to 0.2
 
-* Sun May  8 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+* Sun May  8 2016 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.1
 - Add %%_datarootdir
 
-* Wed May  4 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+* Wed May  4 2016 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.1
 - Add pkgconfig file
 - Disable nghttp2
 
-* Mon Apr 11 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+* Mon Apr 11 2016 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.1
 - Switch to autotools
 - Disable memcheck
 
-* Tue Feb  2 2016 Dridi <dridi.boukelmoune@gmail.com> - 0.1
+* Tue Feb  2 2016 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.1
 - Initial spec
