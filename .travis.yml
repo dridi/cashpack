@@ -23,8 +23,6 @@ matrix:
     - compiler: gcc
       env: BUILD_FLAGS=--enable-lcov BUILD_TARGET="lcov -j 1"
     - compiler: clang
-      env: BUILD_FLAGS=--enable-lcov BUILD_TARGET="lcov -j 1" GCOV="llvm-cov gcov"
-    - compiler: clang
       env: BUILD_FLAGS="--enable-asan --enable-ubsan"
 #   - compiler: clang
 #     env: BUILD_FLAGS=--enable-msan
