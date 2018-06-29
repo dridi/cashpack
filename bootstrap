@@ -9,6 +9,10 @@ ROOT_DIR=$(dirname "$0")
 test -n "$ROOT_DIR"
 cd "$ROOT_DIR"
 
+echo ===
+env | cat -v
+echo ===
+
 if ! command -v libtoolize >/dev/null 2>&1
 then
 	echo 'libtoolize: command not found, falling back to glibtoolize' >&2
