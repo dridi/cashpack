@@ -9,9 +9,8 @@ ROOT_DIR=$(dirname "$0")
 test -n "$ROOT_DIR"
 cd "$ROOT_DIR"
 
-echo ===
-env | cat -v
-echo ===
+test "${LGTM_WORKSPACE:+set}" = set &&
+sed -i '/CASHPACK_ARG_ENABLE..docs/d' configure.ac
 
 if ! command -v libtoolize >/dev/null 2>&1
 then
@@ -23,6 +22,8 @@ aclocal -I m4
 libtoolize --copy --force
 automake --add-missing --copy --foreign
 autoconf
+
+test "${LGTM_WORKSPACE:+set}" = set && exit
 
 cd "$WORK_DIR"
 "$ROOT_DIR"/configure \
