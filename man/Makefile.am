@@ -35,23 +35,23 @@ hpack_alloc_links = \
 	hpack_decoder.3 \
 	hpack_encoder.3 \
 	hpack_free.3 \
-	hpack_resize.3 \
 	hpack_limit.3 \
+	hpack_resize.3 \
 	hpack_trim.3
 
 hpack_decode_links = \
 	hpack_decode_fields.3
 
 hpack_error_links = \
-	hpack_strerror.3 \
-	hpack_dump.3
+	hpack_dump.3 \
+	hpack_strerror.3
 
 hpack_index_links = \
-	hpack_static.3 \
 	hpack_dynamic.3 \
-	hpack_tables.3 \
 	hpack_entry.3 \
-	hpack_search.3
+	hpack_search.3 \
+	hpack_static.3 \
+	hpack_tables.3
 
 if HAVE_HEXDUMP
 dist_man_MANS = \
@@ -59,8 +59,8 @@ dist_man_MANS = \
 	hpack_alloc.3 \
 	hpack_decode.3 \
 	hpack_encode.3 \
-	hpack_index.3 \
 	hpack_error.3 \
+	hpack_index.3 \
 	$(hpack_alloc_links) \
 	$(hpack_decode_links) \
 	$(hpack_error_links) \
