@@ -108,19 +108,19 @@ noop_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 static struct hpack *
 make_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
 {
-	struct hpack *hp;
+	struct hpack *dec;
 
-	CHECK_NOTNULL(hp, hpack_decoder, max, rsz, ha);
-	return (hp);
+	CHECK_NOTNULL(dec, hpack_decoder, max, rsz, ha);
+	return (dec);
 }
 
 static struct hpack *
 make_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 {
-	struct hpack *hp;
+	struct hpack *enc;
 
-	CHECK_NOTNULL(hp, hpack_encoder, max, lim, ha);
-	return (hp);
+	CHECK_NOTNULL(enc, hpack_encoder, max, lim, ha);
+	return (enc);
 }
 
 static void
