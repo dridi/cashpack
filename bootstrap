@@ -21,7 +21,7 @@ fi
 aclocal -I m4
 libtoolize --copy --force
 automake --add-missing --copy --foreign
-autoconf
+autoreconf
 
 test "${LGTM_WORKSPACE:+set}" = set && exit
 
