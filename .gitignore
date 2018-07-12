@@ -41,6 +41,7 @@ hdecode
 hencode
 hpack_arg
 hpack_dump
+hpack_mbm
 hpiencode
 ngdecode
 
@@ -50,6 +51,7 @@ cpp_ignore
 hpack.h
 hpack_huf_dec.h
 hpack_huf_enc.h
+hpack_static_hdr.h
 
 # manual pages
 *.3
@@ -59,9 +61,15 @@ hpack_huf_enc.h
 *.txt
 *2rst.rst
 
+# generated RST manuals
+cashpack.3.rst
+hpack_encode.3.rst
+hpack_error.3.rst
+
 # test suite
 cashpack.*/
 failed-cashpack.*/
+cov.sh
 
 # packaging
 *.pc
