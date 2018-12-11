@@ -160,8 +160,6 @@ parse_name(struct hpack_field *fld, const char **args)
 	}
 	else
 		WRONG("Unknown token");
-
-	return;
 }
 
 static void
@@ -186,8 +184,6 @@ parse_value(struct hpack_field *fld, const char **args)
 	}
 	else
 		WRONG("Unknown token");
-
-	return;
 }
 
 static int
