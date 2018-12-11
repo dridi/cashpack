@@ -53,12 +53,14 @@ func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
 		} else if stp[0] == 'a' {
 			panic("abort")
 		} else if stp[0] == 'd' {
-			_, err = dec.Write(blk[0:len])
-			blk = blk[len:]
+			if _, err = dec.Write(blk[0:len]); err == nil {
+				blk = blk[len:]
+				err = dec.Close()
+			}
 		} else if stp[0] == 'p' {
-			_, err = dec.Write(blk[0:len])
-			blk = blk[len:]
-			err = nil
+			if _, err = dec.Write(blk[0:len]); err == nil {
+				blk = blk[len:]
+			}
 		} else if stp[0] == 'r' {
 			dec.SetAllowedMaxDynamicTableSize(uint32(len))
 		} else {
@@ -68,8 +70,7 @@ func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
 			break
 		}
 	}
-	_, err = dec.Write(blk)
-	if err == nil {
+	if _, err = dec.Write(blk); err == nil {
 		err = dec.Close()
 	}
 	return err
