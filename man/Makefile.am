@@ -40,7 +40,8 @@ hpack_alloc_links = \
 	hpack_trim.3
 
 hpack_decode_links = \
-	hpack_decode_fields.3
+	hpack_decode_fields.3 \
+	hpack_skip.3
 
 hpack_error_links = \
 	hpack_dump.3 \
