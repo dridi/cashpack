@@ -27,6 +27,13 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)/inc \
 	-I$(top_builddir)/gen
 
+noinst_LTLIBRARIES = libhpi.la
+
+libhpi_la_SOURCES = \
+	hpack_ctx.c \
+	hpack_enc.c \
+	hpack_int.c
+
 lib_LTLIBRARIES = libhpack.la
 
 if HAVE_LD_VERSION_SCRIPT
@@ -37,15 +44,16 @@ endif
 
 libhpack_la_LDFLAGS += -version-info 0:0:0
 
-libhpack_la_DEPENDENCIES = $(PACKAGE).map
+libhpack_la_LIBADD = libhpi.la
+
+libhpack_la_DEPENDENCIES = \
+	$(libhpack_la_LIBADD) \
+	$(PACKAGE).map
 
 libhpack_la_SOURCES = \
 	hpack.c \
-	hpack_ctx.c \
 	hpack_dec.c \
-	hpack_enc.c \
 	hpack_huf.c \
-	hpack_int.c \
 	hpack_tbl.c \
 	hpack_val.c \
 	$(top_builddir)/inc/hpack.h \
@@ -61,10 +69,9 @@ pkgconfig_DATA = $(PACKAGE).pc
 
 noinst_PROGRAMS = hpiencode
 
-hpiencode_LDADD = \
-	hpack_ctx.$(OBJEXT) \
-	hpack_enc.$(OBJEXT) \
-	hpack_int.$(OBJEXT)
+hpiencode_LDADD = libhpi.la
+
+hpiencode_DEPENDENCIES = $(hpiencode_LDADD)
 
 EXTRA_DIST = \
 	$(PACKAGE).pc.in \
