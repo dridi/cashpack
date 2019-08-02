@@ -94,7 +94,7 @@ GO_BUILD = GOPATH=$(abs_builddir) $(GO) build
 check_PROGRAMS += godecode
 
 src:
-	$(AM_V_GO)ln -s -f $(GOROOT)/src/vendor $@
+	$(AM_V_GO)ln -s -f $(GOROOT)/src/internal $@
 
 godecode_SOURCES =
 godecode: src godecode.go

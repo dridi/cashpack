@@ -29,12 +29,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"golang_org/x/net/http2/hpack"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
+	"x/net/http2/hpack"
 )
 
 func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
