@@ -109,7 +109,7 @@ HPI_encode(HPACK_CTX, enum hpi_prefix_e pfx, enum hpi_pattern_e pat,
 		return;
 	}
 
-	HPE_putb(ctx, pat | mask);
+	HPE_putb(ctx, (uint8_t)pat | mask);
 	val -= mask;
 	while (val >= 0x80) {
 		HPE_putb(ctx, 0x80 | (val & 0x7f));

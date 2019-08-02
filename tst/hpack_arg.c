@@ -133,7 +133,7 @@ test_dump_cb(void *priv, const char *fmt, ...)
 	va_end(ap);
 }
 
-#define test_dump(hp)	hpack_dump(hp, test_dump_cb, stderr);
+#define test_dump(hp)	hpack_dump(hp, test_dump_cb, stderr)
 
 /**********************************************************************
  * Static allocator
