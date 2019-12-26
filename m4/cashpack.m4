@@ -161,11 +161,11 @@ AC_DEFUN([CASHPACK_GOLANG_PREREQ], [
 
 	AS_VERSION_COMPARE([$GOLANG_VERSION], [$1],
 		[cashpack_golang_prereq=no],
-		[cashpack_golang_prereq=yes],
-		[cashpack_golang_prereq=yes])
+		[cashpack_golang_prereq=$GOLANG_VERSION],
+		[cashpack_golang_prereq=$GOLANG_VERSION])
 
 	AC_MSG_RESULT([$cashpack_golang_prereq])
-	AM_CONDITIONAL([HAVE_GOLANG], [test "$cashpack_golang_prereq" = yes])
+	AM_CONDITIONAL([HAVE_GOLANG], [test "$cashpack_golang_prereq" != no])
 
 	dnl Define an automake silent execution for go
 	[am__v_GO_0='@echo "  GO      " $''@;']

@@ -232,7 +232,7 @@ fi
 AC_MSG_RESULT([yes])
 
 test "$GO" != no &&
-CASHPACK_GOLANG_PREREQ([1.12])
+CASHPACK_GOLANG_PREREQ([1.13])
 
 # The end
 AC_CONFIG_FILES([
