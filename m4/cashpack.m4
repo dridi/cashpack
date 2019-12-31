@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2018 Dridi Boukelmoune
+# Copyright (c) 2016-2019 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

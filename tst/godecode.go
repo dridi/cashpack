@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2017 Dridi Boukelmoune
+// Copyright (c) 2016-2019 Dridi Boukelmoune
 // All rights reserved.
 //
 // Author: Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
