@@ -59,8 +59,8 @@ struct hpack_alloc {
 
 extern const struct hpack_alloc *hpack_default_alloc;
 
-struct hpack * hpack_decoder(size_t, ssize_t, const struct hpack_alloc *);
-struct hpack * hpack_encoder(size_t, ssize_t, const struct hpack_alloc *);
+struct hpack * hpack_decoder(size_t, ssize_t, const struct hpack_alloc *, uint32_t);
+struct hpack * hpack_encoder(size_t, ssize_t, const struct hpack_alloc *, uint32_t);
 void hpack_free(struct hpack **);
 
 enum hpack_result_e hpack_resize(struct hpack **, size_t);

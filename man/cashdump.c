@@ -131,7 +131,7 @@ main(int argc, char **argv)
 
 	/* initialization */
 	first = 1;
-	hp = hpack_decoder(4096, -1, hpack_default_alloc);
+	hp = hpack_decoder(4096, -1, hpack_default_alloc, 0);
 	dec.blk = blk;
 	dec.blk_len = 0;
 	dec.buf = buf;
