@@ -789,6 +789,8 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	ctx->res = dec->cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->ptr_len > 0) {
+        if(ctx->hp->flags & HPACK_CFG_SEND_PTR)
+            HPC_notify(ctx, HPACK_EVT_PTR, ctx->ptr.blk, 0);
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->ptr.blk;
 		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
@@ -859,6 +861,13 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(buf != NULL);
 		assert(len == strlen(buf));
 		break;
+    case HPACK_EVT_PTR:
+		assert(buf != NULL);
+        break;
+    case HPACK_EVT_RECERR:
+		assert(buf != NULL);
+		assert(len > 0);
+        break;
 	case HPACK_EVT_DATA:
 		WRONG("Invalid event");
 	default:
