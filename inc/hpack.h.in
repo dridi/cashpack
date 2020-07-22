@@ -97,6 +97,8 @@ enum hpack_event_e {
 typedef void hpack_event_f(enum hpack_event_e, const char *, size_t,
     void *);
 
+const char * hpack_event_id(enum hpack_event_e);
+
 /* hpack_decode */
 
 struct hpack_decoding {

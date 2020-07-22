@@ -432,6 +432,22 @@ hpack_entry(struct hpack *hp, size_t idx, const char **nam, const char **val)
 }
 
 /**********************************************************************
+ * Events
+ */
+
+const char *
+hpack_event_id(enum hpack_event_e evt)
+{
+
+#define HPE(val, cod, txt, rst)	\
+	if (evt == cod)		\
+		return (#val);
+#include "tbl/hpack_tbl.h"
+#undef HPE
+	return (NULL);
+}
+
+/**********************************************************************
  * Errors
  */
 

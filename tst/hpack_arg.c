@@ -838,6 +838,18 @@ test_dump_unknown(void)
 	hpack_free(&hp);
 }
 
+static void
+test_event_id(void)
+{
+	const char *str;
+
+#define HPE(e, v, d, l)						\
+	CHECK_NOTNULL(str, hpack_event_id, HPACK_EVT_ ## e);
+#include "tbl/hpack_tbl.h"
+#undef HPE
+	CHECK_NULL(str, hpack_event_id, UINT16_MAX);
+}
+
 /**********************************************************************
  */
 
@@ -902,6 +914,8 @@ main(void)
 
 	test_strerror();
 	test_dump_unknown();
+
+	test_event_id();
 
 	return (0);
 }

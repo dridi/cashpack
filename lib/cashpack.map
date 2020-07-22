@@ -41,6 +41,7 @@ CASHPACK_0.4 {
     hpack_skip;
     hpack_static;
     hpack_strerror;
+    hpack_event_id;
     hpack_tables;
     hpack_trim;
 
