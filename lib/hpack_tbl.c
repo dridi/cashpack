@@ -115,6 +115,8 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
         while(idx >= ctx->hp->cnt) {
             HPT_index(ctx);
         }
+        if(ctx->hp->flags & HPACK_CFG_SEND_ERR)
+            HPC_notify(ctx, HPACK_EVT_RECERR, ctx->ptr.blk, idx);
     }
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
