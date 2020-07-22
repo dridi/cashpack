@@ -62,6 +62,11 @@ static const struct hpt_field hpt_static[] = {
  * Tables lookups
  */
 
+const char *hpack_unknown_name = "unknown_name";
+const char *hpack_unknown_value = "unknown_value";
+
+static size_t HPT_index_silent(HPACK_CTX);
+
 static struct hpt_entry *
 hpt_dynamic(struct hpack *hp, size_t idx)
 {
@@ -99,6 +104,18 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	}
 
 	idx -= HPACK_STATIC;
+    if(HPC_DEGRADED() && idx > ctx->hp->cnt) {
+	    ctx->fld.nam = hpack_unknown_name;
+	    ctx->fld.val = hpack_unknown_value;
+	    ctx->fld.nam_sz = strlen(ctx->fld.nam);
+	    ctx->fld.val_sz = strlen(ctx->fld.val);
+        while(idx > ctx->hp->cnt) {
+            HPT_index_silent(ctx);
+        }
+        while(idx >= ctx->hp->cnt) {
+            HPT_index(ctx);
+        }
+    }
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
 	he = hpt_dynamic(ctx->hp, idx);
@@ -366,8 +383,8 @@ hpt_move_evicted(HPACK_CTX, const char *nam, size_t nam_sz, size_t len)
 	(void)memmove(MOVE(tbl_ptr, len), tbl_ptr, hp->sz.len);
 }
 
-void
-HPT_index(HPACK_CTX)
+static size_t
+HPT_index_silent(HPACK_CTX)
 {
 	struct hpack *hp;
 	void *nam_ptr, *val_ptr;
@@ -391,7 +408,7 @@ HPT_index(HPACK_CTX)
 
 	len = HPACK_OVERHEAD + nam_sz + val_sz;
 	if (!hpt_fit(ctx, len))
-		return;
+		return 0;
 
 	nam_ptr = JUMP(hp->tbl, 0);
 	val_ptr = JUMP(hp->tbl, nam_sz + 1);
@@ -412,8 +429,16 @@ HPT_index(HPACK_CTX)
 	hp->tbl->val_sz = (uint16_t)val_sz;
 	hp->sz.len += len;
 	hp->cnt++;
+    return len;
+}
 
-	HPC_notify(ctx, HPACK_EVT_INDEX, NULL, len);
+void
+HPT_index(HPACK_CTX)
+{
+    size_t len = HPT_index_silent(ctx);
+    if(len > 0) {
+    	HPC_notify(ctx, HPACK_EVT_INDEX, NULL, len);
+    }
 }
 
 /**********************************************************************
