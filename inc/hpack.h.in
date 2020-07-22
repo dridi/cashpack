@@ -78,6 +78,9 @@ enum hpack_result_e hpack_trim(struct hpack **);
 
 /* hpack_error */
 
+extern const char *hpack_unknown_name;
+extern const char *hpack_unknown_value;
+
 typedef void hpack_dump_f(void *, const char *, ...);
 
 const char * hpack_strerror(enum hpack_result_e);
