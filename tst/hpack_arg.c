@@ -66,6 +66,11 @@
 		(void)res;					\
 	} while (0)
 
+#define CHECK_EVTID(evt) \
+	do {							\
+		const char *str = hpack_event_id(HPACK_EVT_##evt);			\
+		assert(!strcmp(str, #evt));			\
+	} while (0)
 /**********************************************************************
  * Data structures
  */
@@ -838,6 +843,24 @@ test_dump_unknown(void)
 	hpack_free(&hp);
 }
 
+
+static void
+test_event_id(void)
+{
+	const char *str;
+
+    CHECK_EVTID(FIELD);
+    CHECK_EVTID(NEVER);
+    CHECK_EVTID(INDEX);
+    CHECK_EVTID(NAME);
+    CHECK_EVTID(VALUE);
+    CHECK_EVTID(DATA);
+    CHECK_EVTID(EVICT);
+    CHECK_EVTID(TABLE);
+
+	CHECK_NULL(str, hpack_event_id, UINT16_MAX);
+}
+
 /**********************************************************************
  */
 
@@ -902,6 +925,8 @@ main(void)
 
 	test_strerror();
 	test_dump_unknown();
+
+	test_event_id();
 
 	return (0);
 }

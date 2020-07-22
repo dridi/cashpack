@@ -446,6 +446,18 @@ hpack_strerror(enum hpack_result_e res)
 	return (NULL);
 }
 
+const char *
+hpack_event_id(enum hpack_event_e evt)
+{
+
+#define HPE(val, cod, txt, rst)	\
+	if (evt == cod)		\
+		return (#val);
+#include "tbl/hpack_tbl.h"
+#undef HPE
+	return (NULL);
+}
+
 static void /* NB: hexdump -C output */
 hpack_hexdump(const void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 {
