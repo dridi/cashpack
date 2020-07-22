@@ -227,7 +227,15 @@ HPF(AUT_IDX, 0x80,
 	"\tname and value) is found, either ``TYP_DYN`` or ``TYP_LIT`` are\n"
 	"\tturned into ``TYP_IDX``. If a match is found, *idx* or *nam_idx*\n"
 	"\tis set to non-zero, zero otherwise.\n\n")
+
 #endif /* HPF */
+
+#ifdef HPC
+/* configuration flags */
+HPC(DEGRADED, 0x01,
+    "\tTODO: write documentation.\n\n")
+
+#endif /* HPC */
 
 #ifdef HPP
 HPP(STR, 7, 0x00) /* Section 5.2 */

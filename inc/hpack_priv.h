@@ -36,6 +36,9 @@
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
 
+#define HPC_DEGRADED() \
+    (ctx->hp->flags & HPACK_CFG_DEGRADED)
+
 #define CALL(func, ...)					\
 	do {						\
 		if ((func)(__VA_ARGS__) != 0)		\

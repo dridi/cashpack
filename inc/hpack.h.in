@@ -34,6 +34,15 @@
 #  include <unistd.h>
 #endif
 
+/* hpack_config */
+
+enum hpack_config_e {
+#define HPC(f, v, l) \
+	HPACK_CFG_##f	= v,
+#include "tbl/hpack_tbl.h"
+#undef HPC
+};
+
 /* hpack_result */
 
 enum hpack_result_e {
