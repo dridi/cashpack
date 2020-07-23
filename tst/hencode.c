@@ -274,8 +274,6 @@ parse_commands(struct enc_ctx *ctx)
 	return (parse_commands(ctx));
 }
 
-struct hpack *hp = NULL;
-
 int
 main(int argc, char **argv)
 {
