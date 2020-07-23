@@ -61,6 +61,7 @@ dist_man_MANS = \
 	hpack_decode.3 \
 	hpack_encode.3 \
 	hpack_error.3 \
+	hpack_event_id.3 \
 	hpack_index.3 \
 	$(hpack_alloc_links) \
 	$(hpack_decode_links) \

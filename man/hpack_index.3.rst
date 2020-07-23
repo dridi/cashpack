@@ -156,6 +156,7 @@ SEE ALSO
 **hpack_dump**\(3),
 **hpack_encode**\(3),
 **hpack_encoder**\(3),
+**hpack_event_id**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),
