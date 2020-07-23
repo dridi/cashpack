@@ -1,4 +1,4 @@
-.. Copyright (c) 2016-2017 Dridi Boukelmoune
+.. Copyright (c) 2016-2020 Dridi Boukelmoune
 .. All rights reserved.
 ..
 .. Redistribution and use in source and binary forms, with or without
@@ -180,6 +180,9 @@ When dealing with events, unknown values should be ignored. Future versions of
 cashpack may introduce new events. The values for existing events shall never
 be changed.
 
+A static textual representation of the event can be obtained with the function
+``hpack_event_id()``.
+
 EXAMPLE
 =======
 
@@ -239,6 +242,7 @@ SEE ALSO
 **hpack_encode**\(3),
 **hpack_encoder**\(3),
 **hpack_entry**\(3),
+**hpack_event_id**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
 **hpack_resize**\(3),

@@ -193,6 +193,7 @@ SEE ALSO
 **hpack_dynamic**\(3),
 **hpack_encode**\(3),
 **hpack_entry**\(3),
+**hpack_event_id**\(3),
 **hpack_search**\(3),
 **hpack_skip**\(3),
 **hpack_static**\(3),
