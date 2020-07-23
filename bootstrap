@@ -10,12 +10,6 @@ test -n "$ROOT_DIR"
 test "${LGTM_WORKSPACE:+set}" = set &&
 sed -i '/CASHPACK_ARG_ENABLE..docs/d' configure.ac
 
-if ! command -v libtoolize >/dev/null 2>&1
-then
-	echo 'libtoolize: command not found, falling back to glibtoolize' >&2
-	alias libtoolize=glibtoolize
-fi
-
 autoreconf -i "$ROOT_DIR"
 
 test "${LGTM_WORKSPACE:+set}" = set && exit
