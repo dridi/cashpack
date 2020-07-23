@@ -123,8 +123,6 @@ resize_table(void *priv, const void *buf, size_t len, unsigned cut)
 	return (hpack_resize(&priv2->hp, len));
 }
 
-struct hpack *hp = NULL;
-
 int
 main(int argc, char **argv)
 {
