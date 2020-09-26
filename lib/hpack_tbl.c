@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2016-2017 Dridi Boukelmoune
+ * Copyright (c) 2016-2020 Dridi Boukelmoune
  * All rights reserved.
  *
  * Author: Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
@@ -36,6 +36,7 @@
 #include <unistd.h>
 
 #include "hpack.h"
+#include "hpack_assert.h"
 #include "hpack_priv.h"
 #include "hpack_static_hdr.h"
 
@@ -151,35 +152,48 @@ HPT_foreach(HPACK_CTX, int flg)
 }
 
 static int
-hpt_bsearch(struct hpt_field *key, const struct hpt_field *src,
-    size_t len)
+hpt_cmp(struct hpt_field *key, const struct hpt_field *tbl)
 {
-	ssize_t min, max, pos;
-	int retval, cmp;
+	int cmp;
 
-	retval = HPACK_RES_IDX;
+	if (key->nam_sz != tbl->nam_sz)
+		return (key->nam_sz - tbl->nam_sz);
+	cmp = strcmp(key->nam, tbl->nam);
+	if (cmp)
+		return (cmp);
+	key->idx = tbl->idx;
+	if (key->val_sz != tbl->val_sz)
+		return (key->val_sz - tbl->val_sz);
+	return (strcmp(key->val, tbl->val));
+}
+
+static int
+hpt_bsearch(struct hpt_field *key)
+{
+	const struct hpt_field *tbl;
+	ssize_t min, max, pos;
+	int cmp;
+
+	assert(key->idx == 0);
+	key->nam_sz = strlen(key->nam);
+	key->val_sz = strlen(key->val);
+	tbl = hpack_static_hdr;
 	min = 0;
-	max = len - 1;
+	max = HPACK_STATIC - 1;
 
 	while (min <= max) {
 		pos = (min + max) / 2;
-		cmp = strcmp(key->nam, src[pos].nam);
-		if (!cmp) {
-			retval = HPACK_RES_NAM;
-			key->idx = src[pos].idx;
-			cmp = strcmp(key->val, src[pos].val);
-			if (!cmp) {
-				retval = HPACK_RES_OK;
-				break;
-			}
-		}
+		assert(pos < HPACK_STATIC);
+		cmp = hpt_cmp(key, tbl + pos);
+		if (cmp == 0)
+			return (HPACK_RES_OK);
 		if (cmp < 0)
 			max = pos - 1;
 		else
 			min = pos + 1;
 	}
 
-	return (retval);
+	return (key->idx ? HPACK_RES_NAM : HPACK_RES_IDX);
 }
 
 int
@@ -195,10 +209,7 @@ HPT_search(HPACK_CTX, struct hpt_field *hf)
 	assert(hf != NULL);
 	retval = HPACK_RES_IDX;
 
-	if (*hf->nam == ':')
-		retval = hpt_bsearch(hf, hpt_static, HPS_PSEUDO);
-	else
-		retval = hpt_bsearch(hf, hpack_static_hdr, HPS_NORMAL);
+	retval = hpt_bsearch(hf);
 
 	if (retval != HPACK_RES_IDX) {
 		assert(hf->idx > 0);
