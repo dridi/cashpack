@@ -198,6 +198,11 @@ then
 		-Wno-switch-enum
 		-Wno-unreachable-code-return
 	])
+
+	if test -z "${CC%*clang*}"
+	then
+		CASHPACK_CHECK_CFLAGS([CFLAGS], [-Wno-error=implicit-fallthrough])
+	fi
 fi
 
 # Hardening
