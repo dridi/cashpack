@@ -85,6 +85,7 @@ static struct hpack_field dynamic_entries[] = {
 static struct hpack_field unknown_entries[] = {
 	FIELD_ENTRY(":verb", "PURGE"),
 	FIELD_ENTRY(":host", "localhost"),
+	FIELD_ENTRY("aaa", "underflow"),
 	FIELD_ENTRY("browser", "cashpack/42"),
 	FIELD_ENTRY("want", "application/json,*/*;q=0.1"),
 	FIELD_ENTRY("want-language", "fr-FR,fr;q=0.5"),

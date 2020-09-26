@@ -154,7 +154,7 @@ static int
 hpt_bsearch(struct hpt_field *key, const struct hpt_field *src,
     size_t len)
 {
-	size_t min, max, pos;
+	ssize_t min, max, pos;
 	int retval, cmp;
 
 	retval = HPACK_RES_IDX;
