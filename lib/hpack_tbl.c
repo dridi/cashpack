@@ -175,8 +175,8 @@ hpt_bsearch(struct hpt_field *key)
 	int cmp;
 
 	assert(key->idx == 0);
-	key->nam_sz = strlen(key->nam);
-	key->val_sz = strlen(key->val);
+	key->nam_sz = (uint16_t)strlen(key->nam);
+	key->val_sz = (uint16_t)strlen(key->val);
 	tbl = hpack_static_hdr;
 	min = 0;
 	max = HPACK_STATIC - 1;

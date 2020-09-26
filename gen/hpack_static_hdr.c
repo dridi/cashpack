@@ -61,7 +61,7 @@ hdr_cmp(const void *v1, const void *v2)
 	h1 = v1;
 	h2 = v2;
 
-	cmp = strlen(h1->nam) - strlen(h2->nam);
+	cmp = (int)(strlen(h1->nam) - strlen(h2->nam));
 	if (cmp)
 		return (cmp);
 
@@ -69,7 +69,7 @@ hdr_cmp(const void *v1, const void *v2)
 	if (cmp)
 		return (cmp);
 
-	cmp = strlen(h1->val) - strlen(h2->val);
+	cmp = (int)(strlen(h1->val) - strlen(h2->val));
 	if (cmp)
 		return (cmp);
 	return (strcmp(h1->val, h2->val));
