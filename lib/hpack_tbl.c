@@ -211,15 +211,19 @@ HPT_search(HPACK_CTX, struct hpt_field *hf)
 
 	retval = hpt_bsearch(hf);
 
-	if (retval != HPACK_RES_IDX) {
+	switch (retval) {
+	case HPACK_RES_OK:
+		return (0);
+	case HPACK_RES_NAM:
 		assert(hf->idx > 0);
 		assert(hf->idx <= HPACK_STATIC);
-	}
-
-	if (retval == 0)
-		return (0);
-	else
+		/* fall through */
+	case HPACK_RES_IDX:
 		nam_idx = hf->idx;
+		break;
+	default:
+		WRONG("Unreachable");
+	}
 
 	off = 0;
 	tbl = ctx->hp->tbl;
