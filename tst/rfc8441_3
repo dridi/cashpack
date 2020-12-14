@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# Written by Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+#
+# This file is in the public domain.
+#
+# 3.  The SETTINGS_ENABLE_CONNECT_PROTOCOL SETTINGS Parameter
+#
+#    [...]
+#
+#    Using a SETTINGS parameter to opt into an otherwise incompatible
+#    protocol change is a use of "Extending HTTP/2" defined by Section 5.5
+#    of [RFC7540].  Specifically, the addition a new pseudo-header field,
+#    ":protocol", and the change in meaning of the :authority pseudo-
+#    header field in Section 4 require opt-in negotiation.
+#
+#    [...]
+
+. "$(dirname "$0")"/common.sh
+
+mk_hex <<EOF
+0007 3a6d 6574 686f 6407 434f 4e4e 4543 | ..:method.CONNEC
+5400 093a 7072 6f74 6f63 6f6c 0977 6562 | T..:protocol.web
+736f 636b 6574 0007 3a73 6368 656d 6505 | socket..:scheme.
+6874 7470 7300 053a 7061 7468 052f 6368 | https..:path./ch
+6174 000a 3a61 7574 686f 7269 7479 1273 | at..:authority.s
+6572 7665 722e 6578 616d 706c 652e 636f | erver.example.co
+6d00 1673 6563 2d77 6562 736f 636b 6574 | m..sec-websocket
+2d70 726f 746f 636f 6c0f 6368 6174 2c20 | -protocol.chat,
+7375 7065 7263 6861 7400 1873 6563 2d77 | superchat..sec-w
+6562 736f 636b 6574 2d65 7874 656e 7369 | ebsocket-extensi
+6f6e 7312 7065 726d 6573 7361 6765 2d64 | ons.permessage-d
+6566 6c61 7465 0015 7365 632d 7765 6273 | eflate..sec-webs
+6f63 6b65 742d 7665 7273 696f 6e02 3133 | ocket-version.13
+0006 6f72 6967 696e 1668 7474 703a 2f2f | ..origin.http://
+7777 772e 6578 616d 706c 652e 636f 6d   | www.example.com
+EOF
+
+mk_msg <<EOF
+:method: CONNECT
+:protocol: websocket
+:scheme: https
+:path: /chat
+:authority: server.example.com
+sec-websocket-protocol: chat, superchat
+sec-websocket-extensions: permessage-deflate
+sec-websocket-version: 13
+origin: http://www.example.com
+EOF
+
+mk_tbl <<EOF
+EOF
+
+mk_enc <<EOF
+literal str :method str CONNECT
+literal str :protocol str websocket
+literal str :scheme str https
+literal str :path str /chat
+literal str :authority str server.example.com
+literal str sec-websocket-protocol str chat, superchat
+literal str sec-websocket-extensions str permessage-deflate
+literal str sec-websocket-version str 13
+literal str origin str http://www.example.com
+EOF
+
+tst_decode
+tst_encode
