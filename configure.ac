@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2018 Dridi Boukelmoune
+# Copyright (c) 2016-2020 Dridi Boukelmoune
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # SUCH DAMAGE.
 
 AC_INIT([cashpack], [0.4], [https://github.com/dridi/cashpack/issues])
-AC_COPYRIGHT([Copyright (c) 2016-2018 Dridi Boukelmoune])
+AC_COPYRIGHT([Copyright (c) 2016-2020 Dridi Boukelmoune])
 
 AC_PREREQ([2.63])
 AC_REVISION([revision 2])
