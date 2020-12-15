@@ -32,7 +32,7 @@ Remote checks:
 - Run the almost-comprehensive build matrix on Travis CI
 - Trigger an analysis by Coverity Scan
 - Build with SunCC
-- Build on i686, armv7hl, aarch64, ppc64, ppc64le and s390x
+- Build on aarch64, armv7hl, i686, ppc64le and s390x
 - Prepare release notes on GitHub
 - Await Coverity Scan results
 
