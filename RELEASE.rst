@@ -14,11 +14,11 @@ Local checks:
 
 - Build with GCC, Clang, pcc, afl-gcc and Sparse
 - Check with scan-build and cppcheck
-- Run the test suite with nghttp2 and Go 1.7+
-- Run again with msan and an instrumented nghttp2
+- Run the test suite with nghttp2 and Go 1.13+
 - Build with gmake and bmake
 - Test with bash, dash, ksh, lksh, mksh, yash and zsh
-- Build using sanitizers, Valgrind and lcov
+- Build using asan+ubsan, Valgrind and lcov
+- Run again with msan and an instrumented nghttp2
 - Build an RPM package from a dist archive
 - Run rpmlint on both the spec, SRPM and RPM
 - Double-check ABI changes with abipkgdiff and readelf
