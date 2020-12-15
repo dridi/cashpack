@@ -76,6 +76,9 @@ developing applications that use %{name}.
 
 
 %changelog
+* Tue Dec 15 2020 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.4
+- Bump version to 0.4
+
 * Sat Feb  3 2018 Dridi Boukelmoune <dridi.boukelmoune@gmail.com> - 0.3
 - Refine build verbosity
 
