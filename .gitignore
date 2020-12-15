@@ -43,6 +43,9 @@ hpack_arg
 hpack_dump
 hpack_mbm
 hpiencode
+
+# optional programs
+godecode
 ngdecode
 
 # generated headers
@@ -69,8 +72,10 @@ hpack_error.3.rst
 # test suite
 cashpack.*/
 failed-cashpack.*/
+tst/src
 cov.sh
 
 # packaging
+*.tar.gz
 *.pc
 *.spec
