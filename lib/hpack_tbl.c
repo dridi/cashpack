@@ -207,7 +207,6 @@ HPT_search(HPACK_CTX, struct hpt_field *hf)
 
 	assert(ctx != NULL);
 	assert(hf != NULL);
-	retval = HPACK_RES_IDX;
 
 	retval = hpt_bsearch(hf);
 
