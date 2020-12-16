@@ -53,3 +53,12 @@ mk_hex <<EOF
 EOF
 
 hpack_decode ./fdecode --expect-error BUF
+
+# libFuzzer: assert error (missing length check)
+
+mk_hex <<EOF
+bdbd bd00 083a 7363 6865 6d65 0000 bdbd | .....:scheme....
+bdbd bd                                 | ...
+EOF
+
+hpack_decode ./fdecode --expect-error HDR

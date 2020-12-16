@@ -71,9 +71,9 @@ HPV_token(HPACK_CTX, const char *str, size_t len)
 
 	/* RFC 7540 Section 8.1.2.1.  Pseudo-Header Fields */
 	if (*str == ':') {
-#define HPPH(hdr)					\
-		if (!strncmp(str, hdr, len + 1))	\
-				return (0);
+#define HPPH(hdr)							\
+		if (len == strlen(hdr) && !memcmp(str, hdr, len))	\
+			return (0);
 #include "tbl/hpack_pseudo_headers.h"
 #undef HPPH
 		ctx->res = HPACK_RES_HDR;
