@@ -158,7 +158,7 @@ COV_TESTS = \
 	hpack_tbl
 
 REG_TESTS = \
-	afl_fuzz
+	hpack_fuzz
 
 AM_TESTS_ENVIRONMENT = \
 	KEEP_TMP="$(KEEP_TMP)" \

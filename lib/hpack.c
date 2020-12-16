@@ -575,6 +575,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 	uint16_t len;
 	uint8_t huf;
 
+	EXPECT(ctx, BUF, ctx->ptr_len > 0);
 	hs = &ctx->hp->state;
 
 	switch (hs->stp) {

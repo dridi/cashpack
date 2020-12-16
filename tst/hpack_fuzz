@@ -6,7 +6,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-# Error: assert (empty name inserted in the table)
+# AFL: assert (empty name inserted in the table)
 
 mk_hex <<EOF
 4803 3330 3258 0770 7269 7661 7465 611d | H.302X.privatea.
@@ -22,9 +22,9 @@ mk_hex <<EOF
 3d33 3630 303b 2076 6572 7369 6f6e 3d31 | =3600; version=1
 EOF
 
-hpack_decode ./hdecode
+hpack_decode ./fdecode
 
-# Error: timeout (infinite loop in the Huffman decoder)
+# AFL: timeout (infinite loop in the Huffman decoder)
 
 mk_hex <<'EOF'
 00ff 2d68 7474 0000 007f fe95 ff00 0000 | ..-htt..........
@@ -44,4 +44,12 @@ ffff 0000 3649 5540 7f20 6178 0000 1867 | ....6IU@. ax...g
 4633 3630 103b 2076 6090 7369 6f6e 3d31 | F360.; v`.sion=1
 EOF
 
-hpack_decode ./hdecode --expect-error HUF
+hpack_decode ./fdecode --expect-error HUF
+
+# libFuzzer: heap buffer overflow (missing length check)
+
+mk_hex <<EOF
+0a
+EOF
+
+hpack_decode ./fdecode --expect-error BUF
