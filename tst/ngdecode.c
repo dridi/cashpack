@@ -36,7 +36,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 #include <fcntl.h>
 
 #include <nghttp2/nghttp2.h>
@@ -241,8 +240,11 @@ main(int argc, char **argv)
 	(void)retval;
 #endif
 
-	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	assert(blk != MAP_FAILED);
+	blk = malloc(st.st_size);
+	assert(blk != NULL);
+
+	retval = read(fd, blk, st.st_size);
+	assert(retval == (int)st.st_size);
 
 	retval = close(fd);
 	assert(retval == 0);
@@ -272,9 +274,7 @@ main(int argc, char **argv)
 	print_entries(inf);
 
 	nghttp2_hd_inflate_del(inf);
-
-	retval = munmap(blk, st.st_size);
-	assert(retval == 0);
+	free(blk);
 
 	if (res != 0)
 		ERR("nghttp2 result: %s (%d)", nghttp2_strerror(res), res);

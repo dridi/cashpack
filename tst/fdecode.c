@@ -36,7 +36,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 #include <fcntl.h>
 
 #include "hpack.h"
@@ -224,8 +223,11 @@ main(int argc, char **argv)
 	(void)retval;
 #endif
 
-	blk = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	assert(blk != MAP_FAILED);
+	blk = malloc(st.st_size);
+	assert(blk != NULL);
+
+	retval = read(fd, blk, st.st_size);
+	assert(retval == (int)st.st_size);
 
 	retval = close(fd);
 	assert(retval == 0);
@@ -242,9 +244,7 @@ main(int argc, char **argv)
 	TST_print_table();
 
 	hpack_free(&hp);
-
-	retval = munmap(blk, st.st_size);
-	assert(retval == 0);
+	free(blk);
 
 	if (res != exp)
 		ERR("hpack error: expected '%s' (%d) got '%s' (%d)",
