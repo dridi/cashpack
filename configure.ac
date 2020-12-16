@@ -22,7 +22,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-AC_INIT([cashpack], [0.4], [https://github.com/dridi/cashpack/issues])
+AC_INIT([cashpack], [0.5], [https://github.com/dridi/cashpack/issues])
 AC_COPYRIGHT([Copyright (c) 2016-2020 Dridi Boukelmoune])
 
 AC_PREREQ([2.63])
