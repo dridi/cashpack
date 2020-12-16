@@ -207,7 +207,7 @@ tests mostly related to integer encoding::
 
 Finally, an anonymous hero managed to break invariants in the library by using
 American Fuzzy Lop and helped fixing bugs early. Those tests can be found in
-the ``afl_fuzz`` script.
+the ``hpack_fuzz`` script. More on that in the `Fuzzing` section.
 
 The encoding DSL grammar
 ------------------------
@@ -565,6 +565,58 @@ it becomes possible to get the data structure dump at the desired step of the
 coding process.
 
 If that's really not enough, then all hail the mighty interactive debugger.
+
+Fuzzing
+-------
+
+Very early on in cashpack's development I received the interest of a colleague
+who thought that despite the very defensive code style full of assertions and
+the ``CALL()`` and ``EXPECT()`` macros used to ease control flow throughout
+and deep in parsing code, bugs might slip through the cracks. He was of course
+right and those were fixed promptly, and American Fuzzy Lop ended up running
+on numerous occasions when my attention was on cashpack (the best moment to
+react to a fuzzer's discovery).
+
+I made three mistake in my fuzzing setup:
+
+- no integration in the build system
+- feeding fuzzer input to ``hdecode``
+- reading input from a memory map
+
+After a couple years of hearing the praises of libFuzzer I decided to give it
+a try right after the 0.4 release. The idea was simple, get the release out of
+the door and see how long it would take libFuzzer to find something.
+
+It took less than a millisecond.
+
+My first instinct was to conclude that libFuzzer tried an input that AFL would
+never try because I had an input corpus for AFL and I was barely starting with
+libFuzzer. A single-byte input was enough to trigger a heap buffer overflow.
+No problem then, I added that input to the test suite as I did with previous
+findings from AFL and ran the test suite again: all green.
+
+It took me a few minutes to find the difference between my libFuzzer and AFL
+setups: one was using ``malloc(3)`` and the other one was using ``mmap(2)``.
+Historically, the ``hdecode`` and ``ngdecode`` tools written for the test
+suite would map the input file in memory, simply because it made sense. This
+would however integrate poorly with the address sanitizer.
+
+Starting libFuzzer again after fixing the bug, it was this time an invariant
+that didn't hold. I still hadn't worked on setting up a corpus, but at least
+this time it took minutes. Same procedure: import the input in the test suite
+and work from there. Same outcome: the test case doesn't fail.
+
+That is where ``hdecode`` come into play. In order to integrate libFuzzer I
+used the ``hpack_decode_fields(3)`` convenience introduced long after the
+first AFL finding. It does not rely on a callback, and therefore uses a
+dedicated callback that simply has a bunch of callback-specific assertions.
+
+Switching to ``fdecode`` in the specific test case was enough reproduce the
+libFuzzer crash and then work on a fix. The ``fdecode`` tool works exactly
+like ``hdecode`` but uses the iterative approach instead of the callback
+API.
+
+Lessons learned, you're paranoia level is never high enough.
 
 Closing words
 -------------

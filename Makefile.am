@@ -43,5 +43,7 @@ SUBDIRS = \
 
 dist: all
 
+fuzz-recursive: all
+
 include gcov.am
 include lcov.am

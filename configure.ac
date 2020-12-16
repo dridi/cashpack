@@ -38,6 +38,7 @@ AC_USE_SYSTEM_EXTENSIONS
 
 AM_INIT_AUTOMAKE([1.12 foreign])
 AM_SILENT_RULES([no])
+AM_EXTRA_RECURSIVE_TARGETS([fuzz])
 AM_SANITY_CHECK
 
 LT_INIT
@@ -54,6 +55,7 @@ CASHPACK_ARG_ENABLE([docs], [no])
 CASHPACK_ARG_ENABLE([warnings], [no])
 CASHPACK_ARG_ENABLE([hardening], [no])
 CASHPACK_ARG_ENABLE([memcheck], [no])
+CASHPACK_ARG_ENABLE([fuzzer], [no])
 CASHPACK_ARG_ENABLE([asan], [no])
 CASHPACK_ARG_ENABLE([msan], [no])
 CASHPACK_ARG_ENABLE([ubsan], [no])
@@ -84,6 +86,8 @@ CASHPACK_ADD_CFLAGS([CFLAGS], [-fsanitize=memory])
 
 test "$enable_ubsan" != no &&
 CASHPACK_ADD_CFLAGS([CFLAGS], [-fsanitize=undefined])
+
+AM_CONDITIONAL([FUZZ], [test "$enable_fuzzer" != "no"])
 
 if test "$enable_memcheck" != no
 then

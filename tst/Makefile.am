@@ -167,6 +167,20 @@ AM_TESTS_ENVIRONMENT = \
 
 TESTS = $(RFC_TESTS) $(COV_TESTS) $(REG_TESTS)
 
+if FUZZ
+check_PROGRAMS += fuzzdecode
+
+fuzzdecode_CFLAGS = -fsanitize=fuzzer
+fuzzdecode_LDADD = $(top_builddir)/lib/libhpack.la
+
+fuzz-seeds: $(srcdir)/fuzz_build_corpus $(TESTS)
+	$(AM_V_GEN) $(srcdir)/fuzz_build_corpus $(srcdir) $@
+
+fuzz-local: fuzzdecode fuzz-seeds
+	mkdir -p fuzz-corpus
+	./fuzzdecode -max_len=4096 fuzz-corpus fuzz-seeds $(FUZZ_OPTS)
+endif
+
 CLEANFILES = $(nodist_noinst_SCRIPTS)
 EXTRA_DIST = \
 	$(TESTS) \
@@ -176,4 +190,5 @@ EXTRA_DIST = \
 	hex_encode \
 	common.sh \
 	cov.sh.in \
-	godecode.go
+	godecode.go \
+	fuzz_build_corpus

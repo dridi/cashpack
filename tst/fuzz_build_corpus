@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Written by Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+#
+# This file is in the public domain.
+
+. "$(dirname "$0")"/common.sh
+
+readonly CORPUS_SRC=$(grep -lr '^mk_hex <<EOF$' "$1")
+readonly CORPUS_DIR=$2
+
+corpus_dissect() {
+	src=$(basename "$1")
+	cnt=0
+
+	while read -r line
+	do
+		case $line in
+		'mk_hex <<EOF')
+			cnt=$((cnt + 1))
+			rm -f "$TEST_TMP/dissect"
+			;;
+		EOF)
+			mk_hex <"$TEST_TMP/dissect"
+			mv "$TEST_TMP/bin" "$TEST_TMP/${src}__hex_$cnt"
+			rm -f "$TEST_TMP/hex" "$TEST_TMP/dissect"
+			;;
+		*)
+			printf '%s\n' "$line" >>"$TEST_TMP/dissect"
+			;;
+		esac
+	done
+}
+
+for src in $CORPUS_SRC
+do
+	sed -n '/^mk_hex <<EOF$/,/^EOF/p' "$src" |
+	corpus_dissect "$src"
+done
+
+rm -rf "$CORPUS_DIR"
+mkdir -p "$CORPUS_DIR"
+mv "$TEST_TMP"/* "$CORPUS_DIR"
