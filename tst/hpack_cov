@@ -251,3 +251,43 @@ literal str too-long str $(mk_chars X %65536s)
 EOF
 
 tst_encode --expect-error INT
+
+_ --------------------------------------------------
+_ Decode pseudo-headers followed by a null character
+_ --------------------------------------------------
+
+mk_hex <<EOF
+000b 3a61 7574 686f 7269 7479 00        | ..:authority.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
+
+mk_hex <<EOF
+0008 3a6d 6574 686f 6400                | ..:method.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
+
+mk_hex <<EOF
+0006 3a70 6174 680a 00                  | ..:path.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
+
+mk_hex <<EOF
+000a 3a70 726f 746f 636f 6c00           | ..:protocol.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
+
+mk_hex <<EOF
+0008 3a73 6368 656d 6500                | ..:scheme.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
+
+mk_hex <<EOF
+0008 3a73 7461 7475 7300                | ..:status.
+EOF
+
+hpack_decode ./fdecode --expect-error HDR
