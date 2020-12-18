@@ -6,7 +6,7 @@
 
 . "$(dirname "$0")"/common.sh
 
-readonly CORPUS_SRC=$(grep -lr '^mk_hex <<EOF$' "$1")
+readonly CORPUS_SRC=$(grep -lr '^mk_hex <<.*EOF' "$1")
 readonly CORPUS_DIR=$2
 
 corpus_dissect() {
@@ -16,7 +16,7 @@ corpus_dissect() {
 	while read -r line
 	do
 		case $line in
-		'mk_hex <<EOF')
+		'mk_hex <<'*)
 			cnt=$((cnt + 1))
 			rm -f "$TEST_TMP/dissect"
 			;;
@@ -34,7 +34,7 @@ corpus_dissect() {
 
 for src in $CORPUS_SRC
 do
-	sed -n '/^mk_hex <<EOF$/,/^EOF/p' "$src" |
+	sed -n '/^mk_hex <<.*EOF/,/^EOF/p' "$src" |
 	corpus_dissect "$src"
 done
 
