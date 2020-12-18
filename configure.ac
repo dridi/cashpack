@@ -79,7 +79,11 @@ CASHPACK_CHECK_PROG([RST2MAN], [rst2man rst2man.py], [required to build docs])
 
 # Dynamic analysis
 test "$enable_asan" != no &&
-CASHPACK_ADD_CFLAGS([CFLAGS], [-fno-omit-frame-pointer -fsanitize=address])
+CASHPACK_ADD_CFLAGS([CFLAGS], [
+	-fno-omit-frame-pointer
+	-fno-common
+	-fsanitize=address
+])
 
 test "$enable_msan" != no &&
 CASHPACK_ADD_CFLAGS([CFLAGS], [-fsanitize=memory])
