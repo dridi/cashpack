@@ -263,7 +263,23 @@ do
 		printf '00 %02x' $((len + 2))
 		printf :%s "$hdr" |
 		"$TEST_DIR/hex_encode"
-		printf 00
+		printf 00 # null character
+	} |
+	mk_hex
+	hpack_decode ./fdecode --expect-error HDR
+done
+
+_ ------------------------------------------
+_ Decode invalid pseudo-headers of all sizes
+_ ------------------------------------------
+
+for hdr in AUTHORITY METHOD PATH PROTOCOL SCHEME STATUS
+do
+	{
+		len=${#hdr}
+		printf '00 %02x' $((len + 1))
+		printf :%s "$hdr" |
+		"$TEST_DIR/hex_encode"
 	} |
 	mk_hex
 	hpack_decode ./fdecode --expect-error HDR
