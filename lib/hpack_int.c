@@ -58,8 +58,7 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	else
 		hs->magic = INT_STATE_MAGIC;
 
-	assert(ctx->ptr_len > 0 || ctx->hp->state.stp != HPACK_STP_FLD_INT);
-	EXPECT(ctx, BUF, ctx->ptr_len > 0);
+	assert(ctx->ptr_len > 0);
 	if (!hs->bsy) {
 		mask = (uint8_t)((1 << pfx) - 1);
 		hs->stt.hpi.v = *ctx->ptr.blk & mask;
