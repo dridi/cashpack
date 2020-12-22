@@ -124,6 +124,7 @@ int
 TST_decode(struct dec_ctx *ctx)
 {
 	tst_decode_f *cb;
+	void *blk;
 	size_t len;
 	unsigned cut;
 	int res;
@@ -132,6 +133,7 @@ TST_decode(struct dec_ctx *ctx)
 
 	OUT("Decoded header list:\n");
 	res = 0;
+	blk = NULL;
 
 	/* GCC 4.7.3 complains about those two */
 	len = 0;
@@ -186,10 +188,19 @@ TST_decode(struct dec_ctx *ctx)
 			ctx->spec++;
 		}
 
+		if (cb == ctx->dec || cb == ctx->skp) {
+			blk = malloc(len);
+			assert(blk != NULL);
+			memcpy(blk, ctx->blk, len);
+		}
+
 		assert(cb != NULL);
-		res = cb(ctx->priv, ctx->blk, len, cut);
+		res = cb(ctx->priv, blk, len, cut);
 
 		if (cb == ctx->dec || cb == ctx->skp) {
+			assert(blk != NULL);
+			free(blk);
+			blk = NULL;
 			ctx->blk = (const uint8_t *)ctx->blk + len;
 			ctx->blk_len -= len;
 		}
