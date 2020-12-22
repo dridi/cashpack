@@ -216,7 +216,7 @@ HPT_search(HPACK_CTX, struct hpt_field *hf)
 	case HPACK_RES_NAM:
 		assert(hf->idx > 0);
 		assert(hf->idx <= HPACK_STATIC);
-		/* fall through */
+		fallthrough;
 	case HPACK_RES_IDX:
 		nam_idx = hf->idx;
 		break;

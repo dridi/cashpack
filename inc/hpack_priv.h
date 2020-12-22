@@ -50,6 +50,12 @@
 		}					\
 	} while (0)
 
+#if defined(__has_attribute) && __has_attribute(__fallthrough__)
+#  define fallthrough __attribute__((__fallthrough__))
+#else
+#  define fallthrough do { } while (0) /* fall through */
+#endif
+
 #define HPT_FLG_STATIC	0x01
 #define HPT_FLG_DYNAMIC	0x02
 

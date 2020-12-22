@@ -603,7 +603,7 @@ hpack_decode_string(HPACK_CTX, enum hpack_event_e evt)
 		if (len > 0)
 			EXPECT(ctx, BUF, ctx->ptr_len > 0);
 
-		/* fall through */
+		fallthrough;
 	case HPACK_STP_NAM_STR:
 	case HPACK_STP_VAL_STR:
 		break;
@@ -633,7 +633,7 @@ hpack_decode_field(HPACK_CTX)
 	case HPACK_STP_FLD_INT:
 		ctx->hp->state.stp = HPACK_STP_NAM_LEN;
 		ctx->fld.nam = ctx->buf;
-		/* fall through */
+		fallthrough;
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_NAM_STR:
 		if (ctx->hp->state.idx == 0)
@@ -645,7 +645,7 @@ hpack_decode_field(HPACK_CTX)
 		CALL(HPV_token, ctx, ctx->fld.nam, ctx->fld.nam_sz);
 		ctx->fld.val = ctx->buf;
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
-		/* fall through */
+		fallthrough;
 	case HPACK_STP_VAL_LEN:
 	case HPACK_STP_VAL_STR:
 		CALL(hpack_decode_string, ctx, HPACK_EVT_VALUE);
@@ -847,7 +847,7 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_NEVER:
 		assert(len == 0);
-		/* fall through */
+		fallthrough;
 	case HPACK_EVT_TABLE:
 		assert(buf == NULL);
 		break;

@@ -81,7 +81,7 @@ tst_print_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
-		/* fall through */
+		fallthrough;
 	case HPACK_EVT_NAME:
 		assert(buf != NULL);
 		WRT(buf, len);
@@ -154,7 +154,7 @@ TST_decode(struct dec_ctx *ctx)
 			return (-1);
 		case 'p':
 			cut = 1;
-			/* fall through */
+			fallthrough;
 		case 'd':
 			ctx->spec++;
 
@@ -170,7 +170,7 @@ TST_decode(struct dec_ctx *ctx)
 			break;
 		case 'S':
 			cut = 1;
-			/* fall through */
+			fallthrough;
 		case 's':
 			ctx->spec++;
 

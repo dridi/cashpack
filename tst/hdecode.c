@@ -40,6 +40,7 @@
 
 #include "hpack.h"
 #include "hpack_assert.h"
+#include "hpack_priv.h"
 
 #include "tst.h"
 
@@ -82,9 +83,10 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
-		/* fall through */
+		fallthrough;
 	case HPACK_EVT_NAME:
 		WRT(buf, len);
+		fallthrough;
 	default:
 		break;
 	}
