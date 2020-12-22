@@ -135,10 +135,6 @@ TST_decode(struct dec_ctx *ctx)
 	res = 0;
 	blk = NULL;
 
-	/* GCC 4.7.3 complains about those two */
-	len = 0;
-	cb = NULL;
-
 	do {
 		if (res != 0)
 			return (res);
