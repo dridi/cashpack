@@ -202,8 +202,8 @@ enum hpack_result_e
 TST_translate_error(const char *str)
 {
 #define HPR(val, cod, txt, rst)			\
-		if (!strcmp(str, #val))	\
-			return (HPACK_RES_##val);
+	if (!strcmp(str, #val))			\
+		return (HPACK_RES_##val);
 #include "tbl/hpack_tbl.h"
 #undef HPR
 	WRONG("Unknown error");
