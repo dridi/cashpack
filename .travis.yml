@@ -1,4 +1,11 @@
 ---
+stages:
+  - name: test
+    if: branch != coverity_scan
+  - name: coverage
+    if: branch != coverity_scan
+  - name: coverity_scan
+    if: branch = coverity_scan
 language: c
 compiler:
   - clang
@@ -20,8 +27,6 @@ env:
     - BUILD_FLAGS=--enable-memcheck
 matrix:
   include:
-    - compiler: gcc
-      env: BUILD_FLAGS=--enable-lcov BUILD_TARGET="lcov -j 1"
     - compiler: clang
       env: BUILD_FLAGS="--enable-asan --enable-ubsan"
 #   - compiler: clang
@@ -38,6 +43,11 @@ matrix:
     - compiler: gcc
       env: BUILD_FLAGS=RST2MAN=true
       os: osx
+    - compiler: gcc
+      stage: coverage
+      env: BUILD_FLAGS=--enable-lcov BUILD_TARGET="lcov -j 1"
+    - compiler: gcc
+      stage: coverity_scan
 addons:
   apt:
     packages:
