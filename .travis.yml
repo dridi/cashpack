@@ -10,6 +10,16 @@ language: c
 compiler:
   - clang
   - gcc
+addons: &addons-common
+  apt:
+    packages:
+    - bc
+    - gcc-multilib
+    - lcov
+    - libtool-bin
+    - python-docutils
+    - sparse
+    - valgrind
 script:
   - mkdir build
   - cd build
@@ -55,21 +65,13 @@ matrix:
       script:
       env:
         - secure: "CmOn5VWvl4SV3omKX3kkBankdUgaeHBrFWgrBiGPA9muPrbKIczZhRY91wYixPrLLv9YOGAyzWv14wjMO+CXC5hlitRLSjTPG8m+QNt6UKgvFGuPjmw+JASC0dKVDDRohr9/W0dFyxLOnyzITQm8vSPmDZYllSbdkXUpVZlM0XNw7lYCHLq8WkOwow9Mkg8ZzCwKn6vjlIZ7/uOH007djlEveOIZRCObmZyQQWCyNXyzsKMcIkv85EVQg9Zw9YutEfTqJNVWQeo1xfVt+SXdXS7vdm0VDR2uHwQUIfNqjrkipMDcCksyeyaeZZnSIwIj7w9cX6BZKfhR8o9LsBuZX1eFeQKNnuzA2Mre6TYTm5l7qmUYutWGon6FSdky21nB91aF8roa6ZAaCSXcwVlWm5wmT9FmwNCMsdftFiQlVhdWznZXy7U/tOm2X8ued9oDbzvWBLeHh806LKUaJyY13jJVcDJ4KPXT5d2vHMeC9a8HBfwnd12R5sVRGX4VN5QSQODdO4rqQ0l4VkR42l+0+s9Zl2q0Lq2pqxrpYV9GYqaX9BCjZQAOB8xU4SiZDoCMOkBtjSDvAOUt+IzlrN6z3ktlZFeq47R/xS/PMnH2dmrWYVEwm1+aruyjQvHitMsLOASyJP+bT+Hag6pZnaW6z9d5z8gtqSYeb5M8o96NKP8="
-addons:
-  apt:
-    packages:
-    - bc
-    - gcc-multilib
-    - lcov
-    - libtool-bin
-    - python-docutils
-    - sparse
-    - valgrind
-  coverity_scan:
-    project:
-      name: "Dridi/cashpack"
-      description: "The C Anti-State HPACK library"
-    notification_email: dridi.boukelmoune@gmail.com
-    build_command_prepend: ./bootstrap
-    build_command: make
-    branch_pattern: coverity_scan
+      addons:
+        <<: *addons-common
+        coverity_scan:
+          project:
+            name: "Dridi/cashpack"
+            description: "The C Anti-State HPACK library"
+          notification_email: dridi.boukelmoune@gmail.com
+          build_command_prepend: ./bootstrap
+          build_command: make
+          branch_pattern: coverity_scan
