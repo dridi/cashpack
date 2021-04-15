@@ -493,7 +493,8 @@ HPT_decode_name(HPACK_CTX)
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_field, ctx, ctx->hp->state.idx, &hf);
     if(HPC_DEGRADED() && hf.nam == NULL) {
-        return (0);
+        hf.nam = hpack_unknown_name;
+        hf.nam_sz = strlen(hpack_unknown_name);
     }
 	assert(hf.nam != NULL);
 	assert(hf.nam_sz > 0);

@@ -641,8 +641,8 @@ hpack_decode_field(HPACK_CTX)
 			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
 		else
 			CALL(HPT_decode_name, ctx);
-		assert(ctx->buf > ctx->fld.nam);
         if(ctx->fld.nam != hpack_unknown_name) {
+            assert(ctx->buf > ctx->fld.nam);
             ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
         }
 		CALL(HPV_token, ctx, ctx->fld.nam, ctx->fld.nam_sz);
