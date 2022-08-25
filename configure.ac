@@ -25,7 +25,7 @@
 AC_INIT([cashpack], [0.5], [https://github.com/dridi/cashpack/issues])
 AC_COPYRIGHT([Copyright (c) 2016-2020 Dridi Boukelmoune])
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.69])
 AC_REVISION([revision 2])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([lib/hpack.c])
@@ -46,7 +46,7 @@ LT_PREREQ([2.2.6])
 
 AC_PROG_SED
 AC_PROG_AWK
-AC_PROG_CC_C99
+AC_PROG_CC
 AC_C_STRINGIZE
 
 gl_LD_VERSION_SCRIPT
