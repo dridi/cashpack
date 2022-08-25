@@ -136,9 +136,10 @@ dec_make_misses(const struct hph *hph, struct hph_dec *dec, int n, int oct)
 			break;
 		}
 		else {
+			assert(oct < 4);
 			(void)sprintf(buf, "_pfx");
 			dec_pfxcat(buf, ref, bits - 1);
-			(void)sprintf(dec[n].nxt, "&hph_dec%d%s", oct, buf);
+			(void)sprintf(dec[n].nxt, "&hph_dec%c%s", '0' + oct, buf);
 		}
 
 		if (n == 0xff) {
