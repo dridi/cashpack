@@ -12,9 +12,6 @@ assumptions made by the library would not work in all situations. For example,
 HTTP/2 doesn't allow upper-case characters in header names, neither does
 cashpack.
 
-.. image:: https://travis-ci.org/Dridi/cashpack.svg
-   :alt: Travis CI badge
-   :target: https://travis-ci.org/Dridi/cashpack/
 .. image:: https://scan.coverity.com/projects/7758/badge.svg
    :alt: Coverity Scan badge
    :target: https://scan.coverity.com/projects/dridi-cashpack/
