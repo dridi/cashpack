@@ -89,16 +89,13 @@ ngdecode_SOURCES = \
 endif
 
 if HAVE_GOLANG
-GO_BUILD = GOPATH=$(abs_builddir) $(GO) build
-
 check_PROGRAMS += godecode
 
-src:
-	$(AM_V_GO)ln -s -f $(GOROOT)/src/vendor/golang.org $@
+.go.o:
+	$(AM_V_GO)$(GO) tool compile -o $@ $<
 
-godecode_SOURCES =
-godecode: src godecode.go
-	$(AM_V_GO)$(GO_BUILD) $(srcdir)/godecode.go
+godecode_SOURCES = godecode.go
+godecode_LINK = $(GO) tool link -o $@
 endif
 
 # Test droppings cleanup
