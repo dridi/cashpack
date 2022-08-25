@@ -37,19 +37,6 @@ check_PROGRAMS = \
 	fdecode \
 	hencode
 
-nodist_noinst_SCRIPTS = cov.sh
-
-SUFFIXES = .sh.in .sh
-
-.sh.in.sh:
-	$(AM_V_GEN) $(SED) \
-		-e 's:[@]builddir[@]:$(abs_top_builddir):' \
-		-e 's:[@]GCOV[@]:$(GCOV):' \
-		-e 's:[@]JQ[@]:$(JQ):' \
-		-e 's:[@]NC[@]:$(NC):' \
-		<'$<' >$@
-	chmod +x $@
-
 all-local: $(check_PROGRAMS)
 
 hpack_arg_LDADD = $(top_builddir)/lib/libhpack.la
@@ -178,7 +165,6 @@ fuzz-local: fuzzdecode fuzz-seeds
 	./fuzzdecode -max_len=4096 fuzz-corpus fuzz-seeds $(FUZZ_OPTS)
 endif
 
-CLEANFILES = $(nodist_noinst_SCRIPTS)
 EXTRA_DIST = \
 	$(TESTS) \
 	hexcheck \
@@ -186,5 +172,4 @@ EXTRA_DIST = \
 	hex_decode \
 	hex_encode \
 	common.sh \
-	cov.sh.in \
 	fuzz_build_corpus

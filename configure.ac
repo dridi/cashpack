@@ -262,4 +262,8 @@ AC_CONFIG_FILES([
 	tst/Makefile
 ])
 
+AC_CONFIG_FILES([
+	tst/cov.sh
+], [chmod +x $ac_file])
+
 AC_OUTPUT
