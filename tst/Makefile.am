@@ -187,5 +187,4 @@ EXTRA_DIST = \
 	hex_encode \
 	common.sh \
 	cov.sh.in \
-	godecode.go \
 	fuzz_build_corpus
