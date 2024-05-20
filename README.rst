@@ -15,9 +15,6 @@ cashpack.
 .. image:: https://scan.coverity.com/projects/7758/badge.svg
    :alt: Coverity Scan badge
    :target: https://scan.coverity.com/projects/dridi-cashpack/
-.. image:: https://codecov.io/gh/Dridi/cashpack/branch/master/graph/badge.svg
-   :alt: Codecov badge
-   :target: https://codecov.io/gh/Dridi/cashpack
 
 It started as a research project and became the basis for Varnish Cache's
 HPACK implementation, it is now a test bed for Varnish_ and `Hitch TLS`_.
