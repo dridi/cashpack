@@ -110,7 +110,7 @@ make_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
 {
 	struct hpack *dec;
 
-	CHECK_NOTNULL(dec, hpack_decoder, max, rsz, ha);
+	CHECK_NOTNULL(dec, hpack_decoder, max, rsz, ha, 0);
 	return (dec);
 }
 
@@ -119,7 +119,7 @@ make_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 {
 	struct hpack *enc;
 
-	CHECK_NOTNULL(enc, hpack_encoder, max, lim, ha);
+	CHECK_NOTNULL(enc, hpack_encoder, max, lim, ha, 0);
 	return (enc);
 }
 
@@ -244,13 +244,13 @@ static struct hpack_encoding unknown_encoding = {
 static void
 test_null_alloc(void)
 {
-	CHECK_NULL(hp, hpack_decoder, 0, -1, NULL);
+	CHECK_NULL(hp, hpack_decoder, 0, -1, NULL, 0);
 }
 
 static void
 test_null_malloc(void)
 {
-	CHECK_NULL(hp, hpack_decoder, 0, -1, &null_alloc);
+	CHECK_NULL(hp, hpack_decoder, 0, -1, &null_alloc, 0);
 }
 
 static void
@@ -264,25 +264,25 @@ static void
 test_alloc_overflow(void)
 {
 	CHECK_NULL(hp, hpack_decoder, UINT16_MAX + 1, -1,
-	    hpack_default_alloc);
+	    hpack_default_alloc, 0);
 	CHECK_NULL(hp, hpack_decoder, 4096, UINT16_MAX + 1,
-	    hpack_default_alloc);
+	    hpack_default_alloc, 0);
 }
 
 static void
 test_alloc_underflow(void)
 {
-	CHECK_NOTNULL(hp, hpack_decoder, 4096, 2048, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_decoder, 4096, 2048, hpack_default_alloc, 0);
 	hpack_free(&hp);
-	CHECK_NOTNULL(hp, hpack_encoder, 4096, 2048, hpack_default_alloc);
+	CHECK_NOTNULL(hp, hpack_encoder, 4096, 2048, hpack_default_alloc, 0);
 	hpack_free(&hp);
 }
 
 static void
 test_malloc_failure(void)
 {
-	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc);
-	CHECK_NULL(hp, hpack_encoder, 0,  4096, &static_alloc);
+	CHECK_NULL(hp, hpack_decoder, 4096, -1, &static_alloc, 0);
+	CHECK_NULL(hp, hpack_encoder, 0,  4096, &static_alloc, 0);
 }
 
 static void
