@@ -63,6 +63,9 @@ static const struct hpt_field hpt_static[] = {
  * Tables lookups
  */
 
+const char *hpack_unknown_name = "unknown_name";
+const char *hpack_unknown_value = "unknown_value";
+
 static struct hpt_entry *
 hpt_dynamic(struct hpack *hp, size_t idx)
 {
@@ -73,7 +76,9 @@ hpt_dynamic(struct hpack *hp, size_t idx)
 	off = 0;
 
 	assert(idx > 0);
-	assert(idx <= hp->cnt);
+    if(idx > hp->cnt) {
+        return NULL;
+    }
 
 	while (1) {
 		(void)memcpy(&tmp, he, HPT_HEADERSZ);
@@ -100,9 +105,21 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	}
 
 	idx -= HPACK_STATIC;
-	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
+    if(HPC_DEGRADED() && idx > ctx->hp->cnt) {
+	    ctx->fld.nam = hpack_unknown_name;
+	    ctx->fld.val = hpack_unknown_value;
+	    ctx->fld.nam_sz = strlen(ctx->fld.nam);
+	    ctx->fld.val_sz = strlen(ctx->fld.val);
+        if(ctx->hp->flags & HPACK_CFG_SEND_ERR)
+            HPC_notify(ctx, HPACK_EVT_RECERR, ctx->ptr.blk, idx);
+    } else {
+        EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
+    }
 
 	he = hpt_dynamic(ctx->hp, idx);
+    if(HPC_DEGRADED() && he == NULL) {
+        return (0);
+    }
 	assert(he != NULL);
 	assert(hf != NULL);
 	(void)memcpy(&tmp, he, HPT_HEADERSZ);
@@ -426,9 +443,10 @@ HPT_index(HPACK_CTX)
 	hp->tbl->val_sz = (uint16_t)val_sz;
 	hp->sz.len += len;
 	hp->cnt++;
-
-	HPC_notify(ctx, HPACK_EVT_INDEX, NULL, len);
+    if(len > 0)
+    	HPC_notify(ctx, HPACK_EVT_INDEX, NULL, len);
 }
+
 
 /**********************************************************************
  * Decode
@@ -442,17 +460,24 @@ HPT_decode(HPACK_CTX, size_t idx)
 	EXPECT(ctx, IDX, idx > 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_field, ctx, idx, &hf);
-	assert(hf.nam != NULL);
-	assert(hf.val != NULL);
-	assert(hf.nam_sz > 0);
+    if(HPC_DEGRADED() && hf.nam == NULL) {
+        ctx->fld.nam = hpack_unknown_name;
+        ctx->fld.nam_sz = strlen(hpack_unknown_name);
+        ctx->fld.val = hpack_unknown_value;
+        ctx->fld.val_sz = strlen(hpack_unknown_value);
+    } else {
+        assert(hf.nam != NULL);
+        assert(hf.val != NULL);
+        assert(hf.nam_sz > 0);
 
-	ctx->fld.nam = ctx->buf;
-	ctx->fld.nam_sz = hf.nam_sz;
-	CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
+        ctx->fld.nam = ctx->buf;
+        ctx->fld.nam_sz = hf.nam_sz;
+        CALL(HPD_puts, ctx, hf.nam, hf.nam_sz);
 
-	ctx->fld.val = ctx->buf;
-	ctx->fld.val_sz = hf.val_sz;
-	CALL(HPD_puts, ctx, hf.val, hf.val_sz);
+        ctx->fld.val = ctx->buf;
+        ctx->fld.val_sz = hf.val_sz;
+        CALL(HPD_puts, ctx, hf.val, hf.val_sz);
+    }
 
 	HPD_notify(ctx);
 	return (0);
@@ -467,6 +492,9 @@ HPT_decode_name(HPACK_CTX)
 	assert(ctx->hp->state.idx != 0);
 	(void)memset(&hf, 0, sizeof hf);
 	CALL(HPT_field, ctx, ctx->hp->state.idx, &hf);
+    if(HPC_DEGRADED() && hf.nam == NULL) {
+        return (0);
+    }
 	assert(hf.nam != NULL);
 	assert(hf.nam_sz > 0);
 

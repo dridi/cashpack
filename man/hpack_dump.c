@@ -49,7 +49,7 @@ main(void)
 {
 	struct hpack *hp;
 
-	hp = hpack_encoder(4096, -1, hpack_default_alloc);
+	hp = hpack_encoder(4096, -1, hpack_default_alloc, 0);
 	if (hp == NULL)
 		return (EXIT_FAILURE);
 

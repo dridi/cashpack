@@ -123,7 +123,7 @@ mbm_setup(void)
 	struct hpack_encoding he;
 	char buf[64];
 
-	hp = hpack_encoder(4096, -1, hpack_default_alloc);
+	hp = hpack_encoder(4096, -1, hpack_default_alloc, 0);
 	if (hp == NULL)
 		WRONG("hpack_encoder");
 

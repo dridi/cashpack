@@ -201,7 +201,7 @@ main(void)
 	size_t linelen;
 
 	/* initialization */
-	hp = hpack_encoder(TABLE_SIZE, -1, hpack_default_alloc);
+	hp = hpack_encoder(TABLE_SIZE, -1, hpack_default_alloc, 0);
 	(void)memset(&stt, 0, sizeof stt);
 	stt.fld = static_fld;
 	stt.dmb = static_dmb;

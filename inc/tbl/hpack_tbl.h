@@ -183,6 +183,17 @@ HPE(TABLE, 7, "the table was updated",
 	"\tA decoder or an encoder sends a TABLE event when a dynamic table\n"
 	"\tupdate is decoded or encoded. The *buf* argument is always\n"
 	"\t``NULL`` and *len* is the new table maximum size.\n\n")
+
+HPE(PTR, 8, "header line pointer",
+    "\tA decoder sends a PTR event containing the address pointer of the\n"
+    "\tstart byte of a header line.\n"
+    "\tThis event will be emitted only when ``HPACK_CFG_SEND_PTR`` is set.\n\n")
+
+HPE(RECERR, 9, "recoverable error",
+    "\tA decoder sends a RECERR event containing the address pointer of\n"
+    "\tthe byte in error, which may be in the middle of a header line.\n"
+    "\tThis event will be emitted only when ``HPACK_CFG_SEND_ERR`` is set.\n\n")
+
 #endif /* HPE */
 
 #ifdef HPF
@@ -227,7 +238,32 @@ HPF(AUT_IDX, 0x80,
 	"\tname and value) is found, either ``TYP_DYN`` or ``TYP_LIT`` are\n"
 	"\tturned into ``TYP_IDX``. If a match is found, *idx* or *nam_idx*\n"
 	"\tis set to non-zero, zero otherwise.\n\n")
+
 #endif /* HPF */
+
+#ifdef HPC
+/* configuration flags */
+HPC(DEGRADED, 0x01,
+    "\tDegraded mode tries to recover from missing indexes in the dynamic\n"
+    "\ttable. A missing header name will be replaced by ``unknown_name``,\n"
+    "\tand a missing value will be replaced by ``unknown_value``.\n"
+    "\t\n\n")
+
+HPC(SEND_PTR, 0x02,
+    "\tSends a ``PTR`` event at the start of every header line.\n"
+    "\tThe address of the header line in the header block will be placed\n"
+    "\tin the ``const char *buf`` parameter of the callback.\n\n")
+
+HPC(SEND_ERR, 0x04,
+    "\tSends a ``RECERR`` event whenever a recoverable error occurs.\n"
+    "\tThe address of the error in the header block will be placed\n"
+    "\tin the ``const char *buf`` parameter of the callback.\n"
+    "\tThis parameter can be used with the ``SEND_PTR`` parameter\n"
+    "\tto be able to spot and/or extract errored header lines from\n"
+    "\ta header block.\n"
+    "\tNote: this is mostly useful in ``DEGRADED`` mode.\n\n")
+
+#endif /* HPC */
 
 #ifdef HPP
 HPP(STR, 7, 0x00) /* Section 5.2 */

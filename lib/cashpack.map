@@ -47,6 +47,8 @@ CASHPACK_0.4 {
 
     # variables
     hpack_default_alloc;
+    hpack_unknown_name;
+    hpack_unknown_value;
 
   local:
     *;
