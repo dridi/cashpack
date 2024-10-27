@@ -276,7 +276,7 @@ main(int argc, char **argv)
 	nghttp2_hd_inflate_del(inf);
 	free(blk);
 
-	if (res != 0)
+	if (res != exp)
 		ERR("nghttp2 result: %s (%d)", nghttp2_strerror(res), res);
 
 	return (res != exp);
