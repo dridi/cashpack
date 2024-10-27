@@ -76,13 +76,27 @@ ngdecode_SOURCES = \
 endif
 
 if HAVE_GOLANG
+GOPATH = $(abs_builddir)/go
+
 check_PROGRAMS += godecode
 
-.go.o:
-	$(AM_V_GO)$(GO) tool compile -o $@ $<
+go.sum: go.mod
+	$(AM_V_GO)GOPATH=$(GOPATH) $(GO) mod tidy
+	@touch $@
+
+go.mod:
+	test -f godecode.go || ln -s $(abs_srcdir)/godecode.go godecode.go
+	$(AM_V_GO)GOPATH=$(GOPATH) $(GO) mod init cashpack/tst
 
 godecode_SOURCES = godecode.go
-godecode_LINK = $(GO) tool link -o $@
+godecode_DEPENDENCIES = go.mod go.sum
+godecode_LINK = GOPATH=$(GOPATH) $(GO) build -o $@ $(godecode_SOURCES)
+
+clean-golang:
+	GOPATH=$(GOPATH) $(GO) clean -modcache
+	rm -rf $(GOPATH) $(godecode_DEPENDENCIES)
+
+clean-local: clean-golang
 endif
 
 # Test droppings cleanup

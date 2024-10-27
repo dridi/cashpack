@@ -76,6 +76,8 @@ failed-cashpack.*/
 fuzz-corpus/
 fuzz-seeds/
 tst/src
+tst/go/
+tst/go.*
 cov.sh
 
 # packaging

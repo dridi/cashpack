@@ -34,7 +34,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"vendor/golang.org/x/net/http2/hpack"
+	"golang.org/x/net/http2/hpack"
 )
 
 func DecodeBlocks(dec *hpack.Decoder, spec string, blk []byte) error {
