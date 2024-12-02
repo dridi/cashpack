@@ -34,6 +34,15 @@
 #  include <unistd.h>
 #endif
 
+/* hpack_config */
+
+enum hpack_config_e {
+#define HPC(f, v, l) \
+	HPACK_CFG_##f	= v,
+#include "tbl/hpack_tbl.h"
+#undef HPC
+};
+
 /* hpack_result */
 
 enum hpack_result_e {
@@ -59,8 +68,8 @@ struct hpack_alloc {
 
 extern const struct hpack_alloc *hpack_default_alloc;
 
-struct hpack * hpack_decoder(size_t, ssize_t, const struct hpack_alloc *);
-struct hpack * hpack_encoder(size_t, ssize_t, const struct hpack_alloc *);
+struct hpack * hpack_decoder(size_t, ssize_t, const struct hpack_alloc *, uint32_t);
+struct hpack * hpack_encoder(size_t, ssize_t, const struct hpack_alloc *, uint32_t);
 void hpack_free(struct hpack **);
 
 enum hpack_result_e hpack_resize(struct hpack **, size_t);
@@ -68,6 +77,9 @@ enum hpack_result_e hpack_limit(struct hpack **, size_t);
 enum hpack_result_e hpack_trim(struct hpack **);
 
 /* hpack_error */
+
+extern const char *hpack_unknown_name;
+extern const char *hpack_unknown_value;
 
 typedef void hpack_dump_f(void *, const char *, ...);
 

@@ -88,7 +88,7 @@ const struct hpack_alloc *hpack_default_alloc = &hpack_libc_alloc;
 
 static struct hpack *
 hpack_new(uint32_t magic, size_t mem, size_t max,
-    const struct hpack_alloc *ha)
+    const struct hpack_alloc *ha, uint32_t flags)
 {
 	struct hpack *hp;
 
@@ -104,6 +104,7 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 
 	(void)memset(hp, 0, sizeof *hp);
 	hp->magic = magic;
+	hp->flags = flags;
 	hp->ctx.hp = hp;
 	(void)memcpy(&hp->alloc, ha, sizeof *ha);
 	hp->sz.mem = mem;
@@ -116,14 +117,14 @@ hpack_new(uint32_t magic, size_t mem, size_t max,
 }
 
 struct hpack *
-hpack_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
+hpack_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha, uint32_t flags)
 {
 	enum hpack_result_e res;
 	struct hpack *hp, *tmp;
 	size_t mem;
 
 	mem = lim >= 0 ? (size_t)lim : max;
-	hp = hpack_new(ENCODER_MAGIC, mem, max, ha);
+	hp = hpack_new(ENCODER_MAGIC, mem, max, ha, flags);
 	if (lim >= 0 && hp != NULL) {
 		tmp = hp;
 		res = hpack_limit(&tmp, (size_t)lim);
@@ -136,14 +137,14 @@ hpack_encoder(size_t max, ssize_t lim, const struct hpack_alloc *ha)
 }
 
 struct hpack *
-hpack_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
+hpack_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha, uint32_t flags)
 {
 	size_t mem;
 
 	mem = rsz >= 0 ? (size_t)rsz : max;
 	if (mem < max)
 		mem = max;
-	return (hpack_new(DECODER_MAGIC, mem, max, ha));
+	return (hpack_new(DECODER_MAGIC, mem, max, ha, flags));
 }
 
 static enum hpack_result_e
@@ -640,8 +641,10 @@ hpack_decode_field(HPACK_CTX)
 			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
 		else
 			CALL(HPT_decode_name, ctx);
-		assert(ctx->buf > ctx->fld.nam);
-		ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
+        if(ctx->fld.nam != hpack_unknown_name) {
+            assert(ctx->buf > ctx->fld.nam);
+            ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
+        }
 		CALL(HPV_token, ctx, ctx->fld.nam, ctx->fld.nam_sz);
 		ctx->fld.val = ctx->buf;
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
@@ -786,6 +789,8 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 	ctx->res = dec->cut ? HPACK_RES_BLK : HPACK_RES_OK;
 
 	while (ctx->ptr_len > 0) {
+        if(ctx->hp->flags & HPACK_CFG_SEND_PTR)
+            HPC_notify(ctx, HPACK_EVT_PTR, ctx->ptr.blk, 0);
 		if (!hp->state.bsy && hp->state.stp == HPACK_STP_FLD_INT)
 			hp->state.typ = *ctx->ptr.blk;
 		if ((hp->state.typ & HPACK_PAT_UPD) != HPACK_PAT_UPD) {
@@ -856,6 +861,13 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		assert(buf != NULL);
 		assert(len == strlen(buf));
 		break;
+    case HPACK_EVT_PTR:
+		assert(buf != NULL);
+        break;
+    case HPACK_EVT_RECERR:
+		assert(buf != NULL);
+		assert(len > 0);
+        break;
 	case HPACK_EVT_DATA:
 		WRONG("Invalid event");
 	default:

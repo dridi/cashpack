@@ -36,6 +36,9 @@
 #define HPACK_LIMIT(hp) \
 	(((hp)->sz.lim >= 0 ? (size_t)(hp)->sz.lim : (hp)->sz.max))
 
+#define HPC_DEGRADED() \
+    (ctx->hp->flags & HPACK_CFG_DEGRADED)
+
 #define CALL(func, ...)					\
 	do {						\
 		if ((func)(__VA_ARGS__) != 0)		\
@@ -203,6 +206,7 @@ struct hpack {
 #define ENCODER_MAGIC		0x8ab1fb4c
 #define DECODER_MAGIC		0xab0e3218
 #define DEFUNCT_MAGIC		0xdffadae9
+	uint32_t		flags;
 	struct hpack_alloc	alloc;
 	struct hpack_size	sz;
 	struct hpack_state	state;
