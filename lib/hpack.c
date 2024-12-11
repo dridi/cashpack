@@ -482,17 +482,12 @@ hpack_hexdump(const void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 				dump(priv, "   ");
 		}
 		dump(priv, " |");
-		for (i = 0; i < 16; i++)
-			if (i < len)
-				dump(priv, "%c",
-				    isprint(buf[i]) ? buf[i] : '.');
+		for (i = 0; i < 16 && i < len; i++)
+			dump(priv, "%c", isprint(buf[i]) ? buf[i] : '.');
 		dump(priv, "|\n");
-		if (len > 16)
-			len -= 16;
-		else
-			len = 0;
-		buf += 16;
-		pos += 16;
+		len -= i;
+		buf += i;
+		pos += i;
 	}
 }
 
