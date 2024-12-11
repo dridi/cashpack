@@ -491,6 +491,51 @@ hpack_hexdump(const void *ptr, size_t len, hpack_dump_f *dump, void *priv)
 	}
 }
 
+static void
+hpack_state_dump(const struct hpack_state *hs, hpack_dump_f *dump, void *priv)
+{
+	const char *magic, *stp, *sep;
+
+	if (hs == NULL || dump == NULL)
+		return;
+
+	switch (hs->magic) {
+	case INT_STATE_MAGIC: magic = "INT"; break;
+	case STR_STATE_MAGIC: magic = "STR"; break;
+	case HUF_STATE_MAGIC: magic = "HUF"; break;
+	default: magic = "UNKNOWN";
+	}
+
+	stp = "UNKNOWN";
+#define HSTP(nam)						\
+		if (hs->stp == HPACK_STP_##nam)			\
+			stp = #nam;
+#include "tbl/hpack_tbl.h"
+#undef HPF
+
+	dump(priv, "\t\t.magic = %08x (%s)\n", hs->magic, magic);
+	dump(priv, "\t\t.stp = %d (%s)\n", hs->stp, stp);
+	dump(priv, "\t\t.bsy = %d\n", hs->bsy);
+	dump(priv, "\t\t.idx = %hu\n", hs->idx);
+
+	dump(priv, "\t\t.typ = ");
+	if (hs->typ == 0) {
+		dump(priv, "none");
+	} else {
+		sep = "";
+#define HPF(f, v, l)						\
+		if (hs->typ & HPACK_FLG_##f) {			\
+			dump(priv, "%s" #f, sep);		\
+			sep = "|";				\
+		}
+#include "tbl/hpack_tbl.h"
+#undef HPF
+	}
+	dump(priv, "\n");
+
+	/* XXX: do when bored */
+}
+
 void
 hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 {
@@ -523,7 +568,7 @@ hpack_dump(const struct hpack *hp, hpack_dump_f *dump, void *priv)
 	dump(priv, "\t\t.min = %zd\n", hp->sz.min);
 	dump(priv, "\t}\n");
 	dump(priv, "\t.state = {\n");
-	/* XXX: do when bored */
+	hpack_state_dump(&hp->state, dump, priv);
 	dump(priv, "\t}\n");
 	dump(priv, "\t.ctx = {\n");
 	/* XXX: do when bored */
