@@ -76,11 +76,9 @@ enum hpi_pattern_e {
 };
 
 enum hpack_step_e {
-	HPACK_STP_FLD_INT = 0,
-	HPACK_STP_NAM_LEN = 1,
-	HPACK_STP_NAM_STR = 2,
-	HPACK_STP_VAL_LEN = 3,
-	HPACK_STP_VAL_STR = 4,
+#define HSTP(nam) HPACK_STP_##nam,
+#include "tbl/hpack_tbl.h"
+#undef HSTP
 };
 
 struct hpt_field {

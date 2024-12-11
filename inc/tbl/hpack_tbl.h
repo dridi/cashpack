@@ -238,3 +238,11 @@ HPP(LIT, 4, 0x00) /* Section 6.2.2 */
 HPP(NVR, 4, 0x10) /* Section 6.2.3 */
 HPP(UPD, 5, 0x20) /* Section 6.3 */
 #endif
+
+#ifdef HSTP
+HSTP(FLD_INT)
+HSTP(NAM_LEN)
+HSTP(NAM_STR)
+HSTP(VAL_LEN)
+HSTP(VAL_STR)
+#endif
