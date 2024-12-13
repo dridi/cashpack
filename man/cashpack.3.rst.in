@@ -156,6 +156,14 @@ and a decoder, one of each being either for requests or responses. Both HPACK
 decoding and encoding operations are event-driven. Codecs' dynamic tables can
 also be probed, once again using an event driver.
 
+A monitor is a special kind of decoder that can help rebuild header lists from
+HPACK blocks. This can be used to reconstruct HTTP/2 sessions from TCP packet
+captures, processing HPACK blocks from HEADERS and CONTINUATION frames. With
+an incomplete HPACK stream, a decoder would fail as soon as it witnesses a
+desynchronized dynamic table. A monitor opportunistically ignores unknown
+indices and can eventually come back in sync thanks to the FIFO nature of the
+dynamic table.
+
 EVENTS
 ======
 
@@ -244,6 +252,7 @@ SEE ALSO
 **hpack_event_id**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
+**hpack_monitor**\(3),
 **hpack_resize**\(3),
 **hpack_search**\(3),
 **hpack_skip**\(3),

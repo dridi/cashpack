@@ -56,6 +56,8 @@
 #  define fallthrough do { } while (0) /* fall through */
 #endif
 
+#define HPD_FLG_MON	0x01
+
 #define HPT_FLG_STATIC	0x01
 #define HPT_FLG_DYNAMIC	0x02
 
@@ -201,6 +203,7 @@ struct hpack {
 #define ENCODER_MAGIC		0x8ab1fb4c
 #define DECODER_MAGIC		0xab0e3218
 #define DEFUNCT_MAGIC		0xdffadae9
+	uint32_t		flg;
 	struct hpack_alloc	alloc;
 	struct hpack_size	sz;
 	struct hpack_state	state;

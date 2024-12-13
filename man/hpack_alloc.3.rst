@@ -22,9 +22,9 @@
 .. OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .. SUCH DAMAGE.
 
-===============================================================================
-hpack_decoder, hpack_encoder, hpack_free, hpack_resize, hpack_limit, hpack_trim
-===============================================================================
+==============================================================================================
+hpack_decoder, hpack_encoder, hpack_monitor, hpack_free, hpack_resize, hpack_limit, hpack_trim
+==============================================================================================
 
 --------------------------------------
 allocate, resize and free HPACK codecs
@@ -59,6 +59,8 @@ SYNOPSIS
 | **struct hpack * hpack_encoder(size_t** *max*\ **, ssize_t** *mem*\ **,**
 | **\     const struct hpack_alloc** *\*alloc*\ **);**
 | **void hpack_free(struct hpack** *\**hpackp*\ **);**
+| **struct hpack * hpack_monitor(size_t** *max*\ **, ssize_t** *mem*\ **,**
+| **\     const struct hpack_alloc** *\*alloc*\ **);**
 |
 | **enum hpack_result_e hpack_resize(struct hpack** *\*\*hpackp*\ **,** \
     **size_t** *max*\ **);**
@@ -111,6 +113,9 @@ vice versa. The *max* argument defines the dynamic table initial maximum size.
 For instance, the initial size for HTTP/2 is 4096 octets. The *alloc* argument
 points to the memory manager that performs actual memory allocations.
 
+The ``hpack_monitor()`` function creates a decoder that can tolerate missing
+HPACK blocks resulting in missing entries in a dynamic table.
+
 The absolute maximum size for the dynamic table is 65535 octets.
 
 The *mem* argument allows you to define the initial allocation size for the
@@ -158,9 +163,9 @@ fail without consequences on the HPACK codec.
 RETURN VALUE
 ============
 
-The ``hpack_decoder()`` and ``hpack_encoder()`` functions return a pointer to
-the allocated codec. On error, these functions return NULL. Errors include
-invalid parameters or a failed allocation.
+The ``hpack_decoder()``, ``hpack_encoder()`` and ``hpack_monitor()`` functions
+return a pointer to the allocated codec. On error, they return NULL. Errors
+include invalid parameters or a failed allocation.
 
 The ``hpack_resize()`` ``hpack_limit()`` and ``hpack_trim()`` functions return
 ``HPACK_RES_OK``. On error, these functions may return various errors and

@@ -158,6 +158,7 @@ SEE ALSO
 **hpack_event_id**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
+**hpack_monitor**\(3),
 **hpack_resize**\(3),
 **hpack_skip**\(3),
 **hpack_strerror**\(3),

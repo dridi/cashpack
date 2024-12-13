@@ -146,6 +146,17 @@ hpack_decoder(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
 	return (hpack_new(DECODER_MAGIC, mem, max, ha));
 }
 
+struct hpack *
+hpack_monitor(size_t max, ssize_t rsz, const struct hpack_alloc *ha)
+{
+	struct hpack *hp;
+
+	hp = hpack_decoder(max, rsz, ha);
+	if (hp != NULL)
+		hp->flg |= HPD_FLG_MON;
+	return (hp);
+}
+
 static enum hpack_result_e
 hpack_realloc(struct hpack **hpp, size_t mem)
 {

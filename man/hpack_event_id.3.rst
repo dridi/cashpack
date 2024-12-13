@@ -72,6 +72,7 @@ SEE ALSO
 **hpack_entry**\(3),
 **hpack_free**\(3),
 **hpack_limit**\(3),
+**hpack_monitor**\(3),
 **hpack_resize**\(3),
 **hpack_search**\(3),
 **hpack_skip**\(3),

@@ -36,6 +36,7 @@ hpack_alloc_links = \
 	hpack_encoder.3 \
 	hpack_free.3 \
 	hpack_limit.3 \
+	hpack_monitor.3 \
 	hpack_resize.3 \
 	hpack_trim.3
 
