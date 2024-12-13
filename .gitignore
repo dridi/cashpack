@@ -40,6 +40,7 @@ fdecode
 hdecode
 hencode
 hpack_arg
+hpack_dep
 hpack_dump
 hpack_mbm
 hpiencode

@@ -32,6 +32,7 @@ AM_CPPFLAGS = \
 
 check_PROGRAMS = \
 	hpack_arg \
+	hpack_dep \
 	hpack_mbm \
 	hdecode \
 	fdecode \
