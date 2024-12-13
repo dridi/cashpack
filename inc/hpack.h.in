@@ -28,12 +28,6 @@
  * HPACK: Header Compression for HTTP/2 (RFC 7541)
  */
 
-#ifdef _SYNTASTIC
-#  include <stdint.h>
-#  include <stdlib.h>
-#  include <unistd.h>
-#endif
-
 /* hpack_result */
 
 enum hpack_result_e {

@@ -1,8 +1,0 @@
--std=c99
--D_POSIX_C_SOURCE=200809L
--D_SYNTASTIC
--Ibuild/gen/
--Ibuild/inc/
--Igen/
--Iinc/
--pedantic
