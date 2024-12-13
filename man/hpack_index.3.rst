@@ -36,9 +36,8 @@ probe the contents of HPACK tables
 SYNOPSIS
 ========
 
+| **#include <sys/types.h>**
 | **#include <stdint.h>**
-| **#include <stdlib.h>**
-| **#include <unistd.h>**
 | **#include <hpack.h>**
 |
 | **#define HPACK_STATIC   61**

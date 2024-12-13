@@ -36,9 +36,8 @@ decode an HPACK block
 SYNOPSIS
 ========
 
+| **#include <sys/types.h>**
 | **#include <stdint.h>**
-| **#include <stdlib.h>**
-| **#include <unistd.h>**
 | **#include <hpack.h>**
 |
 | **struct hpack_decoding {**

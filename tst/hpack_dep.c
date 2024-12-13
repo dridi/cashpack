@@ -6,9 +6,8 @@
  * Check header dependencies advertised in manual pages.
  */
 
+#include <sys/types.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "hpack.h"
 
