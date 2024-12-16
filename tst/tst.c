@@ -199,6 +199,7 @@ TST_decode(struct dec_ctx *ctx)
 			blk = NULL;
 			ctx->blk = (const uint8_t *)ctx->blk + len;
 			ctx->blk_len -= len;
+			ctx->acc_len += len;
 		}
 	} while (ctx->blk_len > 0);
 

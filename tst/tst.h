@@ -42,6 +42,7 @@ struct dec_ctx {
 	const char	*spec;
 	const void	*blk;
 	size_t		blk_len;
+	size_t		acc_len;
 };
 
 struct hpack;
