@@ -51,13 +51,14 @@ struct dec_priv {
 	size_t		len;
 	unsigned	skp;
 	unsigned	mon;
+	ssize_t		off;
 };
 
 static void
 print_nothing(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
 
-	assert(priv == NULL);
+	assert(priv != NULL);
 
 #ifdef NDEBUG
 	(void)priv;
@@ -71,16 +72,19 @@ print_nothing(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 static void
 print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
+	const struct dec_ctx *ctx;
+	struct dec_priv *dp;
 
-	assert(priv == NULL);
-
-#ifdef NDEBUG
-	(void)priv;
-#endif
+	assert(priv != NULL);
+	ctx = priv;
+	dp = ctx->priv;
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
+		if (dp->mon && dp->off >= 0)
+			OUT(" (+0x%zx)", dp->off);
 		OUT("\n");
+		dp->off = ctx->acc_len; /* XXX: missing field offset */
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
@@ -106,13 +110,16 @@ decode_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 	dec.buf = priv2->buf;
 	dec.buf_len = priv2->len;
 	dec.cb = priv2->cb;
-	dec.priv = NULL;
+	dec.priv = ctx;
 	dec.cut = cut;
 
 	retval = hpack_decode(priv2->hp, &dec);
 
-	if (retval == HPACK_RES_OK)
+	if (retval == HPACK_RES_OK) {
 		assert(!cut);
+		if (priv2->mon && priv2->off >= 0)
+			OUT(" (+0x%zx)", priv2->off);
+	}
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
@@ -178,12 +185,14 @@ main(int argc, char **argv)
 	priv.len = sizeof buf;
 	priv.skp = 0;
 	priv.mon = 0;
+	priv.off = -1;
 
 	ctx.dec = decode_block;
 	ctx.skp = skip_block;
 	ctx.rsz = resize_table;
 	ctx.priv = &priv;
 	ctx.spec = "";
+	ctx.acc_len = 0;
 	tbl_sz = 4096; /* RFC 7540 Section 6.5.2 */
 	exp = HPACK_RES_OK;
 	cb = print_headers;
