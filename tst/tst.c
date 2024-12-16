@@ -191,7 +191,7 @@ TST_decode(struct dec_ctx *ctx)
 		}
 
 		assert(cb != NULL);
-		res = cb(ctx->priv, blk, len, cut);
+		res = cb(ctx, blk, len, cut);
 
 		if (cb == ctx->dec || cb == ctx->skp) {
 			assert(blk != NULL);

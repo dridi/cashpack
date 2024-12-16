@@ -94,13 +94,13 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 }
 
 static int
-decode_block(void *priv, const void *blk, size_t len, unsigned cut)
+decode_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
 	struct hpack_decoding dec;
 	int retval;
 
-	priv2 = priv;
+	priv2 = ctx->priv;
 	dec.blk = blk;
 	dec.blk_len = len;
 	dec.buf = priv2->buf;
@@ -124,14 +124,14 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 }
 
 static int
-skip_block(void *priv, const void *blk, size_t len, unsigned cut)
+skip_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
 	int retval;
 
-	priv2 = priv;
+	priv2 = ctx->priv;
 	priv2->skp = 1;
-	retval = decode_block(priv, blk, len, cut);
+	retval = decode_block(ctx, blk, len, cut);
 	priv2->skp = 0;
 
 	if (retval == HPACK_RES_BLK) {
@@ -149,13 +149,13 @@ skip_block(void *priv, const void *blk, size_t len, unsigned cut)
 }
 
 static int
-resize_table(void *priv, const void *buf, size_t len, unsigned cut)
+resize_table(struct dec_ctx *ctx, const void *buf, size_t len, unsigned cut)
 {
 	struct dec_priv *priv2;
 
 	(void)buf;
 	(void)cut;
-	priv2 = priv;
+	priv2 = ctx->priv;
 	assert(priv2->skp == 0);
 	return (hpack_resize(&priv2->hp, len));
 }

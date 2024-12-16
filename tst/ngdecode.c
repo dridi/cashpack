@@ -120,14 +120,14 @@ print_entries(nghttp2_hd_inflater *inf)
 }
 
 static int
-decode_block(void *priv, const void *buf, size_t len, unsigned cut)
+decode_block(struct dec_ctx *ctx, const void *buf, size_t len, unsigned cut)
 {
 	nghttp2_hd_inflater *inf;
 	nghttp2_nv nv;
 	uint8_t *end;
 	int rv, flg;
 
-	inf = priv;
+	inf = ctx->priv;
 	rv = print_headers(inf, buf, len);
 
 	if (rv == 0 && !cut) {
@@ -144,13 +144,13 @@ decode_block(void *priv, const void *buf, size_t len, unsigned cut)
 }
 
 static int
-resize_table(void *priv, const void *buf, size_t len, unsigned cut)
+resize_table(struct dec_ctx *ctx, const void *buf, size_t len, unsigned cut)
 {
 	nghttp2_hd_inflater *inf;
 
 	(void)buf;
 	(void)cut;
-	inf = priv;
+	inf = ctx->priv;
 	return (nghttp2_hd_inflate_change_table_size(inf, len));
 }
 
