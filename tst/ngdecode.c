@@ -45,15 +45,13 @@
 #include "tst.h"
 
 static int
-print_headers(void *priv, const void *buf, size_t len)
+print_headers(nghttp2_hd_inflater *inf, const void *buf, size_t len)
 {
-	nghttp2_hd_inflater *inf;
 	uint8_t *in;
 	nghttp2_nv nv;
 	ssize_t rv;
 	int flg;
 
-	inf = priv;
 	in = (uint8_t *)(uintptr_t)buf;
 
 	while (len > 0) {
