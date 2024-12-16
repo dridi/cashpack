@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Copyright (c) 2024 Dridi Boukelmoune
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+
+. "$(dirname "$0")"/common.sh
+
+mk_msg </dev/null
+mk_tbl </dev/null
+
+_ ----------------
+_ Lost HPACK block
+_ ----------------
+
+mk_enc <<EOF
+# lost OPTIONS request
+literal idx 2 str OPTIONS
+indexed 6
+indexed 4
+dynamic idx 1 str www.example.com
+dynamic idx 24 str no-cache
+dynamic str custom-key str custom-value
+# TODO: drop block
+send
+
+# GET request
+indexed 2
+indexed 6
+indexed 4
+indexed 64
+indexed 63
+indexed 62
+dynamic idx 32 str sess_id=123
+dynamic idx 32 str user_name=foo
+send
+EOF
+
+mk_msg <<EOF
+:method: OPTIONS
+:scheme: http
+:path: /
+:authority: www.example.com
+cache-control: no-cache
+custom-key: custom-value
+
+:method: GET
+:scheme: http
+:path: /
+:authority: www.example.com
+cache-control: no-cache
+custom-key: custom-value
+cookie: sess_id=123
+cookie: user_name=foo
+EOF
+
+mk_tbl <<EOF
+[  1] (s =  51) cookie: user_name=foo
+[  2] (s =  49) cookie: sess_id=123
+[  3] (s =  54) custom-key: custom-value
+[  4] (s =  53) cache-control: no-cache
+      Table size: 207
+EOF
+
+tst_monitor --table-size 256

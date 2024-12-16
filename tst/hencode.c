@@ -58,24 +58,26 @@ struct enc_ctx {
 	char			*line;
 	size_t			line_sz;
 	unsigned		cut;
+	unsigned		wrt;
 	enum hpack_result_e	res;
 };
 
 static void
 write_data(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 {
+	const struct enc_ctx *ctx;
 
 #ifdef NDEBUG
-	(void)priv;
 	(void)evt;
 #endif
 
-	assert(priv == NULL);
+	assert(priv != NULL);
 	assert(evt != HPACK_EVT_NEVER);
 	assert(evt != HPACK_EVT_NAME);
 	assert(evt != HPACK_EVT_VALUE);
 
-	if (buf != NULL)
+	ctx = priv;
+	if (buf != NULL && ctx->wrt)
 		WRT(buf, len);
 }
 
@@ -112,13 +114,14 @@ encode_message(struct enc_ctx *ctx)
 	enc.fld_cnt = ctx->cnt;
 	enc.buf = buf;
 	enc.buf_len = sizeof buf;
-	enc.cb = ctx->cb;
-	enc.priv = NULL;
+	enc.cb = write_data;
+	enc.priv = ctx;
 	enc.cut = ctx->cut;
 
 	ctx->res = hpack_encode(hp, &enc);
-	fld = ctx->fld;
+	assert(ctx->res != HPACK_RES_ARG);
 
+	fld = ctx->fld;
 	while (ctx->cnt > 0) {
 		free_field(fld);
 		hpack_clean_field(fld);
@@ -194,6 +197,7 @@ parse_commands(struct enc_ctx *ctx)
 	ssize_t len;
 
 	ctx->cut = 0;
+	ctx->wrt = 1;
 
 	len = getline(&ctx->line, &ctx->line_sz, stdin);
 	if (len == -1)
@@ -202,6 +206,12 @@ parse_commands(struct enc_ctx *ctx)
 	if (!LINECMP(ctx->line, "abort")) {
 		abort();
 		return (-1);
+	}
+	else if (!LINECMP(ctx->line, "drop")) {
+		assert(ctx->cnt > 0);
+		ctx->wrt = 0;
+		encode_message(ctx);
+		return (0);
 	}
 	else if (!LINECMP(ctx->line, "send")) {
 		assert(ctx->cnt > 0);

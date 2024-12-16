@@ -139,6 +139,10 @@ will feed the encoding script to the ``hencode`` C program and check that the
 binary output matches the one from the *hexdump* and performs a similar check
 for the dynamic table.
 
+A special ``tst_monitor`` function first encodes HPACK blocks with the ability
+to drop blocks that are then decoded with an HPACK monitor that can tolerate
+incomplete HPACK streams.
+
 Coverage of the HPACK protocol
 ------------------------------
 
@@ -234,7 +238,7 @@ appear last in a statement: it worked by sheer luck \o/.
     statement = block-statement / resize / update / abort
 
     block-statement = 1*( header-statement LF ) flush-statement
-    flush-statement = send / push
+    flush-statement = drop / send / push
 
     header-statement = indexed-field / dynamic-field / literal-field /
         never-field
@@ -244,6 +248,7 @@ appear last in a statement: it worked by sheer luck \o/.
     literal-field = "literal" SP field-name SP field-value
     never-field   = "never" SP field-name SP field-value
     corrupt-field = "corrupt" LF
+    drop          = "drop" LF
     send          = "send" LF
     push          = "push" LF
     resize        = "resize" SP size LF

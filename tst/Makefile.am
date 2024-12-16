@@ -153,6 +153,7 @@ COV_TESTS = \
 	hpack_enc \
 	hpack_huf \
 	hpack_mbm \
+	hpack_mon \
 	hpack_skp \
 	hpack_tbl
 

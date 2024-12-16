@@ -238,6 +238,15 @@ tst_decode() {
 	done
 }
 
+tst_monitor() {
+	hpack_encode ./hencode "$@"
+	mv "$TEST_TMP/enc_bin" "$TEST_TMP/bin"
+	hpack_decode ./hdecode --monitor "$@"
+	printf "Decoded header list:\n\n" |
+	cat - "$TEST_TMP/msg" "$TEST_TMP/tbl" >"$TEST_TMP/out"
+	diff -u "$TEST_TMP/out" "$TEST_TMP/dec_out"
+}
+
 tst_encode() {
 	hpack_encode ./hencode "$@"
 

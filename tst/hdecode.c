@@ -50,6 +50,7 @@ struct dec_priv {
 	void		*buf;
 	size_t		len;
 	unsigned	skp;
+	unsigned	mon;
 };
 
 static void
@@ -176,6 +177,7 @@ main(int argc, char **argv)
 	priv.buf = buf;
 	priv.len = sizeof buf;
 	priv.skp = 0;
+	priv.mon = 0;
 
 	ctx.dec = decode_block;
 	ctx.skp = skip_block;
@@ -191,6 +193,12 @@ main(int argc, char **argv)
 	argv++;
 
 	/* handle options */
+	if (argc > 0 && !strcmp("--monitor", *argv)) {
+		priv.mon = 1;
+		argc -= 1;
+		argv += 1;
+	}
+
 	if (argc > 0 && !strcmp("--buffer-size", *argv)) {
 		assert(argc > 2);
 		priv.len = atoi(argv[1]);
@@ -226,7 +234,8 @@ main(int argc, char **argv)
 
 	/* exactly one file name is expected */
 	if (argc != 1) {
-		fprintf(stderr, "Usage: hdecode [--expect-error <ERR>] "
+		fprintf(stderr,
+		    "Usage: hdecode [--monitor] [--expect-error <ERR>] "
 		    "[--decoding-spec <spec>,[...]] [--table-size <size>] "
 		    "[--buffer-size <size>] <dump file>\n\n"
 		    "The file contains a dump of HPACK octets.\n\n"
@@ -272,7 +281,10 @@ main(int argc, char **argv)
 
 	ctx.blk = blk;
 
-	hp = hpack_decoder(tbl_sz, -1, hpack_default_alloc);
+	if (priv.mon)
+		hp = hpack_monitor(tbl_sz, -1, hpack_default_alloc);
+	else
+		hp = hpack_decoder(tbl_sz, -1, hpack_default_alloc);
 	assert(hp != NULL);
 
 	priv.hp = hp;
