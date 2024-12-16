@@ -41,7 +41,6 @@
 #include "hpack_assert.h"
 #include "hpack_priv.h"
 
-#define OUT_OF_BITS	(void)0;
 #define FUNC_PTR(f)	(const void *)(const uint8_t *)&(f)
 #define HPACK_FLG(f)	((unsigned)HPACK_FLG_##f)
 
@@ -855,7 +854,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 		HPACK_DECODE(dynamic, DYN, else)
 		HPACK_DECODE(update,  UPD, else)
 		HPACK_DECODE(never,   NVR, else)
-		HPACK_DECODE(literal, LIT, OUT_OF_BITS)
+		HPACK_DECODE(literal, LIT,)
 #undef HPACK_DECODE
 		if (retval != 0) {
 			assert(ctx->res != HPACK_RES_OK);
