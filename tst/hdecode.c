@@ -100,30 +100,30 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 static int
 decode_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 {
-	struct dec_priv *priv2;
+	struct dec_priv *dp;
 	struct hpack_decoding dec;
 	int retval;
 
-	priv2 = ctx->priv;
+	dp = ctx->priv;
 	dec.blk = blk;
 	dec.blk_len = len;
-	dec.buf = priv2->buf;
-	dec.buf_len = priv2->len;
-	dec.cb = priv2->cb;
+	dec.buf = dp->buf;
+	dec.buf_len = dp->len;
+	dec.cb = dp->cb;
 	dec.priv = ctx;
 	dec.cut = cut;
 
-	retval = hpack_decode(priv2->hp, &dec);
+	retval = hpack_decode(dp->hp, &dec);
 
 	if (retval == HPACK_RES_OK) {
 		assert(!cut);
-		if (priv2->mon && priv2->off >= 0)
-			OUT(" (+0x%zx)", priv2->off);
+		if (dp->mon && dp->off >= 0)
+			OUT(" (+0x%zx)", dp->off);
 	}
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
-		if (!priv2->skp)
+		if (!dp->skp)
 			retval = HPACK_RES_OK;
 	}
 
@@ -133,13 +133,13 @@ decode_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 static int
 skip_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 {
-	struct dec_priv *priv2;
+	struct dec_priv *dp;
 	int retval;
 
-	priv2 = ctx->priv;
-	priv2->skp = 1;
+	dp = ctx->priv;
+	dp->skp = 1;
 	retval = decode_block(ctx, blk, len, cut);
-	priv2->skp = 0;
+	dp->skp = 0;
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
@@ -149,7 +149,7 @@ skip_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 		assert(retval == HPACK_RES_SKP);
 		OUT("<too big>");
 		assert(!cut);
-		retval = hpack_skip(priv2->hp);
+		retval = hpack_skip(dp->hp);
 	}
 
 	return (retval);
@@ -158,13 +158,13 @@ skip_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 static int
 resize_table(struct dec_ctx *ctx, const void *buf, size_t len, unsigned cut)
 {
-	struct dec_priv *priv2;
+	struct dec_priv *dp;
 
 	(void)buf;
 	(void)cut;
-	priv2 = ctx->priv;
-	assert(priv2->skp == 0);
-	return (hpack_resize(&priv2->hp, len));
+	dp = ctx->priv;
+	assert(dp->skp == 0);
+	return (hpack_resize(&dp->hp, len));
 }
 
 int
