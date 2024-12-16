@@ -79,7 +79,7 @@ decode_block(void *priv, const void *blk, size_t len, unsigned cut)
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
 		if (!priv2->skp)
-			retval = 0;
+			retval = HPACK_RES_OK;
 	}
 
 	return (retval);
@@ -98,7 +98,7 @@ skip_block(void *priv, const void *blk, size_t len, unsigned cut)
 
 	if (retval == HPACK_RES_BLK) {
 		assert(cut);
-		retval = 0;
+		retval = HPACK_RES_OK;
 	}
 	else {
 		assert(retval == HPACK_RES_SKP);
