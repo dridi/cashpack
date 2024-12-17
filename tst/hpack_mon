@@ -34,6 +34,8 @@ _ Lost HPACK block
 _ ----------------
 
 mk_enc <<EOF
+resize 256
+
 # lost OPTIONS request
 literal idx 2 str OPTIONS
 indexed 6
@@ -82,4 +84,4 @@ mk_tbl <<EOF
       Table size: 207
 EOF
 
-tst_monitor --table-size 256
+tst_monitor
