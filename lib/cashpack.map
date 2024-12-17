@@ -46,8 +46,10 @@ CASHPACK_0.4 {
     hpack_tables;
     hpack_trim;
 
-    # variables
+    # constants
     hpack_default_alloc;
+    hpack_unknown_name;
+    hpack_unknown_value;
 
   local:
     *;

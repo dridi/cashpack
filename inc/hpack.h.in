@@ -84,6 +84,9 @@ const char * hpack_event_id(enum hpack_event_e);
 
 /* hpack_decode */
 
+extern const char *hpack_unknown_name;
+extern const char *hpack_unknown_value;
+
 struct hpack_decoding {
 	const void		*blk;
 	size_t			blk_len;

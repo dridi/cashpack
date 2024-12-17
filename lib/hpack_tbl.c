@@ -59,6 +59,20 @@ static const struct hpt_field hpt_static[] = {
 #undef HPS
 };
 
+static const char hpt_unknown_name[] = "<unknown name>";
+static const char hpt_unknown_value[] = "<unknown value>";
+
+static const struct hpt_field hpt_unknown_field = {
+	.nam = hpt_unknown_name,
+	.val = hpt_unknown_value,
+	.nam_sz = sizeof(hpt_unknown_name) - 1,
+	.val_sz = sizeof(hpt_unknown_value) - 1,
+	.idx = 0,
+};
+
+const char *hpack_unknown_name = hpt_unknown_name;
+const char *hpack_unknown_value = hpt_unknown_value;
+
 /**********************************************************************
  * Tables lookups
  */
@@ -92,6 +106,8 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 {
 	const struct hpt_entry *he;
 	struct hpt_entry tmp;
+
+	(void)hpt_unknown_field;
 
 	assert(idx != 0);
 	if (idx <= HPACK_STATIC) {
