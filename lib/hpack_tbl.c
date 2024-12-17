@@ -110,6 +110,7 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	hf->val_sz = tmp.val_sz;
 	hf->nam = JUMP(he, 0);
 	hf->val = JUMP(he, tmp.nam_sz + 1);
+	hf->idx = idx;
 	return (0);
 }
 
