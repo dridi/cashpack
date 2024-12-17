@@ -487,5 +487,6 @@ HPT_decode_name(HPACK_CTX)
 	assert(hf.nam != NULL);
 	assert(hf.nam_sz > 0);
 
+	ctx->fld.nam_sz = hf.nam_sz;
 	return (HPD_puts(ctx, hf.nam, hf.nam_sz));
 }
