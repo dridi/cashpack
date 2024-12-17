@@ -686,12 +686,12 @@ hpack_decode_field(HPACK_CTX)
 		fallthrough;
 	case HPACK_STP_NAM_LEN:
 	case HPACK_STP_NAM_STR:
-		if (ctx->hp->state.idx == 0)
+		if (ctx->hp->state.idx == 0) {
 			CALL(hpack_decode_string, ctx, HPACK_EVT_NAME);
-		else
+			assert(ctx->buf > ctx->fld.nam);
+			ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
+		} else
 			CALL(HPT_decode_name, ctx);
-		assert(ctx->buf > ctx->fld.nam);
-		ctx->fld.nam_sz = (size_t)(ctx->buf - ctx->fld.nam - 1);
 		CALL(HPV_token, ctx, ctx->fld.nam, ctx->fld.nam_sz);
 		ctx->fld.val = ctx->buf;
 		ctx->hp->state.stp = HPACK_STP_VAL_LEN;
