@@ -52,6 +52,7 @@ indexed 4
 indexed 64
 indexed 63
 indexed 62
+literal idx 62 str literal-value
 dynamic idx 32 str sess_id=123
 dynamic idx 32 str user_name=foo
 send
@@ -64,8 +65,9 @@ mk_msg <<EOF
 <unknown name>: <unknown value> (+0x3)
 <unknown name>: <unknown value> (+0x4)
 <unknown name>: <unknown value> (+0x5)
-cookie: sess_id=123 (+0x6)
-cookie: user_name=foo (+0x13)
+<unknown name>: literal-value (+0x6)
+cookie: sess_id=123 (+0x16)
+cookie: user_name=foo (+0x23)
 EOF
 
 mk_tbl <<EOF
