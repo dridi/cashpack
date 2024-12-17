@@ -712,13 +712,26 @@ hpack_decode_field(HPACK_CTX)
 	return (0);
 }
 
+static void
+hpack_decoder_field(HPACK_CTX, uint16_t idx)
+{
+	const uint8_t *ptr;
+	size_t off;
+
+	ptr = ctx->ptr.blk;
+	off = ctx->hp->state.stt.hpi.l;
+	assert(ptr != NULL);
+	assert(off > 0);
+	HPC_notify(ctx, HPACK_EVT_FIELD, ptr - off, idx);
+}
+
 static int
 hpack_decode_indexed(HPACK_CTX)
 {
 	uint16_t idx;
 
 	CALL(HPI_decode, ctx, HPACK_PFX_IDX, &idx);
-	HPC_notify(ctx, HPACK_EVT_FIELD, NULL, idx);
+	hpack_decoder_field(ctx, idx);
 	return (HPT_decode(ctx, idx));
 }
 
@@ -728,7 +741,7 @@ hpack_decode_dynamic(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_DYN, &ctx->hp->state.idx);
-		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
+		hpack_decoder_field(ctx, 0);
 	}
 	CALL(hpack_decode_field, ctx);
 	HPT_index(ctx);
@@ -741,7 +754,7 @@ hpack_decode_literal(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_LIT, &ctx->hp->state.idx);
-		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
+		hpack_decoder_field(ctx, 0);
 	}
 	return (hpack_decode_field(ctx));
 }
@@ -752,7 +765,7 @@ hpack_decode_never(HPACK_CTX)
 
 	if (ctx->hp->state.stp == HPACK_STP_FLD_INT) {
 		CALL(HPI_decode, ctx, HPACK_PFX_NVR, &ctx->hp->state.idx);
-		HPC_notify(ctx, HPACK_EVT_FIELD, NULL, 0);
+		hpack_decoder_field(ctx, 0);
 		HPC_notify(ctx, HPACK_EVT_NEVER, NULL, 0);
 	}
 	return (hpack_decode_field(ctx));
@@ -885,7 +898,7 @@ hpack_assert_cb(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 
 	switch (evt) {
 	case HPACK_EVT_FIELD:
-		assert(buf == NULL);
+		assert(buf != NULL);
 		break;
 	case HPACK_EVT_EVICT:
 		assert(buf == NULL);

@@ -51,6 +51,7 @@ struct dec_priv {
 	size_t		len;
 	unsigned	skp;
 	unsigned	mon;
+	const char	*blk;
 	ssize_t		off;
 };
 
@@ -84,7 +85,8 @@ print_headers(enum hpack_event_e evt, const char *buf, size_t len, void *priv)
 		if (dp->mon && dp->off >= 0)
 			OUT(" (+0x%zx)", dp->off);
 		OUT("\n");
-		dp->off = ctx->acc_len; /* XXX: missing field offset */
+		assert(buf >= dp->blk);
+		dp->off = ctx->acc_len + (buf - dp->blk);
 		break;
 	case HPACK_EVT_VALUE:
 		OUT(": ");
@@ -105,6 +107,7 @@ decode_block(struct dec_ctx *ctx, const void *blk, size_t len, unsigned cut)
 	int retval;
 
 	dp = ctx->priv;
+	dp->blk = blk;
 	dec.blk = blk;
 	dec.blk_len = len;
 	dec.buf = dp->buf;

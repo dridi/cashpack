@@ -109,9 +109,12 @@ HPR(BIG, -15, "header too big",
 HPE(FIELD, 0, "new field",
 	"\tA decoder sends a FIELD event to notify that a new field is\n"
 	"\tbeing decoded. It will be followed by at least one NAME event\n"
-	"\tand one VALUE event. The *buf* argument is always ``NULL`` and\n"
-	"\t*len* represents the index of the field in the dynamic table or\n"
-	"\tzero for non indexed fields.\n\n"
+	"\tand one VALUE event. The *buf* argument contains the address of\n"
+	"\tthe header field in the HPACK block input buffer while *len*\n"
+	"\trepresents the index of the field in the dynamic table or zero\n"
+	"\tfor non indexed fields. The *buf* argument is not accurate with\n"
+	"\tpartial decoding when a field started in a previous part of the\n"
+	"\tHPACK block, it contains the address of the current part.\n\n"
 
 	"\tAn encoder sends a FIELD event before its processing. This gives\n"
 	"\tan opportunity to change the field before it is consumed by the\n"

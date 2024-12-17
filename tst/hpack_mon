@@ -59,21 +59,21 @@ send
 EOF
 
 mk_msg <<EOF
-:method: OPTIONS (+0x0)
-:scheme: http (+0x0)
-:path: / (+0x0)
-:authority: www.example.com (+0x0)
-cache-control: no-cache (+0x0)
-custom-key: custom-value (+0x0)
+:method: OPTIONS (+0x3)
+:scheme: http (+0xc)
+:path: / (+0xd)
+:authority: www.example.com (+0xe)
+cache-control: no-cache (+0x1f)
+custom-key: custom-value (+0x29)
 
-:method: GET (+0x0)
-:scheme: http (+0x0)
-:path: / (+0x0)
-:authority: www.example.com (+0x0)
-cache-control: no-cache (+0x0)
-custom-key: custom-value (+0x0)
-cookie: sess_id=123 (+0x0)
-cookie: user_name=foo (+0x0)
+:method: GET (+0x42)
+:scheme: http (+0x43)
+:path: / (+0x44)
+:authority: www.example.com (+0x45)
+cache-control: no-cache (+0x46)
+custom-key: custom-value (+0x47)
+cookie: sess_id=123 (+0x48)
+cookie: user_name=foo (+0x55)
 EOF
 
 mk_tbl <<EOF
