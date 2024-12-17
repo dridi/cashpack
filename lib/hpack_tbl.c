@@ -107,8 +107,6 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	const struct hpt_entry *he;
 	struct hpt_entry tmp;
 
-	(void)hpt_unknown_field;
-
 	assert(idx != 0);
 	if (idx <= HPACK_STATIC) {
 		(void)memcpy(hf, &hpt_static[idx - 1], sizeof *hf);
@@ -116,6 +114,10 @@ HPT_field(HPACK_CTX, size_t idx, struct hpt_field *hf)
 	}
 
 	idx -= HPACK_STATIC;
+	if ((ctx->hp->flg & HPD_FLG_MON) && idx > ctx->hp->cnt) {
+		(void)memcpy(hf, &hpt_unknown_field, sizeof *hf);
+		return (0);
+	}
 	EXPECT(ctx, IDX, idx <= ctx->hp->cnt);
 
 	he = hpt_dynamic(ctx->hp, idx);

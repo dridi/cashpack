@@ -86,6 +86,19 @@ int
 HPD_puts(HPACK_CTX, const char *str, size_t len)
 {
 
+#define HPD_UNKNOWN(prop, sym)					\
+	if (str == hpack_unknown_##sym) {			\
+		assert(ctx->hp->magic == DECODER_MAGIC);	\
+		assert(ctx->hp->flg & HPD_FLG_MON);		\
+		assert(ctx->fld.prop == ctx->buf);		\
+		assert(ctx->fld.prop##_sz == len);		\
+		ctx->fld.prop = str;				\
+		return (0);					\
+	}
+	HPD_UNKNOWN(nam, name)
+	HPD_UNKNOWN(val, value)
+#undef HPD_UNKNOWN
+
 	assert(str[len] == '\0');
 	return (HPD_cat(ctx, str, len + 1));
 }

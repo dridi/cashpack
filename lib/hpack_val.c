@@ -69,6 +69,11 @@ HPV_token(HPACK_CTX, const char *str, size_t len)
 	assert(str != NULL);
 	assert(len > 0);
 
+	if (ctx->hp->magic == DECODER_MAGIC && str == hpack_unknown_name) {
+		assert(ctx->hp->flg & HPD_FLG_MON);
+		return (0);
+	}
+
 	/* RFC 7540 Section 8.1.2.1.  Pseudo-Header Fields */
 	if (*str == ':') {
 #define HPPH(hdr)							\

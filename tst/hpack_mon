@@ -43,8 +43,7 @@ indexed 4
 dynamic idx 1 str www.example.com
 dynamic idx 24 str no-cache
 dynamic str custom-key str custom-value
-# TODO: drop block
-send
+drop
 
 # GET request
 indexed 2
@@ -59,29 +58,20 @@ send
 EOF
 
 mk_msg <<EOF
-:method: OPTIONS (+0x3)
-:scheme: http (+0xc)
-:path: / (+0xd)
-:authority: www.example.com (+0xe)
-cache-control: no-cache (+0x1f)
-custom-key: custom-value (+0x29)
-
-:method: GET (+0x42)
-:scheme: http (+0x43)
-:path: / (+0x44)
-:authority: www.example.com (+0x45)
-cache-control: no-cache (+0x46)
-custom-key: custom-value (+0x47)
-cookie: sess_id=123 (+0x48)
-cookie: user_name=foo (+0x55)
+:method: GET (+0x0)
+:scheme: http (+0x1)
+:path: / (+0x2)
+<unknown name>: <unknown value> (+0x3)
+<unknown name>: <unknown value> (+0x4)
+<unknown name>: <unknown value> (+0x5)
+cookie: sess_id=123 (+0x6)
+cookie: user_name=foo (+0x13)
 EOF
 
 mk_tbl <<EOF
 [  1] (s =  51) cookie: user_name=foo
 [  2] (s =  49) cookie: sess_id=123
-[  3] (s =  54) custom-key: custom-value
-[  4] (s =  53) cache-control: no-cache
-      Table size: 207
+      Table size: 100
 EOF
 
 tst_monitor

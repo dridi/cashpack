@@ -159,12 +159,20 @@ HPE(NAME,  3, "field name",
 
 	"\tWhen the contents of the dynamic table are listed, exactly one\n"
 	"\tNAME event follows a FIELD event. The *buf* argument points to\n"
-	"\ta null-terminated string of *len* characters.\n\n")
+	"\ta null-terminated string of *len* characters.\n\n"
 
-HPE(VALUE, 4, "field Value",
+	"\tA monitor can process unknown indices in the dynamic table as a\n"
+	"\tconsequence of missing HPACK blocks. When that happens, *buf* is\n"
+	"\tequal to ``hpack_unknown_name``.\n\n")
+
+HPE(VALUE, 4, "field value",
 	"\tThe VALUE event is identical to the NAME event, and always comes\n"
 	"\tafter the NAME event of a field. Instead of referring to the\n"
-	"\tfield's name, it signals its value.\n\n")
+	"\tfield's name, it signals its value.\n\n"
+
+	"\tA monitor can process unknown indices in the dynamic table as a\n"
+	"\tconsequence of missing HPACK blocks. When that happens, *buf* is\n"
+	"\tequal to ``hpack_unknown_value``.\n\n")
 
 HPE(DATA,  5, "raw data",
 	"\tAn encoder sends DATA events when the encoding buffer is full,\n"

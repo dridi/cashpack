@@ -40,6 +40,9 @@ SYNOPSIS
 | **#include <stdint.h>**
 | **#include <hpack.h>**
 |
+| **extern const char** *\*hpack_unknown_name*\ **;**
+| **extern const char** *\*hpack_unknown_value*\ **;**
+|
 | **struct hpack_decoding {**
 |    **const void**       *\*blk*\ **;**
 |    **size_t**           *blk_len*\ **;**
