@@ -173,6 +173,7 @@ struct hpack_size {
 struct hpack_int_state {
 	uint16_t	v;
 	uint8_t		m;
+	uint8_t		l;
 };
 
 struct hpack_str_state {

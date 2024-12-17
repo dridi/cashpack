@@ -58,10 +58,13 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 	else
 		hs->magic = INT_STATE_MAGIC;
 
+	hs->stt.hpi.l = 0;
+
 	assert(ctx->ptr_len > 0);
 	if (!hs->bsy) {
 		mask = (uint8_t)((1 << pfx) - 1);
 		hs->stt.hpi.v = *ctx->ptr.blk & mask;
+		hs->stt.hpi.l++;
 		ctx->ptr.blk++;
 		ctx->ptr_len--;
 
@@ -84,6 +87,7 @@ HPI_decode(HPACK_CTX, enum hpi_prefix_e pfx, uint16_t *val)
 		EXPECT(ctx, INT, hs->stt.hpi.v <= n);
 		hs->stt.hpi.v = n;
 		hs->stt.hpi.m += 7;
+		hs->stt.hpi.l++;
 		ctx->ptr.blk++;
 		ctx->ptr_len--;
 	} while (b & 0x80);
