@@ -376,6 +376,8 @@ main(int argc, char **argv)
 		assert(retval == 0);
 	}
 
+	(void)close(3);
+
 	hpack_free(&hp);
 
 	if (ctx.res != exp)
