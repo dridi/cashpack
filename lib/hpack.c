@@ -854,7 +854,7 @@ hpack_decode(struct hpack *hp, const struct hpack_decoding *dec)
 				hp->magic = DEFUNCT_MAGIC;
 			return (ctx->res);
 		}
-		memset(&ctx->fld, 0, sizeof ctx->fld);
+		(void)memset(&ctx->fld, 0, sizeof ctx->fld);
 	}
 
 	assert(ctx->res == HPACK_RES_OK || ctx->res == HPACK_RES_BLK);

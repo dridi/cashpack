@@ -164,7 +164,7 @@ TST_decode(struct dec_ctx *ctx)
 		if (cb == ctx->dec || cb == ctx->skp) {
 			blk = malloc(len);
 			assert(blk != NULL);
-			memcpy(blk, ctx->blk, len);
+			(void)memcpy(blk, ctx->blk, len);
 		}
 
 		assert(cb != NULL);
