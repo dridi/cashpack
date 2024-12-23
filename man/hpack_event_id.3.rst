@@ -1,5 +1,5 @@
 .. License: BSD-2-Clause
-.. (c) 2020 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+.. (c) 2020-2024 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
 
 ==============
 hpack_event_id

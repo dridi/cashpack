@@ -1,6 +1,6 @@
 /*-
  * License: BSD-2-Clause
- * (c) 2016-2020 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+ * (c) 2016-2024 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
  *
  * HPACK: Header Compression for HTTP/2 (RFC 7541)
  */

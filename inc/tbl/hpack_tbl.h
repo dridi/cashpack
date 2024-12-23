@@ -1,7 +1,7 @@
 #if 0
 /*-
  * License: BSD-2-Clause
- * (c) 2016-2017 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+ * (c) 2016-2024 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
  */
 #endif
 

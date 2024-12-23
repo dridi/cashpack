@@ -1,6 +1,6 @@
 /*-
  * License: BSD-2-Clause
- * (c) 2017-2020 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+ * (c) 2017-2024 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
  */
 
 #include <assert.h>

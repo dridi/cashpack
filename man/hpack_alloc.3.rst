@@ -1,5 +1,5 @@
 .. License: BSD-2-Clause
-.. (c) 2016-2020 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
+.. (c) 2016-2024 Dridi Boukelmoune <dridi.boukelmoune@gmail.com>
 
 ==============================================================================================
 hpack_decoder, hpack_encoder, hpack_monitor, hpack_free, hpack_resize, hpack_limit, hpack_trim
